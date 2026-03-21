@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calendario Turni - Soccorso Digitale</title>
+  <link rel="icon" type="image/png" href="/api/public/impact/favicon">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f0f4f8; min-height: 100vh; }
+    .header { background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%); padding: 28px 20px 24px; text-align: center; }
+    .header-inner { max-width: 520px; margin: 0 auto; }
+    .header img { width: 56px; height: 56px; border-radius: 12px; margin-bottom: 10px; object-fit: contain; background: white; padding: 4px; }
+    .header h1 { color: white; font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+    .header p { color: #94a3b8; font-size: 13px; }
+    .container { max-width: 520px; margin: 0 auto; padding: 20px 16px 40px; }
+    .instructions { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 14px 16px; margin-bottom: 20px; }
+    .instructions p { font-size: 13px; color: #1e40af; line-height: 1.6; }
+    .search-box { position: relative; margin-bottom: 16px; }
+    .search-box input { width: 100%; padding: 12px 16px 12px 42px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 15px; outline: none; background: white; transition: border-color 0.2s; }
+    .search-box input:focus { border-color: #0066CC; }
+    .search-box svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
+    .staff-list { display: flex; flex-direction: column; gap: 8px; }
+    .staff-item { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border: 1px solid #f1f5f9; transition: all 0.2s; }
+    .staff-item:hover { border-color: #bfdbfe; box-shadow: 0 2px 8px rgba(0,102,204,0.1); }
+    .staff-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; cursor: pointer; }
+    .staff-info { flex: 1; }
+    .staff-name { font-size: 15px; font-weight: 600; color: #0f172a; }
+    .staff-role { font-size: 12px; color: #64748b; margin-top: 2px; }
+    .staff-shifts-count { font-size: 11px; color: #0066CC; font-weight: 600; margin-top: 2px; }
+    .staff-actions { display: flex; align-items: center; gap: 8px; }
+    .btn-expand { width: 32px; height: 32px; border-radius: 8px; border: 1px solid #e2e8f0; background: #f8fafc; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; }
+    .btn-expand:hover { background: #eff6ff; border-color: #93c5fd; }
+    .btn-expand svg { transition: transform 0.2s; color: #64748b; }
+    .btn-expand.open svg { transform: rotate(180deg); }
+    .btn-all { display: flex; align-items: center; gap: 6px; padding: 8px 14px; background: #059669; color: white; border: none; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; text-decoration: none; white-space: nowrap; }
+    .btn-all:hover { background: #047857; }
+    .btn-all:active { transform: scale(0.97); }
+    .shifts-panel { display: none; border-top: 1px solid #f1f5f9; background: #fafbfc; padding: 0; }
+    .shifts-panel.open { display: block; }
+    .shift-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; border-bottom: 1px solid #f1f5f9; }
+    .shift-row:last-child { border-bottom: none; }
+    .shift-date { font-size: 13px; font-weight: 600; color: #0f172a; min-width: 100px; }
+    .shift-date .day-name { font-size: 11px; color: #64748b; font-weight: 400; }
+    .shift-details { flex: 1; margin: 0 12px; }
+    .shift-time { font-size: 12px; color: #334155; font-weight: 500; }
+    .shift-vehicle { font-size: 11px; color: #64748b; margin-top: 1px; }
+    .shift-role-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
+    .role-autista { background: #dbeafe; color: #1e40af; }
+    .role-soccorritore { background: #dcfce7; color: #166534; }
+    .role-infermiere { background: #fce7f3; color: #9d174d; }
+    .role-operatore { background: #f1f5f9; color: #475569; }
+    .btn-ical { padding: 6px 10px; background: white; border: 1px solid #d1d5db; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; color: #374151; transition: all 0.15s; display: flex; align-items: center; gap: 4px; white-space: nowrap; }
+    .btn-ical:hover { background: #eff6ff; border-color: #93c5fd; color: #0066CC; }
+    .btn-ical:active { transform: scale(0.97); }
+    .empty { text-align: center; padding: 40px 20px; color: #94a3b8; }
+    .loading { text-align: center; padding: 80px 20px; }
+    .loading .spinner { width: 36px; height: 36px; border: 3px solid #e2e8f0; border-top-color: #0066CC; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .error-page { text-align: center; padding: 60px 20px; }
+    .error-page h2 { color: #dc2626; font-size: 18px; margin-bottom: 8px; }
+    .error-page p { color: #64748b; font-size: 14px; line-height: 1.5; }
+    .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #0f172a; color: white; padding: 12px 24px; border-radius: 10px; font-size: 13px; font-weight: 500; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 100; max-width: 90%; text-align: center; }
+    .toast.show { opacity: 1; }
+    .footer { text-align: center; padding: 24px; font-size: 11px; color: #94a3b8; }
+    .footer a { color: #64748b; text-decoration: none; }
+    .back-btn { display: none; align-items: center; gap: 6px; padding: 8px 14px; background: white; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; color: #475569; cursor: pointer; margin-bottom: 16px; transition: all 0.15s; }
+    .back-btn:hover { background: #f8fafc; border-color: #cbd5e1; }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="loading">
+      <div class="spinner"></div>
+      <p style="color: #64748b; font-size: 14px;">Caricamento turni...</p>
+    </div>
+  </div>
+  <div id="toast" class="toast"></div>
+
+  <script>
+    const token = window.location.pathname.split('/').pop();
+    let staffData = [];
+    let allData = null;
+
+    async function init() {
+      try {
+        const res = await fetch(`/api/public/calendario/${token}`);
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error || 'Link non valido o scaduto');
+        }
+        allData = await res.json();
+        renderPage(allData);
+      } catch (e) {
+        document.getElementById('app').innerHTML = `
+          <div class="header"><div class="header-inner"><h1>Accesso Non Autorizzato</h1></div></div>
+          <div class="error-page">
+            <h2>${e.message}</h2>
+            <p>Questo link potrebbe essere scaduto o non valido.<br>Contatta il tuo responsabile per un nuovo link.</p>
+          </div>`;
+      }
+    }
+
+    function renderPage(data) {
+      staffData = data.staff || [];
+      const logoUrl = data.logoUrl || '';
+      document.getElementById('app').innerHTML = `
+        <div class="header">
+          <div class="header-inner">
+            ${logoUrl ? `<img src="${logoUrl}" alt="Logo" onerror="this.style.display='none'">` : ''}
+            <h1>Calendario Turni</h1>
+            <p>${data.monthLabel} - ${data.locationName || 'Tutte le sedi'}</p>
+          </div>
+        </div>
+        <div class="container">
+          <div class="instructions">
+            <p>Cerca il tuo nome nell'elenco, poi clicca sulla freccia per vedere i dettagli dei singoli turni. Puoi scaricare tutti i turni insieme oppure aggiungerli uno alla volta al tuo calendario.</p>
+          </div>
+          <div class="search-box">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <input type="text" id="searchInput" placeholder="Cerca il tuo nome..." oninput="filterStaff()">
+          </div>
+          <div id="staffList" class="staff-list"></div>
+          <div class="footer">
+            <a href="https://soccorsodigitale.app">soccorsodigitale.app</a>
+          </div>
+        </div>`;
+      renderStaffList(staffData);
+    }
+
+    function filterStaff() {
+      const q = document.getElementById('searchInput').value.toLowerCase().trim();
+      const filtered = q ? staffData.filter(s =>
+        `${s.firstName} ${s.lastName}`.toLowerCase().includes(q) ||
+        `${s.lastName} ${s.firstName}`.toLowerCase().includes(q)
+      ) : staffData;
+      renderStaffList(filtered);
+    }
+
+    const dayNames = ['Domenica','Lunedi\'','Martedi\'','Mercoledi\'','Giovedi\'','Venerdi\'','Sabato'];
+
+    function renderStaffList(list) {
+      const el = document.getElementById('staffList');
+      if (!list.length) {
+        el.innerHTML = '<div class="empty">Nessun risultato trovato</div>';
+        return;
+      }
+      el.innerHTML = list.map(s => {
+        const roleLabel = s.primaryRole === 'autista' ? 'Autista' : s.primaryRole === 'soccorritore' ? 'Soccorritore' : s.primaryRole === 'infermiere' ? 'Infermiere' : 'Operatore';
+        const shifts = (s.shifts || []).sort((a, b) => a.date.localeCompare(b.date));
+
+        let shiftsHtml = '';
+        if (shifts.length > 0) {
+          shiftsHtml = shifts.map(sh => {
+            const d = new Date(sh.date + 'T00:00:00');
+            const dayName = dayNames[d.getDay()];
+            const dayNum = d.getDate();
+            const monthNum = d.getMonth() + 1;
+            const roleClass = sh.role === 'autista' ? 'role-autista' : sh.role === 'soccorritore' ? 'role-soccorritore' : sh.role === 'infermiere' ? 'role-infermiere' : 'role-operatore';
+            const roleLbl = sh.role === 'autista' ? 'AUT' : sh.role === 'soccorritore' ? 'SOC' : sh.role === 'infermiere' ? 'INF' : 'OPR';
+            return `
+              <div class="shift-row">
+                <div class="shift-date">
+                  ${dayNum}/${monthNum} <span class="day-name">${dayName}</span>
+                </div>
+                <div class="shift-details">
+                  <div class="shift-time">${sh.startTime.slice(0,5)} - ${sh.endTime.slice(0,5)}</div>
+                  <div class="shift-vehicle">${sh.vehicleLabel} <span class="shift-role-badge ${roleClass}">${roleLbl}</span></div>
+                </div>
+                <button class="btn-ical" onclick="addSingleShift('${s.id}', '${sh.date}', '${sh.instanceId}'); event.stopPropagation();" title="Aggiungi al calendario">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                </button>
+              </div>`;
+          }).join('');
+        } else {
+          shiftsHtml = '<div style="padding: 16px; text-align: center; color: #94a3b8; font-size: 13px;">Nessun turno assegnato</div>';
+        }
+
+        return `
+          <div class="staff-item" id="staff-${s.id}">
+            <div class="staff-header" onclick="togglePanel('${s.id}')">
+              <div class="staff-info">
+                <div class="staff-name">${s.firstName} ${s.lastName}</div>
+                <div class="staff-role">${roleLabel}</div>
+                <div class="staff-shifts-count">${s.shiftCount} turni - ${s.totalHours.toFixed(1)} ore</div>
+              </div>
+              <div class="staff-actions">
+                ${s.shiftCount > 0 ? `<button class="btn-all" onclick="downloadCal('${s.id}'); event.stopPropagation();">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  Aggiungi tutti
+                </button>` : ''}
+                <button class="btn-expand" id="btn-exp-${s.id}">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="shifts-panel" id="panel-${s.id}">
+              ${shiftsHtml}
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    function togglePanel(staffId) {
+      const panel = document.getElementById(`panel-${staffId}`);
+      const btn = document.getElementById(`btn-exp-${staffId}`);
+      if (panel) {
+        panel.classList.toggle('open');
+        btn?.classList.toggle('open');
+      }
+    }
+
+    function downloadCal(staffId) {
+      showToast('Apertura calendario...');
+      window.open(`/api/public/calendario/${token}/ics/${staffId}`, '_blank');
+    }
+
+    function addSingleShift(staffId, date, instanceId) {
+      showToast('Aggiunta turno al calendario...');
+      window.open(`/api/public/calendario/${token}/ics/${staffId}?shiftDate=${date}&instanceId=${instanceId}`, '_blank');
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 4000);
+    }
+
+    init();
+  </script>
+</body>
+</html>

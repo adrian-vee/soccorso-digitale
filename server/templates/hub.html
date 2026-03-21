@@ -1,0 +1,2808 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prenota Trasporto Sanitario</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#1a365d;--blue:#3182ce;--blue-light:#ebf4ff;--blue-dark:#2b6cb0;
+  --green:#48bb78;--green-dark:#38a169;--green-light:#f0fff4;
+  --bg:#f7fafc;--card:#fff;--border:#e2e8f0;--border-light:#edf2f7;
+  --text:#1a202c;--text-secondary:#4a5568;--text-muted:#718096;--text-light:#a0aec0;
+  --danger:#e53e3e;--warning:#dd6b20;--amber-bg:#fffbeb;--amber-border:#fbbf24;
+  --success:#38a169;
+  --radius:12px;--radius-lg:16px;
+  --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.06);
+  --shadow-md:0 4px 6px rgba(0,0,0,.07),0 2px 4px rgba(0,0,0,.06);
+  --shadow-lg:0 10px 15px rgba(0,0,0,.1),0 4px 6px rgba(0,0,0,.05);
+  --font:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',sans-serif;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;line-height:1.5;display:flex;flex-direction:column}
+a{color:var(--blue);text-decoration:none}
+.page{display:none}.page.active{display:block;flex:1}
+
+/* TOP NAV */
+.top-nav{background:#fff;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;box-shadow:var(--shadow)}
+.top-nav-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:64px}
+.nav-brand{display:flex;align-items:center;gap:12px;font-weight:700;font-size:1.05rem;color:var(--navy)}
+.nav-brand img{max-width:120px;max-height:36px;width:auto;height:auto;object-fit:contain}
+.nav-brand .brand-placeholder{width:36px;height:36px;border-radius:8px;background:var(--blue);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.9rem}
+.nav-tabs{display:flex;gap:4px}
+.nav-tab{padding:8px 20px;border-radius:8px;font-size:.9rem;font-weight:500;color:var(--text-secondary);cursor:pointer;border:none;background:none;transition:all .2s}
+.nav-tab:hover{background:var(--blue-light);color:var(--blue)}
+.nav-tab.active{background:var(--blue);color:#fff}
+.nav-right-actions{display:flex;align-items:center;gap:8px}
+.nav-profile{position:relative}
+.nav-profile-btn{display:flex;align-items:center;gap:8px;padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:#fff;cursor:pointer;font-size:.85rem;color:var(--text-secondary);transition:all .2s}
+.nav-profile-btn:hover{border-color:var(--blue);color:var(--blue)}
+.nav-profile-btn .avatar{width:32px;height:32px;border-radius:50%;background:var(--blue-light);display:flex;align-items:center;justify-content:center;color:var(--blue);font-weight:600;font-size:.8rem}
+.nav-dropdown{position:absolute;right:0;top:calc(100% + 8px);background:#fff;border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-lg);min-width:200px;display:none;z-index:200}
+.nav-dropdown.show{display:block}
+.nav-dropdown-item{display:flex;align-items:center;gap:10px;padding:10px 16px;font-size:.88rem;color:var(--text-secondary);cursor:pointer;transition:background .15s}
+.nav-dropdown-item:hover{background:var(--bg)}
+.nav-dropdown-item svg{width:16px;height:16px;color:var(--text-muted)}
+.nav-dropdown-divider{height:1px;background:var(--border);margin:4px 0}
+
+/* NOTIFICATION BELL */
+.notif-bell-btn{position:relative;width:40px;height:40px;border-radius:10px;border:1px solid var(--border);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.notif-bell-btn:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-light)}
+.notif-bell-btn svg{width:20px;height:20px}
+.notif-badge{position:absolute;top:-4px;right:-4px;background:var(--danger);color:#fff;font-size:.65rem;font-weight:700;min-width:18px;height:18px;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 4px;border:2px solid #fff}
+
+/* NOTIFICATION DROPDOWN */
+.notif-dropdown{position:absolute;right:0;top:calc(100% + 8px);background:#fff;border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);width:380px;max-height:480px;display:none;z-index:300;overflow:hidden}
+.notif-dropdown.show{display:block}
+.notif-dropdown-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.notif-dropdown-header h3{font-size:.95rem;font-weight:700;color:var(--navy)}
+.notif-dropdown-body{max-height:380px;overflow-y:auto}
+.notif-item{padding:14px 20px;border-bottom:1px solid var(--border-light);cursor:pointer;transition:background .15s}
+.notif-item:hover{background:var(--bg)}
+.notif-item.unread{background:var(--blue-light);border-left:3px solid var(--blue)}
+.notif-item .notif-title{font-weight:600;font-size:.88rem;color:var(--navy)}
+.notif-item .notif-message{font-size:.82rem;color:var(--text-muted);margin-top:2px;line-height:1.4}
+.notif-item .notif-time{font-size:.72rem;color:var(--text-light);margin-top:4px}
+@media(max-width:600px){
+  .notif-dropdown{width:calc(100vw - 24px);right:-60px}
+}
+
+/* CONTAINER */
+.container{max-width:1100px;margin:0 auto;padding:24px}
+.container-narrow{max-width:520px;margin:0 auto;padding:24px}
+
+/* CARDS */
+.card{background:var(--card);border-radius:var(--radius-lg);padding:24px;margin-bottom:20px;box-shadow:var(--shadow);border:1px solid var(--border-light)}
+.card-title{font-size:1rem;font-weight:600;margin-bottom:16px;color:var(--navy)}
+.card-sm{padding:16px;margin-bottom:12px}
+
+/* FORM */
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:.85rem;font-weight:500;margin-bottom:6px;color:var(--text-secondary)}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:.92rem;font-family:var(--font);background:#f7fafc;color:var(--text);transition:border-color .2s,box-shadow .2s}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(49,130,206,.15);background:#fff}
+.form-group .autocomplete-wrapper{position:relative}
+.form-group .autocomplete-wrapper .autocomplete-icon{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--text-light);pointer-events:none}
+.ac-dropdown{position:absolute;left:0;right:0;top:100%;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-lg);margin-top:4px;z-index:10000;max-height:240px;overflow-y:auto;display:none}
+.ac-dropdown.show{display:block}
+.ac-dropdown-item{padding:10px 14px;font-size:.88rem;cursor:pointer;border-bottom:1px solid var(--border-light);color:var(--text);display:flex;align-items:flex-start;gap:8px;transition:background .15s}
+.ac-dropdown-item:last-child{border-bottom:none}
+.ac-dropdown-item:hover,.ac-dropdown-item.selected{background:var(--blue-light)}
+.ac-dropdown-item svg{flex-shrink:0;margin-top:2px;color:var(--text-muted)}
+.ac-dropdown-item span{line-height:1.3}
+.ac-dropdown-loading{padding:12px;text-align:center;color:var(--text-muted);font-size:.85rem}
+.form-group textarea{resize:vertical;min-height:80px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 24px;border:none;border-radius:10px;font-size:.95rem;font-weight:600;font-family:var(--font);cursor:pointer;transition:all .2s;text-align:center}
+.btn-block{display:flex;width:100%}
+.btn-primary{background:var(--blue);color:#fff}.btn-primary:hover{background:var(--blue-dark)}
+.btn-green{background:var(--green);color:#fff}.btn-green:hover{background:var(--green-dark)}
+.btn-outline{background:#fff;border:1.5px solid var(--border);color:var(--text-secondary)}.btn-outline:hover{border-color:var(--blue);color:var(--blue)}
+.btn-ghost{background:none;border:none;color:var(--text-muted);padding:8px 16px}.btn-ghost:hover{color:var(--blue)}
+.btn-danger{background:var(--danger);color:#fff}
+.btn-sm{padding:8px 16px;font-size:.85rem}
+.btn-lg{padding:14px 32px;font-size:1rem}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.link-btn{background:none;border:none;color:var(--blue);font-size:.88rem;cursor:pointer;text-decoration:underline;padding:0}
+
+/* BADGES */
+.status-badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+.status-pending{background:#fef3c7;color:#92400e}
+.status-confirmed{background:#dbeafe;color:#1e40af}
+.status-assigned{background:#e0e7ff;color:#3730a3}
+.status-in_transit{background:#fef9c3;color:#854d0e}
+.status-patient_aboard{background:#fed7aa;color:#9a3412}
+.status-completed{background:#dcfce7;color:#166534}
+.status-cancelled{background:#fee2e2;color:#991b1b}
+.status-rejected{background:#fce7f3;color:#9d174d}
+
+/* PILLS */
+.pill-group{display:inline-flex;border:1.5px solid var(--border);border-radius:10px;overflow:hidden;background:#f7fafc}
+.pill-btn{padding:8px 20px;font-size:.85rem;font-weight:500;border:none;background:none;cursor:pointer;color:var(--text-muted);transition:all .2s;font-family:var(--font)}
+.pill-btn.active{background:var(--blue);color:#fff}
+
+/* PROGRESS BAR */
+.wizard-progress{display:flex;align-items:center;gap:0;margin-bottom:32px;padding:0 40px}
+.wizard-step{display:flex;align-items:center;gap:8px}
+.wizard-step .step-num{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;background:var(--border);color:var(--text-muted);transition:all .3s}
+.wizard-step.active .step-num{background:var(--blue);color:#fff}
+.wizard-step.done .step-num{background:var(--green);color:#fff}
+.wizard-step .step-text{font-size:.82rem;color:var(--text-muted);font-weight:500;white-space:nowrap}
+.wizard-step.active .step-text{color:var(--blue);font-weight:600}
+.wizard-step.done .step-text{color:var(--green)}
+.wizard-line{flex:1;height:2px;background:var(--border);margin:0 8px}
+.wizard-line.done{background:var(--green)}
+
+/* TWO COL LAYOUT */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start}
+.two-col-sidebar{display:grid;grid-template-columns:340px 1fr;gap:32px;align-items:start}
+
+/* BOOKING LAYOUT - TWO COLUMN */
+.booking-layout{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:start}
+.booking-layout .col-left{min-width:0}
+.booking-layout .col-right{min-width:0}
+
+/* SECTION TITLE */
+.section-label{font-weight:700;font-size:.88rem;margin-bottom:8px;color:var(--navy);letter-spacing:.2px}
+.section-hint{font-size:.78rem;color:var(--text-muted);margin-bottom:14px;line-height:1.5}
+
+/* VEHICLE CARDS GRID - HORIZONTAL */
+.vehicle-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:0}
+.vehicle-card{border:2px solid var(--border);border-radius:16px;padding:16px 14px;cursor:pointer;transition:all .25s ease;background:#fff;display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;position:relative}
+.vehicle-card:hover{border-color:var(--blue);box-shadow:0 4px 20px rgba(49,130,206,.12);transform:translateY(-2px)}
+.vehicle-card.selected{border-color:var(--blue);background:linear-gradient(135deg,rgba(49,130,206,.04) 0%,rgba(49,130,206,.08) 100%);box-shadow:0 4px 20px rgba(49,130,206,.15)}
+.vehicle-card .vc-icon-wrap{width:56px;height:56px;border-radius:14px;background:var(--blue-light);display:flex;align-items:center;justify-content:center;transition:all .25s}
+.vehicle-card .vc-icon-wrap svg{width:30px;height:30px;fill:var(--blue)}
+.vehicle-card.selected .vc-icon-wrap{background:var(--blue)}
+.vehicle-card.selected .vc-icon-wrap svg{fill:#fff}
+.vehicle-card .vc-name{font-weight:600;font-size:.88rem;color:var(--navy);line-height:1.3}
+.vehicle-card .vc-price{font-size:1.2rem;color:var(--navy);font-weight:800;margin-top:2px}
+.vehicle-card .vc-price-hint{font-size:.72rem;color:var(--text-muted);font-weight:400}
+.vehicle-card .vc-check-badge{position:absolute;top:10px;right:10px;width:22px;height:22px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;transition:all .2s;font-size:.7rem}
+.vehicle-card.selected .vc-check-badge{border-color:var(--blue);background:var(--blue);color:#fff}
+
+/* VEHICLE EMPTY STATE */
+.vehicle-empty-state{text-align:center;padding:48px 24px;background:linear-gradient(135deg,var(--bg) 0%,var(--border-light) 100%);border-radius:16px;margin-bottom:0}
+.vehicle-empty-state svg{opacity:.2;margin-bottom:16px}
+.vehicle-empty-state p{font-size:.88rem;color:var(--text-muted);line-height:1.6;max-width:320px;margin:0 auto}
+.vehicle-empty-state p strong{color:var(--navy);display:block;margin-bottom:6px;font-size:1rem}
+
+/* MAP SECTION */
+.map-section{margin-top:20px}
+.map-embed{border-radius:16px;overflow:hidden;height:340px;background:var(--border-light);box-shadow:0 2px 12px rgba(0,0,0,.06)}
+.map-embed iframe{width:100%;height:100%;border:0}
+.map-placeholder-lg{height:280px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--bg) 0%,var(--border-light) 100%);border-radius:16px;color:var(--text-muted);font-size:.88rem;text-align:center;padding:24px}
+.map-placeholder-lg svg{opacity:.2;margin-bottom:14px}
+
+/* ITINERARY INPUTS */
+.itinerary-group{position:relative;margin-bottom:16px}
+.itinerary-group .itin-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);z-index:1;color:var(--text-light);display:flex;align-items:center;justify-content:center}
+.itinerary-group input{padding-left:38px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;width:100%;padding-top:12px;padding-bottom:12px;padding-right:14px;font-size:.9rem;font-family:var(--font);color:var(--text);transition:all .2s}
+.itinerary-group input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(49,130,206,.1);background:#fff}
+
+/* DATE TIME ROW */
+.dt-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:8px}
+.dt-field{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;cursor:pointer;transition:all .2s}
+.dt-field:focus-within{border-color:var(--blue);box-shadow:0 0 0 3px rgba(49,130,206,.1);background:#fff}
+.dt-field svg{flex-shrink:0;color:var(--text-muted)}
+.dt-field input{border:none;background:none;font-size:.88rem;font-family:var(--font);color:var(--text);width:100%;outline:none}
+
+/* ROUTE INFO BADGE */
+.route-badge{display:inline-flex;align-items:center;gap:8px;padding:10px 16px;background:linear-gradient(135deg,var(--blue-light) 0%,#e8f0fe 100%);border-radius:10px;font-size:.88rem;color:var(--text-secondary);margin-bottom:12px;border:1px solid rgba(49,130,206,.12)}
+.route-badge svg{flex-shrink:0;color:var(--blue)}
+.route-badge strong{color:var(--navy)}
+.arrival-note{font-size:.8rem;color:var(--text-muted);margin-bottom:16px;padding-left:4px;font-style:italic}
+.arrival-note strong{color:var(--navy);font-style:normal}
+
+/* APPOINTMENT FIELD */
+.appointment-field{background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:12px;transition:all .2s}
+.appointment-field:focus-within{border-color:var(--blue);box-shadow:0 0 0 3px rgba(49,130,206,.1);background:#fff}
+.appointment-field label{display:flex;align-items:center;gap:6px;font-size:.82rem;font-weight:500;color:var(--text-secondary);margin-bottom:6px}
+.appointment-field input{border:none;background:none;font-size:.88rem;font-family:var(--font);color:var(--text);width:100%;outline:none}
+
+/* STICKY BOTTOM BAR */
+.sticky-bottom-bar{position:sticky;bottom:0;background:rgba(255,255,255,.97);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--border-light);padding:16px 24px;margin:-24px;margin-top:28px;z-index:50;box-shadow:0 -4px 20px rgba(0,0,0,.06)}
+.sticky-bottom-bar .sbb-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:16px}
+
+/* BENEFITS CARD */
+.benefits-card{background:linear-gradient(135deg,#f0fff4 0%,#e6ffed 100%);border:1px solid rgba(72,187,120,.2);border-radius:16px;padding:20px 24px;margin-top:20px}
+.benefits-card .bc-title{font-weight:700;font-size:.95rem;color:var(--navy);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.benefits-card .bc-subtitle{font-size:.78rem;color:var(--text-muted);margin-bottom:14px}
+.benefits-card .bc-item{display:flex;align-items:flex-start;gap:10px;font-size:.84rem;color:var(--text-secondary);margin-bottom:10px;line-height:1.4}
+.benefits-card .bc-item:last-child{margin-bottom:0}
+.benefits-card .bc-item svg{width:18px;height:18px;flex-shrink:0;color:var(--green);margin-top:1px}
+.benefits-card .bc-link{font-size:.78rem;margin-top:12px;display:inline-block;color:var(--blue)}
+
+/* STEP COUNTER */
+.step-counter{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.step-counter .step-title{font-size:1.15rem;font-weight:700;color:var(--navy)}
+.step-counter .step-num-label{font-size:.85rem;color:var(--text-muted);font-weight:500}
+.progress-bar-thin{height:4px;background:var(--border);border-radius:2px;margin-bottom:28px;overflow:hidden}
+.progress-bar-thin .fill{height:100%;background:var(--blue);border-radius:2px;transition:width .3s}
+
+/* TRIP SUMMARY SIDEBAR */
+.trip-summary{background:#fff;border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:20px;box-shadow:var(--shadow);position:sticky;top:88px}
+.trip-summary .ts-title{font-size:.85rem;font-weight:600;color:var(--navy);margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px}
+.trip-summary .ts-row{display:flex;justify-content:space-between;padding:6px 0;font-size:.85rem;border-bottom:1px solid var(--border-light)}
+.trip-summary .ts-row:last-child{border-bottom:none}
+.trip-summary .ts-label{color:var(--text-muted)}
+.trip-summary .ts-value{font-weight:500;text-align:right;max-width:55%}
+.trip-summary .ts-total{display:flex;justify-content:space-between;padding:12px 0 0;margin-top:8px;border-top:2px solid var(--navy);font-weight:700;font-size:1.05rem;color:var(--navy)}
+
+/* MAP CONTAINER */
+.map-container{border-radius:var(--radius);overflow:hidden;background:var(--border-light);height:200px;display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+.map-container img{width:100%;height:100%;object-fit:cover}
+.map-placeholder{color:var(--text-muted);font-size:.85rem;text-align:center}
+.map-placeholder svg{display:block;margin:0 auto 8px;opacity:.4}
+
+/* ROUTE INFO */
+.route-info{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--blue-light);border-radius:8px;font-size:.85rem;color:var(--blue-dark);font-weight:500;margin:12px 0}
+.route-info svg{width:16px;height:16px;flex-shrink:0}
+
+/* BENEFITS */
+.benefits-section{margin-top:32px;padding:24px;background:var(--green-light);border-radius:var(--radius-lg);border:1px solid rgba(72,187,120,.2)}
+.benefits-section h3{font-size:.95rem;font-weight:600;color:var(--navy);margin-bottom:16px}
+.benefit-item{display:flex;align-items:flex-start;gap:10px;margin-bottom:12px;font-size:.85rem;color:var(--text-secondary)}
+.benefit-item svg{width:20px;height:20px;flex-shrink:0;color:var(--green);margin-top:1px}
+
+/* CONFIRM SECTION */
+.confirm-section{background:#fff;border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:20px;margin-bottom:16px;box-shadow:var(--shadow)}
+.confirm-section .cs-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.confirm-section .cs-title{font-weight:600;font-size:.95rem;color:var(--navy)}
+.confirm-section .cs-edit{font-size:.82rem;color:var(--blue);cursor:pointer;font-weight:500}
+.confirm-section .cs-row{display:flex;justify-content:space-between;padding:6px 0;font-size:.85rem}
+.confirm-section .cs-label{color:var(--text-muted)}
+.confirm-section .cs-value{font-weight:500;text-align:right;max-width:60%}
+
+/* EXTRA SERVICES */
+.extra-service{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;margin-bottom:8px;cursor:pointer;transition:all .2s;background:#fff}
+.extra-service:hover{border-color:var(--blue)}
+.extra-service input{width:18px;height:18px;accent-color:var(--blue);cursor:pointer}
+.extra-service .es-text{flex:1;font-size:.88rem;font-weight:500}
+.extra-service .es-price{font-size:.85rem;color:var(--green-dark);font-weight:600}
+
+/* COST BREAKDOWN */
+.cost-box{background:var(--green-light);border-radius:var(--radius);padding:16px;border:1px solid rgba(72,187,120,.2);margin-bottom:16px}
+.cost-row{display:flex;justify-content:space-between;padding:4px 0;font-size:.88rem}
+.cost-total{display:flex;justify-content:space-between;padding:10px 0 0;margin-top:6px;border-top:2px solid var(--green);font-weight:700;font-size:1.1rem;color:var(--navy)}
+
+/* DISCLAIMER */
+.disclaimer-box{background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:var(--radius);padding:12px 16px;font-size:.8rem;color:var(--warning);line-height:1.5;margin-bottom:12px}
+
+/* ALERT */
+.alert{padding:12px 16px;border-radius:10px;font-size:.85rem;line-height:1.5;margin-bottom:16px;display:flex;align-items:flex-start;gap:10px}
+.alert svg{width:18px;height:18px;flex-shrink:0;margin-top:1px}
+.alert-info{background:var(--blue-light);color:var(--blue-dark);border:1px solid rgba(49,130,206,.15)}
+.alert-warning{background:var(--amber-bg);color:var(--warning);border:1px solid var(--amber-border)}
+.alert-success{background:var(--green-light);color:var(--green-dark);border:1px solid rgba(72,187,120,.2)}
+.alert-danger{background:#fff5f5;color:var(--danger);border:1px solid rgba(229,62,62,.15)}
+
+/* PROFILE - REDESIGNED */
+.profile-header{background:linear-gradient(135deg,var(--navy) 0%,#2a4a7f 50%,var(--blue) 100%);color:#fff;padding:40px 24px 32px;text-align:center;border-radius:var(--radius-lg) var(--radius-lg) 0 0;position:relative;overflow:hidden;margin-bottom:0}
+.profile-header::before{content:'';position:absolute;top:-30%;right:-15%;width:300px;height:300px;background:rgba(255,255,255,.04);border-radius:50%}
+.profile-header::after{content:'';position:absolute;bottom:-20%;left:-10%;width:250px;height:250px;background:rgba(255,255,255,.03);border-radius:50%}
+.profile-avatar-lg{width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,.15);border:3px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:1.6rem;font-weight:700;color:#fff;position:relative;z-index:1}
+.profile-header h2{font-size:1.25rem;font-weight:700;position:relative;z-index:1}
+.profile-header p{font-size:.88rem;opacity:.75;margin-top:4px;position:relative;z-index:1}
+.profile-completeness{display:flex;align-items:center;gap:10px;justify-content:center;margin-top:16px;position:relative;z-index:1}
+.profile-completeness-bar{width:120px;height:6px;background:rgba(255,255,255,.2);border-radius:3px;overflow:hidden}
+.profile-completeness-fill{height:100%;background:#48bb78;border-radius:3px;transition:width .3s}
+.profile-completeness-text{font-size:.75rem;opacity:.8}
+.profile-layout{display:grid;grid-template-columns:260px 1fr;gap:0;align-items:start}
+.profile-sidebar{background:#fff;border-radius:0 0 0 var(--radius-lg);border:1px solid var(--border-light);border-top:none;box-shadow:var(--shadow);overflow:hidden}
+.profile-sidebar-item{display:flex;align-items:center;gap:12px;padding:14px 20px;font-size:.88rem;color:var(--text-secondary);cursor:pointer;border-left:3px solid transparent;transition:all .2s}
+.profile-sidebar-item:hover{background:var(--blue-light);color:var(--blue)}
+.profile-sidebar-item.active{background:var(--blue-light);color:var(--blue);font-weight:600;border-left-color:var(--blue)}
+.profile-sidebar-item svg{width:18px;height:18px;flex-shrink:0}
+.profile-content-area{border:1px solid var(--border-light);border-top:none;border-left:none;border-radius:0 0 var(--radius-lg) 0;background:#fff;box-shadow:var(--shadow);min-height:300px}
+.profile-section-header{display:flex;align-items:center;gap:10px;padding:20px 24px 12px;border-bottom:1px solid var(--border-light)}
+.profile-section-header svg{width:20px;height:20px;color:var(--blue)}
+.profile-section-header h3{font-size:1rem;font-weight:600;color:var(--navy)}
+
+/* LANDING - PROFESSIONAL */
+.landing-hero{background:linear-gradient(135deg,var(--navy) 0%,#2a4a7f 50%,var(--blue) 100%);color:#fff;padding:72px 24px 64px;text-align:center;position:relative;overflow:hidden}
+.landing-hero::before{content:'';position:absolute;top:-40%;right:-20%;width:500px;height:500px;background:rgba(255,255,255,.03);border-radius:50%}
+.landing-hero::after{content:'';position:absolute;bottom:-30%;left:-15%;width:400px;height:400px;background:rgba(255,255,255,.02);border-radius:50%}
+.landing-hero .hero-pattern{position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");opacity:.5}
+.landing-hero .org-logo{max-width:160px;max-height:88px;width:auto;height:auto;border-radius:12px;object-fit:contain;border:none;margin:0 auto 20px;display:block;box-shadow:none;position:relative;z-index:1;background:rgba(255,255,255,.15);padding:8px;backdrop-filter:blur(4px)}
+.landing-hero .org-logo-placeholder{width:88px;height:88px;border-radius:20px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;border:3px solid rgba(255,255,255,.15);position:relative;z-index:1}
+.landing-hero .org-logo-placeholder svg{width:48px;height:48px;fill:#fff}
+.landing-hero h1{font-size:2rem;font-weight:800;margin-bottom:8px;position:relative;z-index:1}
+.landing-hero .subtitle{font-size:1.05rem;opacity:.85;margin-bottom:24px;position:relative;z-index:1}
+.landing-hero .hero-cta{position:relative;z-index:1}
+.landing-hero .hero-cta .btn{box-shadow:0 4px 15px rgba(0,0,0,.2)}
+.landing-services{padding:48px 0}
+.landing-services h2{text-align:center;font-size:1.3rem;color:var(--navy);margin-bottom:8px}
+.landing-services .section-subtitle{text-align:center;color:var(--text-muted);font-size:.92rem;margin-bottom:28px}
+.landing-svc-card{background:#fff;border-radius:var(--radius-lg);padding:20px;border:1px solid var(--border-light);box-shadow:var(--shadow);display:flex;align-items:flex-start;gap:16px;margin-bottom:14px;transition:box-shadow .2s}
+.landing-svc-card:hover{box-shadow:var(--shadow-md)}
+.landing-svc-card .lsc-icon{width:48px;height:48px;min-width:48px;background:var(--blue-light);border-radius:12px;display:flex;align-items:center;justify-content:center}
+.landing-svc-card .lsc-icon svg{width:26px;height:26px;fill:var(--blue)}
+.landing-svc-card .lsc-name{font-weight:600;font-size:.95rem;color:var(--navy);margin-bottom:3px}
+.landing-svc-card .lsc-desc{font-size:.82rem;color:var(--text-muted);line-height:1.4;margin-bottom:4px}
+.landing-svc-card .lsc-price{font-size:.82rem;font-weight:600;color:var(--green-dark)}
+
+/* HOW IT WORKS */
+.how-it-works{padding:48px 0;background:#fff;border-top:1px solid var(--border-light);border-bottom:1px solid var(--border-light)}
+.how-it-works h2{text-align:center;font-size:1.3rem;color:var(--navy);margin-bottom:8px}
+.how-it-works .section-subtitle{text-align:center;color:var(--text-muted);font-size:.92rem;margin-bottom:36px}
+.how-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;max-width:1000px;margin:0 auto}
+.how-step{text-align:left;padding:28px 24px;background:linear-gradient(135deg,#4A7AF5 0%,#3B6CE8 100%);border-radius:16px;color:#fff;position:relative;overflow:hidden;min-height:200px}
+.how-step::after{content:'';position:absolute;top:-30px;right:-30px;width:120px;height:120px;background:rgba(255,255,255,.06);border-radius:50%}
+.how-step-num{font-size:2rem;font-weight:800;color:rgba(255,255,255,.3);margin-bottom:12px;letter-spacing:1px}
+.how-step h3{font-size:1rem;font-weight:700;color:#fff;margin-bottom:10px;line-height:1.3}
+.how-step p{font-size:.82rem;color:rgba(255,255,255,.85);line-height:1.6}
+
+/* WHY CHOOSE US */
+.why-section{padding:48px 0}
+.why-section h2{text-align:center;font-size:1.3rem;color:var(--navy);margin-bottom:8px}
+.why-section .section-subtitle{text-align:center;color:var(--text-muted);font-size:.92rem;margin-bottom:32px}
+.why-cards{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;max-width:900px;margin:0 auto}
+.why-card{background:#fff;border-radius:var(--radius-lg);padding:24px;border:1px solid var(--border-light);box-shadow:var(--shadow);transition:all .2s}
+.why-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px)}
+.why-card-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+.why-card h3{font-size:.95rem;font-weight:600;color:var(--navy);margin-bottom:6px}
+.why-card p{font-size:.82rem;color:var(--text-muted);line-height:1.5}
+
+/* TRUST BADGES */
+.trust-section{padding:40px 0;background:#fff;border-top:1px solid var(--border-light)}
+.trust-badges{display:flex;justify-content:center;gap:32px;flex-wrap:wrap;max-width:800px;margin:0 auto}
+.trust-badge{text-align:center;padding:16px 24px}
+.trust-badge-icon{width:48px;height:48px;border-radius:50%;background:var(--green-light);display:flex;align-items:center;justify-content:center;margin:0 auto 10px}
+.trust-badge-icon svg{width:24px;height:24px;color:var(--green-dark)}
+.trust-badge strong{display:block;font-size:.88rem;color:var(--navy);margin-bottom:2px}
+.trust-badge span{font-size:.75rem;color:var(--text-muted)}
+
+/* AUTH */
+.auth-hero{background:linear-gradient(135deg,var(--navy) 0%,var(--blue) 100%);color:#fff;padding:40px 24px 32px;text-align:center}
+.auth-hero img{width:56px;height:56px;border-radius:14px;object-fit:cover;border:2px solid rgba(255,255,255,.25);margin-bottom:12px}
+.auth-hero h2{font-size:1.15rem;font-weight:600}
+.auth-hero p{font-size:.85rem;opacity:.75;margin-top:4px}
+
+/* BOOKING CARDS */
+.booking-card{background:#fff;border-radius:var(--radius);padding:16px 20px;margin-bottom:12px;border:1px solid var(--border-light);box-shadow:var(--shadow);cursor:pointer;transition:all .15s}
+.booking-card:hover{box-shadow:var(--shadow-md);border-color:var(--blue)}
+.booking-card .bc-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.booking-card .bc-number{font-weight:700;color:var(--navy);font-size:.92rem;margin-bottom:4px}
+.booking-card .bc-date{font-size:.82rem;color:var(--text-muted);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.booking-card .bc-route{font-size:.82rem;line-height:1.6}
+.booking-card .bc-route span{display:flex;align-items:center;gap:6px}
+.booking-card .bc-actions{display:flex;gap:8px}
+.bc-action-btn{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;text-decoration:none;transition:all .2s;flex-shrink:0}
+.bc-action-phone{background:#E6F9EE;color:var(--green-dark)}
+.bc-action-phone:hover{background:#C6F0D6;transform:scale(1.1)}
+.bc-action-help{background:#FFF3E0;color:#E65100}
+.bc-action-help:hover{background:#FFE0B2;transform:scale(1.1)}
+.booking-tab-btn{padding:8px 16px;border-radius:20px;font-size:.82rem;font-weight:600;border:1.5px solid var(--border);background:#fff;color:var(--text-muted);cursor:pointer;font-family:var(--font);transition:all .2s;display:flex;align-items:center;gap:6px}
+.booking-tab-btn.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.booking-tab-btn:hover:not(.active){border-color:var(--blue);color:var(--blue)}
+.booking-tab-count{background:rgba(0,0,0,.1);padding:1px 8px;border-radius:10px;font-size:.72rem;min-width:20px;text-align:center}
+.booking-tab-btn.active .booking-tab-count{background:rgba(255,255,255,.25)}
+
+/* DETAIL */
+.detail-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-light);font-size:.88rem}
+.detail-row:last-child{border-bottom:none}
+.detail-row .label{color:var(--text-muted)}
+.detail-row .value{font-weight:500;text-align:right;max-width:60%}
+
+/* TRACKER - FIXED */
+.tracker{display:flex;align-items:flex-start;margin:12px 0;padding:0;overflow:hidden}
+.tracker-step{flex:1;text-align:center;position:relative;min-width:0}
+.tracker-step .step-dot{width:28px;height:28px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;margin:0 auto 6px;font-size:.7rem;font-weight:700;color:var(--text-muted);transition:all .3s;flex-shrink:0;position:relative;z-index:2}
+.tracker-step.active .step-dot{background:var(--blue);color:#fff}
+.tracker-step.done .step-dot{background:var(--green);color:#fff}
+.tracker-step .step-label{font-size:.65rem;color:var(--text-muted);white-space:nowrap}
+.tracker-step.active .step-label{color:var(--blue);font-weight:600}
+.tracker-line{flex:0 1 100%;height:2px;background:var(--border);margin-top:14px;flex-shrink:1;min-width:0}
+.tracker-line.done{background:var(--green)}
+
+/* INVOICE */
+.invoice-fields{margin-top:12px;padding:16px;background:var(--bg);border-radius:10px;border:1px solid var(--border)}
+.invoice-status{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:8px;font-size:.82rem;font-weight:500}
+.invoice-status.requested{background:#dbeafe;color:#1e40af}
+.invoice-status.issued{background:#dcfce7;color:#166534}
+.invoice-status.not-requested{background:#f1f5f9;color:#64748b}
+
+/* LOADING & EMPTY */
+.loading{text-align:center;padding:40px;color:var(--text-muted)}
+.loading .spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty-state{text-align:center;padding:48px 24px;color:var(--text-muted)}
+.empty-state .icon{font-size:2.5rem;margin-bottom:12px;opacity:.3}
+.empty-state p{font-size:.92rem}
+.error-msg{color:var(--danger);font-size:.85rem;margin-top:8px}
+.success-msg{color:var(--success);font-size:.85rem;margin-top:8px}
+
+/* SPLASH */
+.splash-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;text-align:center;padding:40px 24px}
+.splash-screen .logo-area{width:80px;height:80px;background:linear-gradient(135deg,var(--blue),var(--navy));border-radius:20px;display:flex;align-items:center;justify-content:center;margin-bottom:24px;box-shadow:0 4px 20px rgba(49,130,206,.3)}
+.splash-screen .logo-area svg{width:44px;height:44px;fill:#fff}
+
+/* FOOTER */
+.sd-footer{background:var(--navy);color:rgba(255,255,255,.7);padding:32px 24px 24px;margin-top:auto;text-align:center;font-size:.82rem}
+.sd-footer-inner{max-width:800px;margin:0 auto}
+.sd-footer-brand{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:12px;font-size:.9rem;color:#fff;font-weight:600}
+.sd-footer-brand svg{width:20px;height:20px;fill:#fff;opacity:.8}
+.sd-footer a{color:rgba(255,255,255,.8);text-decoration:none;transition:color .2s}
+.sd-footer a:hover{color:#fff}
+.sd-footer-links{display:flex;justify-content:center;gap:20px;margin:12px 0;font-size:.78rem}
+.sd-footer-links a{color:rgba(255,255,255,.6)}
+.sd-footer-links a:hover{color:#fff}
+.sd-footer-copy{font-size:.72rem;opacity:.5;margin-top:8px}
+
+/* DETAIL GRID */
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.detail-grid .card{margin-bottom:0}
+.detail-grid .full-width{grid-column:1/-1}
+.detail-section-title{display:flex;align-items:center;gap:8px;font-size:1rem;font-weight:600;margin-bottom:16px;color:var(--navy)}
+.detail-section-title svg{width:18px;height:18px;flex-shrink:0}
+.detail-row .label{color:var(--text-muted);font-size:.82rem}
+.detail-row .value{font-weight:600;font-size:.88rem}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .two-col,.two-col-sidebar{grid-template-columns:1fr}
+  .booking-layout{grid-template-columns:1fr}
+  .vehicle-grid{grid-template-columns:1fr}
+  .detail-grid{grid-template-columns:1fr}
+  .profile-layout{grid-template-columns:1fr}
+  .profile-sidebar{border-radius:0}
+  .profile-content-area{border-left:1px solid var(--border-light);border-radius:0 0 var(--radius-lg) var(--radius-lg)}
+  .wizard-progress{padding:0;flex-wrap:wrap;gap:4px}
+  .wizard-step .step-text{display:none}
+  .nav-tabs{display:none}
+  .container{padding:16px}
+  .trip-summary{position:static}
+  .how-steps{grid-template-columns:1fr}
+  .why-cards{grid-template-columns:1fr}
+  .sticky-bottom-bar{margin:-16px;margin-top:16px;padding:12px 16px}
+}
+@media(max-width:600px){
+  .form-row{grid-template-columns:1fr}
+  .landing-hero{padding:48px 16px 40px}
+  .landing-hero h1{font-size:1.5rem}
+  .top-nav-inner{padding:0 12px}
+  .trust-badges{gap:16px}
+}
+
+/* MOBILE NAV */
+.mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);z-index:100;box-shadow:0 -2px 10px rgba(0,0,0,.06)}
+.mobile-nav-inner{display:flex;justify-content:space-around;padding:6px 0 env(safe-area-inset-bottom,8px)}
+.mobile-nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 12px;font-size:.7rem;color:var(--text-muted);cursor:pointer;border:none;background:none;position:relative}
+.mobile-nav-item.active{color:var(--blue)}
+.mobile-nav-item svg{width:22px;height:22px}
+.mobile-nav-badge{position:absolute;top:2px;right:6px;background:var(--danger);color:#fff;font-size:.6rem;font-weight:700;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 3px}
+@media(max-width:900px){
+  .mobile-nav{display:block}
+  body{padding-bottom:72px}
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- SPLASH / LOADING -->
+<div id="page-loading" class="page active">
+  <div class="splash-screen">
+    <div class="logo-area">
+      <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-1 11h-4v4h-4v-4H6v-4h4V6h4v4h4v4z"/></svg>
+    </div>
+    <div class="loading"><div class="spinner"></div>Caricamento...</div>
+  </div>
+</div>
+
+<!-- NOT FOUND -->
+<div id="page-notfound" class="page">
+  <div class="splash-screen">
+    <div class="logo-area" style="background:linear-gradient(135deg,var(--danger),#c53030)">
+      <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+    </div>
+    <h2 style="margin-bottom:8px">Servizio Non Disponibile</h2>
+    <p style="color:var(--text-muted);max-width:320px">Questa organizzazione non ha attivato il servizio di prenotazione online.</p>
+  </div>
+</div>
+
+<!-- LANDING PAGE -->
+<div id="page-landing" class="page">
+  <div class="landing-hero">
+    <div class="hero-pattern"></div>
+    <h1 id="landing-org-name"></h1>
+    <div class="subtitle">Servizio di Trasporto Sanitario Professionale</div>
+    <div class="hero-cta">
+      <button class="btn btn-green btn-lg" onclick="showPage('auth')" style="min-width:260px">Prenota il tuo trasporto</button>
+    </div>
+  </div>
+
+  <div class="how-it-works">
+    <div class="container">
+      <h2>Come funziona</h2>
+      <p class="section-subtitle">Prenota il tuo trasporto sanitario in 3 semplici passaggi</p>
+      <div class="how-steps">
+        <div class="how-step">
+          <div class="how-step-num">01</div>
+          <h3>Inserisci i dettagli e vedi i prezzi</h3>
+          <p>Indica data, orario e destinazione poi scegli il mezzo piu adatto tra ambulanza o pulmino con pedana. Puoi anche aggiungere servizi extra in base alle tue esigenze.</p>
+        </div>
+        <div class="how-step">
+          <div class="how-step-num">02</div>
+          <h3>Conferma la tua prenotazione</h3>
+          <p>Inserisci i dati di pagamento e conferma il viaggio. E se cambia qualcosa, potrai modificare le informazioni in qualunque momento.</p>
+        </div>
+        <div class="how-step">
+          <div class="how-step-num">03</div>
+          <h3>Monitora in tempo reale</h3>
+          <p>Dal momento della conferma fino all'arrivo, segui ogni fase. Ricevi aggiornamenti automatici e sai sempre dove si trova il tuo mezzo.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="landing-services">
+      <h2>I Nostri Servizi</h2>
+      <p class="section-subtitle">Soluzioni di trasporto sanitario per ogni esigenza</p>
+      <div id="landing-services-list"></div>
+    </div>
+  </div>
+
+  <div class="why-section">
+    <div class="container">
+      <h2>Perche sceglierci</h2>
+      <p class="section-subtitle">Affidabilita, professionalita e sicurezza al tuo servizio</p>
+      <div class="why-cards">
+        <div class="why-card">
+          <div class="why-card-icon" style="background:var(--blue-light)">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          </div>
+          <h3>Mezzi certificati</h3>
+          <p>Tutti i nostri mezzi sono regolarmente revisionati, sanificati e conformi alle normative sanitarie vigenti.</p>
+        </div>
+        <div class="why-card">
+          <div class="why-card-icon" style="background:var(--green-light)">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--green-dark)" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+          </div>
+          <h3>Personale qualificato</h3>
+          <p>Equipaggi formati e certificati, pronti ad assistere il paziente durante tutto il trasporto con professionalita.</p>
+        </div>
+        <div class="why-card">
+          <div class="why-card-icon" style="background:#fef3c7">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <h3>Puntuali e affidabili</h3>
+          <p>Rispettiamo gli orari concordati. Il nostro servizio e progettato per garantire massima puntualita.</p>
+        </div>
+        <div class="why-card">
+          <div class="why-card-icon" style="background:#fce7f3">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#be185d" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+          </div>
+          <h3>Assistenza dedicata</h3>
+          <p>Supporto costante prima, durante e dopo il trasporto. Il comfort e la sicurezza del paziente sono la nostra priorita.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="trust-section">
+    <div class="container">
+      <div class="trust-badges">
+        <div class="trust-badge">
+          <div class="trust-badge-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <strong>Servizio certificato</strong>
+          <span>Conformi alle normative</span>
+        </div>
+        <div class="trust-badge">
+          <div class="trust-badge-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <strong>Operativi 365 giorni</strong>
+          <span>Sempre disponibili</span>
+        </div>
+        <div class="trust-badge">
+          <div class="trust-badge-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          </div>
+          <strong>Prenotazione sicura</strong>
+          <span>Conferma immediata</span>
+        </div>
+        <div class="trust-badge">
+          <div class="trust-badge-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+          </div>
+          <strong>Equipaggi formati</strong>
+          <span>Personale qualificato</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:center;padding:40px 24px 48px;background:var(--bg)">
+    <h2 style="font-size:1.2rem;color:var(--navy);margin-bottom:8px">Pronto a prenotare?</h2>
+    <p style="color:var(--text-muted);font-size:.92rem;margin-bottom:20px">Registrati gratuitamente e prenota il tuo trasporto sanitario</p>
+    <button class="btn btn-primary btn-lg" onclick="showPage('auth')" style="min-width:280px">Prenota Ora</button>
+    <div style="margin-top:12px">
+      <button class="link-btn" onclick="showPage('auth')">Hai gia un account? Accedi</button>
+    </div>
+  </div>
+</div>
+
+<!-- AUTH PAGE -->
+<div id="page-auth" class="page">
+  <div class="auth-hero">
+    <div id="auth-logo-container"></div>
+    <h2 id="auth-org-name"></h2>
+    <p>Prenota il tuo trasporto sanitario in pochi click</p>
+  </div>
+  <div class="container-narrow">
+    <div id="auth-login" class="card" style="margin-top:24px">
+      <div class="card-title">Accedi</div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="login-email" placeholder="La tua email">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="login-password" placeholder="La tua password">
+      </div>
+      <div id="login-error" class="error-msg" style="display:none"></div>
+      <button class="btn btn-primary btn-block" onclick="doLogin()" style="margin-top:8px">Accedi</button>
+      <div style="text-align:center;margin-top:16px">
+        <span style="color:var(--text-muted);font-size:.85rem">Non hai un account?</span>
+        <button class="link-btn" onclick="showRegister()">Registrati</button>
+      </div>
+      <div style="text-align:center;margin-top:8px">
+        <button class="link-btn" onclick="showPage('landing')" style="font-size:.8rem;color:var(--text-muted)">&larr; Torna alla pagina informativa</button>
+      </div>
+    </div>
+
+    <div id="auth-register" class="card" style="display:none;margin-top:24px">
+      <div class="card-title">Registrati</div>
+      <div style="display:flex;gap:8px;margin-bottom:20px">
+        <div class="pill-group" style="width:100%">
+          <button class="pill-btn active" data-type="private" onclick="selectClientType('private')" style="flex:1">Privato</button>
+          <button class="pill-btn" data-type="facility" onclick="selectClientType('facility')" style="flex:1">Struttura Sanitaria</button>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Nome *</label><input type="text" id="reg-firstName" placeholder="Il tuo nome"></div>
+        <div class="form-group"><label>Cognome *</label><input type="text" id="reg-lastName" placeholder="Il tuo cognome"></div>
+      </div>
+      <div class="form-group"><label>Email *</label><input type="email" id="reg-email" placeholder="La tua email"></div>
+      <div class="form-group"><label>Password *</label><input type="password" id="reg-password" placeholder="Crea una password"></div>
+      <div class="form-row">
+        <div class="form-group"><label>Data di nascita</label><input type="date" id="reg-birthDate"></div>
+        <div class="form-group"><label>Genere</label><select id="reg-gender"><option value="">Seleziona...</option><option value="M">Maschio</option><option value="F">Femmina</option><option value="other">Altro</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Telefono</label><input type="tel" id="reg-phone" placeholder="Il tuo numero"></div>
+        <div class="form-group"><label>Codice Fiscale</label><input type="text" id="reg-fiscalCode" placeholder="Codice fiscale"></div>
+      </div>
+      <div id="facility-fields" style="display:none">
+        <div class="form-group"><label>Nome Struttura *</label><input type="text" id="reg-facilityName" placeholder="Nome della struttura"></div>
+        <div class="form-row">
+          <div class="form-group"><label>Tipo Struttura</label><select id="reg-facilityType"><option value="">Seleziona...</option><option value="rsa">RSA</option><option value="clinica">Clinica</option><option value="ospedale">Ospedale</option><option value="ambulatorio">Ambulatorio</option><option value="studio_medico">Studio Medico</option><option value="altro">Altro</option></select></div>
+          <div class="form-group"><label>P.IVA</label><input type="text" id="reg-facilityVat" placeholder="Partita IVA"></div>
+        </div>
+        <div class="form-group"><label>Indirizzo Struttura</label><input type="text" id="reg-facilityAddress" placeholder="Indirizzo"></div>
+        <div class="form-group"><label>Citta</label><input type="text" id="reg-facilityCity" placeholder="Citta"></div>
+      </div>
+      <div id="register-error" class="error-msg" style="display:none"></div>
+      <button class="btn btn-green btn-block" onclick="doRegister()" style="margin-top:8px">Registrati</button>
+      <div style="text-align:center;margin-top:16px">
+        <span style="color:var(--text-muted);font-size:.85rem">Hai gia un account?</span>
+        <button class="link-btn" onclick="showLogin()">Accedi</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="page-dashboard" class="page">
+  <div class="top-nav">
+    <div class="top-nav-inner">
+      <div class="nav-brand">
+        <span id="dash-brand-logo"></span>
+      </div>
+      <div class="nav-tabs">
+        <button class="nav-tab active" onclick="switchDashTab('new-booking',this)">Nuova prenotazione</button>
+        <button class="nav-tab" onclick="switchDashTab('bookings',this)">Le mie prenotazioni</button>
+      </div>
+      <div class="nav-right-actions">
+        <div style="position:relative" id="notif-bell-container">
+          <button class="notif-bell-btn" onclick="toggleNotifDropdown(event)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+            <span class="notif-badge" id="notif-badge" style="display:none">0</span>
+          </button>
+          <div class="notif-dropdown" id="notif-dropdown">
+            <div class="notif-dropdown-header">
+              <h3>Notifiche</h3>
+              <button class="link-btn" style="font-size:.78rem" onclick="markAllNotifsRead()">Segna tutte lette</button>
+            </div>
+            <div class="notif-dropdown-body" id="notif-dropdown-body">
+              <div class="loading"><div class="spinner"></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="nav-profile">
+          <button class="nav-profile-btn" onclick="toggleProfileMenu()">
+            <span class="avatar" id="nav-avatar"></span>
+            <span id="nav-user-name"></span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="nav-dropdown" id="nav-dropdown">
+            <div class="nav-dropdown-item" onclick="showPage('profile')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              Profilo
+            </div>
+            <div class="nav-dropdown-divider"></div>
+            <div class="nav-dropdown-item" onclick="doLogout()" style="color:var(--danger)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              Esci
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div id="dash-tab-new-booking"></div>
+    <div id="dash-tab-bookings" style="display:none">
+      <h2 style="font-size:1.2rem;color:var(--navy);margin-bottom:16px">Le mie prenotazioni</h2>
+      <div class="booking-tabs" style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap">
+        <button class="booking-tab-btn active" onclick="filterBookings('active',this)">In corso <span class="booking-tab-count" id="count-active">0</span></button>
+        <button class="booking-tab-btn" onclick="filterBookings('scheduled',this)">In programma <span class="booking-tab-count" id="count-scheduled">0</span></button>
+        <button class="booking-tab-btn" onclick="filterBookings('past',this)">Passate <span class="booking-tab-count" id="count-past">0</span></button>
+      </div>
+      <div id="bookings-list"></div>
+    </div>
+  </div>
+
+  <div class="mobile-nav">
+    <div class="mobile-nav-inner">
+      <button class="mobile-nav-item active" onclick="switchDashTab('new-booking',null);activeMobileNav(this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Prenota
+      </button>
+      <button class="mobile-nav-item" onclick="switchDashTab('bookings',null);activeMobileNav(this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Prenotazioni
+      </button>
+      <button class="mobile-nav-item" onclick="toggleNotifDropdown(event);activeMobileNav(this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/></svg>
+        <span class="mobile-nav-badge" id="mobile-notif-badge" style="display:none">0</span>
+        Notifiche
+      </button>
+      <button class="mobile-nav-item" onclick="showPage('profile');activeMobileNav(this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Profilo
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- BOOKING WIZARD -->
+<div id="page-wizard" class="page">
+  <div class="top-nav">
+    <div class="top-nav-inner">
+      <div class="nav-brand">
+        <button class="btn-ghost" onclick="exitWizard()" style="padding:4px 8px">&larr;</button>
+        <span id="wizard-brand-logo"></span>
+      </div>
+      <div style="font-size:.9rem;color:var(--text-muted);font-weight:500" id="wizard-step-label">Passo 1 di 4</div>
+    </div>
+  </div>
+  <div class="container">
+    <div class="wizard-progress" id="wizard-progress"></div>
+    <div id="wizard-content"></div>
+  </div>
+</div>
+
+<!-- BOOKING DETAIL -->
+<div id="page-booking-detail" class="page">
+  <div class="top-nav">
+    <div class="top-nav-inner">
+      <div class="nav-brand">
+        <button class="btn-ghost" onclick="showPage('dashboard')" style="padding:4px 8px">&larr;</button>
+        <span>Dettaglio Prenotazione</span>
+      </div>
+    </div>
+  </div>
+  <div class="container" style="max-width:800px">
+    <div style="background:linear-gradient(135deg,var(--navy) 0%,#2a4a7f 50%,var(--blue) 100%);color:#fff;padding:32px 24px;text-align:center;border-radius:var(--radius-lg);margin-bottom:20px;position:relative;overflow:hidden">
+      <div style="position:absolute;top:-30%;right:-15%;width:200px;height:200px;background:rgba(255,255,255,.04);border-radius:50%"></div>
+      <div id="detail-number" style="font-size:1.3rem;font-weight:700;letter-spacing:.5px"></div>
+      <div id="detail-status" style="margin-top:10px"></div>
+    </div>
+    <div id="detail-tracker" class="card" style="display:none;padding:20px 24px">
+      <div class="tracker" id="status-tracker"></div>
+    </div>
+    <div id="detail-contact-bar" class="card" style="display:none;padding:14px 20px">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div style="display:flex;align-items:center;gap:10px">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <div>
+            <div style="font-size:.82rem;color:var(--text-muted)">Contatta l'organizzazione</div>
+            <div id="detail-org-name" style="font-weight:600;font-size:.9rem;color:var(--navy)"></div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px" id="detail-contact-btns"></div>
+      </div>
+    </div>
+    <div class="detail-grid">
+      <div class="card">
+        <div class="card-title" style="display:flex;align-items:center;gap:8px">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Dettagli Servizio
+        </div>
+        <div id="detail-info"></div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="display:flex;align-items:center;gap:8px">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          Percorso
+        </div>
+        <div id="detail-route"></div>
+        <div id="detail-route-map" style="margin-top:12px"></div>
+      </div>
+      <div id="detail-patient-card" class="card" style="display:none">
+        <div class="card-title" style="display:flex;align-items:center;gap:8px">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Paziente
+        </div>
+        <div id="detail-patient"></div>
+      </div>
+      <div id="detail-companion-card" class="card" style="display:none">
+        <div class="card-title" style="display:flex;align-items:center;gap:8px">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+          Accompagnatore
+        </div>
+        <div id="detail-companion"></div>
+      </div>
+    </div>
+    <div id="detail-cost-card" class="card" style="display:none">
+      <div class="card-title" style="display:flex;align-items:center;gap:8px">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+        Riepilogo Costi
+      </div>
+      <div id="detail-cost-breakdown"></div>
+    </div>
+    <div id="detail-invoice-card" class="card" style="display:none">
+      <div class="card-title" style="display:flex;align-items:center;gap:8px">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        Fatturazione
+      </div>
+      <div id="detail-invoice"></div>
+    </div>
+    <div id="detail-cancel-section" style="margin-top:16px;display:none">
+      <button class="btn btn-block" onclick="cancelBooking()" style="border:1.5px solid var(--danger);color:var(--danger);background:transparent;font-weight:600">Annulla Prenotazione</button>
+    </div>
+    <div style="height:24px"></div>
+  </div>
+</div>
+
+<!-- PROFILE -->
+<div id="page-profile" class="page">
+  <div class="top-nav">
+    <div class="top-nav-inner">
+      <div class="nav-brand">
+        <button class="btn-ghost" onclick="showPage('dashboard')" style="padding:4px 8px">&larr;</button>
+        <span>Il mio profilo</span>
+      </div>
+    </div>
+  </div>
+  <div class="container">
+    <div class="profile-header" id="profile-header">
+      <div class="profile-avatar-lg" id="profile-avatar-lg"></div>
+      <h2 id="profile-full-name"></h2>
+      <p id="profile-email-display"></p>
+      <div class="profile-completeness">
+        <div class="profile-completeness-bar"><div class="profile-completeness-fill" id="profile-completeness-fill" style="width:0%"></div></div>
+        <span class="profile-completeness-text" id="profile-completeness-text">0% completo</span>
+      </div>
+    </div>
+    <div class="profile-layout">
+      <div class="profile-sidebar">
+        <div class="profile-sidebar-item active" onclick="switchProfileTab('account',this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Titolare Account
+        </div>
+        <div class="profile-sidebar-item" onclick="switchProfileTab('passengers',this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+          Profili passeggeri
+        </div>
+        <div class="profile-sidebar-item" onclick="switchProfileTab('billing',this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          Indirizzi di fatturazione
+        </div>
+        <div class="profile-sidebar-item" onclick="switchProfileTab('history',this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Storico pagamenti
+        </div>
+        <div class="profile-sidebar-item" onclick="switchProfileTab('payment',this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          Metodi di pagamento
+        </div>
+      </div>
+      <div class="profile-content-area">
+        <div id="profile-alert" class="alert alert-warning" style="display:none;margin:16px 24px 0;border-radius:10px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <div><strong>Completa il tuo profilo</strong><br>Inserisci i dati mancanti per prenotare</div>
+        </div>
+        <div id="profile-section-header" class="profile-section-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <h3>Dati Account</h3>
+        </div>
+        <div id="profile-content" style="padding:20px 24px">
+          <div style="display:flex;justify-content:flex-end;margin-bottom:16px">
+            <button class="btn btn-outline btn-sm" onclick="toggleProfileEdit()">Modifica dettagli</button>
+          </div>
+          <div id="profile-details"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<!-- FOOTER -->
+<footer class="sd-footer">
+  <div class="sd-footer-inner">
+    <div class="sd-footer-brand">
+      <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-1 11h-4v4h-4v-4H6v-4h4V6h4v4h4v4z"/></svg>
+      Powered by <a href="https://soccorsodigitale.app" target="_blank" rel="noopener">Soccorso Digitale</a>
+    </div>
+    <div style="font-size:.8rem">
+      <a href="https://soccorsodigitale.app" target="_blank" rel="noopener">soccorsodigitale.app</a>
+    </div>
+    <div class="sd-footer-links">
+      <a href="#">Privacy Policy</a>
+      <a href="#">Termini di servizio</a>
+      <a href="#" onclick="event.preventDefault();openCookiePolicy()">Cookie Policy</a>
+    </div>
+    <div class="sd-footer-copy">&copy; 2026 Soccorso Digitale. Tutti i diritti riservati.</div>
+  </div>
+</footer>
+
+<script>
+const ORG_SLUG = window.location.pathname.split('/hub/')[1]?.split('/')[0]?.split('?')[0] || '';
+let orgInfo = null;
+let currentUser = null;
+let selectedClientType = 'private';
+let currentBookingDetail = null;
+let unreadCount = 0;
+let pricingItems = [];
+let routeData = null;
+let wizardStep = 1;
+
+const wiz = {
+  tripType: 'one_way',
+  originAddress: '',
+  destinationAddress: '',
+  date: '',
+  time: '',
+  transportReason: '',
+  selectedPricingId: null,
+  distanceKm: 0,
+  durationMin: 0,
+  originCoords: null,
+  destCoords: null,
+  passengerFor: 'me',
+  patientFirstName: '',
+  patientLastName: '',
+  patientBirthDate: '',
+  patientEmail: '',
+  patientGender: '',
+  patientPhone: '',
+  transportDetail: '',
+  notes: '',
+  companionFirstName: '',
+  companionLastName: '',
+  companionPhone: '',
+  floorAssistance: true,
+  weightSupplement: null,
+  invoiceRequested: false,
+  invoiceData: {},
+  discountCode: '',
+  discountApplied: false,
+  discountType: null,
+  discountValue: 0,
+  discountDescription: ''
+};
+
+const SERVICE_ICONS = {
+  taxi_sanitario: '<svg viewBox="0 0 24 24"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg>',
+  trasporto_programmato: '<svg viewBox="0 0 24 24"><path d="M18 18.5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5-1.5.67-1.5 1.5.67 1.5 1.5 1.5zm1.5-9H17V12h4.46L19.5 9.5zM6 18.5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5-1.5.67-1.5 1.5.67 1.5 1.5 1.5zM20 8l3 4v5h-2c0 1.66-1.34 3-3 3s-3-1.34-3-3H9c0 1.66-1.34 3-3 3s-3-1.34-3-3H1V6c0-1.11.89-2 2-2h14v4h3zM3 6v9h.76c.55-.61 1.35-1 2.24-1 .89 0 1.69.39 2.24 1H15V6H3zm4 3.5h2V12h2V9.5h2V8H7v1.5z"/></svg>',
+  accompagnamento_visite: '<svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-1 11h-4v4h-4v-4H6v-4h4V6h4v4h4v4z"/></svg>',
+  trasporto_disabili: '<svg viewBox="0 0 24 24"><path d="M12.83 8a3 3 0 100-6 3 3 0 000 6zm2.31 9.66l-2.47-5.04c-.29-.59-.84-1.04-1.5-1.18L8.97 11H4v2h4.28l1.18.24L7 19.19c-.43.96.18 2.08 1.23 2.32.7.16 1.43-.13 1.84-.75l2.73-4.3 2.2 4.5c.34.7 1.05 1.04 1.76 1.04.24 0 .48-.05.71-.14.95-.39 1.42-1.48 1.03-2.44l-3.36-1.76z"/></svg>'
+};
+
+const statusLabels = {
+  pending: 'In Attesa', confirmed: 'Confermata', assigned: 'Veicolo Assegnato',
+  in_transit: 'In Viaggio', patient_aboard: 'Paziente a Bordo',
+  completed: 'Completata', cancelled: 'Annullata', rejected: 'Rifiutata'
+};
+
+async function api(path, opts = {}) {
+  const res = await fetch(path, {
+    ...opts,
+    headers: { 'Content-Type': 'application/json', ...opts.headers },
+    credentials: 'include',
+    body: opts.body ? JSON.stringify(opts.body) : undefined,
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Errore del server');
+  return data;
+}
+
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const page = document.getElementById('page-' + name);
+  if (page) page.classList.add('active');
+  document.getElementById('nav-dropdown')?.classList.remove('show');
+  closeNotifDropdown();
+  if (name === 'dashboard') { loadBookings(); loadNotifCount(); }
+  if (name === 'profile') renderProfile();
+}
+
+function toggleProfileMenu() {
+  document.getElementById('nav-dropdown').classList.toggle('show');
+  closeNotifDropdown();
+}
+
+function toggleNotifDropdown(e) {
+  if (e) e.stopPropagation();
+  const dd = document.getElementById('notif-dropdown');
+  const isShowing = dd.classList.contains('show');
+  document.getElementById('nav-dropdown')?.classList.remove('show');
+  if (isShowing) {
+    dd.classList.remove('show');
+  } else {
+    dd.classList.add('show');
+    loadNotificationsDropdown();
+  }
+}
+
+function closeNotifDropdown() {
+  document.getElementById('notif-dropdown')?.classList.remove('show');
+}
+
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.nav-profile')) {
+    document.getElementById('nav-dropdown')?.classList.remove('show');
+  }
+  if (!e.target.closest('#notif-bell-container') && !e.target.closest('.mobile-nav-item')) {
+    closeNotifDropdown();
+  }
+});
+
+function activeMobileNav(el) {
+  document.querySelectorAll('.mobile-nav-item').forEach(b => b.classList.remove('active'));
+  el?.classList.add('active');
+}
+
+function switchDashTab(tab, btn) {
+  if (btn) {
+    document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+  document.getElementById('dash-tab-bookings').style.display = tab === 'bookings' ? 'block' : 'none';
+  document.getElementById('dash-tab-new-booking').style.display = tab === 'new-booking' ? 'block' : 'none';
+  if (tab === 'bookings') loadBookings();
+  if (tab === 'new-booking') renderNewBookingTab();
+}
+
+function selectClientType(type) {
+  selectedClientType = type;
+  document.querySelectorAll('#auth-register .pill-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.type === type);
+  });
+  document.getElementById('facility-fields').style.display = type === 'facility' ? 'block' : 'none';
+}
+
+function showRegister() {
+  document.getElementById('auth-login').style.display = 'none';
+  document.getElementById('auth-register').style.display = 'block';
+}
+function showLogin() {
+  document.getElementById('auth-login').style.display = 'block';
+  document.getElementById('auth-register').style.display = 'none';
+}
+
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  const errEl = document.getElementById('login-error');
+  errEl.style.display = 'none';
+  if (!email || !password) { errEl.textContent = 'Inserisci email e password'; errEl.style.display = 'block'; return; }
+  try {
+    currentUser = await api(`/api/hub/${ORG_SLUG}/login`, { method: 'POST', body: { email, password } });
+    enterDashboard();
+  } catch (e) { errEl.textContent = e.message; errEl.style.display = 'block'; }
+}
+
+async function doRegister() {
+  const errEl = document.getElementById('register-error');
+  errEl.style.display = 'none';
+  const body = {
+    clientType: selectedClientType,
+    firstName: document.getElementById('reg-firstName').value.trim(),
+    lastName: document.getElementById('reg-lastName').value.trim(),
+    email: document.getElementById('reg-email').value.trim(),
+    password: document.getElementById('reg-password').value,
+    phone: document.getElementById('reg-phone').value.trim(),
+    fiscalCode: document.getElementById('reg-fiscalCode').value.trim(),
+    birthDate: document.getElementById('reg-birthDate').value || null,
+    gender: document.getElementById('reg-gender').value || null,
+  };
+  if (!body.firstName || !body.lastName || !body.email || !body.password) {
+    errEl.textContent = 'Compila tutti i campi obbligatori (*)'; errEl.style.display = 'block'; return;
+  }
+  if (selectedClientType === 'facility') {
+    body.facilityName = document.getElementById('reg-facilityName').value.trim();
+    body.facilityType = document.getElementById('reg-facilityType').value;
+    body.facilityVatNumber = document.getElementById('reg-facilityVat').value.trim();
+    body.facilityAddress = document.getElementById('reg-facilityAddress').value.trim();
+    body.facilityCity = document.getElementById('reg-facilityCity').value.trim();
+    if (!body.facilityName) { errEl.textContent = 'Il nome della struttura e obbligatorio'; errEl.style.display = 'block'; return; }
+  }
+  try {
+    currentUser = await api(`/api/hub/${ORG_SLUG}/register`, { method: 'POST', body });
+    enterDashboard();
+  } catch (e) { errEl.textContent = e.message; errEl.style.display = 'block'; }
+}
+
+async function doLogout() {
+  try { await api('/api/hub/logout', { method: 'POST' }); } catch(e) {}
+  currentUser = null;
+  showPage('landing');
+}
+
+function enterDashboard() {
+  if (orgInfo?.logoUrl) {
+    document.getElementById('dash-brand-logo').innerHTML = `<img src="${orgInfo.logoUrl}" alt="">`;
+    document.getElementById('wizard-brand-logo').innerHTML = `<img src="${orgInfo.logoUrl}" alt="" style="max-width:100px;max-height:32px;width:auto;height:auto;object-fit:contain">`;
+  } else {
+    document.getElementById('dash-brand-logo').innerHTML = `<span class="brand-placeholder">+</span>`;
+    document.getElementById('wizard-brand-logo').innerHTML = `<span class="brand-placeholder" style="width:32px;height:32px;font-size:.8rem">+</span>`;
+  }
+  const initials = (currentUser?.firstName?.[0] || '') + (currentUser?.lastName?.[0] || '');
+  document.getElementById('nav-avatar').textContent = initials.toUpperCase();
+  document.getElementById('nav-user-name').textContent = currentUser?.firstName || '';
+  showPage('dashboard');
+  renderNewBookingTab();
+  loadBookings();
+  loadNotifCount();
+}
+
+function renderNewBookingTab() {
+  const el = document.getElementById('dash-tab-new-booking');
+  el.innerHTML = `
+    <div style="text-align:center;padding:40px 0">
+      <div style="width:72px;height:72px;border-radius:20px;background:var(--blue-light);display:flex;align-items:center;justify-content:center;margin:0 auto 20px">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      </div>
+      <h2 style="font-size:1.3rem;color:var(--navy);margin-bottom:8px">Prenota il tuo trasporto</h2>
+      <p style="color:var(--text-muted);font-size:.92rem;max-width:420px;margin:0 auto 24px">Calcola il costo del tuo trasporto sanitario e prenota in pochi semplici passaggi.</p>
+      <button class="btn btn-primary btn-lg" onclick="startWizard()" style="min-width:260px">Calcola il tuo trasporto</button>
+    </div>
+    <div style="margin-top:16px">
+      <h3 style="font-size:1rem;color:var(--navy);margin-bottom:14px">Prenotazioni recenti</h3>
+      <div id="recent-bookings-preview"><div class="loading"><div class="spinner"></div></div></div>
+    </div>
+  `;
+  loadRecentBookings();
+}
+
+async function loadRecentBookings() {
+  try {
+    const bookings = await api('/api/hub/bookings');
+    const el = document.getElementById('recent-bookings-preview');
+    if (!el) return;
+    if (bookings.length === 0) {
+      el.innerHTML = '<div class="empty-state"><p>Nessuna prenotazione ancora.</p></div>';
+      return;
+    }
+    el.innerHTML = bookings.slice(0, 3).map(b => renderBookingCard(b)).join('');
+  } catch(e) {}
+}
+
+function renderBookingCard(b) {
+  const isActive = ['confirmed','assigned','in_transit','patient_aboard'].includes(b.status);
+  const orgPhone = orgInfo?.phone || '';
+  const orgEmail = orgInfo?.email || '';
+  return `<div class="booking-card" onclick="showBookingDetail('${b.id}')">
+    <div class="bc-header">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="status-badge status-${b.status}">${statusLabels[b.status] || b.status}</span>
+      </div>
+      <div class="bc-actions" onclick="event.stopPropagation()">
+        ${orgPhone ? `<a href="tel:${orgPhone}" class="bc-action-btn bc-action-phone" title="Chiama l'organizzazione"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg></a>` : ''}
+        ${orgEmail ? `<a href="mailto:${orgEmail}" class="bc-action-btn bc-action-help" title="Contatta assistenza"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></a>` : ''}
+      </div>
+    </div>
+    <div class="bc-number">${b.bookingNumber}</div>
+    <div class="bc-date">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      ${formatDate(b.requestedDate)} &middot; ${b.requestedTimeStart?.slice(0,5) || ''}
+    </div>
+    <div class="bc-route">
+      <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2"><circle cx="12" cy="10" r="3"/><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg> ${b.pickupAddress || '-'}</span>
+      <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="2"><circle cx="12" cy="10" r="3"/><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg> ${b.dropoffAddress || '-'}</span>
+    </div>
+  </div>`;
+}
+
+let allBookings = [];
+let currentBookingFilter = 'active';
+
+function categorizeBooking(b) {
+  if (['in_transit','patient_aboard'].includes(b.status)) return 'active';
+  if (['pending','confirmed','assigned'].includes(b.status)) return 'scheduled';
+  return 'past';
+}
+
+function filterBookings(filter, btnEl) {
+  currentBookingFilter = filter;
+  document.querySelectorAll('.booking-tab-btn').forEach(b => b.classList.remove('active'));
+  if (btnEl) btnEl.classList.add('active');
+  renderFilteredBookings();
+}
+
+function renderFilteredBookings() {
+  const list = document.getElementById('bookings-list');
+  if (!list) return;
+  const filtered = allBookings.filter(b => categorizeBooking(b) === currentBookingFilter);
+  const activeCount = allBookings.filter(b => categorizeBooking(b) === 'active').length;
+  const scheduledCount = allBookings.filter(b => categorizeBooking(b) === 'scheduled').length;
+  const pastCount = allBookings.filter(b => categorizeBooking(b) === 'past').length;
+  const ca = document.getElementById('count-active'); if (ca) ca.textContent = activeCount;
+  const cs = document.getElementById('count-scheduled'); if (cs) cs.textContent = scheduledCount;
+  const cp = document.getElementById('count-past'); if (cp) cp.textContent = pastCount;
+  if (filtered.length === 0) {
+    const msgs = {active:'Nessun trasporto in corso.',scheduled:'Nessuna prenotazione in programma.',past:'Nessuna prenotazione passata.'};
+    list.innerHTML = `<div class="empty-state" style="padding:32px;text-align:center"><p style="color:var(--text-muted)">${msgs[currentBookingFilter]}</p></div>`;
+    return;
+  }
+  list.innerHTML = filtered.map(b => renderBookingCard(b)).join('');
+}
+
+async function loadBookings() {
+  const list = document.getElementById('bookings-list');
+  if (!list) return;
+  list.innerHTML = '<div class="loading"><div class="spinner"></div>Caricamento...</div>';
+  try {
+    allBookings = await api('/api/hub/bookings');
+    if (allBookings.length === 0) {
+      list.innerHTML = '<div class="empty-state"><p style="color:var(--text-muted)">Nessuna prenotazione.<br>Crea la tua prima prenotazione!</p></div>';
+      return;
+    }
+    renderFilteredBookings();
+  } catch (e) {
+    list.innerHTML = '<div class="error-msg" style="text-align:center;padding:20px">Errore nel caricamento</div>';
+  }
+}
+
+function startWizard() {
+  wizardStep = 1;
+  wiz.tripType = 'one_way';
+  wiz.originAddress = '';
+  wiz.destinationAddress = '';
+  wiz.date = '';
+  wiz.time = '';
+  wiz.transportReason = '';
+  wiz.selectedPricingId = pricingItems[0]?.id || null;
+  wiz.distanceKm = 0;
+  wiz.durationMin = 0;
+  wiz.originCoords = null;
+  wiz.destCoords = null;
+  wiz.passengerFor = 'me';
+  wiz.patientFirstName = currentUser?.firstName || '';
+  wiz.patientLastName = currentUser?.lastName || '';
+  wiz.patientBirthDate = currentUser?.birthDate || '';
+  wiz.patientEmail = currentUser?.email || '';
+  wiz.patientGender = currentUser?.gender || '';
+  wiz.patientPhone = currentUser?.phone || '';
+  wiz.transportDetail = '';
+  wiz.notes = '';
+  wiz.companionFirstName = '';
+  wiz.companionLastName = '';
+  wiz.companionPhone = '';
+  wiz.floorAssistance = true;
+  wiz.weightSupplement = null;
+  wiz.invoiceRequested = false;
+  wiz.appointmentDateTime = '';
+  wiz.invoiceData = {};
+  routeData = null;
+  showPage('wizard');
+  renderWizard();
+}
+
+function exitWizard() {
+  showPage('dashboard');
+}
+
+function renderWizardProgress() {
+  const steps = ['Trasporto','Passeggero','Accompagnatore','Conferma'];
+  let html = '';
+  steps.forEach((s, i) => {
+    const n = i + 1;
+    const cls = n < wizardStep ? 'done' : n === wizardStep ? 'active' : '';
+    html += `<div class="wizard-step ${cls}">
+      <span class="step-num">${n < wizardStep ? '&#10003;' : n}</span>
+      <span class="step-text">${s}</span>
+    </div>`;
+    if (i < steps.length - 1) html += `<div class="wizard-line ${n < wizardStep ? 'done' : ''}"></div>`;
+  });
+  document.getElementById('wizard-progress').innerHTML = html;
+  document.getElementById('wizard-step-label').textContent = `Passo ${wizardStep} di 4`;
+}
+
+function renderWizard() {
+  renderWizardProgress();
+  const c = document.getElementById('wizard-content');
+  if (wizardStep === 1) renderWizardStep1(c);
+  else if (wizardStep === 2) renderWizardStep2(c);
+  else if (wizardStep === 3) renderWizardStep3(c);
+  else if (wizardStep === 4) renderWizardStep4(c);
+}
+
+function getSelectedPricing() {
+  return pricingItems.find(p => p.id === wiz.selectedPricingId) || pricingItems[0] || null;
+}
+
+function calculatePrice() {
+  const p = getSelectedPricing();
+  if (!p || !wiz.distanceKm) return 0;
+  const km = wiz.distanceKm;
+  const multiplier = wiz.tripType === 'round_trip' ? 2 : 1;
+  let cost = Number(p.baseFee || 0) + (Number(p.perKmRate || 0) * km * multiplier);
+  if (wiz.transportDetail === 'sedia_a_rotelle' && p.wheelchairSupplement) cost += Number(p.wheelchairSupplement);
+  if (wiz.transportDetail === 'barella' && p.stretcherSupplement) cost += Number(p.stretcherSupplement);
+  if (wiz.transportDetail === 'ossigeno' && p.oxygenSupplement) cost += Number(p.oxygenSupplement);
+  if (wiz.weightSupplement === '90kg') cost += 15;
+  if (wiz.weightSupplement === '150kg') cost += 50;
+  if (p.minimumCharge && cost < Number(p.minimumCharge)) cost = Number(p.minimumCharge);
+  if (wiz.tripType === 'round_trip' && p.roundTripDiscount) {
+    cost = cost * (1 - Number(p.roundTripDiscount) / 100);
+  }
+  if (wiz.discountApplied && wiz.discountValue > 0) {
+    if (wiz.discountType === 'percentage') cost = cost * (1 - wiz.discountValue / 100);
+    else if (wiz.discountType === 'fixed') cost -= wiz.discountValue;
+    else if (wiz.discountType === 'per_km') cost -= wiz.discountValue * km;
+    if (cost < 0) cost = 0;
+  }
+  return Math.round(cost * 100) / 100;
+}
+
+function formatPrice(v) { return '\u20AC' + Number(v).toFixed(2).replace('.', ','); }
+function calculateCodeDiscountAmount() {
+  if (!wiz.discountApplied || !wiz.discountValue) return 0;
+  const priceBeforeCode = calculatePriceBeforeCode();
+  if (wiz.discountType === 'percentage') return Math.round(priceBeforeCode * wiz.discountValue / 100 * 100) / 100;
+  if (wiz.discountType === 'fixed') return Math.min(wiz.discountValue, priceBeforeCode);
+  if (wiz.discountType === 'per_km') return Math.min(wiz.discountValue * (wiz.distanceKm || 0), priceBeforeCode);
+  return 0;
+}
+function calculatePriceBeforeCode() {
+  const p = getSelectedPricing();
+  if (!p || !wiz.distanceKm) return 0;
+  const km = wiz.distanceKm;
+  const multiplier = wiz.tripType === 'round_trip' ? 2 : 1;
+  let cost = Number(p.baseFee || 0) + (Number(p.perKmRate || 0) * km * multiplier);
+  if (wiz.transportDetail === 'sedia_a_rotelle' && p.wheelchairSupplement) cost += Number(p.wheelchairSupplement);
+  if (wiz.transportDetail === 'barella' && p.stretcherSupplement) cost += Number(p.stretcherSupplement);
+  if (wiz.transportDetail === 'ossigeno' && p.oxygenSupplement) cost += Number(p.oxygenSupplement);
+  if (wiz.weightSupplement === '90kg') cost += 15;
+  if (wiz.weightSupplement === '150kg') cost += 50;
+  if (p.minimumCharge && cost < Number(p.minimumCharge)) cost = Number(p.minimumCharge);
+  if (wiz.tripType === 'round_trip' && p.roundTripDiscount) cost = cost * (1 - Number(p.roundTripDiscount) / 100);
+  return Math.round(cost * 100) / 100;
+}
+function calculateDiscountAmount() {
+  const p = getSelectedPricing();
+  if (!p || !wiz.distanceKm || wiz.tripType !== 'round_trip' || !p.roundTripDiscount) return 0;
+  const km = wiz.distanceKm;
+  let subtotal = Number(p.baseFee || 0) + (Number(p.perKmRate || 0) * km * 2);
+  if (wiz.transportDetail === 'sedia_a_rotelle' && p.wheelchairSupplement) subtotal += Number(p.wheelchairSupplement);
+  if (wiz.transportDetail === 'barella' && p.stretcherSupplement) subtotal += Number(p.stretcherSupplement);
+  if (wiz.transportDetail === 'ossigeno' && p.oxygenSupplement) subtotal += Number(p.oxygenSupplement);
+  if (wiz.weightSupplement === '90kg') subtotal += 15;
+  if (wiz.weightSupplement === '150kg') subtotal += 50;
+  return Math.round(subtotal * Number(p.roundTripDiscount) / 100 * 100) / 100;
+}
+function formatDate(d) {
+  if (!d) return '-';
+  const parts = d.split('-');
+  if (parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
+  return d;
+}
+
+function getMapHtml() {
+  if (!wiz.originCoords || !wiz.destCoords) return null;
+  const oLat = wiz.originCoords.lat, oLon = wiz.originCoords.lon;
+  const dLat = wiz.destCoords.lat, dLon = wiz.destCoords.lon;
+  const key = window.GOOGLE_MAPS_KEY;
+  if (key) {
+    const o = encodeURIComponent(`${oLat},${oLon}`);
+    const d = encodeURIComponent(`${dLat},${dLon}`);
+    const url = `https://www.google.com/maps/embed/v1/directions?key=${key}&origin=${o}&destination=${d}&mode=driving&language=it&region=it&avoid=tolls`;
+    return `<iframe src="${url}" width="100%" height="100%" style="border:0;min-height:340px" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>`;
+  }
+  return getOsmMapHtml(oLat, oLon, dLat, dLon);
+}
+
+function getOsmMapHtml(oLat, oLon, dLat, dLon) {
+  const minLat = Math.min(oLat, dLat) - 0.02;
+  const maxLat = Math.max(oLat, dLat) + 0.02;
+  const minLon = Math.min(oLon, dLon) - 0.02;
+  const maxLon = Math.max(oLon, dLon) + 0.02;
+  const bbox = `${minLon},${minLat},${maxLon},${maxLat}`;
+  return `<iframe src="https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${oLat},${oLon}" width="100%" height="100%" style="border:0;min-height:340px" loading="lazy"></iframe>`;
+}
+
+let _acTimers = {};
+let _acDropdowns = {};
+
+function initAutocomplete(inputId, onSelect) {
+  const input = document.getElementById(inputId);
+  if (!input || input._autocompleteInit) return;
+  input._autocompleteInit = true;
+
+  const wrapper = input.parentElement;
+  wrapper.style.position = 'relative';
+
+  let dropdown = wrapper.querySelector('.ac-dropdown');
+  if (!dropdown) {
+    dropdown = document.createElement('div');
+    dropdown.className = 'ac-dropdown';
+    wrapper.appendChild(dropdown);
+  }
+  _acDropdowns[inputId] = dropdown;
+
+  input.setAttribute('autocomplete', 'off');
+
+  input.addEventListener('input', () => {
+    const q = input.value.trim();
+    if (_acTimers[inputId]) clearTimeout(_acTimers[inputId]);
+    if (q.length < 3) { dropdown.classList.remove('show'); return; }
+    _acTimers[inputId] = setTimeout(async () => {
+      dropdown.innerHTML = '<div class="ac-dropdown-loading">Ricerca...</div>';
+      dropdown.classList.add('show');
+      try {
+        const resp = await fetch(`/api/hub/autocomplete?q=${encodeURIComponent(q)}`);
+        const results = await resp.json();
+        if (results.length === 0) {
+          dropdown.innerHTML = '<div class="ac-dropdown-loading">Nessun risultato</div>';
+          return;
+        }
+        dropdown.innerHTML = results.map((r, i) => `
+          <div class="ac-dropdown-item" data-index="${i}" data-display="${(r.display||'').replace(/"/g,'&quot;')}">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <span>${r.display}</span>
+          </div>
+        `).join('');
+        dropdown.querySelectorAll('.ac-dropdown-item').forEach(item => {
+          item.addEventListener('click', () => {
+            const addr = item.dataset.display;
+            input.value = addr;
+            dropdown.classList.remove('show');
+            if (onSelect) onSelect(addr);
+          });
+        });
+      } catch (e) {
+        dropdown.classList.remove('show');
+      }
+    }, 350);
+  });
+
+  input.addEventListener('blur', () => {
+    setTimeout(() => dropdown.classList.remove('show'), 200);
+  });
+  input.addEventListener('focus', () => {
+    if (dropdown.children.length > 0 && input.value.trim().length >= 3) {
+      dropdown.classList.add('show');
+    }
+  });
+}
+
+function tryAutoCalculateRoute() {
+  const origin = document.getElementById('wiz-origin')?.value?.trim();
+  const dest = document.getElementById('wiz-dest')?.value?.trim();
+  if (origin && dest && origin.length > 5 && dest.length > 5) {
+    calculateRoute();
+  }
+}
+
+function renderWizardStep1(c) {
+  const pricing = getSelectedPricing();
+  const hasRoute = wiz.distanceKm > 0;
+  const distKm = wiz.tripType === 'round_trip' ? (wiz.distanceKm * 2).toFixed(1) : wiz.distanceKm;
+  const durMin = wiz.tripType === 'round_trip' ? (wiz.durationMin * 2) : wiz.durationMin;
+  const durH = Math.floor(durMin / 60);
+  const durM = durMin % 60;
+  const durText = durH > 0 ? `${durH}h ${durM > 0 ? durM + 'min' : ''}` : `${durM} min`;
+
+  let arrivalText = '';
+  if (hasRoute && wiz.time) {
+    const [h, m] = wiz.time.split(':').map(Number);
+    const arrival = new Date(2000, 0, 1, h, m + wiz.durationMin);
+    arrivalText = `${String(arrival.getHours()).padStart(2,'0')}:${String(arrival.getMinutes()).padStart(2,'0')}`;
+  }
+
+  const mapHtml = getMapHtml();
+  const orgName = orgInfo?.name || '';
+
+  c.innerHTML = `
+    <div class="booking-layout">
+      <!-- LEFT COLUMN: FORM -->
+      <div class="col-left">
+        <div class="card" style="border-radius:16px;padding:28px 24px">
+          <div class="card-title" style="margin-bottom:4px;font-size:1.05rem">Inserisci i dati del tuo viaggio</div>
+          <p style="font-size:.8rem;color:var(--text-muted);margin-bottom:24px;line-height:1.5">Compila i campi per calcolare il costo del trasporto. Nessun pagamento ora.</p>
+
+          <div class="section-label">Tipologia trasporto</div>
+          <div style="margin-bottom:24px">
+            <div class="pill-group">
+              <button class="pill-btn ${wiz.tripType==='one_way'?'active':''}" onclick="wiz.tripType='one_way';recalcPriceOnly()">Solo Andata</button>
+              <button class="pill-btn ${wiz.tripType==='round_trip'?'active':''}" onclick="wiz.tripType='round_trip';recalcPriceOnly()">A/R</button>
+            </div>
+          </div>
+
+          <div class="section-label">Itinerario</div>
+          <div class="section-hint">Inserisci un indirizzo, ospedale, clinica o luogo di interesse</div>
+
+          <div style="position:relative;margin-bottom:24px">
+            <div class="itinerary-group" style="margin-bottom:8px">
+              <div class="itin-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-light)" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/></svg></div>
+              <div class="autocomplete-wrapper">
+                <input type="text" id="wiz-origin" placeholder="Luogo di partenza" value="${wiz.originAddress}" onchange="wiz.originAddress=this.value" autocomplete="off">
+              </div>
+            </div>
+            <div class="itinerary-group" style="margin-bottom:0">
+              <div class="itin-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-light)" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/></svg></div>
+              <div class="autocomplete-wrapper">
+                <input type="text" id="wiz-dest" placeholder="Luogo di arrivo" value="${wiz.destinationAddress}" onchange="wiz.destinationAddress=this.value" autocomplete="off">
+              </div>
+            </div>
+          </div>
+
+          <div class="section-label">Data e ora del servizio</div>
+          <div class="dt-row">
+            <div class="dt-field">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              <input type="date" id="wiz-date" value="${wiz.date}" onchange="wiz.date=this.value">
+            </div>
+            <div class="dt-field">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <input type="time" id="wiz-time" value="${wiz.time}" onchange="wiz.time=this.value">
+            </div>
+          </div>
+          <p style="font-size:.72rem;color:var(--text-light);margin-bottom:20px;font-style:italic">Potrai modificare data e ora successivamente</p>
+
+          ${hasRoute ? `
+            <div class="route-badge">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              <span><strong>${distKm} km</strong> &middot; ${durText}${wiz.tripType === 'round_trip' ? ' (A/R)' : ''}</span>
+            </div>
+            ${arrivalText ? `<div class="arrival-note">Arrivo stimato alle <strong>${arrivalText}</strong>, variabile in base al traffico</div>` : ''}
+          ` : ''}
+
+          <div class="form-group" style="margin-bottom:16px">
+            <div class="section-label">Motivo trasporto</div>
+            <select id="wiz-reason" onchange="wiz.transportReason=this.value;renderWizard()">
+              <option value="">Seleziona...</option>
+              <option value="trasferimento" ${wiz.transportReason==='trasferimento'?'selected':''}>Trasferimento</option>
+              <option value="esame_diagnostico" ${wiz.transportReason==='esame_diagnostico'?'selected':''}>Esame diagnostico</option>
+              <option value="visita_medica" ${wiz.transportReason==='visita_medica'?'selected':''}>Visita medica</option>
+              <option value="dimissione" ${wiz.transportReason==='dimissione'?'selected':''}>Dimissione</option>
+              <option value="ricovero" ${wiz.transportReason==='ricovero'?'selected':''}>Ricovero</option>
+              <option value="dialisi" ${wiz.transportReason==='dialisi'?'selected':''}>Dialisi</option>
+              <option value="riabilitazione" ${wiz.transportReason==='riabilitazione'?'selected':''}>Riabilitazione</option>
+              <option value="altro" ${wiz.transportReason==='altro'?'selected':''}>Altro</option>
+            </select>
+          </div>
+
+          ${(wiz.transportReason === 'visita_medica' || wiz.transportReason === 'esame_diagnostico') ? `
+          <div class="waiting-time-note" style="display:flex;align-items:flex-start;gap:10px;padding:12px 16px;background:linear-gradient(135deg,#EBF5FF,#F0F7FF);border:1px solid #BEE3F8;border-radius:10px;margin-bottom:16px">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <div style="font-size:.82rem;color:var(--navy);line-height:1.5">
+              <strong>Sosta inclusa:</strong> La tariffa comprende fino a <strong>1 ora di attesa</strong> presso la struttura. Per tempi di attesa superiori, l'organizzazione che effettua il trasporto potra applicare un supplemento orario.
+            </div>
+          </div>
+          ` : ''}
+
+
+          ${!hasRoute ? `
+            <button class="btn btn-primary btn-block" onclick="calculateRoute()" id="calc-route-btn" style="margin-top:4px;border-radius:12px;padding:14px;font-weight:600">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              Calcola percorso
+            </button>
+          ` : ''}
+          <div id="route-error" class="error-msg" style="display:none"></div>
+        </div>
+
+        <!-- BENEFITS CARD -->
+        <div class="benefits-card">
+          <div class="bc-title">I vantaggi di prenotare con ${orgName}</div>
+          <div class="bc-subtitle">Perche scegliere il nostro servizio?</div>
+          <div class="bc-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <span>Pianifica il tuo trasporto fino a 30 giorni prima</span>
+          </div>
+          <div class="bc-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+            <span>Consultazione del prezzo immediata e trasparente</span>
+          </div>
+          <div class="bc-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <span>Mezzi sanitari certificati e personale qualificato</span>
+          </div>
+          <div class="bc-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            <span>Assistenza dedicata per ogni trasporto</span>
+          </div>
+          <a href="#" class="bc-link" onclick="event.preventDefault()">Privacy policy e termini di servizio</a>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN: VEHICLES + MAP -->
+      <div class="col-right">
+        <div class="card" style="border-radius:16px;padding:28px 24px">
+          <div class="card-title" style="margin-bottom:4px;font-size:1.05rem">Scegli il mezzo di trasporto</div>
+          <p style="font-size:.8rem;color:var(--text-muted);margin-bottom:20px;line-height:1.5">Seleziona il veicolo piu adatto alle tue esigenze</p>
+          <div id="vehicle-cards-container" class="vehicle-grid">
+            ${hasRoute && pricingItems.length > 0 ? pricingItems.map(p => `
+              <div class="vehicle-card ${p.id === wiz.selectedPricingId ? 'selected' : ''}" onclick="wiz.selectedPricingId='${p.id}';renderWizard()">
+                <div class="vc-check-badge">${p.id === wiz.selectedPricingId ? '&#10003;' : ''}</div>
+                <div class="vc-icon-wrap">${SERVICE_ICONS[p.serviceType] || SERVICE_ICONS.taxi_sanitario}</div>
+                <div class="vc-name">${p.serviceName || p.serviceType}</div>
+                <div class="vc-price">${formatPrice(calculatePriceForItem(p))}</div>
+                <div class="vc-price-hint">a partire da</div>
+              </div>
+            `).join('') : (!hasRoute && pricingItems.length > 0 ? `
+              <div class="vehicle-empty-state" style="grid-column:1/-1">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 18.5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5-1.5.67-1.5 1.5.67 1.5 1.5 1.5zm1.5-9H17V12h4.46L19.5 9.5zM6 18.5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5-1.5.67-1.5 1.5.67 1.5 1.5 1.5zM20 8l3 4v5h-2c0 1.66-1.34 3-3 3s-3-1.34-3-3H9c0 1.66-1.34 3-3 3s-3-1.34-3-3H1V6c0-1.11.89-2 2-2h14v4h3zM3 6v9h.76c.55-.61 1.35-1 2.24-1 .89 0 1.69.39 2.24 1H15V6H3zm4 3.5h2V12h2V9.5h2V8H7v1.5z"/></svg>
+                <p><strong>Inserisci i dati del trasporto</strong>Calcola il percorso per vedere i mezzi disponibili e i relativi prezzi.</p>
+              </div>
+            ` : '<p style="color:var(--text-muted);font-size:.85rem;grid-column:1/-1;text-align:center;padding:24px">Nessun servizio disponibile per questa organizzazione</p>')}
+          </div>
+        </div>
+
+        <!-- MAP BELOW VEHICLES -->
+        <div class="map-section">
+          ${mapHtml ? `
+            <div class="map-embed">${mapHtml}</div>
+          ` : `
+            <div class="map-placeholder-lg">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              Inserisci partenza e destinazione<br>per vedere il percorso sulla mappa
+            </div>
+          `}
+        </div>
+      </div>
+    </div>
+
+    <!-- STICKY BOTTOM BAR -->
+    <div class="sticky-bottom-bar">
+      <div class="sbb-inner">
+        <button class="btn btn-green btn-block btn-lg" onclick="${hasRoute ? 'wizardNext()' : 'calculateRoute()'}" style="flex:1;border-radius:12px;padding:16px;font-size:1rem;font-weight:700;letter-spacing:.3px" ${hasRoute && !wiz.selectedPricingId ? 'disabled' : ''}>
+          ${hasRoute ? 'Continua - ' + formatPrice(calculatePrice()) : 'Vedi i prezzi'}
+        </button>
+      </div>
+    </div>
+  `;
+  setTimeout(() => {
+    initAutocomplete('wiz-origin', (addr) => {
+      wiz.originAddress = addr;
+      tryAutoCalculateRoute();
+    });
+    initAutocomplete('wiz-dest', (addr) => {
+      wiz.destinationAddress = addr;
+      tryAutoCalculateRoute();
+    });
+  }, 100);
+}
+
+function recalcPriceOnly() {
+  const vcCards = document.getElementById('vehicle-cards-container');
+  if (vcCards && wiz.distanceKm > 0) {
+    vcCards.querySelectorAll('.vehicle-card').forEach(card => {
+      const pId = card.getAttribute('onclick')?.match(/'([^']+)'/)?.[1];
+      const p = pricingItems.find(item => item.id === pId);
+      if (p) {
+        const priceEl = card.querySelector('.vc-price');
+        if (priceEl) priceEl.textContent = formatPrice(calculatePriceForItem(p));
+      }
+    });
+  }
+  renderWizard();
+}
+
+function getAppointmentNote() {
+  if (!wiz.appointmentDateTime) return '';
+  const appt = new Date(wiz.appointmentDateTime);
+  if (isNaN(appt.getTime())) return '';
+  const pickup = new Date(appt.getTime() - 60 * 60 * 1000);
+  const hh = String(pickup.getHours()).padStart(2, '0');
+  const mm = String(pickup.getMinutes()).padStart(2, '0');
+  const dd = String(pickup.getDate()).padStart(2, '0');
+  const mo = String(pickup.getMonth() + 1).padStart(2, '0');
+  return `L'ambulanza sara al domicilio alle ore ${hh}:${mm} del ${dd}/${mo} (1 ora prima della visita)`;
+}
+
+function updateAppointmentNote() {
+  const noteEl = document.getElementById('appointment-note');
+  if (!noteEl) return;
+  if (wiz.appointmentDateTime) {
+    const noteSpan = noteEl.querySelector('span');
+    if (noteSpan) noteSpan.textContent = getAppointmentNote();
+    noteEl.style.display = 'flex';
+    const appt = new Date(wiz.appointmentDateTime);
+    if (!isNaN(appt.getTime())) {
+      const pickup = new Date(appt.getTime() - 60 * 60 * 1000);
+      const dateStr = pickup.toISOString().split('T')[0];
+      const timeStr = String(pickup.getHours()).padStart(2,'0') + ':' + String(pickup.getMinutes()).padStart(2,'0');
+      wiz.date = dateStr;
+      wiz.time = timeStr;
+    }
+  } else {
+    noteEl.style.display = 'none';
+  }
+}
+
+function calculatePriceForItem(p) {
+  if (!wiz.distanceKm) return 0;
+  const km = wiz.distanceKm;
+  const multiplier = wiz.tripType === 'round_trip' ? 2 : 1;
+  let cost = Number(p.baseFee || 0) + (Number(p.perKmRate || 0) * km * multiplier);
+  if (p.minimumCharge && cost < Number(p.minimumCharge)) cost = Number(p.minimumCharge);
+  if (wiz.tripType === 'round_trip' && p.roundTripDiscount) {
+    cost = cost * (1 - Number(p.roundTripDiscount) / 100);
+  }
+  return Math.round(cost * 100) / 100;
+}
+
+function updateArrivalTime() {
+  const note = document.getElementById('arrival-time-note');
+  if (!note) return;
+  if (wiz.time && wiz.durationMin > 0) {
+    const [h, m] = wiz.time.split(':').map(Number);
+    const dur = wiz.durationMin;
+    const arrival = new Date(2000, 0, 1, h, m + dur);
+    note.textContent = `Arrivo previsto alle ore ${String(arrival.getHours()).padStart(2,'0')}:${String(arrival.getMinutes()).padStart(2,'0')}`;
+  } else {
+    note.textContent = '';
+  }
+}
+
+async function calculateRoute() {
+  const origin = document.getElementById('wiz-origin')?.value?.trim();
+  const dest = document.getElementById('wiz-dest')?.value?.trim();
+  wiz.originAddress = origin || '';
+  wiz.destinationAddress = dest || '';
+  const errEl = document.getElementById('route-error');
+  errEl.style.display = 'none';
+  if (!origin || !dest) { errEl.textContent = 'Inserisci entrambi gli indirizzi'; errEl.style.display = 'block'; return; }
+  const btn = document.getElementById('calc-route-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner" style="width:18px;height:18px;border-width:2px;margin:0"></div> Calcolo in corso...';
+  try {
+    const data = await api('/api/hub/calculate-route', { method: 'POST', body: { originAddress: origin, destinationAddress: dest } });
+    wiz.distanceKm = data.distanceKm;
+    wiz.durationMin = data.durationMin;
+    wiz.originCoords = data.originCoords;
+    wiz.destCoords = data.destCoords;
+    routeData = data;
+    renderWizard();
+  } catch (e) {
+    errEl.textContent = e.message; errEl.style.display = 'block';
+    btn.disabled = false;
+    btn.innerHTML = 'Calcola percorso';
+  }
+}
+
+function renderTripSummary() {
+  const p = getSelectedPricing();
+  const price = calculatePrice();
+  return `<div class="trip-summary">
+    <div class="ts-title">Riepilogo viaggio</div>
+    <div class="ts-row"><span class="ts-label">Partenza</span><span class="ts-value">${wiz.originAddress || '-'}</span></div>
+    <div class="ts-row"><span class="ts-label">Destinazione</span><span class="ts-value">${wiz.destinationAddress || '-'}</span></div>
+    <div class="ts-row"><span class="ts-label">Distanza</span><span class="ts-value">${wiz.tripType === 'round_trip' ? (wiz.distanceKm * 2).toFixed(1) : wiz.distanceKm} km${wiz.tripType === 'round_trip' ? ' (A/R)' : ''}</span></div>
+    <div class="ts-row"><span class="ts-label">Durata stimata</span><span class="ts-value">${wiz.tripType === 'round_trip' ? (wiz.durationMin * 2) : wiz.durationMin} min${wiz.tripType === 'round_trip' ? ' (A/R)' : ''}</span></div>
+    <div class="ts-row"><span class="ts-label">Tipo</span><span class="ts-value">${wiz.tripType === 'round_trip' ? 'Andata e Ritorno' : 'Solo Andata'}</span></div>
+    <div class="ts-row"><span class="ts-label">Data</span><span class="ts-value">${formatDate(wiz.date)}</span></div>
+    <div class="ts-row"><span class="ts-label">Ora</span><span class="ts-value">${wiz.time || '-'}</span></div>
+    ${wiz.appointmentDateTime ? `<div class="ts-row"><span class="ts-label">Visita/Esame</span><span class="ts-value">${new Date(wiz.appointmentDateTime).toLocaleString('it-IT', {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})}</span></div>` : ''}
+    <div class="ts-row"><span class="ts-label">Mezzo</span><span class="ts-value">${p?.serviceName || '-'}</span></div>
+    <div class="ts-total"><span>Totale stimato</span><span>${formatPrice(price)}</span></div>
+  </div>`;
+}
+
+function renderWizardStep2(c) {
+  c.innerHTML = `
+    <h2 style="font-size:1.2rem;color:var(--navy);margin-bottom:24px">Per chi vuoi prenotare?</h2>
+    <div class="two-col-sidebar">
+      <div>${renderTripSummary()}</div>
+      <div>
+        <div class="card">
+          <div style="margin-bottom:20px">
+            <div class="pill-group">
+              <button class="pill-btn ${wiz.passengerFor==='me'?'active':''}" onclick="setPassengerFor('me')">Per me</button>
+              <button class="pill-btn ${wiz.passengerFor==='other'?'active':''}" onclick="setPassengerFor('other')">Per qualcun altro</button>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Nome *</label><input type="text" id="wiz-pFirstName" value="${wiz.patientFirstName}" onchange="wiz.patientFirstName=this.value"></div>
+            <div class="form-group"><label>Cognome *</label><input type="text" id="wiz-pLastName" value="${wiz.patientLastName}" onchange="wiz.patientLastName=this.value"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Data di nascita</label><input type="date" id="wiz-pBirthDate" value="${wiz.patientBirthDate}" onchange="wiz.patientBirthDate=this.value"></div>
+            <div class="form-group"><label>E-mail</label><input type="email" id="wiz-pEmail" value="${wiz.patientEmail}" onchange="wiz.patientEmail=this.value"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Genere</label><select id="wiz-pGender" onchange="wiz.patientGender=this.value"><option value="">Seleziona...</option><option value="M" ${wiz.patientGender==='M'?'selected':''}>Maschio</option><option value="F" ${wiz.patientGender==='F'?'selected':''}>Femmina</option><option value="other" ${wiz.patientGender==='other'?'selected':''}>Altro</option></select></div>
+            <div class="form-group"><label>Numero di telefono</label><input type="tel" id="wiz-pPhone" value="${wiz.patientPhone}" onchange="wiz.patientPhone=this.value"></div>
+          </div>
+          <div class="form-group">
+            <label>Dettagli trasporto</label>
+            <select id="wiz-transportDetail" onchange="wiz.transportDetail=this.value">
+              <option value="" ${!wiz.transportDetail?'selected':''}>Nessuna assistenza</option>
+              <option value="deambulante" ${wiz.transportDetail==='deambulante'?'selected':''}>Deambulante</option>
+              <option value="sedia_a_rotelle" ${wiz.transportDetail==='sedia_a_rotelle'?'selected':''}>Sedia a rotelle</option>
+              <option value="barella" ${wiz.transportDetail==='barella'?'selected':''}>Barella</option>
+              <option value="ossigeno" ${wiz.transportDetail==='ossigeno'?'selected':''}>Ossigeno</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label style="display:flex;align-items:center;gap:6px">
+              Note aggiuntive
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" title="Informazioni utili per l'equipaggio"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            </label>
+            <textarea id="wiz-notes" placeholder="Condizioni particolari, piano, citofono, ecc." onchange="wiz.notes=this.value">${wiz.notes}</textarea>
+          </div>
+          <div id="step2-error" class="error-msg" style="display:none"></div>
+          <div style="display:flex;gap:12px;margin-top:8px">
+            <button class="btn btn-outline" onclick="wizardPrev()">Indietro</button>
+            <button class="btn btn-primary" style="flex:1" onclick="wizardNext()">Continua</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function setPassengerFor(v) {
+  wiz.passengerFor = v;
+  if (v === 'me') {
+    wiz.patientFirstName = currentUser?.firstName || '';
+    wiz.patientLastName = currentUser?.lastName || '';
+    wiz.patientBirthDate = currentUser?.birthDate || '';
+    wiz.patientEmail = currentUser?.email || '';
+    wiz.patientGender = currentUser?.gender || '';
+    wiz.patientPhone = currentUser?.phone || '';
+  } else {
+    wiz.patientFirstName = '';
+    wiz.patientLastName = '';
+    wiz.patientBirthDate = '';
+    wiz.patientEmail = '';
+    wiz.patientGender = '';
+    wiz.patientPhone = '';
+  }
+  renderWizard();
+}
+
+function renderWizardStep3(c) {
+  c.innerHTML = `
+    <h2 style="font-size:1.2rem;color:var(--navy);margin-bottom:24px">Vuoi aggiungere un accompagnatore?</h2>
+    <div class="two-col-sidebar">
+      <div>${renderTripSummary()}</div>
+      <div>
+        <div class="alert alert-info">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          <span>L'aggiunta di un accompagnatore potrebbe comportare un costo extra</span>
+        </div>
+        <div class="card">
+          <div class="card-title">Dati accompagnatore</div>
+          <div class="form-row">
+            <div class="form-group"><label>Nome</label><input type="text" id="wiz-cFirstName" value="${wiz.companionFirstName}" onchange="wiz.companionFirstName=this.value"></div>
+            <div class="form-group"><label>Cognome</label><input type="text" id="wiz-cLastName" value="${wiz.companionLastName}" onchange="wiz.companionLastName=this.value"></div>
+          </div>
+          <div class="form-group"><label>Numero di telefono</label><input type="tel" id="wiz-cPhone" value="${wiz.companionPhone}" onchange="wiz.companionPhone=this.value"></div>
+          <div style="display:flex;gap:12px;margin-top:16px">
+            <button class="btn btn-outline" onclick="wizardPrev()">Indietro</button>
+            <button class="btn btn-outline" onclick="wiz.companionFirstName='';wiz.companionLastName='';wiz.companionPhone='';wizardStep=4;renderWizard()">Salta</button>
+            <button class="btn btn-primary" style="flex:1" onclick="wizardNext()">Continua</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderWizardStep4(c) {
+  const p = getSelectedPricing();
+  const price = calculatePrice();
+  const transportReasonLabels = {
+    trasferimento: 'Trasferimento', visita_medica: 'Visita medica', dimissione: 'Dimissione',
+    ricovero: 'Ricovero', dialisi: 'Dialisi', riabilitazione: 'Riabilitazione', altro: 'Altro'
+  };
+  const transportDetailLabels = {
+    '': 'Nessuna', deambulante: 'Deambulante', sedia_a_rotelle: 'Sedia a rotelle',
+    barella: 'Barella', ossigeno: 'Ossigeno'
+  };
+
+  c.innerHTML = `
+    <h2 style="font-size:1.2rem;color:var(--navy);margin-bottom:24px">Conferma la prenotazione</h2>
+    <div class="two-col">
+      <div>
+        <div class="confirm-section">
+          <div class="cs-header"><span class="cs-title">Dettagli servizio</span><span class="cs-edit" onclick="wizardStep=1;renderWizard()">Modifica</span></div>
+          <div class="cs-row"><span class="cs-label">Mezzo</span><span class="cs-value">${p?.serviceName || '-'}</span></div>
+          <div class="cs-row"><span class="cs-label">Tipo viaggio</span><span class="cs-value">${wiz.tripType === 'round_trip' ? 'Andata e Ritorno' : 'Solo Andata'}</span></div>
+          <div class="cs-row"><span class="cs-label">Partenza</span><span class="cs-value">${wiz.originAddress}</span></div>
+          <div class="cs-row"><span class="cs-label">Destinazione</span><span class="cs-value">${wiz.destinationAddress}</span></div>
+          <div class="cs-row"><span class="cs-label">Data</span><span class="cs-value">${formatDate(wiz.date)}</span></div>
+          <div class="cs-row"><span class="cs-label">Orario</span><span class="cs-value">${wiz.time || '-'}</span></div>
+          ${wiz.appointmentDateTime ? `<div class="cs-row"><span class="cs-label">Visita/Esame</span><span class="cs-value">${new Date(wiz.appointmentDateTime).toLocaleString('it-IT', {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})}</span></div>` : ''}
+          <div class="cs-row"><span class="cs-label">Distanza</span><span class="cs-value">${wiz.tripType === 'round_trip' ? (wiz.distanceKm * 2).toFixed(1) : wiz.distanceKm} km${wiz.tripType === 'round_trip' ? ' (A/R)' : ''}</span></div>
+          ${wiz.transportReason ? `<div class="cs-row"><span class="cs-label">Motivo</span><span class="cs-value">${transportReasonLabels[wiz.transportReason] || wiz.transportReason}</span></div>` : ''}
+        </div>
+        <div class="confirm-section">
+          <div class="cs-header"><span class="cs-title">Passeggero</span><span class="cs-edit" onclick="wizardStep=2;renderWizard()">Modifica</span></div>
+          <div class="cs-row"><span class="cs-label">Nome</span><span class="cs-value">${wiz.patientFirstName} ${wiz.patientLastName}</span></div>
+          ${wiz.patientPhone ? `<div class="cs-row"><span class="cs-label">Telefono</span><span class="cs-value">${wiz.patientPhone}</span></div>` : ''}
+          ${wiz.patientEmail ? `<div class="cs-row"><span class="cs-label">Email</span><span class="cs-value">${wiz.patientEmail}</span></div>` : ''}
+          <div class="cs-row"><span class="cs-label">Assistenza</span><span class="cs-value">${transportDetailLabels[wiz.transportDetail] || 'Nessuna'}</span></div>
+        </div>
+        ${wiz.companionFirstName ? `
+          <div class="confirm-section">
+            <div class="cs-header"><span class="cs-title">Accompagnatore</span><span class="cs-edit" onclick="wizardStep=3;renderWizard()">Modifica</span></div>
+            <div class="cs-row"><span class="cs-label">Nome</span><span class="cs-value">${wiz.companionFirstName} ${wiz.companionLastName}</span></div>
+            ${wiz.companionPhone ? `<div class="cs-row"><span class="cs-label">Telefono</span><span class="cs-value">${wiz.companionPhone}</span></div>` : ''}
+          </div>
+        ` : ''}
+        ${wiz.notes ? `
+          <div class="confirm-section">
+            <div class="cs-header"><span class="cs-title">Note</span><span class="cs-edit" onclick="wizardStep=2;renderWizard()">Modifica</span></div>
+            <p style="font-size:.88rem;color:var(--text-secondary)">${wiz.notes}</p>
+          </div>
+        ` : ''}
+      </div>
+      <div>
+        <div class="card">
+          <div class="card-title">Servizi e opzioni</div>
+          <div class="extra-service" onclick="toggleCheck('floor-assist')">
+            <input type="checkbox" id="floor-assist" ${wiz.floorAssistance?'checked':''} onchange="wiz.floorAssistance=this.checked">
+            <span class="es-text">Assistenza al piano</span>
+            <span class="es-price" style="color:var(--green)">Incluso</span>
+          </div>
+          <div class="extra-service" onclick="toggleCheck('weight-90')">
+            <input type="checkbox" id="weight-90" ${wiz.weightSupplement==='90kg'?'checked':''} onchange="setWeight(this.checked?'90kg':null)">
+            <span class="es-text">Peso superiore a 90kg</span>
+            <span class="es-price">${formatPrice(15)}</span>
+          </div>
+          <div class="extra-service" onclick="toggleCheck('weight-150')">
+            <input type="checkbox" id="weight-150" ${wiz.weightSupplement==='150kg'?'checked':''} onchange="setWeight(this.checked?'150kg':null)">
+            <span class="es-text">Peso superiore a 150kg</span>
+            <span class="es-price">${formatPrice(50)}</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Codice sconto</div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input type="text" id="discount-code-input" placeholder="Inserisci codice" value="${wiz.discountCode || ''}" style="flex:1;text-transform:uppercase;font-size:.9rem" ${wiz.discountApplied ? 'disabled' : ''}>
+            ${wiz.discountApplied ? `
+              <button class="btn" style="background:#fff;color:var(--danger);border:1px solid var(--danger);padding:8px 14px;font-size:.82rem" onclick="removeDiscount()">Rimuovi</button>
+            ` : `
+              <button class="btn btn-primary" style="padding:8px 14px;font-size:.82rem" onclick="applyDiscount()">Applica</button>
+            `}
+          </div>
+          <div id="discount-result" style="margin-top:8px;font-size:.82rem;display:${wiz.discountApplied ? 'block' : 'none'}">
+            ${wiz.discountApplied ? `<span style="color:var(--green);font-weight:600">Sconto "${wiz.discountCode}" applicato: ${wiz.discountDescription || ''}</span>` : ''}
+          </div>
+          <div id="discount-error" class="error-msg" style="display:none;margin-top:8px;font-size:.82rem"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Fatturazione e pagamento</div>
+          <div class="extra-service" onclick="toggleCheck('invoice-check')">
+            <input type="checkbox" id="invoice-check" ${wiz.invoiceRequested?'checked':''} onchange="wiz.invoiceRequested=this.checked;renderWizard()">
+            <span class="es-text">Richiedi fattura</span>
+          </div>
+          ${wiz.invoiceRequested ? `
+            <div class="invoice-fields" style="margin-top:12px">
+              <div class="form-group"><label>Denominazione / Ragione Sociale *</label><input type="text" id="wiz-invName" value="${wiz.invoiceData.name||''}" onchange="wiz.invoiceData.name=this.value"></div>
+              <div class="form-group"><label>Codice Fiscale / P.IVA *</label><input type="text" id="wiz-invFC" value="${wiz.invoiceData.fiscalCode||''}" onchange="wiz.invoiceData.fiscalCode=this.value"></div>
+              <div class="form-group"><label>Indirizzo *</label><input type="text" id="wiz-invAddr" value="${wiz.invoiceData.address||''}" onchange="wiz.invoiceData.address=this.value"></div>
+              <div class="form-group"><label>PEC (opzionale)</label><input type="email" id="wiz-invPec" value="${wiz.invoiceData.pec||''}" onchange="wiz.invoiceData.pec=this.value"></div>
+            </div>
+          ` : ''}
+        </div>
+
+        <div class="cost-box">
+          <div class="card-title" style="margin-bottom:10px">Costi della corsa</div>
+          <div class="cost-row"><span>Servizio ${p?.serviceName || ''}</span><span>${formatPrice(Number(p?.baseFee||0) + Number(p?.perKmRate||0) * wiz.distanceKm * (wiz.tripType==='round_trip'?2:1))}</span></div>
+          ${wiz.transportDetail === 'sedia_a_rotelle' && p?.wheelchairSupplement ? `<div class="cost-row"><span>Suppl. sedia a rotelle</span><span>${formatPrice(p.wheelchairSupplement)}</span></div>` : ''}
+          ${wiz.transportDetail === 'barella' && p?.stretcherSupplement ? `<div class="cost-row"><span>Suppl. barella</span><span>${formatPrice(p.stretcherSupplement)}</span></div>` : ''}
+          ${wiz.transportDetail === 'ossigeno' && p?.oxygenSupplement ? `<div class="cost-row"><span>Suppl. ossigeno</span><span>${formatPrice(p.oxygenSupplement)}</span></div>` : ''}
+          ${wiz.weightSupplement === '90kg' ? `<div class="cost-row"><span>Suppl. peso > 90kg</span><span>${formatPrice(15)}</span></div>` : ''}
+          ${wiz.weightSupplement === '150kg' ? `<div class="cost-row"><span>Suppl. peso > 150kg</span><span>${formatPrice(50)}</span></div>` : ''}
+          ${wiz.tripType === 'round_trip' && p?.roundTripDiscount ? `<div class="cost-row" style="color:var(--green)"><span>Sconto A/R (-${p.roundTripDiscount}%)</span><span>-${formatPrice(calculateDiscountAmount())}</span></div>` : ''}
+          ${wiz.discountApplied ? `<div class="cost-row" style="color:var(--green)"><span>Codice sconto "${wiz.discountCode}" ${wiz.discountType==='percentage'?`(-${wiz.discountValue}%)`:`(-${formatPrice(wiz.discountType==='per_km'?wiz.discountValue*wiz.distanceKm:wiz.discountValue)})`}</span><span>-${formatPrice(calculateCodeDiscountAmount())}</span></div>` : ''}
+          <div class="cost-total"><span>Totale</span><span>${formatPrice(price)}</span></div>
+        </div>
+
+        <div id="submit-error" class="error-msg" style="display:none;margin-bottom:12px"></div>
+        <button class="btn btn-green btn-block btn-lg" onclick="submitBooking()" id="submit-booking-btn">Prenota ora</button>
+
+        <div class="disclaimer-box" style="margin-top:16px">
+          Effettuando la prenotazione accetti le condizioni generali del servizio di trasporto sanitario. Il costo indicato e una stima e potrebbe variare in base al percorso effettivo.
+        </div>
+        <div class="disclaimer-box">
+          Il pagamento avverra al termine del servizio secondo le modalita concordate con l'organizzazione. Per annullamenti con meno di 24 ore di anticipo potrebbe essere applicata una penale.
+        </div>
+
+        <div style="margin-top:16px">
+          <button class="btn btn-outline btn-block" onclick="wizardPrev()">Indietro</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function toggleCheck(id) {
+  const cb = document.getElementById(id);
+  if (cb) { cb.checked = !cb.checked; cb.dispatchEvent(new Event('change')); }
+}
+
+function setWeight(v) {
+  wiz.weightSupplement = v;
+  renderWizard();
+}
+
+async function applyDiscount() {
+  const input = document.getElementById('discount-code-input');
+  const code = (input?.value || '').trim().toUpperCase();
+  if (!code) return;
+  const errEl = document.getElementById('discount-error');
+  const resEl = document.getElementById('discount-result');
+  errEl.style.display = 'none';
+  try {
+    const r = await fetch('/api/hub/validate-discount', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ code, distanceKm: wiz.distanceKm })
+    });
+    const data = await r.json();
+    if (!r.ok) {
+      errEl.textContent = data.error || 'Codice non valido';
+      errEl.style.display = 'block';
+      return;
+    }
+    wiz.discountCode = data.code;
+    wiz.discountApplied = true;
+    wiz.discountType = data.discountType;
+    wiz.discountValue = parseFloat(data.discountValue);
+    wiz.discountDescription = data.description || '';
+    renderWizard();
+  } catch(e) {
+    errEl.textContent = 'Errore di connessione';
+    errEl.style.display = 'block';
+  }
+}
+
+function removeDiscount() {
+  wiz.discountCode = '';
+  wiz.discountApplied = false;
+  wiz.discountType = null;
+  wiz.discountValue = 0;
+  wiz.discountDescription = '';
+  renderWizard();
+}
+
+function wizardNext() {
+  if (wizardStep === 1) {
+    if (!wiz.distanceKm || wiz.distanceKm <= 0) return;
+    wiz.originAddress = document.getElementById('wiz-origin')?.value || wiz.originAddress;
+    wiz.destinationAddress = document.getElementById('wiz-dest')?.value || wiz.destinationAddress;
+  }
+  if (wizardStep === 2) {
+    wiz.patientFirstName = document.getElementById('wiz-pFirstName')?.value || '';
+    wiz.patientLastName = document.getElementById('wiz-pLastName')?.value || '';
+    wiz.patientBirthDate = document.getElementById('wiz-pBirthDate')?.value || '';
+    wiz.patientEmail = document.getElementById('wiz-pEmail')?.value || '';
+    wiz.patientGender = document.getElementById('wiz-pGender')?.value || '';
+    wiz.patientPhone = document.getElementById('wiz-pPhone')?.value || '';
+    wiz.transportDetail = document.getElementById('wiz-transportDetail')?.value || '';
+    wiz.notes = document.getElementById('wiz-notes')?.value || '';
+    if (!wiz.patientFirstName || !wiz.patientLastName) {
+      const err = document.getElementById('step2-error');
+      if (err) { err.textContent = 'Nome e cognome sono obbligatori'; err.style.display = 'block'; }
+      return;
+    }
+  }
+  if (wizardStep === 3) {
+    wiz.companionFirstName = document.getElementById('wiz-cFirstName')?.value || '';
+    wiz.companionLastName = document.getElementById('wiz-cLastName')?.value || '';
+    wiz.companionPhone = document.getElementById('wiz-cPhone')?.value || '';
+  }
+  if (wizardStep < 4) { wizardStep++; renderWizard(); window.scrollTo(0, 0); }
+}
+
+function wizardPrev() {
+  if (wizardStep > 1) { wizardStep--; renderWizard(); window.scrollTo(0, 0); }
+}
+
+async function submitBooking() {
+  const btn = document.getElementById('submit-booking-btn');
+  const errEl = document.getElementById('submit-error');
+  errEl.style.display = 'none';
+  btn.disabled = true;
+  btn.textContent = 'Invio in corso...';
+
+  const p = getSelectedPricing();
+  const price = calculatePrice();
+
+  const body = {
+    requestedDate: wiz.date,
+    requestedTimeStart: wiz.time,
+    serviceType: p?.serviceType || 'taxi_sanitario',
+    pickupAddress: wiz.originAddress,
+    dropoffAddress: wiz.destinationAddress,
+    roundTrip: wiz.tripType === 'round_trip',
+    transportReason: wiz.transportReason,
+    transportDetails: wiz.transportDetail,
+    patientFirstName: wiz.patientFirstName,
+    patientLastName: wiz.patientLastName,
+    patientBirthDate: wiz.patientBirthDate,
+    patientPhone: wiz.patientPhone,
+    patientGender: wiz.patientGender,
+    patientNotes: wiz.notes,
+    needsWheelchair: wiz.transportDetail === 'sedia_a_rotelle',
+    needsStretcher: wiz.transportDetail === 'barella',
+    needsOxygen: wiz.transportDetail === 'ossigeno',
+    companionFirstName: wiz.companionFirstName,
+    companionLastName: wiz.companionLastName,
+    companionPhone: wiz.companionPhone,
+    floorAssistance: wiz.floorAssistance,
+    weightSupplement: wiz.weightSupplement,
+    appointmentDateTime: wiz.appointmentDateTime || null,
+    estimatedKm: wiz.distanceKm,
+    estimatedCost: String(price),
+    estimatedDuration: wiz.durationMin,
+    clientNotes: wiz.notes,
+    invoiceRequested: wiz.invoiceRequested,
+    invoiceData: wiz.invoiceRequested ? wiz.invoiceData : null,
+    discountCode: wiz.discountApplied ? wiz.discountCode : null,
+  };
+
+  try {
+    const booking = await api('/api/hub/bookings', { method: 'POST', body });
+    showPage('dashboard');
+    setTimeout(() => showBookingDetail(booking.id), 300);
+  } catch (e) {
+    errEl.textContent = e.message; errEl.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Prenota ora';
+  }
+}
+
+async function showBookingDetail(id) {
+  try {
+    const b = await api(`/api/hub/bookings/${id}`);
+    currentBookingDetail = b;
+    document.getElementById('detail-number').textContent = b.bookingNumber;
+    document.getElementById('detail-status').innerHTML = `<span class="status-badge status-${b.status}" style="background:rgba(255,255,255,.9);font-weight:600">${statusLabels[b.status] || b.status}</span>`;
+
+    const trackerSteps = ['pending','confirmed','assigned','in_transit','patient_aboard','completed'];
+    const trackerLabels = ['Ricevuta','Confermata','Assegnata','In Viaggio','A Bordo','Completata'];
+    if (!['cancelled','rejected'].includes(b.status)) {
+      const currentIdx = trackerSteps.indexOf(b.status);
+      let trackerHtml = '';
+      trackerSteps.forEach((s, i) => {
+        const cls = i < currentIdx ? 'done' : i === currentIdx ? 'active' : '';
+        trackerHtml += `<div class="tracker-step ${cls}"><div class="step-dot">${i < currentIdx ? '&#10003;' : i+1}</div><div class="step-label">${trackerLabels[i]}</div></div>`;
+        if (i < trackerSteps.length - 1) trackerHtml += `<div class="tracker-line ${i < currentIdx ? 'done' : ''}"></div>`;
+      });
+      document.getElementById('status-tracker').innerHTML = trackerHtml;
+      document.getElementById('detail-tracker').style.display = 'block';
+    } else {
+      document.getElementById('detail-tracker').style.display = 'none';
+    }
+
+    const serviceLabelsMap = {
+      taxi_sanitario: 'Taxi Sanitario', trasporto_programmato: 'Trasporto Programmato',
+      accompagnamento_visite: 'Accompagnamento Visite', trasporto_disabili: 'Trasporto Disabili'
+    };
+    const reasonLabelsMap = {
+      visita_medica: 'Visita Medica', esame_diagnostico: 'Esame Diagnostico',
+      ricovero: 'Ricovero', dimissione: 'Dimissione', dialisi: 'Dialisi',
+      riabilitazione: 'Riabilitazione', altro: 'Altro'
+    };
+    const displayKm = b.estimatedKm ? (b.roundTrip ? (parseFloat(b.estimatedKm) * 2).toFixed(1) : b.estimatedKm) : null;
+
+    document.getElementById('detail-info').innerHTML = `
+      <div class="detail-row"><span class="label" style="font-size:.82rem;color:var(--text-muted)">Tipo Servizio</span><span class="value" style="font-weight:600">${serviceLabelsMap[b.serviceType] || b.serviceType}</span></div>
+      <div class="detail-row"><span class="label" style="font-size:.82rem;color:var(--text-muted)">Data</span><span class="value" style="font-weight:600">${formatDate(b.requestedDate)}</span></div>
+      <div class="detail-row"><span class="label" style="font-size:.82rem;color:var(--text-muted)">Orario partenza</span><span class="value" style="font-weight:600">${b.requestedTimeStart?.slice(0,5) || '-'}</span></div>
+      ${b.appointmentDateTime ? `<div class="detail-row"><span class="label" style="font-size:.82rem;color:var(--text-muted)">Orario visita</span><span class="value" style="font-weight:600">${new Date(b.appointmentDateTime).toLocaleString('it-IT', {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})}</span></div>` : ''}
+      ${b.roundTrip ? '<div class="detail-row"><span class="label" style="font-size:.82rem;color:var(--text-muted)">Tipo</span><span class="value" style="font-weight:600">Andata e Ritorno</span></div>' : ''}
+      ${b.transportReason ? `<div class="detail-row"><span class="label" style="font-size:.82rem;color:var(--text-muted)">Motivo</span><span class="value" style="font-weight:600">${reasonLabelsMap[b.transportReason] || b.transportReason}</span></div>` : ''}
+      ${displayKm ? `<div class="detail-row"><span class="label" style="font-size:.82rem;color:var(--text-muted)">Distanza</span><span class="value" style="font-weight:600">${displayKm} km${b.roundTrip ? ' (A/R)' : ''}</span></div>` : ''}
+      ${b.needsWheelchair ? '<div class="detail-row"><span class="label" style="font-size:.82rem;color:var(--text-muted)">Sedia a Rotelle</span><span class="value" style="font-weight:600">Sì</span></div>' : ''}
+      ${b.needsStretcher ? '<div class="detail-row"><span class="label" style="font-size:.82rem;color:var(--text-muted)">Barella</span><span class="value" style="font-weight:600">Sì</span></div>' : ''}
+      ${b.needsOxygen ? '<div class="detail-row"><span class="label" style="font-size:.82rem;color:var(--text-muted)">Ossigeno</span><span class="value" style="font-weight:600">Sì</span></div>' : ''}
+    `;
+
+    document.getElementById('detail-route').innerHTML = `
+      <div class="detail-row"><span class="label" style="font-size:.82rem;color:var(--text-muted)">Partenza</span><span class="value" style="font-weight:600">${b.pickupAddress || '-'}</span></div>
+      <div class="detail-row"><span class="label" style="font-size:.82rem;color:var(--text-muted)">Destinazione</span><span class="value" style="font-weight:600">${b.dropoffAddress || '-'}</span></div>
+    `;
+    const routeMapEl = document.getElementById('detail-route-map');
+    if (routeMapEl && b.pickupLat && b.pickupLon && b.dropoffLat && b.dropoffLon) {
+      const mapUrl = getMapUrl({lat:b.pickupLat,lon:b.pickupLon},{lat:b.dropoffLat,lon:b.dropoffLon});
+      if (mapUrl) routeMapEl.innerHTML = `<img src="${mapUrl}" alt="Mappa" style="width:100%;border-radius:8px" onerror="this.style.display='none'">`;
+    }
+
+    const costCard = document.getElementById('detail-cost-card');
+    if (b.estimatedCost || b.finalCost) {
+      let costHtml = '<div class="cost-box" style="background:var(--bg-alt);border-radius:var(--radius);padding:16px">';
+      if (b.estimatedCost) costHtml += `<div class="cost-row" style="display:flex;justify-content:space-between;padding:8px 0"><span style="color:var(--text-muted)">Costo stimato</span><span style="font-weight:700;font-size:1.1rem;color:var(--blue)">${formatPrice(b.estimatedCost)}</span></div>`;
+      if (b.finalCost) costHtml += `<div class="cost-row" style="display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid var(--border)"><span style="font-weight:600">Costo finale</span><span style="font-weight:700;font-size:1.2rem;color:var(--navy)">${formatPrice(b.finalCost)}</span></div>`;
+      costHtml += '</div>';
+      document.getElementById('detail-cost-breakdown').innerHTML = costHtml;
+      costCard.style.display = 'block';
+    } else { costCard.style.display = 'none'; }
+
+    const patientCard = document.getElementById('detail-patient-card');
+    if (b.patientFirstName) {
+      document.getElementById('detail-patient').innerHTML = `
+        <div class="detail-row"><span class="label" style="font-size:.82rem;color:var(--text-muted)">Nome</span><span class="value" style="font-weight:600">${b.patientFirstName} ${b.patientLastName || ''}</span></div>
+        ${b.patientPhone ? `<div class="detail-row"><span class="label" style="font-size:.82rem;color:var(--text-muted)">Telefono</span><span class="value" style="font-weight:600">${b.patientPhone}</span></div>` : ''}
+        ${b.patientNotes ? `<div class="detail-row"><span class="label" style="font-size:.82rem;color:var(--text-muted)">Note</span><span class="value" style="font-weight:600">${b.patientNotes}</span></div>` : ''}
+      `;
+      patientCard.style.display = 'block';
+    } else { patientCard.style.display = 'none'; }
+
+    const companionCard = document.getElementById('detail-companion-card');
+    if (b.companionFirstName) {
+      document.getElementById('detail-companion').innerHTML = `
+        <div class="detail-row"><span class="label" style="font-size:.82rem;color:var(--text-muted)">Nome</span><span class="value" style="font-weight:600">${b.companionFirstName} ${b.companionLastName || ''}</span></div>
+        ${b.companionPhone ? `<div class="detail-row"><span class="label" style="font-size:.82rem;color:var(--text-muted)">Telefono</span><span class="value" style="font-weight:600">${b.companionPhone}</span></div>` : ''}
+      `;
+      companionCard.style.display = 'block';
+    } else { companionCard.style.display = 'none'; }
+
+    const invoiceCard = document.getElementById('detail-invoice-card');
+    if (b.invoiceRequested) {
+      let invData = {};
+      try { invData = typeof b.invoiceData === 'string' ? JSON.parse(b.invoiceData) : (b.invoiceData || {}); } catch(e) {}
+      document.getElementById('detail-invoice').innerHTML = `
+        <span class="invoice-status requested">Fattura richiesta</span>
+        ${invData.name ? `<div class="detail-row" style="margin-top:8px"><span class="label">Intestatario</span><span class="value">${invData.name}</span></div>` : ''}
+        ${invData.fiscalCode ? `<div class="detail-row"><span class="label">CF/P.IVA</span><span class="value">${invData.fiscalCode}</span></div>` : ''}
+      `;
+      invoiceCard.style.display = 'block';
+    } else { invoiceCard.style.display = 'none'; }
+
+    const contactBar = document.getElementById('detail-contact-bar');
+    const orgPhone = orgInfo?.phone || '';
+    const orgEmail = orgInfo?.email || '';
+    if (orgPhone || orgEmail) {
+      document.getElementById('detail-org-name').textContent = orgInfo?.name || '';
+      let contactBtns = '';
+      if (orgPhone) contactBtns += `<a href="tel:${orgPhone}" class="bc-action-btn bc-action-phone" title="Chiama"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg></a>`;
+      if (orgEmail) contactBtns += `<a href="mailto:${orgEmail}" class="bc-action-btn bc-action-help" title="Assistenza"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></a>`;
+      document.getElementById('detail-contact-btns').innerHTML = contactBtns;
+      contactBar.style.display = 'block';
+    } else {
+      contactBar.style.display = 'none';
+    }
+
+    const cancelSection = document.getElementById('detail-cancel-section');
+    cancelSection.style.display = ['pending','confirmed'].includes(b.status) ? 'block' : 'none';
+
+    showPage('booking-detail');
+  } catch (e) {
+    alert('Errore: ' + e.message);
+  }
+}
+
+async function cancelBooking() {
+  if (!currentBookingDetail) return;
+  if (!confirm('Sei sicuro di voler annullare questa prenotazione?')) return;
+  try {
+    await api(`/api/hub/bookings/${currentBookingDetail.id}/cancel`, { method: 'PUT', body: { reason: 'Annullata dal cliente' } });
+    showBookingDetail(currentBookingDetail.id);
+  } catch (e) { alert('Errore: ' + e.message); }
+}
+
+async function loadNotifCount() {
+  try {
+    const notifs = await api('/api/hub/notifications');
+    unreadCount = notifs.filter(n => !n.isRead).length;
+    const badge = document.getElementById('notif-badge');
+    const mobileBadge = document.getElementById('mobile-notif-badge');
+    if (badge) {
+      badge.textContent = unreadCount;
+      badge.style.display = unreadCount > 0 ? 'flex' : 'none';
+    }
+    if (mobileBadge) {
+      mobileBadge.textContent = unreadCount;
+      mobileBadge.style.display = unreadCount > 0 ? 'flex' : 'none';
+    }
+  } catch (e) {}
+}
+
+async function loadNotificationsDropdown() {
+  const list = document.getElementById('notif-dropdown-body');
+  list.innerHTML = '<div class="loading" style="padding:20px"><div class="spinner"></div></div>';
+  try {
+    const notifs = await api('/api/hub/notifications');
+    if (notifs.length === 0) {
+      list.innerHTML = '<div class="empty-state" style="padding:32px 16px"><p>Nessuna notifica</p></div>';
+      return;
+    }
+    list.innerHTML = notifs.map(n => `
+      <div class="notif-item ${n.isRead ? '' : 'unread'}" onclick="onNotifClick('${n.id}', '${n.bookingId || ''}')">
+        <div class="notif-title">${n.title || 'Notifica'}</div>
+        <div class="notif-message">${n.message || ''}</div>
+        <div class="notif-time">${n.createdAt ? new Date(n.createdAt).toLocaleString('it-IT') : ''}</div>
+      </div>
+    `).join('');
+  } catch (e) {
+    list.innerHTML = '<div class="error-msg" style="padding:20px;text-align:center">Errore nel caricamento</div>';
+  }
+}
+
+async function onNotifClick(notifId, bookingId) {
+  const notifEl = document.querySelector(`.notif-item[onclick*="'${notifId}'"]`);
+  if (notifEl) {
+    notifEl.style.transition = 'opacity .3s, max-height .3s, padding .3s';
+    notifEl.style.opacity = '0';
+    notifEl.style.maxHeight = '0';
+    notifEl.style.padding = '0 20px';
+    notifEl.style.overflow = 'hidden';
+    setTimeout(() => notifEl.remove(), 300);
+  }
+  try { await api(`/api/hub/notifications/${notifId}/read`, { method: 'PUT' }); } catch(e) {}
+  loadNotifCount();
+  if (bookingId) {
+    closeNotifDropdown();
+    showBookingDetail(bookingId);
+  }
+}
+
+async function markAllNotifsRead() {
+  try {
+    await api('/api/hub/notifications/read', { method: 'PUT' });
+    loadNotifCount();
+    loadNotificationsDropdown();
+  } catch(e) {}
+}
+
+function renderProfile() {
+  if (!currentUser) return;
+  const initials = ((currentUser.firstName?.[0] || '') + (currentUser.lastName?.[0] || '')).toUpperCase();
+  document.getElementById('profile-avatar-lg').textContent = initials;
+  document.getElementById('profile-full-name').textContent = `${currentUser.firstName || ''} ${currentUser.lastName || ''}`.trim();
+  document.getElementById('profile-email-display').textContent = currentUser.email || '';
+
+  let fields = 0;
+  let filled = 0;
+  const check = (v) => { fields++; if (v) filled++; };
+  check(currentUser.firstName);
+  check(currentUser.lastName);
+  check(currentUser.email);
+  check(currentUser.phone);
+  check(currentUser.birthDate);
+  check(currentUser.gender);
+  check(currentUser.fiscalCode);
+  const pct = Math.round((filled / fields) * 100);
+  document.getElementById('profile-completeness-fill').style.width = pct + '%';
+  document.getElementById('profile-completeness-text').textContent = pct + '% completo';
+
+  const missing = !currentUser.phone || !currentUser.birthDate;
+  document.getElementById('profile-alert').style.display = missing ? 'flex' : 'none';
+  document.getElementById('profile-details').innerHTML = `
+    <div class="detail-row"><span class="label">Nome</span><span class="value">${currentUser.firstName || '-'}</span></div>
+    <div class="detail-row"><span class="label">Cognome</span><span class="value">${currentUser.lastName || '-'}</span></div>
+    <div class="detail-row"><span class="label">Data di nascita</span><span class="value">${currentUser.birthDate ? formatDate(currentUser.birthDate) : '-'}</span></div>
+    <div class="detail-row"><span class="label">Genere</span><span class="value">${currentUser.gender === 'M' ? 'Maschio' : currentUser.gender === 'F' ? 'Femmina' : currentUser.gender || '-'}</span></div>
+    <div class="detail-row"><span class="label">Numero di telefono</span><span class="value">${currentUser.phone || '-'}</span></div>
+    <div class="detail-row"><span class="label">Email</span><span class="value">${currentUser.email || '-'}</span></div>
+    ${currentUser.fiscalCode ? `<div class="detail-row"><span class="label">Codice Fiscale</span><span class="value">${currentUser.fiscalCode}</span></div>` : ''}
+  `;
+}
+
+function toggleProfileEdit() {
+  alert('Funzionalita in fase di sviluppo');
+}
+
+function switchProfileTab(tab, el) {
+  document.querySelectorAll('.profile-sidebar-item').forEach(i => i.classList.remove('active'));
+  el?.classList.add('active');
+  const content = document.getElementById('profile-content');
+  const header = document.getElementById('profile-section-header');
+  const icons = {
+    account: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+    passengers: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>',
+    billing: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>',
+    history: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+    payment: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>'
+  };
+  const titles = {
+    account: 'Dati Account',
+    passengers: 'Profili Passeggeri',
+    billing: 'Indirizzi di Fatturazione',
+    history: 'Storico Pagamenti',
+    payment: 'Metodi di Pagamento'
+  };
+  header.innerHTML = `${icons[tab] || icons.account}<h3>${titles[tab] || 'Dati Account'}</h3>`;
+  if (tab === 'account') {
+    content.innerHTML = `
+      <div style="display:flex;justify-content:flex-end;margin-bottom:16px">
+        <button class="btn btn-outline btn-sm" onclick="toggleProfileEdit()">Modifica dettagli</button>
+      </div>
+      <div id="profile-details"></div>
+    `;
+    renderProfile();
+  } else {
+    content.innerHTML = `<div class="empty-state"><p>Sezione in fase di sviluppo</p></div>`;
+  }
+}
+
+function renderLandingPage() {
+  document.getElementById('landing-org-name').textContent = orgInfo?.name || '';
+  document.getElementById('auth-org-name').textContent = orgInfo?.name || '';
+
+  const servicesList = document.getElementById('landing-services-list');
+  let servicesHtml = '';
+  if (pricingItems.length > 0) {
+    pricingItems.forEach(p => {
+      let priceText = '';
+      if (p.baseFee && p.perKmRate) priceText = `Da ${formatPrice(p.baseFee)} + ${formatPrice(p.perKmRate)}/km`;
+      else if (p.perKmRate) priceText = `${formatPrice(p.perKmRate)}/km`;
+      else if (p.baseFee) priceText = `Da ${formatPrice(p.baseFee)}`;
+      servicesHtml += `<div class="landing-svc-card">
+        <div class="lsc-icon">${SERVICE_ICONS[p.serviceType] || SERVICE_ICONS.taxi_sanitario}</div>
+        <div style="flex:1">
+          <div class="lsc-name">${p.serviceName || p.serviceType}</div>
+          <div class="lsc-desc">${p.description || ''}</div>
+          ${priceText ? `<div class="lsc-price">${priceText}</div>` : ''}
+        </div>
+      </div>`;
+    });
+  } else {
+    servicesHtml = '<p style="text-align:center;color:var(--text-muted)">Servizi disponibili al momento della prenotazione</p>';
+  }
+  servicesList.innerHTML = servicesHtml;
+}
+
+async function loadPricing() {
+  try {
+    const data = await api(`/api/hub/${ORG_SLUG}/pricing`);
+    pricingItems = (Array.isArray(data) ? data : []).filter(p => p.serviceType !== 'trasporto_programmato');
+  } catch (e) {
+    pricingItems = [];
+  }
+}
+
+async function init() {
+  if (!ORG_SLUG) { showPage('notfound'); return; }
+  try {
+    orgInfo = await api(`/api/hub/${ORG_SLUG}/info`);
+  } catch (e) {
+    showPage('notfound'); return;
+  }
+  await loadPricing();
+  renderLandingPage();
+  try {
+    currentUser = await api('/api/hub/me');
+    enterDashboard();
+  } catch (e) {
+    showPage('landing');
+  }
+}
+
+init();
+</script>
+
+<!-- COOKIE CONSENT BANNER -->
+<style>
+.cookie-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9998;opacity:0;transition:opacity .3s;pointer-events:none}
+.cookie-overlay.visible{opacity:1;pointer-events:auto}
+.cookie-banner{position:fixed;bottom:0;left:0;right:0;z-index:9999;transform:translateY(100%);transition:transform .4s cubic-bezier(.4,0,.2,1);font-family:var(--font)}
+.cookie-banner.visible{transform:translateY(0)}
+.cookie-banner-inner{max-width:1100px;margin:0 auto;background:#fff;border-radius:20px 20px 0 0;box-shadow:0 -8px 40px rgba(0,0,0,.12);padding:28px 32px 24px;position:relative}
+.cookie-banner-inner::before{content:'';position:absolute;top:10px;left:50%;transform:translateX(-50%);width:40px;height:4px;background:var(--border);border-radius:2px}
+.cb-header{display:flex;align-items:center;gap:12px;margin-bottom:12px;margin-top:8px}
+.cb-header svg{width:28px;height:28px;flex-shrink:0;color:var(--blue)}
+.cb-header h3{font-size:1.08rem;font-weight:700;color:var(--navy);margin:0}
+.cb-desc{font-size:.85rem;color:var(--text-secondary);line-height:1.6;margin-bottom:20px;max-width:720px}
+.cb-categories{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:24px}
+.cb-cat{border:1.5px solid var(--border);border-radius:12px;padding:14px 16px;transition:all .2s;cursor:pointer}
+.cb-cat:hover{border-color:var(--blue-dark);background:var(--blue-light)}
+.cb-cat.always-on{border-color:var(--green);background:var(--green-light);cursor:default}
+.cb-cat-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.cb-cat-head .cat-name{font-weight:600;font-size:.88rem;color:var(--navy);display:flex;align-items:center;gap:6px}
+.cb-cat-head .cat-name svg{width:16px;height:16px}
+.cb-cat-badge{font-size:.68rem;font-weight:600;padding:2px 8px;border-radius:6px;text-transform:uppercase;letter-spacing:.5px}
+.cb-cat-badge.required{background:var(--green-light);color:var(--green-dark)}
+.cb-cat-badge.optional{background:var(--blue-light);color:var(--blue)}
+.cb-cat p{font-size:.78rem;color:var(--text-muted);line-height:1.4;margin:0}
+.cb-toggle{position:relative;width:42px;height:24px;flex-shrink:0}
+.cb-toggle input{opacity:0;width:0;height:0}
+.cb-toggle .slider{position:absolute;inset:0;background:var(--border);border-radius:12px;transition:all .25s;cursor:pointer}
+.cb-toggle .slider::before{content:'';position:absolute;width:18px;height:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:all .25s;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.cb-toggle input:checked + .slider{background:var(--blue)}
+.cb-toggle input:checked + .slider::before{transform:translateX(18px)}
+.cb-toggle input:disabled + .slider{background:var(--green);opacity:.7;cursor:default}
+.cb-actions{display:flex;gap:10px;flex-wrap:wrap}
+.cb-actions .btn-accept-all{background:var(--blue);color:#fff;border:none;padding:12px 28px;border-radius:12px;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .2s;font-family:var(--font);box-shadow:0 2px 8px rgba(49,130,206,.25)}
+.cb-actions .btn-accept-all:hover{background:var(--blue-dark);box-shadow:0 4px 12px rgba(49,130,206,.35)}
+.cb-actions .btn-save-prefs{background:#fff;color:var(--navy);border:1.5px solid var(--border);padding:12px 28px;border-radius:12px;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .2s;font-family:var(--font)}
+.cb-actions .btn-save-prefs:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-light)}
+.cb-actions .btn-reject{background:none;color:var(--text-muted);border:none;padding:12px 16px;font-size:.85rem;cursor:pointer;font-family:var(--font);transition:color .2s}
+.cb-actions .btn-reject:hover{color:var(--text)}
+.cb-footer-links{margin-top:16px;padding-top:14px;border-top:1px solid var(--border-light);display:flex;gap:16px;flex-wrap:wrap}
+.cb-footer-links a{font-size:.78rem;color:var(--text-muted);transition:color .2s}
+.cb-footer-links a:hover{color:var(--blue)}
+
+/* COOKIE POLICY MODAL */
+.cookie-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:10000;display:none;align-items:center;justify-content:center;padding:24px}
+.cookie-modal-overlay.visible{display:flex}
+.cookie-modal{background:#fff;border-radius:20px;max-width:720px;width:100%;max-height:80vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.cookie-modal-header{padding:24px 28px 16px;border-bottom:1px solid var(--border-light);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.cookie-modal-header h2{font-size:1.1rem;font-weight:700;color:var(--navy);margin:0}
+.cookie-modal-close{width:36px;height:36px;border-radius:10px;border:none;background:var(--bg);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-muted);transition:all .2s;font-size:1.2rem}
+.cookie-modal-close:hover{background:var(--border);color:var(--text)}
+.cookie-modal-body{padding:24px 28px;overflow-y:auto;flex:1}
+.cookie-modal-body h3{font-size:.95rem;font-weight:700;color:var(--navy);margin:20px 0 8px}
+.cookie-modal-body h3:first-child{margin-top:0}
+.cookie-modal-body p{font-size:.85rem;color:var(--text-secondary);line-height:1.6;margin-bottom:12px}
+.cookie-modal-body ul{margin:0 0 12px 20px;font-size:.85rem;color:var(--text-secondary);line-height:1.8}
+.cookie-table{width:100%;border-collapse:collapse;margin:12px 0 16px;font-size:.82rem}
+.cookie-table th{background:var(--bg);padding:10px 12px;text-align:left;font-weight:600;color:var(--navy);border-bottom:1.5px solid var(--border)}
+.cookie-table td{padding:10px 12px;border-bottom:1px solid var(--border-light);color:var(--text-secondary);vertical-align:top}
+.cookie-table tr:last-child td{border-bottom:none}
+
+/* COOKIE SETTINGS BUTTON (floating) */
+.cookie-settings-fab{position:fixed;bottom:20px;left:20px;z-index:9000;width:44px;height:44px;border-radius:12px;background:#fff;border:1.5px solid var(--border);box-shadow:var(--shadow-md);cursor:pointer;display:none;align-items:center;justify-content:center;transition:all .2s;color:var(--text-muted)}
+.cookie-settings-fab:hover{border-color:var(--blue);color:var(--blue);box-shadow:var(--shadow-lg);transform:scale(1.05)}
+.cookie-settings-fab.visible{display:flex}
+
+@media(max-width:600px){
+  .cookie-banner-inner{padding:20px 18px 18px}
+  .cb-categories{grid-template-columns:1fr}
+  .cb-actions{flex-direction:column}
+  .cb-actions button{width:100%}
+}
+</style>
+
+<div class="cookie-overlay" id="cookie-overlay"></div>
+<div class="cookie-banner" id="cookie-banner">
+  <div class="cookie-banner-inner">
+    <div class="cb-header">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <h3>La tua privacy e' importante per noi</h3>
+    </div>
+    <div class="cb-desc">
+      Utilizziamo i cookie per garantire il funzionamento del sito e migliorare la tua esperienza. Puoi scegliere quali cookie accettare. I cookie necessari sono sempre attivi perche' indispensabili per il funzionamento della piattaforma.
+    </div>
+
+    <div class="cb-categories">
+      <div class="cb-cat always-on">
+        <div class="cb-cat-head">
+          <span class="cat-name">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Necessari
+          </span>
+          <span class="cb-cat-badge required">Sempre attivi</span>
+        </div>
+        <p>Essenziali per la navigazione, l'autenticazione e la sicurezza. Non possono essere disattivati.</p>
+      </div>
+
+      <div class="cb-cat" onclick="document.getElementById('ck-analytics').click()">
+        <div class="cb-cat-head">
+          <span class="cat-name">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            Analitici
+          </span>
+          <label class="cb-toggle" onclick="event.stopPropagation()">
+            <input type="checkbox" id="ck-analytics">
+            <span class="slider"></span>
+          </label>
+        </div>
+        <p>Ci aiutano a capire come viene usato il sito per migliorare il servizio.</p>
+      </div>
+
+      <div class="cb-cat" onclick="document.getElementById('ck-marketing').click()">
+        <div class="cb-cat-head">
+          <span class="cat-name">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+            Marketing
+          </span>
+          <label class="cb-toggle" onclick="event.stopPropagation()">
+            <input type="checkbox" id="ck-marketing">
+            <span class="slider"></span>
+          </label>
+        </div>
+        <p>Permettono di mostrarti contenuti e offerte personalizzate.</p>
+      </div>
+    </div>
+
+    <div class="cb-actions">
+      <button class="btn-accept-all" onclick="cookieAcceptAll()">Accetta tutti</button>
+      <button class="btn-save-prefs" onclick="cookieSavePrefs()">Salva preferenze</button>
+      <button class="btn-reject" onclick="cookieRejectOptional()">Solo necessari</button>
+    </div>
+
+    <div class="cb-footer-links">
+      <a href="#" onclick="event.preventDefault();openCookiePolicy()">Cookie Policy</a>
+      <a href="#" onclick="event.preventDefault()">Privacy Policy</a>
+      <a href="#" onclick="event.preventDefault()">Termini di servizio</a>
+    </div>
+  </div>
+</div>
+
+<!-- COOKIE POLICY MODAL -->
+<div class="cookie-modal-overlay" id="cookie-modal-overlay">
+  <div class="cookie-modal">
+    <div class="cookie-modal-header">
+      <h2>Cookie Policy</h2>
+      <button class="cookie-modal-close" onclick="closeCookiePolicy()">&times;</button>
+    </div>
+    <div class="cookie-modal-body">
+      <h3>Cosa sono i cookie?</h3>
+      <p>I cookie sono piccoli file di testo che i siti web salvano sul tuo dispositivo. Vengono utilizzati per far funzionare il sito, migliorare l'esperienza utente e raccogliere informazioni anonime sull'utilizzo.</p>
+
+      <h3>Titolare del trattamento</h3>
+      <p>Il titolare del trattamento dei dati e' <strong>Soccorso Digitale</strong> (soccorsodigitale.app). I dati vengono trattati in conformita' al Regolamento UE 2016/679 (GDPR) e al D.Lgs. 196/2003 (Codice Privacy italiano).</p>
+
+      <h3>Tipologie di cookie utilizzati</h3>
+
+      <h3>1. Cookie necessari (sempre attivi)</h3>
+      <p>Questi cookie sono indispensabili per il funzionamento della piattaforma. Senza di essi non e' possibile navigare, autenticarsi o utilizzare i servizi di prenotazione.</p>
+      <table class="cookie-table">
+        <thead><tr><th>Nome</th><th>Scopo</th><th>Durata</th></tr></thead>
+        <tbody>
+          <tr><td>croce.sid</td><td>Sessione utente e autenticazione</td><td>Sessione / 24h</td></tr>
+          <tr><td>sd_cookie_consent</td><td>Memorizza le preferenze cookie</td><td>365 giorni</td></tr>
+        </tbody>
+      </table>
+      <p><strong>Base giuridica:</strong> Legittimo interesse (Art. 6.1.f GDPR) - necessari per l'erogazione del servizio.</p>
+
+      <h3>2. Cookie analitici (opzionali)</h3>
+      <p>Raccolgono informazioni anonime su come i visitatori utilizzano il sito: pagine visitate, tempo di permanenza, eventuali errori. Ci aiutano a migliorare il servizio.</p>
+      <p><strong>Base giuridica:</strong> Consenso dell'utente (Art. 6.1.a GDPR).</p>
+
+      <h3>3. Cookie di marketing (opzionali)</h3>
+      <p>Vengono utilizzati per mostrare contenuti e comunicazioni pertinenti ai tuoi interessi. Non vendiamo mai i tuoi dati a terzi.</p>
+      <p><strong>Base giuridica:</strong> Consenso dell'utente (Art. 6.1.a GDPR).</p>
+
+      <h3>I tuoi diritti</h3>
+      <p>In base al GDPR, hai il diritto di:</p>
+      <ul>
+        <li>Accedere ai tuoi dati personali</li>
+        <li>Rettificare dati inesatti</li>
+        <li>Richiedere la cancellazione dei dati</li>
+        <li>Revocare il consenso in qualsiasi momento</li>
+        <li>Presentare reclamo al Garante per la Protezione dei Dati Personali</li>
+      </ul>
+
+      <h3>Come gestire i cookie</h3>
+      <p>Puoi modificare le tue preferenze in qualsiasi momento cliccando sull'icona dello scudo in basso a sinistra, oppure tramite le impostazioni del tuo browser. La disattivazione di alcuni cookie potrebbe limitare la funzionalita' del sito.</p>
+
+      <h3>Contatti</h3>
+      <p>Per domande sulla presente Cookie Policy, puoi scriverci a: <a href="mailto:info@soccorsodigitale.app">info@soccorsodigitale.app</a></p>
+      <p style="font-size:.78rem;color:var(--text-light);margin-top:20px;font-style:italic">Ultimo aggiornamento: Febbraio 2026</p>
+    </div>
+  </div>
+</div>
+
+<!-- COOKIE SETTINGS FAB -->
+<button class="cookie-settings-fab" id="cookie-settings-fab" onclick="reopenCookieBanner()" title="Impostazioni cookie">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+</button>
+
+<script>
+(function() {
+  const COOKIE_KEY = 'sd_cookie_consent';
+  const CONSENT_VERSION = '1';
+
+  function getConsent() {
+    try {
+      const raw = localStorage.getItem(COOKIE_KEY);
+      if (!raw) return null;
+      const data = JSON.parse(raw);
+      if (data.version !== CONSENT_VERSION) return null;
+      return data;
+    } catch { return null; }
+  }
+
+  function saveConsent(prefs) {
+    const data = {
+      version: CONSENT_VERSION,
+      timestamp: new Date().toISOString(),
+      necessary: true,
+      analytics: !!prefs.analytics,
+      marketing: !!prefs.marketing
+    };
+    localStorage.setItem(COOKIE_KEY, JSON.stringify(data));
+  }
+
+  function showBanner() {
+    document.getElementById('cookie-banner').classList.add('visible');
+    document.getElementById('cookie-overlay').classList.add('visible');
+    document.getElementById('cookie-settings-fab').classList.remove('visible');
+  }
+
+  function hideBanner() {
+    document.getElementById('cookie-banner').classList.remove('visible');
+    document.getElementById('cookie-overlay').classList.remove('visible');
+    document.getElementById('cookie-settings-fab').classList.add('visible');
+  }
+
+  window.cookieAcceptAll = function() {
+    document.getElementById('ck-analytics').checked = true;
+    document.getElementById('ck-marketing').checked = true;
+    saveConsent({ analytics: true, marketing: true });
+    hideBanner();
+  };
+
+  window.cookieSavePrefs = function() {
+    saveConsent({
+      analytics: document.getElementById('ck-analytics').checked,
+      marketing: document.getElementById('ck-marketing').checked
+    });
+    hideBanner();
+  };
+
+  window.cookieRejectOptional = function() {
+    document.getElementById('ck-analytics').checked = false;
+    document.getElementById('ck-marketing').checked = false;
+    saveConsent({ analytics: false, marketing: false });
+    hideBanner();
+  };
+
+  window.reopenCookieBanner = function() {
+    const consent = getConsent();
+    if (consent) {
+      document.getElementById('ck-analytics').checked = consent.analytics;
+      document.getElementById('ck-marketing').checked = consent.marketing;
+    }
+    showBanner();
+  };
+
+  window.openCookiePolicy = function() {
+    document.getElementById('cookie-modal-overlay').classList.add('visible');
+  };
+
+  window.closeCookiePolicy = function() {
+    document.getElementById('cookie-modal-overlay').classList.remove('visible');
+  };
+
+  document.getElementById('cookie-modal-overlay').addEventListener('click', function(e) {
+    if (e.target === this) closeCookiePolicy();
+  });
+
+  document.getElementById('cookie-overlay').addEventListener('click', function() {});
+
+  const existing = getConsent();
+  if (!existing) {
+    setTimeout(showBanner, 800);
+  } else {
+    document.getElementById('cookie-settings-fab').classList.add('visible');
+  }
+})();
+</script>
+
+</body>
+</html>

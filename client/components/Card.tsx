@@ -1,0 +1,101 @@
+import React from "react";
+import { StyleSheet, Pressable, ViewStyle, StyleProp } from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  WithSpringConfig,
+} from "react-native-reanimated";
+import { LinearGradient } from "expo-linear-gradient";
+
+import { ThemedText } from "@/components/ThemedText";
+import { useTheme } from "@/hooks/useTheme";
+import { Spacing, BorderRadius } from "@/constants/theme";
+
+interface CardProps {
+  elevation?: number;
+  title?: string;
+  description?: string;
+  children?: React.ReactNode;
+  onPress?: () => void;
+  style?: StyleProp<ViewStyle>;
+}
+
+const springConfig: WithSpringConfig = {
+  damping: 15,
+  mass: 0.3,
+  stiffness: 150,
+  overshootClamping: true,
+  energyThreshold: 0.001,
+};
+
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+
+export function Card({
+  elevation = 1,
+  title,
+  description,
+  children,
+  onPress,
+  style,
+}: CardProps) {
+  const { theme } = useTheme();
+  const scale = useSharedValue(1);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
+  const handlePressIn = () => {
+    scale.value = withSpring(0.98, springConfig);
+  };
+
+  const handlePressOut = () => {
+    scale.value = withSpring(1, springConfig);
+  };
+
+  return (
+    <AnimatedPressable
+      onPress={onPress}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
+      style={[
+        styles.card,
+        animatedStyle,
+        style,
+      ]}
+    >
+      <LinearGradient
+        colors={['rgba(0, 102, 204, 0.12)', 'rgba(0, 166, 81, 0.08)']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={StyleSheet.absoluteFill}
+      />
+      {title ? (
+        <ThemedText type="h3" style={styles.cardTitle}>
+          {title}
+        </ThemedText>
+      ) : null}
+      {description ? (
+        <ThemedText type="small" style={styles.cardDescription}>
+          {description}
+        </ThemedText>
+      ) : null}
+      {children}
+    </AnimatedPressable>
+  );
+}
+
+const styles = StyleSheet.create({
+  card: {
+    padding: Spacing.xl,
+    borderRadius: BorderRadius["2xl"],
+    overflow: "hidden",
+  },
+  cardTitle: {
+    marginBottom: Spacing.sm,
+  },
+  cardDescription: {
+    opacity: 0.7,
+  },
+});

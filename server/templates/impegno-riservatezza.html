@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Impegno alla Riservatezza - Croce Europa</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #F5F7FA; color: #1A1A1A; line-height: 1.6; min-height: 100vh; }
+    .header { background: linear-gradient(135deg, #0066CC 0%, #004499 100%); color: white; padding: 32px 20px; text-align: center; }
+    .header h1 { font-size: 24px; font-weight: 700; margin-bottom: 6px; letter-spacing: 1px; }
+    .header p { font-size: 14px; opacity: 0.9; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .card { background: white; border-radius: 16px; padding: 24px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .card-title { font-size: 17px; font-weight: 600; color: #0066CC; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+    .card-title svg { width: 20px; height: 20px; }
+    .agreement-text { font-size: 13px; color: #444; white-space: pre-line; max-height: 250px; overflow-y: auto; padding: 16px; background: #F8F9FA; border-radius: 10px; border: 1px solid #E5E7EB; }
+    .form-group { margin-bottom: 18px; }
+    .form-label { display: block; font-size: 14px; font-weight: 500; color: #333; margin-bottom: 8px; }
+    .form-input { width: 100%; padding: 14px 16px; font-size: 16px; border: 1.5px solid #DDD; border-radius: 10px; transition: all 0.2s; background: #FAFAFA; }
+    .form-input:focus { outline: none; border-color: #0066CC; background: white; box-shadow: 0 0 0 3px rgba(0,102,204,0.1); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 480px) { .form-row { grid-template-columns: 1fr; } }
+    .checkbox-group { display: flex; align-items: flex-start; gap: 12px; padding: 14px; background: #F8F9FA; border-radius: 10px; margin-bottom: 12px; border: 1px solid #E5E7EB; transition: all 0.2s; }
+    .checkbox-group:hover { background: #F0F4F8; }
+    .checkbox-group input { margin-top: 2px; width: 20px; height: 20px; accent-color: #0066CC; cursor: pointer; flex-shrink: 0; }
+    .checkbox-group label { font-size: 14px; color: #333; cursor: pointer; }
+    .signature-area { border: 2px dashed #CBD5E1; border-radius: 12px; background: #FAFAFA; position: relative; overflow: hidden; }
+    .signature-canvas { width: 100%; height: 180px; display: block; touch-action: none; cursor: crosshair; }
+    .signature-placeholder { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #94A3B8; font-size: 14px; pointer-events: none; }
+    .signature-clear { position: absolute; top: 10px; right: 10px; background: white; border: 1px solid #DDD; padding: 8px 14px; border-radius: 8px; font-size: 13px; cursor: pointer; transition: all 0.2s; }
+    .signature-clear:hover { background: #F3F4F6; border-color: #CCC; }
+    .submit-btn { width: 100%; padding: 18px; background: linear-gradient(135deg, #0066CC 0%, #0055AA 100%); color: white; border: none; border-radius: 12px; font-size: 17px; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(0,102,204,0.3); }
+    .submit-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(0,102,204,0.4); }
+    .submit-btn:active { transform: translateY(0); }
+    .submit-btn:disabled { background: #9CA3AF; cursor: not-allowed; transform: none; box-shadow: none; }
+    .success-container { display: none; }
+    .success-msg { text-align: center; padding: 50px 24px; }
+    .success-icon { width: 80px; height: 80px; background: #ECFDF5; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; }
+    .success-icon svg { width: 40px; height: 40px; color: #10B981; }
+    .success-msg h2 { color: #10B981; font-size: 24px; margin-bottom: 12px; }
+    .success-msg p { color: #666; font-size: 15px; }
+    .error-msg { background: #FEF2F2; color: #DC2626; padding: 14px 16px; border-radius: 10px; margin-bottom: 18px; font-size: 14px; display: none; border: 1px solid #FECACA; }
+    .footer { text-align: center; padding: 24px 20px; color: #9CA3AF; font-size: 12px; }
+    .footer a { color: #0066CC; text-decoration: none; }
+    .required { color: #DC2626; }
+    select.form-input { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 16px center; padding-right: 40px; }
+    .logo { width: 60px; height: 60px; margin: 0 auto 12px; background: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+    .logo svg { width: 36px; height: 36px; color: #0066CC; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+    </div>
+    <h1>CROCE EUROPA</h1>
+    <p>Impegno alla Riservatezza</p>
+  </div>
+  
+  <div class="container">
+    <div id="form-container">
+      <div class="card">
+        <div class="card-title">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          Testo dell'Impegno
+        </div>
+        <div class="agreement-text">IMPEGNO ALLA RISERVATEZZA - CROCE EUROPA SRL IMPRESA SOCIALE
+
+Il/La sottoscritto/a, in qualita di volontario/dipendente/collaboratore di Croce Europa SRL Impresa Sociale, si impegna a:
+
+1. RISERVATEZZA DEI DATI
+Mantenere la massima riservatezza su tutti i dati personali e sensibili di cui venga a conoscenza durante lo svolgimento delle attivita, inclusi ma non limitati a: dati anagrafici dei pazienti, condizioni di salute, indirizzi, numeri di telefono e qualsiasi altra informazione personale.
+
+2. DIVIETO DI DIVULGAZIONE
+Non divulgare, comunicare o diffondere a terzi, in qualsiasi forma e con qualsiasi mezzo, le informazioni riservate acquisite, sia durante che dopo la cessazione del rapporto con l'organizzazione.
+
+3. DIVIETO DI REGISTRAZIONE
+Non fotografare, registrare audio/video, o acquisire in qualsiasi altro modo dati relativi ai pazienti, ai loro familiari o alle attivita svolte, salvo espressa autorizzazione scritta.
+
+4. PROTEZIONE DEI DATI
+Adottare tutte le misure necessarie per proteggere i dati trattati, evitando accessi non autorizzati, perdite o danneggiamenti.
+
+5. SEGNALAZIONE VIOLAZIONI
+Segnalare immediatamente al responsabile qualsiasi violazione o tentativo di violazione della riservatezza di cui venga a conoscenza.
+
+6. RESTITUZIONE MATERIALI
+Restituire, alla cessazione del rapporto, tutti i materiali, documenti e supporti contenenti dati riservati.
+
+La violazione degli obblighi di riservatezza puo comportare sanzioni disciplinari, civili e penali.</div>
+      </div>
+      
+      <div class="card">
+        <div class="card-title">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Dati Personali
+        </div>
+        <div id="error-msg" class="error-msg"></div>
+        
+        <form id="agreement-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Nome <span class="required">*</span></label>
+              <input type="text" name="firstName" class="form-input" required placeholder="Mario">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Cognome <span class="required">*</span></label>
+              <input type="text" name="lastName" class="form-input" required placeholder="Rossi">
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Codice Fiscale</label>
+            <input type="text" name="fiscalCode" class="form-input" maxlength="16" style="text-transform: uppercase;" placeholder="RSSMRA80A01H501X">
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Email</label>
+              <input type="email" name="email" class="form-input" placeholder="mario.rossi@email.it">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Telefono</label>
+              <input type="tel" name="phone" class="form-input" placeholder="+39 333 1234567">
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Ruolo <span class="required">*</span></label>
+            <select name="staffType" class="form-input" required>
+              <option value="">Seleziona il tuo ruolo...</option>
+              <option value="volontario">Volontario</option>
+              <option value="dipendente">Dipendente</option>
+              <option value="collaboratore">Collaboratore</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Mansione</label>
+            <select name="role" class="form-input">
+              <option value="">Seleziona la tua mansione...</option>
+              <option value="autista">Autista Soccorritore</option>
+              <option value="soccorritore">Soccorritore</option>
+              <option value="infermiere">Infermiere</option>
+              <option value="altro">Altro</option>
+            </select>
+          </div>
+        </form>
+      </div>
+      
+      <div class="card">
+        <div class="card-title">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          Consensi Obbligatori
+        </div>
+        
+        <div class="checkbox-group">
+          <input type="checkbox" id="terms" name="acceptedTerms">
+          <label for="terms">Dichiaro di aver letto e compreso l'impegno alla riservatezza</label>
+        </div>
+        
+        <div class="checkbox-group">
+          <input type="checkbox" id="gdpr" name="acceptedGdpr">
+          <label for="gdpr">Acconsento al trattamento dei miei dati personali ai sensi del GDPR</label>
+        </div>
+        
+        <div class="checkbox-group">
+          <input type="checkbox" id="noDisclosure" name="acceptedNoDisclosure">
+          <label for="noDisclosure">Mi impegno a non divulgare informazioni riservate</label>
+        </div>
+        
+        <div class="checkbox-group">
+          <input type="checkbox" id="noPhotos" name="acceptedNoPhotos">
+          <label for="noPhotos">Mi impegno a non fotografare o registrare dati personali</label>
+        </div>
+        
+        <div class="checkbox-group">
+          <input type="checkbox" id="dataProtection" name="acceptedDataProtection">
+          <label for="dataProtection">Mi impegno a proteggere i dati trattati</label>
+        </div>
+      </div>
+      
+      <div class="card">
+        <div class="card-title">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/></svg>
+          Firma
+        </div>
+        <p style="font-size: 13px; color: #666; margin-bottom: 12px;">Disegna la tua firma nell'area sottostante usando il dito o il mouse.</p>
+        <div class="signature-area">
+          <canvas id="signature-canvas" class="signature-canvas"></canvas>
+          <span class="signature-placeholder" id="sig-placeholder">Firma qui</span>
+          <button type="button" class="signature-clear" onclick="clearSignature()">Cancella</button>
+        </div>
+      </div>
+      
+      <button type="button" class="submit-btn" onclick="submitForm()" id="submit-btn">
+        Firma e Invia
+      </button>
+    </div>
+    
+    <div id="success-container" class="success-container">
+      <div class="card success-msg">
+        <div class="success-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <h2>Grazie!</h2>
+        <p>L'impegno alla riservatezza e stato firmato con successo.</p>
+        <p style="margin-top: 16px; font-size: 13px; color: #9CA3AF;">Riceverai una copia via email se hai fornito l'indirizzo.</p>
+      </div>
+    </div>
+  </div>
+  
+  <div class="footer">
+    <strong>Croce Europa SRL Impresa Sociale</strong><br>
+    Verona - <a href="mailto:supporto@croceeuropa.com">supporto@croceeuropa.com</a>
+  </div>
+  
+  <script>
+    const canvas = document.getElementById('signature-canvas');
+    const ctx = canvas.getContext('2d');
+    const placeholder = document.getElementById('sig-placeholder');
+    let isDrawing = false;
+    let hasSignature = false;
+    
+    function resizeCanvas() {
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * 2;
+      canvas.height = rect.height * 2;
+      ctx.scale(2, 2);
+      ctx.strokeStyle = '#1A1A1A';
+      ctx.lineWidth = 2;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+    
+    function getPos(e) {
+      const rect = canvas.getBoundingClientRect();
+      const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+      const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+      return { x, y };
+    }
+    
+    function startDrawing(e) {
+      isDrawing = true;
+      const pos = getPos(e);
+      ctx.beginPath();
+      ctx.moveTo(pos.x, pos.y);
+    }
+    
+    function draw(e) {
+      if (!isDrawing) return;
+      if (!hasSignature) {
+        hasSignature = true;
+        placeholder.style.display = 'none';
+      }
+      const pos = getPos(e);
+      ctx.lineTo(pos.x, pos.y);
+      ctx.stroke();
+    }
+    
+    function stopDrawing() {
+      isDrawing = false;
+    }
+    
+    canvas.addEventListener('mousedown', startDrawing);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', stopDrawing);
+    canvas.addEventListener('mouseleave', stopDrawing);
+    
+    canvas.addEventListener('touchstart', (e) => { e.preventDefault(); startDrawing(e); });
+    canvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e); });
+    canvas.addEventListener('touchend', stopDrawing);
+    
+    function clearSignature() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      hasSignature = false;
+      placeholder.style.display = 'block';
+    }
+    
+    function showError(msg) {
+      const el = document.getElementById('error-msg');
+      el.textContent = msg;
+      el.style.display = 'block';
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    
+    function hideError() {
+      document.getElementById('error-msg').style.display = 'none';
+    }
+    
+    async function submitForm() {
+      hideError();
+      
+      const form = document.getElementById('agreement-form');
+      const formData = new FormData(form);
+      
+      const firstName = formData.get('firstName');
+      const lastName = formData.get('lastName');
+      const staffType = formData.get('staffType');
+      
+      if (!firstName || !lastName) {
+        showError('Nome e Cognome sono obbligatori');
+        return;
+      }
+      if (!staffType) {
+        showError('Seleziona il tuo ruolo');
+        return;
+      }
+      
+      const checkboxes = ['terms', 'gdpr', 'noDisclosure', 'noPhotos', 'dataProtection'];
+      for (const id of checkboxes) {
+        if (!document.getElementById(id).checked) {
+          showError('Tutti i consensi sono obbligatori');
+          return;
+        }
+      }
+      
+      if (!hasSignature) {
+        showError('La firma e obbligatoria');
+        return;
+      }
+      
+      const signatureDataUrl = canvas.toDataURL('image/png');
+      
+      const btn = document.getElementById('submit-btn');
+      btn.disabled = true;
+      btn.textContent = 'Invio in corso...';
+      
+      try {
+        const response = await fetch('/api/public/confidentiality/sign', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            firstName,
+            lastName,
+            fiscalCode: formData.get('fiscalCode') || null,
+            email: formData.get('email') || null,
+            phone: formData.get('phone') || null,
+            staffType,
+            role: formData.get('role') || null,
+            signatureDataUrl,
+            acceptedTerms: true,
+            acceptedGdpr: true,
+            acceptedNoDisclosure: true,
+            acceptedNoPhotos: true,
+            acceptedDataProtection: true
+          })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+          document.getElementById('form-container').style.display = 'none';
+          document.getElementById('success-container').style.display = 'block';
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+          showError(data.error || 'Errore durante l\'invio');
+          btn.disabled = false;
+          btn.textContent = 'Firma e Invia';
+        }
+      } catch (err) {
+        showError('Errore di connessione. Riprova.');
+        btn.disabled = false;
+        btn.textContent = 'Firma e Invia';
+      }
+    }
+  </script>
+</body>
+</html>

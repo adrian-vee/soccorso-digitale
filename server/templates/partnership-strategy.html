@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Piano Strategico Partnership & Sponsorship - Croce Europa SRL</title>
+<style>
+  @page { margin: 0; size: A4; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Helvetica Neue', Arial, sans-serif; color: #1E293B; line-height: 1.6; background: white; }
+
+  .cover-page {
+    height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center;
+    background: linear-gradient(135deg, #0066CC 0%, #004A99 40%, #003366 100%);
+    color: white; text-align: center; padding: 60px; position: relative; overflow: hidden;
+    page-break-after: always;
+  }
+  .cover-page::before {
+    content: ''; position: absolute; top: -50%; right: -30%; width: 80%; height: 200%;
+    background: radial-gradient(ellipse, rgba(0,166,81,0.15) 0%, transparent 70%);
+  }
+  .cover-logo { font-size: 28px; font-weight: 800; letter-spacing: 2px; margin-bottom: 8px; }
+  .cover-logo span { color: #00A651; }
+  .cover-subtitle { font-size: 14px; opacity: 0.8; letter-spacing: 4px; text-transform: uppercase; margin-bottom: 60px; }
+  .cover-title { font-size: 42px; font-weight: 800; line-height: 1.2; margin-bottom: 16px; }
+  .cover-tagline { font-size: 18px; opacity: 0.9; max-width: 500px; margin-bottom: 40px; }
+  .cover-badge {
+    display: inline-block; padding: 12px 32px; border: 2px solid rgba(255,255,255,0.4);
+    border-radius: 50px; font-size: 13px; letter-spacing: 2px; text-transform: uppercase;
+  }
+  .cover-footer { position: absolute; bottom: 40px; font-size: 11px; opacity: 0.6; }
+
+  .page { padding: 50px 55px; page-break-after: always; min-height: 100vh; }
+  .page:last-child { page-break-after: avoid; }
+
+  h1 { font-size: 28px; font-weight: 800; color: #0066CC; margin-bottom: 24px; padding-bottom: 12px; border-bottom: 3px solid #00A651; }
+  h2 { font-size: 20px; font-weight: 700; color: #0066CC; margin: 28px 0 14px 0; }
+  h3 { font-size: 16px; font-weight: 700; color: #1E293B; margin: 20px 0 10px 0; }
+  p { margin-bottom: 12px; font-size: 13px; }
+  ul, ol { margin: 8px 0 16px 20px; font-size: 13px; }
+  li { margin-bottom: 6px; }
+
+  .highlight-box {
+    background: linear-gradient(135deg, #EFF6FF, #F0FDF4); border-left: 4px solid #0066CC;
+    padding: 18px 22px; border-radius: 0 8px 8px 0; margin: 16px 0;
+  }
+  .highlight-box.green { border-left-color: #00A651; }
+  .highlight-box h3 { margin-top: 0; color: #0066CC; }
+  .highlight-box.green h3 { color: #00A651; }
+
+  .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 20px 0; }
+  .stat-card {
+    background: #F8FAFC; border-radius: 10px; padding: 16px; text-align: center;
+    border: 1px solid #E2E8F0;
+  }
+  .stat-number { font-size: 28px; font-weight: 800; color: #0066CC; }
+  .stat-number.green { color: #00A651; }
+  .stat-label { font-size: 11px; color: #64748B; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  .tier-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 12px; }
+  .tier-table th {
+    background: #0066CC; color: white; padding: 10px 12px; text-align: left;
+    font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .tier-table td { padding: 10px 12px; border-bottom: 1px solid #E2E8F0; }
+  .tier-table tr:nth-child(even) { background: #F8FAFC; }
+  .tier-table .tier-name { font-weight: 700; }
+  .tier-platinum .tier-name { color: #6B21A8; }
+  .tier-gold .tier-name { color: #D97706; }
+  .tier-silver .tier-name { color: #475569; }
+  .tier-bronze .tier-name { color: #92400E; }
+
+  .check { color: #00A651; font-weight: 700; }
+  .cross { color: #CBD5E1; }
+
+  .ecosystem-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 16px 0; }
+  .eco-card {
+    border: 1px solid #E2E8F0; border-radius: 10px; padding: 16px;
+    background: white;
+  }
+  .eco-card h4 { font-size: 13px; font-weight: 700; color: #0066CC; margin-bottom: 6px; }
+  .eco-card p { font-size: 11px; color: #64748B; margin: 0; }
+  .eco-icon { font-size: 24px; margin-bottom: 8px; display: block; }
+
+  .timeline { margin: 16px 0; }
+  .timeline-item {
+    display: flex; gap: 16px; margin-bottom: 16px; position: relative;
+  }
+  .timeline-dot {
+    width: 32px; height: 32px; border-radius: 50%; background: #0066CC; color: white;
+    display: flex; align-items: center; justify-content: center; font-weight: 700;
+    font-size: 13px; flex-shrink: 0;
+  }
+  .timeline-dot.green { background: #00A651; }
+  .timeline-content { flex: 1; }
+  .timeline-content h4 { font-size: 14px; font-weight: 700; color: #1E293B; margin-bottom: 4px; }
+  .timeline-content p { font-size: 12px; color: #64748B; margin: 0; }
+
+  .revenue-bar {
+    background: #F1F5F9; border-radius: 8px; padding: 10px 14px; margin: 6px 0;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .revenue-bar-fill {
+    height: 8px; border-radius: 4px; background: linear-gradient(90deg, #0066CC, #00A651);
+  }
+  .revenue-bar-label { font-size: 12px; font-weight: 600; min-width: 140px; }
+  .revenue-bar-value { font-size: 12px; font-weight: 700; color: #0066CC; min-width: 80px; text-align: right; }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+  .action-box {
+    background: #0066CC; color: white; border-radius: 12px; padding: 24px;
+    margin: 20px 0; text-align: center;
+  }
+  .action-box h3 { color: white; margin-top: 0; font-size: 18px; }
+  .action-box p { color: rgba(255,255,255,0.9); }
+
+  .footer-bar {
+    background: #F8FAFC; border-top: 2px solid #E2E8F0; padding: 12px 55px;
+    font-size: 10px; color: #94A3B8; display: flex; justify-content: space-between;
+    position: fixed; bottom: 0; left: 0; right: 0;
+  }
+
+  .category-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 16px 0; }
+  .category-card {
+    border: 1px solid #E2E8F0; border-radius: 10px; padding: 14px;
+    border-left: 4px solid #0066CC;
+  }
+  .category-card h4 { font-size: 13px; font-weight: 700; color: #0066CC; margin-bottom: 4px; }
+  .category-card ul { font-size: 11px; margin: 4px 0 0 16px; }
+  .category-card li { margin-bottom: 2px; }
+
+  .benefit-list { list-style: none; margin-left: 0; }
+  .benefit-list li { padding: 6px 0 6px 24px; position: relative; font-size: 12px; }
+  .benefit-list li::before { content: '\2713'; position: absolute; left: 0; color: #00A651; font-weight: 700; }
+
+  .section-intro { font-size: 14px; color: #475569; margin-bottom: 20px; font-style: italic; }
+
+  .kpi-row { display: flex; gap: 12px; margin: 12px 0; }
+  .kpi-item {
+    flex: 1; background: #F8FAFC; border-radius: 8px; padding: 12px; text-align: center;
+    border: 1px solid #E2E8F0;
+  }
+  .kpi-item .kpi-val { font-size: 20px; font-weight: 800; color: #0066CC; }
+  .kpi-item .kpi-lbl { font-size: 10px; color: #64748B; text-transform: uppercase; }
+</style>
+</head>
+<body>
+
+<!-- COVER PAGE -->
+<div class="cover-page">
+  <div class="cover-logo">CROCE <span>EUROPA</span> SRL</div>
+  <div class="cover-subtitle">Servizi di Trasporto Sanitario</div>
+  <div style="width:80px;height:3px;background:#00A651;margin:0 auto 40px;border-radius:2px;"></div>
+  <div class="cover-title">Piano Strategico<br>Partnership &<br>Sponsorship</div>
+  <div class="cover-tagline">Ecosistema di valore per partner, sponsor e stakeholder nel settore sanitario</div>
+  <div class="cover-badge">Documento Strategico 2026-2028</div>
+  <div class="cover-footer">Documento riservato - Croce Europa SRL - {{date}}</div>
+</div>
+
+<!-- PAGE 1: CHI SIAMO -->
+<div class="page">
+  <h1>1. Chi Siamo: La Forza di Croce Europa</h1>
+  <p class="section-intro">Croce Europa SRL rappresenta una delle realta piu strutturate nel panorama del trasporto sanitario italiano, con una presenza capillare sul territorio e una base operativa di grande impatto.</p>
+
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-number">50+</div>
+      <div class="stat-label">Dipendenti</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number green">150+</div>
+      <div class="stat-label">Collaboratori e Volontari</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">20+</div>
+      <div class="stat-label">Ambulanze Operative</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number green">5</div>
+      <div class="stat-label">Sedi Operative</div>
+    </div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-number">2.800+</div>
+      <div class="stat-label">Servizi / Anno</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number green">200.000+</div>
+      <div class="stat-label">Km Percorsi / Anno</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">365</div>
+      <div class="stat-label">Giorni di Servizio</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number green">24/7</div>
+      <div class="stat-label">Operativita H24</div>
+    </div>
+  </div>
+
+  <h2>I Nostri Asset Strategici</h2>
+  <div class="ecosystem-grid">
+    <div class="eco-card">
+      <h4>App Mobile Proprietaria</h4>
+      <p>Piattaforma tecnologica avanzata per la gestione operativa con GPS tracking, checklist digitali e reportistica in tempo reale</p>
+    </div>
+    <div class="eco-card">
+      <h4>Centro di Formazione</h4>
+      <p>Struttura formativa accreditata per corsi BLSD, primo soccorso aziendale e formazione sanitaria continua</p>
+    </div>
+    <div class="eco-card">
+      <h4>Flotta Veicoli</h4>
+      <p>20+ ambulanze in servizio quotidiano con copertura territoriale ampia e visibilita costante su strada</p>
+    </div>
+    <div class="eco-card">
+      <h4>Sito Web e Social</h4>
+      <p>Presenza digitale strutturata con dashboard pubblica di impatto sociale e canali social attivi</p>
+    </div>
+    <div class="eco-card">
+      <h4>Team di 200+ Persone</h4>
+      <p>Una community di professionisti sanitari, collaboratori e volontari: un bacino unico per i partner</p>
+    </div>
+    <div class="eco-card">
+      <h4>Abbigliamento Branded</h4>
+      <p>Magliette, felpe e divise indossate quotidianamente dal personale con possibilita di co-branding</p>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 2: VISIONE STRATEGICA -->
+<div class="page">
+  <h1>2. Visione Strategica: L'Ecosistema Croce Europa</h1>
+  <p class="section-intro">La nostra strategia si basa sulla creazione di un ecosistema di valore reciproco dove ogni partner trova opportunita concrete di crescita, visibilita e accesso privilegiato al settore sanitario.</p>
+
+  <div class="highlight-box">
+    <h3>Il Concetto: Partnership, Non Sponsorizzazione</h3>
+    <p>Non vendiamo spazi pubblicitari. Costruiamo relazioni strategiche dove il partner diventa parte integrante del nostro ecosistema sanitario, accedendo a un network di 200+ professionisti, visibilita territoriale quotidiana e credibilita nel settore salute.</p>
+  </div>
+
+  <h2>I 5 Pilastri della Strategia</h2>
+  <div class="timeline">
+    <div class="timeline-item">
+      <div class="timeline-dot">1</div>
+      <div class="timeline-content">
+        <h4>Visibilita Territoriale Quotidiana</h4>
+        <p>Logo su ambulanze (50.000+ impressioni/mese per veicolo in area urbana), divise del personale, materiale operativo. Presenza costante e ripetuta nel tessuto urbano.</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot green">2</div>
+      <div class="timeline-content">
+        <h4>Accesso al Network Sanitario</h4>
+        <p>200+ persone nel settore sanitario: un bacino unico per aziende che vogliono raggiungere professionisti della salute con i loro prodotti e servizi.</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot">3</div>
+      <div class="timeline-content">
+        <h4>Piattaforma Digitale</h4>
+        <p>Integrazione del partner nella nostra app mobile, sito web, dashboard pubblica di impatto sociale, newsletter e canali social.</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot green">4</div>
+      <div class="timeline-content">
+        <h4>Formazione e Eventi</h4>
+        <p>Serate informative dedicate, corsi di formazione co-branded, eventi aziendali e open day presso le nostre sedi e il centro formazione.</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot">5</div>
+      <div class="timeline-content">
+        <h4>Impatto Sociale e ESG</h4>
+        <p>Associazione con un'azienda che salva vite ogni giorno. Report ESG condivisi, certificazione di partnership etica, comunicati stampa congiunti.</p>
+      </div>
+    </div>
+  </div>
+
+  <h2>Target Partner Ideali</h2>
+  <div class="category-grid">
+    <div class="category-card">
+      <h4>Assicurazioni e Finanza</h4>
+      <ul>
+        <li>Compagnie assicurative (vita, salute, auto)</li>
+        <li>Banche e istituti di credito</li>
+        <li>Consulenti finanziari e previdenziali</li>
+        <li>Fondi sanitari integrativi</li>
+      </ul>
+    </div>
+    <div class="category-card">
+      <h4>Salute e Benessere</h4>
+      <ul>
+        <li>Cliniche private e poliambulatori</li>
+        <li>Farmacie e parafarmacie</li>
+        <li>Aziende di integratori e nutraceutici</li>
+        <li>Centri fisioterapici e riabilitativi</li>
+      </ul>
+    </div>
+    <div class="category-card">
+      <h4>Automotive e Mobilita</h4>
+      <ul>
+        <li>Concessionari auto (flotte aziendali)</li>
+        <li>Officine e carrozzerie</li>
+        <li>Fornitori carburante e energia</li>
+        <li>Aziende di noleggio veicoli</li>
+      </ul>
+    </div>
+    <div class="category-card">
+      <h4>Servizi alle Imprese</h4>
+      <ul>
+        <li>Studi legali e consulenza</li>
+        <li>Commercialisti e revisori</li>
+        <li>Agenzie di comunicazione</li>
+        <li>Fornitori IT e telecomunicazioni</li>
+      </ul>
+    </div>
+    <div class="category-card">
+      <h4>Formazione e Sicurezza</h4>
+      <ul>
+        <li>Enti di formazione professionale</li>
+        <li>Aziende di sicurezza sul lavoro</li>
+        <li>Produttori DPI e attrezzature</li>
+        <li>Scuole e universita</li>
+      </ul>
+    </div>
+    <div class="category-card">
+      <h4>Food, Retail e Lifestyle</h4>
+      <ul>
+        <li>Ristoranti e catering (convenzioni pasti)</li>
+        <li>Palestre e centri sportivi</li>
+        <li>Negozi di abbigliamento tecnico</li>
+        <li>Aziende di e-commerce e delivery</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 3: PACCHETTI PARTNERSHIP -->
+<div class="page">
+  <h1>3. Pacchetti Partnership</h1>
+  <p class="section-intro">Quattro livelli di partnership studiati per adattarsi a ogni esigenza e budget, con benefit concreti e misurabili per il partner.</p>
+
+  <table class="tier-table">
+    <thead>
+      <tr>
+        <th style="width:25%">Benefit</th>
+        <th style="width:18%;text-align:center;background:#6B21A8;">PLATINUM<br><small>da 10.000/anno</small></th>
+        <th style="width:18%;text-align:center;background:#D97706;">GOLD<br><small>da 5.000/anno</small></th>
+        <th style="width:18%;text-align:center;background:#475569;">SILVER<br><small>da 2.500/anno</small></th>
+        <th style="width:18%;text-align:center;background:#92400E;">BRONZE<br><small>da 1.000/anno</small></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Logo su ambulanze (n. veicoli)</td>
+        <td class="tier-platinum" style="text-align:center"><span class="check">10+</span></td>
+        <td style="text-align:center"><span class="check">5</span></td>
+        <td style="text-align:center"><span class="check">2</span></td>
+        <td style="text-align:center"><span class="cross">-</span></td>
+      </tr>
+      <tr>
+        <td>Logo su divise del personale</td>
+        <td style="text-align:center"><span class="check">Tutte</span></td>
+        <td style="text-align:center"><span class="check">Si</span></td>
+        <td style="text-align:center"><span class="cross">-</span></td>
+        <td style="text-align:center"><span class="cross">-</span></td>
+      </tr>
+      <tr>
+        <td>Pagina dedicata nell'App</td>
+        <td style="text-align:center"><span class="check">Si</span></td>
+        <td style="text-align:center"><span class="check">Si</span></td>
+        <td style="text-align:center"><span class="cross">-</span></td>
+        <td style="text-align:center"><span class="cross">-</span></td>
+      </tr>
+      <tr>
+        <td>Logo sul sito web</td>
+        <td style="text-align:center"><span class="check">Premium</span></td>
+        <td style="text-align:center"><span class="check">Si</span></td>
+        <td style="text-align:center"><span class="check">Si</span></td>
+        <td style="text-align:center"><span class="check">Si</span></td>
+      </tr>
+      <tr>
+        <td>Social media (post dedicati/mese)</td>
+        <td style="text-align:center"><span class="check">4</span></td>
+        <td style="text-align:center"><span class="check">2</span></td>
+        <td style="text-align:center"><span class="check">1</span></td>
+        <td style="text-align:center"><span class="cross">-</span></td>
+      </tr>
+      <tr>
+        <td>Newsletter mensile</td>
+        <td style="text-align:center"><span class="check">Sezione dedicata</span></td>
+        <td style="text-align:center"><span class="check">Menzione</span></td>
+        <td style="text-align:center"><span class="check">Logo</span></td>
+        <td style="text-align:center"><span class="cross">-</span></td>
+      </tr>
+      <tr>
+        <td>Serate informative / Eventi</td>
+        <td style="text-align:center"><span class="check">Organizzazione dedicata</span></td>
+        <td style="text-align:center"><span class="check">Partecipazione + stand</span></td>
+        <td style="text-align:center"><span class="check">Partecipazione</span></td>
+        <td style="text-align:center"><span class="cross">-</span></td>
+      </tr>
+      <tr>
+        <td>Convenzione servizi per il personale</td>
+        <td style="text-align:center"><span class="check">Esclusiva di categoria</span></td>
+        <td style="text-align:center"><span class="check">Si</span></td>
+        <td style="text-align:center"><span class="check">Si</span></td>
+        <td style="text-align:center"><span class="check">Si</span></td>
+      </tr>
+      <tr>
+        <td>Accesso al centro formazione</td>
+        <td style="text-align:center"><span class="check">Corsi co-branded</span></td>
+        <td style="text-align:center"><span class="check">Sconto dipendenti</span></td>
+        <td style="text-align:center"><span class="cross">-</span></td>
+        <td style="text-align:center"><span class="cross">-</span></td>
+      </tr>
+      <tr>
+        <td>Report ESG e impatto sociale</td>
+        <td style="text-align:center"><span class="check">Personalizzato</span></td>
+        <td style="text-align:center"><span class="check">Standard</span></td>
+        <td style="text-align:center"><span class="cross">-</span></td>
+        <td style="text-align:center"><span class="cross">-</span></td>
+      </tr>
+      <tr>
+        <td>Esclusivita di categoria</td>
+        <td style="text-align:center"><span class="check">Si</span></td>
+        <td style="text-align:center"><span class="cross">-</span></td>
+        <td style="text-align:center"><span class="cross">-</span></td>
+        <td style="text-align:center"><span class="cross">-</span></td>
+      </tr>
+      <tr>
+        <td>Comunicato stampa congiunto</td>
+        <td style="text-align:center"><span class="check">Si</span></td>
+        <td style="text-align:center"><span class="check">Si</span></td>
+        <td style="text-align:center"><span class="cross">-</span></td>
+        <td style="text-align:center"><span class="cross">-</span></td>
+      </tr>
+      <tr>
+        <td>Certificato Partner Ufficiale</td>
+        <td style="text-align:center"><span class="check">Si</span></td>
+        <td style="text-align:center"><span class="check">Si</span></td>
+        <td style="text-align:center"><span class="check">Si</span></td>
+        <td style="text-align:center"><span class="check">Si</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="highlight-box green">
+    <h3>Pacchetti Personalizzati</h3>
+    <p>Oltre ai pacchetti standard, offriamo la possibilita di costruire partnership su misura. Ad esempio: un'assicurazione potrebbe sponsorizzare l'intero programma formazione BLSD, una banca potrebbe offrire condizioni agevolate ai nostri dipendenti in cambio di visibilita esclusiva, un ristorante potrebbe fornire convenzioni pasti al personale in cambio di promozione.</p>
+  </div>
+</div>
+
+<!-- PAGE 4: CANALI DI VISIBILITA DETTAGLIATI -->
+<div class="page">
+  <h1>4. Canali di Visibilita: Dettaglio</h1>
+
+  <h2>A. Ambulanze - Visibilita su Strada</h2>
+  <div class="two-col">
+    <div>
+      <p>Le nostre 20+ ambulanze percorrono mediamente <strong>200.000+ km/anno</strong> in aree urbane e suburbane. Ogni veicolo genera una media stimata di <strong>50.000-100.000 impressioni visive al mese</strong> in contesti urbani.</p>
+      <ul class="benefit-list">
+        <li>Logo posizionato in area dedicata sul veicolo</li>
+        <li>Visibilita 365 giorni all'anno, 24 ore su 24</li>
+        <li>Associazione diretta con il servizio di emergenza</li>
+        <li>Impatto emotivo elevato: il brand viene associato a chi salva vite</li>
+      </ul>
+    </div>
+    <div>
+      <div class="kpi-row">
+        <div class="kpi-item"><div class="kpi-val">1M+</div><div class="kpi-lbl">Impressioni/anno per veicolo</div></div>
+        <div class="kpi-item"><div class="kpi-val">20M+</div><div class="kpi-lbl">Impressioni totali flotta</div></div>
+      </div>
+    </div>
+  </div>
+
+  <h2>B. Abbigliamento e Divise</h2>
+  <p>200+ persone indossano quotidianamente le nostre divise, magliette e felpe brandizzate. Il logo del partner viene posizionato in modo discreto ma visibile, associando il brand al mondo sanitario professionale.</p>
+
+  <h2>C. App Mobile e Piattaforma Digitale</h2>
+  <p>La nostra app proprietaria <strong>Croce Europa</strong> e utilizzata quotidianamente dall'intero personale operativo. I partner Gold e Platinum possono avere una sezione dedicata con:</p>
+  <ul>
+    <li>Banner promozionale con link diretto ai servizi del partner</li>
+    <li>Offerte e convenzioni esclusive per il personale Croce Europa</li>
+    <li>Notifiche push per promozioni e eventi del partner</li>
+    <li>Integrazione nella dashboard di impatto sociale pubblica</li>
+  </ul>
+
+  <h2>D. Centro di Formazione</h2>
+  <div class="highlight-box">
+    <h3>Un Asset Strategico Unico</h3>
+    <p>Il nostro centro formazione offre opportunita uniche di partnership:</p>
+    <ul>
+      <li><strong>Corsi co-branded</strong>: Il partner co-organizza corsi BLSD, primo soccorso aziendale per i propri dipendenti o clienti</li>
+      <li><strong>Naming rights</strong>: "Aula Formazione [Nome Partner]" con branding permanente</li>
+      <li><strong>Location per eventi</strong>: Spazio disponibile per presentazioni, meeting e team building del partner</li>
+      <li><strong>Formazione per aziende partner</strong>: Corsi a tariffa agevolata per i dipendenti delle aziende partner</li>
+    </ul>
+  </div>
+
+  <h2>E. Serate Informative ed Eventi</h2>
+  <p>Organizziamo eventi periodici dedicati ai partner dove possono:</p>
+  <ul>
+    <li>Presentare i propri servizi al personale Croce Europa (200+ persone)</li>
+    <li>Organizzare sessioni informative su temi di interesse comune (salute, sicurezza, previdenza)</li>
+    <li>Partecipare agli open day delle nostre sedi con stand espositivi</li>
+    <li>Co-organizzare eventi aperti al pubblico con visibilita mediatica</li>
+  </ul>
+
+  <h2>F. Comunicazione Digitale</h2>
+  <div class="two-col">
+    <div>
+      <h3>Social Media</h3>
+      <ul>
+        <li>Post dedicati con tag del partner</li>
+        <li>Stories e contenuti video co-branded</li>
+        <li>Live events e dirette social</li>
+        <li>Hashtag dedicati alla partnership</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Sito Web e Newsletter</h3>
+      <ul>
+        <li>Sezione "I Nostri Partner" con logo e link</li>
+        <li>Newsletter mensile al personale e contatti</li>
+        <li>Blog post congiunti su temi di salute</li>
+        <li>Dashboard pubblica di impatto sociale</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 5: STRATEGIE DI ACQUISIZIONE -->
+<div class="page">
+  <h1>5. Strategia di Acquisizione Partner</h1>
+  <p class="section-intro">Un piano d'azione strutturato in 4 fasi per costruire un portfolio di partner solido e diversificato nel corso dei primi 12 mesi.</p>
+
+  <h2>Fase 1: Preparazione (Mesi 1-2)</h2>
+  <div class="highlight-box">
+    <ul>
+      <li><strong>Creare il "Partner Kit"</strong>: brochure professionale (PDF e stampata) con dati, benefit e testimonial</li>
+      <li><strong>Definire le categorie</strong>: mappare le categorie di partner target e il numero massimo per categoria</li>
+      <li><strong>Preparare materiale visivo</strong>: mockup ambulanze con logo, mockup divise, mockup app, screenshot dashboard</li>
+      <li><strong>Formare il team commerciale</strong>: preparare script di presentazione, FAQ, gestione obiezioni</li>
+      <li><strong>Creare una landing page dedicata</strong>: pagina web "Diventa Partner" con form di contatto e benefit</li>
+    </ul>
+  </div>
+
+  <h2>Fase 2: Outreach Locale (Mesi 3-5)</h2>
+  <ul>
+    <li><strong>Network personale</strong>: partire dai contatti esistenti di dirigenza e personale - il passaparola e il canale piu efficace</li>
+    <li><strong>Visite dirette</strong>: presentazione di persona alle aziende locali nelle zone delle 5 sedi operative</li>
+    <li><strong>Associazioni di categoria</strong>: Confindustria, CNA, Confcommercio - presentazioni ai membri</li>
+    <li><strong>Camere di Commercio</strong>: partecipazione a eventi networking e fiere locali</li>
+    <li><strong>LinkedIn outreach</strong>: contatto diretto con responsabili marketing/CSR delle aziende target</li>
+    <li><strong>Obiettivo</strong>: chiudere 5-8 partnership nei primi 3 mesi di outreach</li>
+  </ul>
+
+  <h2>Fase 3: Scale-Up (Mesi 6-9)</h2>
+  <ul>
+    <li><strong>Case study dei primi partner</strong>: creare testimonianze e risultati misurabili da mostrare ai prospect</li>
+    <li><strong>Evento di lancio</strong>: organizzare un evento "Croce Europa Partner Day" con tutti i partner e prospect invitati</li>
+    <li><strong>PR e media</strong>: comunicati stampa sulle partnership chiuse, articoli su giornali locali</li>
+    <li><strong>Programma referral</strong>: i partner esistenti presentano nuovi partner con benefit aggiuntivi</li>
+    <li><strong>Approccio a brand regionali/nazionali</strong>: con i case study in mano, contattare aziende piu grandi</li>
+  </ul>
+
+  <h2>Fase 4: Consolidamento (Mesi 10-12)</h2>
+  <ul>
+    <li><strong>Review annuale</strong>: report dettagliato per ogni partner con metriche di visibilita e impatto</li>
+    <li><strong>Rinnovi anticipati</strong>: proporre rinnovi pluriennali con condizioni agevolate</li>
+    <li><strong>Upgrade dei pacchetti</strong>: proporre ai partner Bronze/Silver di salire di livello con nuovi benefit</li>
+    <li><strong>Evento annuale partner</strong>: cena di gala o serata di networking per consolidare i rapporti</li>
+    <li><strong>Pianificazione anno 2</strong>: obiettivi di crescita, nuove categorie, nuovi benefit da offrire</li>
+  </ul>
+
+  <h2>Script di Approccio Consigliato</h2>
+  <div class="highlight-box green">
+    <p><em>"Buongiorno, sono [Nome] di Croce Europa SRL. Siamo un'azienda di trasporto sanitario con 200+ professionisti e 20+ ambulanze operative ogni giorno nella vostra zona. Stiamo costruendo un network di partner strategici che possano offrire servizi e vantaggi al nostro personale, ottenendo in cambio visibilita quotidiana sulle nostre ambulanze, nella nostra app e nei nostri eventi. Le piacerebbe scoprire come la vostra azienda potrebbe beneficiare di questa collaborazione?"</em></p>
+  </div>
+</div>
+
+<!-- PAGE 6: PROIEZIONI ECONOMICHE -->
+<div class="page">
+  <h1>6. Proiezioni Economiche</h1>
+  <p class="section-intro">Stima conservativa dei ricavi generabili dal programma partnership nei primi 3 anni di attivita.</p>
+
+  <h2>Scenario Anno 1 (Conservativo)</h2>
+  <div class="revenue-bar">
+    <div class="revenue-bar-label">2 Partner Platinum</div>
+    <div style="flex:1"><div class="revenue-bar-fill" style="width:80%"></div></div>
+    <div class="revenue-bar-value">20.000 EUR</div>
+  </div>
+  <div class="revenue-bar">
+    <div class="revenue-bar-label">4 Partner Gold</div>
+    <div style="flex:1"><div class="revenue-bar-fill" style="width:60%"></div></div>
+    <div class="revenue-bar-value">20.000 EUR</div>
+  </div>
+  <div class="revenue-bar">
+    <div class="revenue-bar-label">6 Partner Silver</div>
+    <div style="flex:1"><div class="revenue-bar-fill" style="width:45%"></div></div>
+    <div class="revenue-bar-value">15.000 EUR</div>
+  </div>
+  <div class="revenue-bar">
+    <div class="revenue-bar-label">10 Partner Bronze</div>
+    <div style="flex:1"><div class="revenue-bar-fill" style="width:30%"></div></div>
+    <div class="revenue-bar-value">10.000 EUR</div>
+  </div>
+  <div class="revenue-bar" style="background:#EFF6FF;border:2px solid #0066CC;">
+    <div class="revenue-bar-label" style="font-weight:800;">TOTALE ANNO 1</div>
+    <div style="flex:1"><div class="revenue-bar-fill" style="width:100%"></div></div>
+    <div class="revenue-bar-value" style="font-size:16px;">65.000 EUR</div>
+  </div>
+
+  <h2>Proiezione Triennale</h2>
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-number">65K</div>
+      <div class="stat-label">Anno 1</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number green">120K</div>
+      <div class="stat-label">Anno 2</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">200K</div>
+      <div class="stat-label">Anno 3</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number green">45+</div>
+      <div class="stat-label">Partner Target Anno 3</div>
+    </div>
+  </div>
+
+  <h2>Ricavi Addizionali dall'Ecosistema</h2>
+  <div class="two-col">
+    <div>
+      <h3>Entrate Dirette</h3>
+      <ul>
+        <li>Quote partnership annuali</li>
+        <li>Corsi di formazione per aziende partner</li>
+        <li>Affitto spazi centro formazione per eventi</li>
+        <li>Co-organizzazione eventi a pagamento</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Valore Indiretto</h3>
+      <ul>
+        <li>Convenzioni e sconti per il personale (welfare aziendale)</li>
+        <li>Forniture a condizioni agevolate</li>
+        <li>Servizi professionali (legale, contabile) a tariffa ridotta</li>
+        <li>Credibilita e reputazione per nuovi appalti</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>Esempi Concreti di Partnership Win-Win</h2>
+  <div class="category-grid">
+    <div class="category-card">
+      <h4>Assicurazione XYZ</h4>
+      <ul>
+        <li>Offre polizze agevolate ai 200+ dipendenti/collaboratori</li>
+        <li>Riceve: logo su 10 ambulanze, stand a eventi, esclusivita categoria</li>
+        <li>Pacchetto: Platinum (10.000 EUR/anno)</li>
+      </ul>
+    </div>
+    <div class="category-card">
+      <h4>Ristorante Locale</h4>
+      <ul>
+        <li>Offre convenzione pasti/consegne per il personale in turno</li>
+        <li>Riceve: visibilita nell'app, promozione al personale, menzione social</li>
+        <li>Pacchetto: Bronze (1.000 EUR/anno) + baratto servizi</li>
+      </ul>
+    </div>
+    <div class="category-card">
+      <h4>Palestra / Centro Fitness</h4>
+      <ul>
+        <li>Offre abbonamenti scontati al personale sanitario</li>
+        <li>Riceve: promozione esclusiva a 200+ persone, logo su divise</li>
+        <li>Pacchetto: Silver (2.500 EUR/anno)</li>
+      </ul>
+    </div>
+    <div class="category-card">
+      <h4>Studio Legale / Commercialista</h4>
+      <ul>
+        <li>Offre prima consulenza gratuita al personale</li>
+        <li>Riceve: referral diretto, serata informativa dedicata, logo sito</li>
+        <li>Pacchetto: Silver (2.500 EUR/anno)</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 7: METRICHE E KPI -->
+<div class="page">
+  <h1>7. Metriche, KPI e Reporting</h1>
+  <p class="section-intro">Ogni partnership viene monitorata con metriche precise per dimostrare il valore e giustificare il rinnovo annuale.</p>
+
+  <h2>KPI per il Partner</h2>
+  <table class="tier-table">
+    <thead>
+      <tr>
+        <th>Metrica</th>
+        <th>Descrizione</th>
+        <th>Frequenza Report</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Impressioni veicolari</td>
+        <td>Stima delle visualizzazioni del logo basata su km percorsi e traffico medio</td>
+        <td>Mensile</td>
+      </tr>
+      <tr>
+        <td>Engagement social</td>
+        <td>Like, condivisioni, commenti sui post dedicati al partner</td>
+        <td>Mensile</td>
+      </tr>
+      <tr>
+        <td>Click e visite</td>
+        <td>Traffico generato verso il sito/landing page del partner</td>
+        <td>Mensile</td>
+      </tr>
+      <tr>
+        <td>Convenzioni utilizzate</td>
+        <td>Numero di dipendenti/collaboratori che hanno usufruito dei servizi</td>
+        <td>Trimestrale</td>
+      </tr>
+      <tr>
+        <td>Partecipanti eventi</td>
+        <td>Presenze alle serate informative e open day</td>
+        <td>Per evento</td>
+      </tr>
+      <tr>
+        <td>Net Promoter Score</td>
+        <td>Soddisfazione del personale verso i servizi del partner</td>
+        <td>Semestrale</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Report Annuale per il Partner</h2>
+  <p>Ogni partner riceve un report annuale personalizzato contenente:</p>
+  <ul class="benefit-list">
+    <li>Riepilogo di tutte le attivita di visibilita svolte nell'anno</li>
+    <li>Dati quantitativi: impressioni, click, engagement, partecipanti eventi</li>
+    <li>Foto documentazione: logo su ambulanze, eventi, materiale stampato</li>
+    <li>Testimonianze del personale sui servizi del partner</li>
+    <li>Impatto sociale generato: km percorsi, pazienti trasportati, vite salvate</li>
+    <li>Proposta di rinnovo con eventuali upgrade e nuove opportunita</li>
+  </ul>
+
+  <h2>Governance del Programma</h2>
+  <div class="two-col">
+    <div>
+      <h3>Team Dedicato</h3>
+      <ul>
+        <li><strong>Partnership Manager</strong>: responsabile acquisizione e gestione partner</li>
+        <li><strong>Marketing</strong>: creazione contenuti, social media, materiali</li>
+        <li><strong>Operativo</strong>: coordinamento logo su veicoli, divise, eventi</li>
+        <li><strong>Direzione</strong>: approvazione partnership strategiche, relazioni istituzionali</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Strumenti di Gestione</h3>
+      <ul>
+        <li>CRM dedicato per tracciare contatti e pipeline partner</li>
+        <li>Dashboard di monitoraggio KPI in tempo reale</li>
+        <li>Calendario eventi condiviso con i partner</li>
+        <li>Template standardizzati per contratti e report</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="action-box">
+    <h3>Prossimi Passi</h3>
+    <p>1. Approvazione del piano strategico da parte della direzione<br>
+    2. Preparazione del Partner Kit (brochure + mockup + contratto tipo)<br>
+    3. Identificazione dei primi 20 prospect prioritari<br>
+    4. Avvio outreach con obiettivo 5 partnership entro 90 giorni<br>
+    5. Evento di lancio "Croce Europa Partner Network"</p>
+  </div>
+
+  <div style="text-align:center;margin-top:30px;padding:20px;border-top:2px solid #E2E8F0;">
+    <div style="font-size:18px;font-weight:800;color:#0066CC;">CROCE <span style="color:#00A651">EUROPA</span> SRL</div>
+    <div style="font-size:12px;color:#64748B;margin-top:4px;">Servizi di Trasporto Sanitario</div>
+    <div style="font-size:11px;color:#94A3B8;margin-top:8px;">Documento generato il {{date}} | Riservato</div>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1e3a5f">
+  <title>Impatto Sociale | SOCCORSO DIGITALE</title>
+  <meta name="description" content="Dashboard in tempo reale dell'impatto sociale. Trasparenza totale sui nostri servizi di trasporto sanitario.">
+  <meta property="og:title" content="SOCCORSO DIGITALE - Impatto Sociale">
+  <meta property="og:description" content="Scopri l'impatto dei nostri servizi di trasporto sanitario in tempo reale.">
+  <meta property="og:type" content="website">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #1e3a5f;
+      --primary-light: #2d5a8b;
+      --accent: #e8655f;
+      --accent-hover: #d54a44;
+      --green: #10b981;
+      --gold: #f59e0b;
+      --glass-bg: rgba(255, 255, 255, 0.08);
+      --glass-border: rgba(255, 255, 255, 0.15);
+      --text-primary: #ffffff;
+      --text-secondary: rgba(255, 255, 255, 0.7);
+      --text-muted: rgba(255, 255, 255, 0.5);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%);
+      min-height: 100vh;
+      color: var(--text-primary);
+      overflow-x: hidden;
+    }
+
+    .animated-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: -1;
+      overflow: hidden;
+    }
+
+    .animated-bg::before,
+    .animated-bg::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(100px);
+      opacity: 0.3;
+      animation: float 20s ease-in-out infinite;
+    }
+
+    .animated-bg::before {
+      width: 600px;
+      height: 600px;
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      top: -200px;
+      left: -200px;
+    }
+
+    .animated-bg::after {
+      width: 500px;
+      height: 500px;
+      background: linear-gradient(135deg, #e8655f, #f59e0b);
+      bottom: -150px;
+      right: -150px;
+      animation-delay: -10s;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      33% { transform: translate(30px, -30px) rotate(5deg); }
+      66% { transform: translate(-20px, 20px) rotate(-5deg); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .animated-bg::before,
+      .animated-bg::after,
+      .heart-icon,
+      .heart-ring,
+      .live-dot,
+      .progress-fill::after {
+        animation: none !important;
+      }
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    header {
+      padding: 32px 0;
+      text-align: center;
+      position: relative;
+    }
+
+    .logo-section {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .logo {
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(135deg, var(--accent), #f59e0b);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      box-shadow: 0 8px 32px rgba(232, 101, 95, 0.3);
+    }
+
+    .logo svg {
+      width: 40px;
+      height: 40px;
+      fill: white;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #ffffff, #94a3b8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+      margin-top: 8px;
+    }
+
+    .live-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--glass-bg);
+      padding: 8px 16px;
+      border-radius: 100px;
+      font-size: 0.85rem;
+      color: var(--green);
+      margin-top: 24px;
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(10px);
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--green);
+      border-radius: 50%;
+      animation: pulse-live 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-live {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.2); }
+    }
+
+    .heartbeat-section {
+      padding: 40px 0;
+      position: relative;
+    }
+
+    .heartbeat-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 40px;
+      flex-wrap: wrap;
+    }
+
+    .heart-visual {
+      position: relative;
+      width: 180px;
+      height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .heart-rings {
+      position: absolute;
+      inset: 0;
+    }
+
+    .heart-ring {
+      position: absolute;
+      inset: 0;
+      border: 2px solid var(--accent);
+      border-radius: 50%;
+      opacity: 0;
+      animation: ring-pulse 3s ease-out infinite;
+    }
+
+    .heart-ring:nth-child(2) { animation-delay: 1s; }
+    .heart-ring:nth-child(3) { animation-delay: 2s; }
+
+    @keyframes ring-pulse {
+      0% { transform: scale(0.5); opacity: 0.8; }
+      100% { transform: scale(1.5); opacity: 0; }
+    }
+
+    .heart-icon {
+      width: 100px;
+      height: 100px;
+      background: linear-gradient(135deg, var(--accent), #f59e0b);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: heartbeat 1.5s ease-in-out infinite;
+      box-shadow: 0 0 60px rgba(232, 101, 95, 0.4);
+      z-index: 1;
+    }
+
+    .heart-icon svg {
+      width: 50px;
+      height: 50px;
+      fill: white;
+    }
+
+    @keyframes heartbeat {
+      0%, 100% { transform: scale(1); }
+      15% { transform: scale(1.15); }
+      30% { transform: scale(1); }
+      45% { transform: scale(1.1); }
+      60% { transform: scale(1); }
+    }
+
+    .heartbeat-text {
+      text-align: left;
+    }
+
+    .heartbeat-label {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 8px;
+    }
+
+    .heartbeat-value {
+      font-size: 4rem;
+      font-weight: 800;
+      color: var(--accent);
+      line-height: 1;
+    }
+
+    .heartbeat-unit {
+      font-size: 1.2rem;
+      color: var(--text-secondary);
+      margin-top: 8px;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      padding: 40px 0;
+    }
+
+    .metric-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      padding: 32px;
+      backdrop-filter: blur(20px);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .metric-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--accent), var(--gold));
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .metric-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--accent);
+    }
+
+    .metric-card:hover::before {
+      opacity: 1;
+    }
+
+    .metric-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .metric-icon svg {
+      width: 28px;
+      height: 28px;
+    }
+
+    .metric-icon.km { background: linear-gradient(135deg, #3b82f6, #8b5cf6); }
+    .metric-icon.km svg { fill: white; }
+    .metric-icon.patients { background: linear-gradient(135deg, var(--accent), #f59e0b); }
+    .metric-icon.patients svg { fill: white; }
+    .metric-icon.co2 { background: linear-gradient(135deg, var(--green), #059669); }
+    .metric-icon.co2 svg { fill: white; }
+    .metric-icon.vehicles { background: linear-gradient(135deg, #8b5cf6, #a855f7); }
+    .metric-icon.vehicles svg { fill: white; }
+
+    .metric-label {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+
+    .metric-value {
+      font-size: 3rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      line-height: 1.1;
+      margin-bottom: 8px;
+    }
+
+    .metric-unit {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+    }
+
+    .metric-trend {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--green);
+      padding: 4px 12px;
+      border-radius: 100px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-top: 12px;
+    }
+
+    .yearly-section {
+      padding: 60px 0;
+      text-align: center;
+    }
+
+    .yearly-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 40px;
+      color: var(--text-secondary);
+    }
+
+    .yearly-stats {
+      display: flex;
+      justify-content: center;
+      gap: 60px;
+      flex-wrap: wrap;
+    }
+
+    .yearly-stat {
+      text-align: center;
+    }
+
+    .yearly-value {
+      font-size: 3.5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent), var(--gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .yearly-label {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-top: 8px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .campaign-section {
+      padding: 60px 0;
+    }
+
+    .campaign-title {
+      text-align: center;
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    .campaign-subtitle {
+      text-align: center;
+      color: var(--text-secondary);
+      margin-bottom: 48px;
+      font-size: 1.1rem;
+    }
+
+    .campaign-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      padding: 40px;
+      backdrop-filter: blur(20px);
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .campaign-header {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    .campaign-icon {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, var(--accent), var(--gold));
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+    }
+
+    .campaign-icon svg {
+      width: 44px;
+      height: 44px;
+      fill: white;
+    }
+
+    .campaign-name {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .campaign-desc {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      margin-top: 4px;
+    }
+
+    .progress-section {
+      margin: 32px 0;
+    }
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .progress-amount {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .progress-goal {
+      color: var(--text-muted);
+    }
+
+    .progress-bar {
+      height: 16px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 100px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--gold));
+      border-radius: 100px;
+      transition: width 1s ease;
+      position: relative;
+    }
+
+    .progress-fill::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      animation: shimmer 2s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    .progress-percentage {
+      text-align: center;
+      margin-top: 12px;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    .cta-buttons {
+      display: flex;
+      gap: 16px;
+      margin-top: 32px;
+      flex-wrap: wrap;
+    }
+
+    .cta-button {
+      flex: 1;
+      min-width: 200px;
+      padding: 18px 32px;
+      border-radius: 16px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      text-decoration: none;
+      text-align: center;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      border: none;
+    }
+
+    .cta-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+      color: white;
+      box-shadow: 0 8px 32px rgba(232, 101, 95, 0.3);
+    }
+
+    .cta-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px rgba(232, 101, 95, 0.4);
+    }
+
+    .cta-secondary {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      color: var(--text-primary);
+    }
+
+    .cta-secondary:hover {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: var(--accent);
+    }
+
+    .sponsor-section {
+      padding: 60px 0;
+      text-align: center;
+    }
+
+    .sponsor-title {
+      font-size: 1.2rem;
+      color: var(--text-muted);
+      margin-bottom: 32px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .sponsor-grid {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      flex-wrap: wrap;
+      opacity: 0.6;
+    }
+
+    .sponsor-placeholder {
+      width: 120px;
+      height: 60px;
+      background: var(--glass-bg);
+      border: 1px dashed var(--glass-border);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+    }
+
+    footer {
+      padding: 40px 0;
+      text-align: center;
+      border-top: 1px solid var(--glass-border);
+      margin-top: 40px;
+    }
+
+    .footer-text {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      line-height: 1.8;
+    }
+
+    .footer-text a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .share-section {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .share-button {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .share-button:hover {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .share-button svg {
+      width: 20px;
+      height: 20px;
+      fill: var(--text-primary);
+    }
+
+    .last-update {
+      text-align: center;
+      padding: 20px;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    @media (max-width: 768px) {
+      h1 { font-size: 1.8rem; }
+      .heartbeat-value { font-size: 3rem; }
+      .metric-value { font-size: 2.2rem; }
+      .yearly-value { font-size: 2.5rem; }
+      .yearly-stats { gap: 40px; }
+      .campaign-card { padding: 24px; }
+      .cta-button { min-width: 100%; }
+    }
+
+    /* Desktop-optimized layout */
+    @media (min-width: 1024px) {
+      .container {
+        max-width: 960px;
+        padding: 0 40px;
+      }
+
+      header {
+        padding: 48px 0 32px;
+      }
+
+      .heartbeat-section {
+        padding: 48px 0;
+      }
+
+      .heartbeat-container {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 32px;
+        padding: 48px 64px;
+        backdrop-filter: blur(20px);
+        gap: 64px;
+        justify-content: center;
+      }
+
+      .metrics-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+        max-width: 100%;
+      }
+
+      .metric-card {
+        padding: 28px;
+        border-radius: 20px;
+      }
+
+      .metric-value {
+        font-size: 2.5rem;
+      }
+
+      .yearly-section {
+        padding: 48px 0;
+      }
+
+      .yearly-stats {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 24px;
+        padding: 40px 60px;
+        backdrop-filter: blur(20px);
+        gap: 80px;
+        display: inline-flex;
+      }
+
+      .yearly-value {
+        font-size: 2.8rem;
+      }
+
+      .campaign-section {
+        padding: 48px 0;
+      }
+
+      .campaign-card {
+        max-width: 100%;
+        padding: 40px;
+        border-radius: 24px;
+      }
+
+      .donate-section {
+        padding: 48px 0;
+      }
+
+      .donate-amounts {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        max-width: 100%;
+      }
+
+      .amount-card {
+        padding: 24px 20px;
+      }
+
+      .tax-section {
+        padding: 48px 0;
+      }
+
+      .tax-card {
+        max-width: 100%;
+        padding: 40px;
+        border-radius: 24px;
+      }
+
+      .tax-input {
+        max-width: 300px;
+      }
+
+      .cta-buttons {
+        flex-direction: row;
+        justify-content: center;
+        gap: 20px;
+      }
+
+      .cta-button {
+        min-width: 280px;
+        flex: 0;
+      }
+
+      footer {
+        padding: 48px 0;
+        margin-top: 48px;
+      }
+    }
+
+    /* Extra-large desktop tweaks */
+    @media (min-width: 1440px) {
+      .container {
+        max-width: 1000px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="animated-bg"></div>
+  
+  <div class="container">
+    <header>
+      <div class="logo-section">
+        <div class="logo">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+        </div>
+        <div>
+          <h1>SOCCORSO DIGITALE</h1>
+          <p class="subtitle">Dashboard Impatto Sociale</p>
+        </div>
+      </div>
+      <div class="live-indicator">
+        <span class="live-dot"></span>
+        Dati in tempo reale
+      </div>
+    </header>
+
+    <section class="heartbeat-section">
+      <div class="heartbeat-container">
+        <div class="heart-visual">
+          <div class="heart-rings">
+            <div class="heart-ring"></div>
+            <div class="heart-ring"></div>
+            <div class="heart-ring"></div>
+          </div>
+          <div class="heart-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+          </div>
+        </div>
+        <div class="heartbeat-text">
+          <p class="heartbeat-label">Servizi completati oggi</p>
+          <p class="heartbeat-value" id="services-today">--</p>
+          <p class="heartbeat-unit">trasporti effettuati</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="metrics-grid" role="region" aria-label="Metriche impatto sociale">
+      <div class="metric-card" role="article" aria-labelledby="km-label">
+        <div class="metric-icon km" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg>
+        </div>
+        <p class="metric-label" id="km-label">Chilometri oggi</p>
+        <p class="metric-value" id="km-today" aria-live="polite">--</p>
+        <p class="metric-unit">km percorsi</p>
+      </div>
+
+      <div class="metric-card" role="article" aria-labelledby="patients-label">
+        <div class="metric-icon patients" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+        </div>
+        <p class="metric-label" id="patients-label">Pazienti questo mese</p>
+        <p class="metric-value" id="patients-month" aria-live="polite">--</p>
+        <p class="metric-unit">persone trasportate</p>
+      </div>
+
+      <div class="metric-card" role="article" aria-labelledby="co2-label">
+        <div class="metric-icon co2" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M17 8c.7 0 1.38.1 2.02.27L12 3 4.98 8.27C5.62 8.1 6.3 8 7 8c2.62 0 4.94 1.28 6.39 3.25l.61-.75L17 8zm-5 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm5.64-3.54l-.96 1.18C15.68 10.59 14.4 10 13 10c-2.76 0-5 2.24-5 5s2.24 5 5 5c2.24 0 4.13-1.48 4.76-3.5H15.5c-.5 1.17-1.67 2-3 2-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5c.96 0 1.82.39 2.45 1.02l-1.45.98 5.5.5-.5-5.5-1.36 1.46z"/></svg>
+        </div>
+        <p class="metric-label" id="co2-label">CO2 risparmiata</p>
+        <p class="metric-value" id="co2-saved" aria-live="polite">--</p>
+        <p class="metric-unit">kg grazie all'ottimizzazione</p>
+        <div class="metric-trend">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 14l5-5 5 5z"/></svg>
+          Percorsi ottimizzati
+        </div>
+      </div>
+
+      <div class="metric-card" role="article" aria-labelledby="vehicles-label">
+        <div class="metric-icon vehicles" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+        </div>
+        <p class="metric-label" id="vehicles-label">Mezzi attivi ora</p>
+        <p class="metric-value" id="active-vehicles" aria-live="polite">--</p>
+        <p class="metric-unit">ambulanze in servizio</p>
+      </div>
+    </section>
+
+    <section class="yearly-section">
+      <h2 class="yearly-title">Impatto annuale 2025</h2>
+      <div class="yearly-stats">
+        <div class="yearly-stat">
+          <p class="yearly-value" id="km-year">--</p>
+          <p class="yearly-label">Chilometri totali</p>
+        </div>
+        <div class="yearly-stat">
+          <p class="yearly-value" id="patients-year">--</p>
+          <p class="yearly-label">Pazienti trasportati</p>
+        </div>
+        <div class="yearly-stat">
+          <p class="yearly-value" id="services-year">--</p>
+          <p class="yearly-label">Servizi completati</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="campaign-section">
+      <h2 class="campaign-title">Sostieni il nostro prossimo traguardo</h2>
+      <p class="campaign-subtitle">I tuoi servizi sono pagati, ma possiamo crescere insieme</p>
+      
+      <div class="campaign-card">
+        <div class="campaign-header">
+          <div class="campaign-icon">
+            <svg viewBox="0 0 24 24"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg>
+          </div>
+          <div>
+            <h3 class="campaign-name">Adotta un Mezzo 2025</h3>
+            <p class="campaign-desc">Aiutaci ad acquistare una nuova ambulanza per la flotta</p>
+          </div>
+        </div>
+        
+        <div class="progress-section">
+          <div class="progress-header">
+            <span class="progress-amount" id="campaign-raised">0 EUR</span>
+            <span class="progress-goal">obiettivo: <span id="campaign-goal">80.000 EUR</span></span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="campaign-progress" style="width: 0%"></div>
+          </div>
+          <p class="progress-percentage"><span id="campaign-percentage">0</span>% raggiunto</p>
+        </div>
+        
+        <div class="cta-buttons">
+          <a href="#dona" class="cta-button cta-primary">Dona ora</a>
+          <a href="#sponsor" class="cta-button cta-secondary">Diventa sponsor</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="sponsor-section">
+      <h3 class="sponsor-title">I nostri sostenitori</h3>
+      <div class="sponsor-grid">
+        <div class="sponsor-placeholder">Il tuo logo qui</div>
+        <div class="sponsor-placeholder">Il tuo logo qui</div>
+        <div class="sponsor-placeholder">Il tuo logo qui</div>
+      </div>
+    </section>
+
+    <div class="share-section">
+      <button class="share-button" onclick="shareOnFacebook()" title="Condividi su Facebook">
+        <svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+      </button>
+      <button class="share-button" onclick="shareOnLinkedIn()" title="Condividi su LinkedIn">
+        <svg viewBox="0 0 24 24"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6zM2 9h4v12H2zM4 2a2 2 0 1 1 0 4 2 2 0 0 1 0-4z"/></svg>
+      </button>
+      <button class="share-button" onclick="copyLink()" title="Copia link">
+        <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+      </button>
+    </div>
+
+    <p class="last-update">Ultimo aggiornamento: <span id="last-update">--</span></p>
+
+    <footer>
+      <p class="footer-text">
+        SOCCORSO DIGITALE - Servizi di Trasporto Sanitario<br>
+        Questa dashboard mostra dati aggregati e anonimi.<br>
+        <a href="/">Torna all'app</a>
+      </p>
+    </footer>
+  </div>
+
+  <script>
+    function formatNumber(num) {
+      if (num >= 1000000) {
+        return (num / 1000000).toFixed(1) + 'M';
+      } else if (num >= 1000) {
+        return (num / 1000).toFixed(1) + 'K';
+      }
+      return num.toLocaleString('it-IT');
+    }
+
+    function animateValue(element, start, end, duration) {
+      let startTimestamp = null;
+      const step = (timestamp) => {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+        const value = Math.floor(progress * (end - start) + start);
+        element.textContent = formatNumber(value);
+        if (progress < 1) {
+          window.requestAnimationFrame(step);
+        }
+      };
+      window.requestAnimationFrame(step);
+    }
+
+    async function fetchImpactData() {
+      try {
+        const response = await fetch('/api/public/impact');
+        const data = await response.json();
+        
+        animateValue(document.getElementById('services-today'), 0, data.today.services || 0, 1500);
+        animateValue(document.getElementById('km-today'), 0, data.today.km || 0, 1500);
+        animateValue(document.getElementById('patients-month'), 0, data.month.patients || 0, 1500);
+        animateValue(document.getElementById('active-vehicles'), 0, data.live.activeVehicles || 0, 800);
+        
+        const co2Saved = Math.round((data.month.km || 0) * 0.12);
+        animateValue(document.getElementById('co2-saved'), 0, co2Saved, 1500);
+        
+        animateValue(document.getElementById('km-year'), 0, data.year.km || 0, 2000);
+        animateValue(document.getElementById('patients-year'), 0, data.year.patients || 0, 2000);
+        animateValue(document.getElementById('services-year'), 0, data.year.services || 0, 2000);
+        
+        if (data.campaign) {
+          document.getElementById('campaign-raised').textContent = formatNumber(data.campaign.raised) + ' EUR';
+          document.getElementById('campaign-goal').textContent = formatNumber(data.campaign.goal) + ' EUR';
+          const percentage = Math.min((data.campaign.raised / data.campaign.goal) * 100, 100);
+          document.getElementById('campaign-progress').style.width = percentage + '%';
+          document.getElementById('campaign-percentage').textContent = Math.round(percentage);
+        }
+        
+        document.getElementById('last-update').textContent = new Date().toLocaleString('it-IT');
+      } catch (error) {
+        console.error('Errore nel caricamento dati:', error);
+      }
+    }
+
+    function shareOnFacebook() {
+      window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(window.location.href), '_blank');
+    }
+
+    function shareOnLinkedIn() {
+      window.open('https://www.linkedin.com/sharing/share-offsite/?url=' + encodeURIComponent(window.location.href), '_blank');
+    }
+
+    function copyLink() {
+      navigator.clipboard.writeText(window.location.href).then(() => {
+        alert('Link copiato!');
+      });
+    }
+
+    fetchImpactData();
+    setInterval(fetchImpactData, 30000);
+    
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('online', fetchImpactData);
+    }
+  </script>
+</body>
+</html>

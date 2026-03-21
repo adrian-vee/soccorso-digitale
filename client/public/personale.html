@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Europa-Nexus | App Personale</title>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: 'Inter', -apple-system, system-ui, sans-serif; 
+      min-height: 100vh; 
+      background: linear-gradient(180deg, #0a1628 0%, #1a2744 50%, #0d1a2d 100%);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .container {
+      text-align: center;
+      max-width: 400px;
+      width: 100%;
+    }
+    .logo {
+      width: 100px;
+      height: 100px;
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 2rem;
+      box-shadow: 0 20px 40px rgba(59, 130, 246, 0.3);
+    }
+    .logo svg { width: 50px; height: 50px; }
+    h1 { 
+      font-size: 2rem; 
+      font-weight: 700; 
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .subtitle { 
+      font-size: 1.1rem; 
+      color: #64748b; 
+      margin-bottom: 0.5rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+    .tagline {
+      color: #94a3b8;
+      margin-bottom: 3rem;
+    }
+    .card {
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+    }
+    .card h3 {
+      font-size: 1rem;
+      color: #94a3b8;
+      margin-bottom: 1rem;
+    }
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 1rem 2rem;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      margin-bottom: 1rem;
+    }
+    .btn:last-child { margin-bottom: 0; }
+    .btn-primary {
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      color: white;
+      box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 40px rgba(59, 130, 246, 0.5);
+    }
+    .btn-outline {
+      background: rgba(255,255,255,0.05);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .btn-outline:hover {
+      background: rgba(255,255,255,0.1);
+    }
+    .features {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+    .feature {
+      background: rgba(255,255,255,0.03);
+      border-radius: 12px;
+      padding: 1rem;
+      text-align: center;
+    }
+    .feature-icon {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .feature-text {
+      font-size: 0.85rem;
+      color: #94a3b8;
+    }
+    .footer {
+      margin-top: 2rem;
+      color: #475569;
+      font-size: 0.85rem;
+    }
+    .qr-section {
+      margin-top: 1.5rem;
+      padding: 1.5rem;
+      background: rgba(255,255,255,0.03);
+      border-radius: 16px;
+    }
+    .qr-section p {
+      color: #64748b;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+    }
+    .steps {
+      text-align: left;
+      color: #94a3b8;
+      font-size: 0.85rem;
+      line-height: 1.8;
+    }
+    .steps li {
+      margin-bottom: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg>
+    </div>
+    
+    <p class="subtitle">Europa-Nexus</p>
+    <h1>App Personale</h1>
+    <p class="tagline">Gestione turni, benessere e crescita</p>
+    
+    <div class="card">
+      <h3>Apri l'app sul tuo telefono</h3>
+      <a href="https://expo.dev/go" target="_blank" class="btn btn-primary">
+        Scarica Expo Go
+      </a>
+    </div>
+    
+    <div class="qr-section">
+      <p>Come accedere all'app:</p>
+      <ol class="steps">
+        <li>Scarica "Expo Go" dall'App Store</li>
+        <li>Torna su questa pagina web nel browser Replit</li>
+        <li>Clicca "Open in Expo Go" nella barra in alto</li>
+      </ol>
+    </div>
+    
+    <div class="features">
+      <div class="feature">
+        <div class="feature-icon">📅</div>
+        <div class="feature-text">Turni</div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">💚</div>
+        <div class="feature-text">Benessere</div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">📈</div>
+        <div class="feature-text">Crescita</div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🎁</div>
+        <div class="feature-text">Convenzioni</div>
+      </div>
+    </div>
+    
+    <p class="footer">SOCCORSO DIGITALE Impresa Sociale</p>
+  </div>
+</body>
+</html>

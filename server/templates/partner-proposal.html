@@ -1,0 +1,1505 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Programma Partner 2025 - SOCCORSO DIGITALE</title>
+  <meta name="description" content="Entra nel primo ecosistema di convenzioni strutturate per il soccorso sanitario. Visibilita continua, zero costi, valore misurabile.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #1a8cba;
+      --primary-light: #e8f4f8;
+      --primary-dark: #0d5f7d;
+      --foreground: #1e293b;
+      --muted: #64748b;
+      --background: #f8fafc;
+      --card: #ffffff;
+      --border: #e2e8f0;
+      --success: #10b981;
+      --teal: #14b8a6;
+      --gold: #f59e0b;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--background);
+      color: var(--foreground);
+      line-height: 1.6;
+    }
+    
+    .container {
+      max-width: 1024px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+    
+    /* Hero Section - Premium */
+    .hero {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 50%, #064e6e 100%);
+      color: white;
+      padding: 5rem 1.5rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -30%;
+      width: 80%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+    }
+    
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -50%;
+      left: -20%;
+      width: 60%;
+      height: 150%;
+      background: radial-gradient(circle, rgba(20,184,166,0.15) 0%, transparent 60%);
+    }
+    
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(255,255,255,0.15);
+      padding: 0.625rem 1.25rem;
+      border-radius: 9999px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin-bottom: 2rem;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    
+    .hero h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 0.75rem;
+      line-height: 1.1;
+    }
+    
+    .hero .subtitle {
+      font-size: 1.25rem;
+      font-weight: 500;
+      margin-bottom: 1.5rem;
+      color: rgba(255,255,255,0.95);
+    }
+    
+    @media (min-width: 768px) {
+      .hero h1 {
+        font-size: 3.25rem;
+      }
+      .hero .subtitle {
+        font-size: 1.5rem;
+      }
+    }
+    
+    .hero p.description {
+      font-size: 1.125rem;
+      opacity: 0.9;
+      margin-bottom: 2.5rem;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.7;
+    }
+    
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 1rem 1.75rem;
+      border-radius: 0.75rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.3s;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    
+    .btn-primary {
+      background: white;
+      color: var(--primary);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+    }
+    
+    .btn-primary:hover {
+      background: var(--primary-light);
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+    }
+    
+    .btn-outline {
+      background: transparent;
+      color: white;
+      border: 2px solid rgba(255,255,255,0.5);
+    }
+    
+    .btn-outline:hover {
+      background: rgba(255,255,255,0.1);
+      border-color: rgba(255,255,255,0.8);
+    }
+    
+    .btn-full {
+      width: 100%;
+      justify-content: center;
+    }
+    
+    .btn-cta {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 4px 14px rgba(26, 140, 186, 0.3);
+    }
+    
+    .btn-cta:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+    }
+    
+    .hero-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+    }
+    
+    /* Stats Section - Enhanced */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+      padding: 3rem 1.5rem;
+      background: white;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    @media (min-width: 768px) {
+      .stats {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+    
+    .stat {
+      text-align: center;
+      padding: 1.5rem 1rem;
+      background: var(--background);
+      border-radius: 1rem;
+    }
+    
+    .stat-value {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--primary);
+      line-height: 1;
+    }
+    
+    .stat-label {
+      font-size: 0.875rem;
+      color: var(--muted);
+      margin-top: 0.5rem;
+      font-weight: 500;
+    }
+    
+    .stats-tagline {
+      text-align: center;
+      padding: 1rem 1.5rem 2rem;
+      background: white;
+      color: var(--muted);
+      font-size: 0.9375rem;
+      font-weight: 500;
+    }
+    
+    /* Section Styles */
+    section {
+      padding: 5rem 0;
+    }
+    
+    .section-alt {
+      background: var(--primary-light);
+    }
+    
+    .section-title {
+      text-align: center;
+      margin-bottom: 3.5rem;
+    }
+    
+    .section-title h2 {
+      font-size: 1.875rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+    }
+    
+    @media (min-width: 768px) {
+      .section-title h2 {
+        font-size: 2.25rem;
+      }
+    }
+    
+    .section-title p {
+      color: var(--muted);
+      font-size: 1.125rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    /* Cards */
+    .card {
+      background: white;
+      border-radius: 1rem;
+      padding: 2rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      border: 1px solid var(--border);
+      transition: all 0.3s;
+    }
+    
+    .card:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .card-highlight {
+      background: var(--primary-light);
+      border-color: var(--primary);
+    }
+    
+    /* Positioning Section - NEW */
+    .positioning-grid {
+      display: grid;
+      gap: 1.5rem;
+    }
+    
+    @media (min-width: 768px) {
+      .positioning-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+    
+    .positioning-card {
+      text-align: center;
+      padding: 2rem;
+    }
+    
+    .positioning-card .check-icon {
+      width: 3rem;
+      height: 3rem;
+      background: var(--success);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.25rem;
+    }
+    
+    .positioning-card .check-icon svg {
+      width: 1.5rem;
+      height: 1.5rem;
+      color: white;
+    }
+    
+    .positioning-card h3 {
+      font-weight: 700;
+      font-size: 1.125rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .positioning-card p {
+      color: var(--muted);
+      font-size: 0.9375rem;
+    }
+    
+    /* Benefits Grid - Enhanced */
+    .benefits-grid {
+      display: grid;
+      gap: 1.5rem;
+    }
+    
+    @media (min-width: 768px) {
+      .benefits-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    
+    @media (min-width: 1024px) {
+      .benefits-grid.five-cols {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+    
+    .benefit-card {
+      display: flex;
+      gap: 1.25rem;
+      align-items: flex-start;
+    }
+    
+    .benefit-icon {
+      width: 3.5rem;
+      height: 3.5rem;
+      background: var(--primary-light);
+      border-radius: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    
+    .benefit-icon svg {
+      width: 1.75rem;
+      height: 1.75rem;
+      color: var(--primary);
+    }
+    
+    .benefit-content h3 {
+      font-weight: 700;
+      margin-bottom: 0.375rem;
+      font-size: 1.0625rem;
+    }
+    
+    .benefit-content p {
+      color: var(--muted);
+      font-size: 0.9375rem;
+      line-height: 1.5;
+    }
+    
+    /* Certification Section */
+    .cert-section {
+      background: linear-gradient(135deg, var(--primary-dark) 0%, #064e6e 100%);
+      color: white;
+    }
+    
+    .cert-section .section-title h2,
+    .cert-section .section-title p {
+      color: white;
+    }
+    
+    .cert-section .section-title p {
+      opacity: 0.9;
+    }
+    
+    .cert-bullets {
+      max-width: 600px;
+      margin: 0 auto 2rem;
+    }
+    
+    .cert-bullets li {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      font-size: 1.0625rem;
+    }
+    
+    .cert-bullets svg {
+      width: 1.25rem;
+      height: 1.25rem;
+      color: var(--teal);
+      flex-shrink: 0;
+    }
+    
+    .cert-tagline {
+      text-align: center;
+      font-style: italic;
+      opacity: 0.9;
+      font-size: 1rem;
+      max-width: 500px;
+      margin: 0 auto;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(255,255,255,0.2);
+    }
+    
+    /* Steps */
+    .steps-grid {
+      display: grid;
+      gap: 2rem;
+    }
+    
+    @media (min-width: 768px) {
+      .steps-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+    
+    .step {
+      text-align: center;
+    }
+    
+    .step-number {
+      width: 3.5rem;
+      height: 3.5rem;
+      background: var(--primary);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.5rem;
+      margin: 0 auto 1.25rem;
+      box-shadow: 0 4px 14px rgba(26, 140, 186, 0.3);
+    }
+    
+    .step h3 {
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      font-size: 1.125rem;
+    }
+    
+    .step p {
+      color: var(--muted);
+      font-size: 0.9375rem;
+    }
+    
+    /* QR Section */
+    .qr-card {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      align-items: center;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    
+    @media (min-width: 768px) {
+      .qr-card {
+        flex-direction: row;
+      }
+    }
+    
+    .qr-icon-large {
+      width: 8rem;
+      height: 8rem;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--teal) 100%);
+      border-radius: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 8px 24px rgba(26, 140, 186, 0.25);
+    }
+    
+    .qr-icon-large svg {
+      width: 4rem;
+      height: 4rem;
+      color: white;
+    }
+    
+    .qr-content h3 {
+      font-size: 1.375rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+    
+    .check-list {
+      list-style: none;
+    }
+    
+    .check-list li {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+      color: var(--foreground);
+      font-size: 0.9375rem;
+    }
+    
+    .check-list svg {
+      width: 1.25rem;
+      height: 1.25rem;
+      color: var(--success);
+      flex-shrink: 0;
+    }
+    
+    .qr-tagline {
+      margin-top: 1.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.9375rem;
+      font-style: italic;
+    }
+    
+    /* Cost Section - Premium */
+    .cost-card {
+      text-align: center;
+      max-width: 28rem;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+      background: linear-gradient(135deg, var(--primary-light) 0%, rgba(20, 184, 166, 0.1) 100%);
+      border: 2px solid var(--primary);
+    }
+    
+    .cost-badge {
+      display: inline-block;
+      background: var(--primary);
+      color: white;
+      padding: 0.5rem 1.25rem;
+      border-radius: 9999px;
+      font-weight: 700;
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .cost-card h3 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+    }
+    
+    .cost-card ul {
+      list-style: none;
+      text-align: left;
+      max-width: 280px;
+      margin: 0 auto;
+    }
+    
+    .cost-card ul li {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+      font-size: 1rem;
+    }
+    
+    .cost-card ul svg {
+      width: 1.25rem;
+      height: 1.25rem;
+      color: var(--success);
+      flex-shrink: 0;
+    }
+    
+    .cost-tagline {
+      margin-top: 1.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.9375rem;
+    }
+    
+    /* Territory Section */
+    .territory-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+      margin-bottom: 2.5rem;
+    }
+    
+    .territory-badge {
+      background: var(--primary);
+      color: white;
+      padding: 0.875rem 1.75rem;
+      border-radius: 0.75rem;
+      font-weight: 700;
+      font-size: 1.125rem;
+      box-shadow: 0 4px 14px rgba(26, 140, 186, 0.25);
+    }
+    
+    .map-container {
+      position: relative;
+      width: 100%;
+      height: 350px;
+      background: var(--background);
+      border-radius: 1rem;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    
+    #partners-map {
+      width: 100%;
+      height: 100%;
+    }
+    
+    #map-loading, #map-empty {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 1rem;
+      color: var(--muted);
+    }
+    
+    #map-empty {
+      display: none;
+    }
+    
+    #map-legend {
+      display: none;
+      padding: 1rem;
+      background: white;
+      border-radius: 0.5rem;
+      margin-top: 1rem;
+    }
+    
+    .legend-items {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+    }
+    
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+    }
+    
+    .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+    
+    .map-note {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.9375rem;
+      margin-top: 1.5rem;
+    }
+    
+    /* Benefits Type Section */
+    .benefits-type-card {
+      max-width: 500px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    
+    .benefits-type-card p.intro {
+      color: var(--muted);
+      margin-bottom: 1.5rem;
+    }
+    
+    .benefits-examples {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+    }
+    
+    .benefit-tag {
+      background: var(--primary-light);
+      color: var(--primary-dark);
+      padding: 0.625rem 1rem;
+      border-radius: 0.5rem;
+      font-size: 0.9375rem;
+      font-weight: 500;
+    }
+    
+    .benefit-tag.recommended {
+      background: var(--primary);
+      color: white;
+    }
+    
+    /* Form Section */
+    .form-section {
+      background: linear-gradient(180deg, var(--primary-light) 0%, var(--background) 100%);
+    }
+    
+    .form-card {
+      max-width: 40rem;
+      margin: 0 auto;
+    }
+    
+    .form-grid {
+      display: grid;
+      gap: 1rem;
+    }
+    
+    @media (min-width: 768px) {
+      .form-grid-2 {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    
+    .form-group label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+    
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: 0.75rem;
+      font-size: 1rem;
+      font-family: inherit;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      background: white;
+    }
+    
+    .form-group input:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(26, 140, 186, 0.1);
+    }
+    
+    .form-group textarea {
+      resize: vertical;
+      min-height: 120px;
+    }
+    
+    .contact-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      justify-content: center;
+      margin-top: 2rem;
+    }
+    
+    .contact-links a {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--foreground);
+      text-decoration: none;
+      font-size: 0.9375rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    
+    .contact-links a:hover {
+      color: var(--primary);
+    }
+    
+    .contact-links svg {
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+    
+    /* CTA Banner - Premium */
+    .cta-section {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: white;
+      text-align: center;
+    }
+    
+    .cta-section h2 {
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 1rem;
+    }
+    
+    @media (min-width: 768px) {
+      .cta-section h2 {
+        font-size: 2.5rem;
+      }
+    }
+    
+    .cta-section p {
+      font-size: 1.125rem;
+      opacity: 0.9;
+      margin-bottom: 2rem;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    .cta-section .urgency {
+      display: inline-block;
+      background: rgba(255,255,255,0.15);
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+      font-size: 0.9375rem;
+      margin-top: 1.5rem;
+      border: 1px solid rgba(255,255,255,0.25);
+    }
+    
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2.5rem;
+      text-align: center;
+      background: white;
+    }
+    
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    .footer-logo svg {
+      width: 1.5rem;
+      height: 1.5rem;
+      color: var(--primary);
+    }
+    
+    .footer-logo span {
+      font-weight: 700;
+      font-size: 1.125rem;
+    }
+    
+    footer p {
+      color: var(--muted);
+      font-size: 0.9375rem;
+    }
+    
+    footer p.small {
+      font-size: 0.8125rem;
+      margin-top: 0.5rem;
+    }
+    
+    /* Utility Classes */
+    .text-center { text-align: center; }
+    .mb-1 { margin-bottom: 0.5rem; }
+    .mb-2 { margin-bottom: 1rem; }
+    .mb-3 { margin-bottom: 1.5rem; }
+    .mb-4 { margin-bottom: 2rem; }
+    .mt-2 { margin-top: 1rem; }
+    .mt-4 { margin-top: 2rem; }
+    
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    
+    .spinner {
+      width: 2rem;
+      height: 2rem;
+      border: 3px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+  </style>
+</head>
+<body>
+  <!-- Hero Section - Premium -->
+  <header class="hero">
+    <div class="hero-content">
+      <div class="badge">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+        Programma Convenzioni Partner 2025
+      </div>
+      <h1>Diventa Partner di SOCCORSO DIGITALE</h1>
+      <p class="subtitle">Entra nel primo ecosistema di convenzioni strutturate per il soccorso sanitario</p>
+      <p class="description">Una community reale di operatori sanitari attivi ogni giorno sul territorio. Visibilita continua, zero costi, valore misurabile.</p>
+      <div class="hero-buttons">
+        <a href="#form-section" class="btn btn-primary">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+          Richiedi Partnership
+        </a>
+        <a href="/api/public/partner-proposal-pdf" class="btn btn-outline" download>
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          Scarica PDF
+        </a>
+        <a href="#positioning" class="btn btn-outline">Scopri come funziona</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Stats Section - Enhanced -->
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-value" id="stat-operators">196+</div>
+      <div class="stat-label">Operatori sanitari attivi e verificati</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value" id="stat-beneficiaries">588+</div>
+      <div class="stat-label">Potenziali beneficiari diretti</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value" id="stat-partners">8</div>
+      <div class="stat-label">Partner gia attivi sul territorio</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">0</div>
+      <div class="stat-label">Costi, commissioni, vincoli</div>
+    </div>
+  </div>
+  <p class="stats-tagline">Numeri reali. Persone reali. Utilizzo quotidiano.</p>
+
+  <!-- Positioning Section - NEW -->
+  <section id="positioning">
+    <div class="container">
+      <div class="section-title">
+        <h2>Perche SOCCORSO DIGITALE e diversa</h2>
+        <p>Non siamo un portale sconti. Siamo un'organizzazione operativa che ogni giorno gestisce emergenze, formazione e personale sanitario sul territorio.</p>
+      </div>
+      
+      <div class="positioning-grid">
+        <div class="card positioning-card">
+          <div class="check-icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+          </div>
+          <h3>Community verificata</h3>
+          <p>Solo operatori reali, identificati digitalmente tramite la nostra piattaforma</p>
+        </div>
+        
+        <div class="card positioning-card">
+          <div class="check-icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+          </div>
+          <h3>Canali proprietari</h3>
+          <p>App interna, certificazioni, comunicazioni ufficiali dirette al personale</p>
+        </div>
+        
+        <div class="card positioning-card">
+          <div class="check-icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+          </div>
+          <h3>Fiducia istituzionale</h3>
+          <p>Il personale si fida di cio che consigliamo. Relazioni durature.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- What Partners Get - Enhanced -->
+  <section class="section-alt" id="benefits">
+    <div class="container">
+      <div class="section-title">
+        <h2>Cosa ottiene concretamente un Partner</h2>
+        <p>Vantaggi reali e misurabili per la tua attivita</p>
+      </div>
+      
+      <div class="benefits-grid five-cols">
+        <div class="card benefit-card">
+          <div class="benefit-icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+          </div>
+          <div class="benefit-content">
+            <h3>Visibilita continuativa</h3>
+            <p>Logo e scheda azienda nella nostra app utilizzata quotidianamente dagli operatori</p>
+          </div>
+        </div>
+        
+        <div class="card benefit-card">
+          <div class="benefit-icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          </div>
+          <div class="benefit-content">
+            <h3>Clientela fidelizzata</h3>
+            <p>Operatori che tornano nel tempo e privilegiano i partner convenzionati</p>
+          </div>
+        </div>
+        
+        <div class="card benefit-card">
+          <div class="benefit-icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+          </div>
+          <div class="benefit-content">
+            <h3>Co-branding istituzionale</h3>
+            <p>Presenza nei materiali, certificazioni e comunicazioni SOCCORSO DIGITALE</p>
+          </div>
+        </div>
+        
+        <div class="card benefit-card">
+          <div class="benefit-icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+          </div>
+          <div class="benefit-content">
+            <h3>Reputazione e CSR</h3>
+            <p>Associazione diretta con il mondo del soccorso e della sanita territoriale</p>
+          </div>
+        </div>
+        
+        <div class="card benefit-card">
+          <div class="benefit-icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+          </div>
+          <div class="benefit-content">
+            <h3>Zero rischio</h3>
+            <p>Nessun costo, nessuna commissione, nessun obbligo contrattuale</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Certification Section - NEW -->
+  <section class="cert-section">
+    <div class="container">
+      <div class="section-title">
+        <h2>Il tuo brand sui nostri certificati e corsi</h2>
+        <p>Ogni anno rilasciamo certificazioni e materiali formativi utilizzati, archiviati e condivisi dal nostro personale.</p>
+      </div>
+      
+      <ul class="cert-bullets">
+        <li>
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+          Logo partner su certificati selezionati
+        </li>
+        <li>
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+          Presenza nei PDF dei corsi di formazione
+        </li>
+        <li>
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+          Ringraziamento istituzionale nei materiali
+        </li>
+      </ul>
+      
+      <p class="cert-tagline">Un'esposizione che resta nel tempo, non scompare dopo uno scroll.</p>
+    </div>
+  </section>
+
+  <!-- QR Verification - Enhanced -->
+  <section>
+    <div class="container">
+      <div class="section-title">
+        <h2>Verifica immediata del personale. Zero burocrazia.</h2>
+        <p>Il nostro sistema digitale rende tutto semplice e sicuro</p>
+      </div>
+      
+      <div class="card qr-card">
+        <div class="qr-icon-large">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+        </div>
+        <div class="qr-content">
+          <h3>Tessera Digitale SOCCORSO DIGITALE</h3>
+          <ul class="check-list">
+            <li>
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+              QR verificabile in tempo reale
+            </li>
+            <li>
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+              Nessuna tessera fisica necessaria
+            </li>
+            <li>
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+              Utilizzabile direttamente da smartphone
+            </li>
+            <li>
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+              Compatibile con Apple Wallet e Google Wallet
+            </li>
+          </ul>
+          <p class="qr-tagline">Sicurezza per il partner. Semplicita per tutti.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Cost Section - Premium -->
+  <section class="section-alt">
+    <div class="container">
+      <div class="section-title">
+        <h2>Costi di adesione</h2>
+      </div>
+      
+      <div class="card cost-card">
+        <div class="cost-badge">Zero. Davvero.</div>
+        <h3>Nessun costo nascosto</h3>
+        <ul>
+          <li>
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            Nessun costo di iscrizione
+          </li>
+          <li>
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            Nessuna commissione
+          </li>
+          <li>
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            Nessun vincolo contrattuale
+          </li>
+        </ul>
+        <p class="cost-tagline">Offri solo il vantaggio che scegli tu. Fine.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Type of Benefits -->
+  <section>
+    <div class="container">
+      <div class="section-title">
+        <h2>Liberta totale per il partner</h2>
+        <p>Non imponiamo uno standard. Ogni azienda decide cosa e sostenibile.</p>
+      </div>
+      
+      <div class="card benefits-type-card">
+        <p class="intro">Esempi di vantaggi offerti dai nostri partner:</p>
+        <div class="benefits-examples">
+          <span class="benefit-tag recommended">Sconto percentuale (consigliato 10%+)</span>
+          <span class="benefit-tag">Promozioni dedicate</span>
+          <span class="benefit-tag">Omaggi o servizi esclusivi</span>
+          <span class="benefit-tag">Vantaggi temporanei</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Territory Section -->
+  <section class="section-alt">
+    <div class="container">
+      <div class="section-title">
+        <h2>Presenza reale sul territorio</h2>
+        <p>Operiamo stabilmente nelle province di:</p>
+      </div>
+      
+      <div class="territory-badges">
+        <span class="territory-badge">Verona</span>
+        <span class="territory-badge">Vicenza</span>
+      </div>
+      
+      <div class="map-container">
+        <div id="map-loading">
+          <div class="spinner"></div>
+          <p>Caricamento mappa partner...</p>
+        </div>
+        <div id="map-empty">
+          <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="opacity: 0.5;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          <p>Mappa dei partner in arrivo</p>
+        </div>
+        <div id="partners-map"></div>
+      </div>
+      
+      <div id="map-legend">
+        <div class="legend-items">
+          <div class="legend-item"><div class="legend-dot" style="background: #ef4444;"></div> Ristorazione</div>
+          <div class="legend-item"><div class="legend-dot" style="background: #3b82f6;"></div> Servizi</div>
+          <div class="legend-item"><div class="legend-dot" style="background: #22c55e;"></div> Commercio</div>
+          <div class="legend-item"><div class="legend-dot" style="background: #a855f7;"></div> Altro</div>
+        </div>
+      </div>
+      
+      <p class="map-note">I nostri partner sono visibili anche geograficamente nella nostra piattaforma.</p>
+    </div>
+  </section>
+
+  <!-- How it Works -->
+  <section>
+    <div class="container">
+      <div class="section-title">
+        <h2>Come funziona</h2>
+        <p>Tre passaggi semplici. Attivazione rapida.</p>
+      </div>
+      
+      <div class="steps-grid">
+        <div class="step">
+          <div class="step-number">1</div>
+          <h3>Contattaci</h3>
+          <p>Compila il modulo o chiamaci. Nessun impegno.</p>
+        </div>
+        <div class="step">
+          <div class="step-number">2</div>
+          <h3>Definisci il vantaggio</h3>
+          <p>Scegli cosa offrire, in modo libero e sostenibile.</p>
+        </div>
+        <div class="step">
+          <div class="step-number">3</div>
+          <h3>Diventi Partner</h3>
+          <p>La tua attivita viene pubblicata e comunicata al personale.</p>
+        </div>
+      </div>
+      
+      <p class="text-center mt-4" style="color: var(--muted);">
+        <svg style="display: inline; width: 1rem; height: 1rem; vertical-align: middle; margin-right: 0.25rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        Attivazione media: entro 48 ore
+      </p>
+    </div>
+  </section>
+
+  <!-- Form Section -->
+  <section class="form-section" id="form-section">
+    <div class="container">
+      <div class="section-title">
+        <h2>Richiedi Partnership</h2>
+        <p>Compila il modulo e ti ricontatteremo entro 24 ore</p>
+      </div>
+      
+      <div class="card form-card">
+        <form id="partner-form" onsubmit="submitPartnerForm(event)">
+          <div class="form-grid form-grid-2">
+            <div class="form-group">
+              <label for="azienda">Nome Azienda *</label>
+              <input type="text" id="azienda" name="azienda" placeholder="La tua azienda" required>
+            </div>
+            <div class="form-group">
+              <label for="referente">Referente *</label>
+              <input type="text" id="referente" name="referente" placeholder="Nome e cognome" required>
+            </div>
+          </div>
+          
+          <div class="form-grid form-grid-2">
+            <div class="form-group">
+              <label for="email">Email *</label>
+              <input type="email" id="email" name="email" placeholder="email@azienda.it" required>
+            </div>
+            <div class="form-group">
+              <label for="telefono">Telefono</label>
+              <input type="tel" id="telefono" name="telefono" placeholder="045 123456">
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="messaggio">Messaggio</label>
+            <textarea id="messaggio" name="messaggio" placeholder="Descriveteci la vostra attivita e il vantaggio che vorreste offrire..."></textarea>
+          </div>
+          
+          <div id="form-message" style="display: none; padding: 12px; border-radius: 8px; margin-bottom: 16px;"></div>
+          
+          <button type="submit" id="submit-btn" class="btn btn-cta btn-full">
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+            Invia Richiesta di Partnership
+          </button>
+        </form>
+      </div>
+      
+      <div class="contact-links">
+        <p style="width: 100%; color: var(--muted); font-size: 0.875rem; text-align: center;">Preferisci contattarci direttamente?</p>
+        <a href="tel:+390458203000">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+          045 8203000
+        </a>
+        <a href="mailto:partner@croceeuropa.com">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+          partner@croceeuropa.com
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section - Final -->
+  <section class="cta-section">
+    <div class="container">
+      <h2>Entra ora nel Programma Partner SOCCORSO DIGITALE</h2>
+      <p>Stiamo selezionando un numero limitato di partner per area e categoria.</p>
+      <a href="#form-section" class="btn btn-primary">
+        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        Richiedi Partnership
+      </a>
+      <p class="urgency">Non restare fuori. Le migliori categorie si riempiono velocemente.</p>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-logo">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+      <span>SOCCORSO DIGITALE</span>
+    </div>
+    <p>Servizi di emergenza sanitaria e trasporto sanitario nelle province di Verona e Vicenza</p>
+    <p class="small">Programma Convenzioni Partner - 2025</p>
+  </footer>
+
+  <script>
+    let map = null;
+    let markers = [];
+
+    const categoryColors = {
+      ristorazione: '#ef4444',
+      servizi: '#3b82f6',
+      commercio: '#22c55e',
+      altro: '#a855f7'
+    };
+
+    async function loadStats() {
+      try {
+        const response = await fetch('/api/public/partner-stats');
+        if (!response.ok) return;
+        const stats = await response.json();
+        
+        if (stats.activeOperators) {
+          document.getElementById('stat-operators').textContent = stats.activeOperators + '+';
+        }
+        if (stats.potentialBeneficiaries) {
+          document.getElementById('stat-beneficiaries').textContent = stats.potentialBeneficiaries + '+';
+        }
+        if (stats.approvedPartners !== undefined) {
+          document.getElementById('stat-partners').textContent = stats.approvedPartners;
+        }
+      } catch (error) {
+        console.log('Using default stats');
+      }
+    }
+
+    async function initMap() {
+      try {
+        const configResponse = await fetch('/api/public/maps-config');
+        const config = await configResponse.json();
+        
+        if (!config.apiKey) {
+          document.getElementById('map-loading').style.display = 'none';
+          document.getElementById('map-empty').style.display = 'flex';
+          return;
+        }
+
+        const script = document.createElement('script');
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${config.apiKey}&callback=onMapsLoaded`;
+        script.async = true;
+        script.defer = true;
+        document.head.appendChild(script);
+      } catch (error) {
+        console.error('Error initializing map:', error);
+        document.getElementById('map-loading').style.display = 'none';
+        document.getElementById('map-empty').style.display = 'flex';
+      }
+    }
+
+    async function onMapsLoaded() {
+      try {
+        const response = await fetch('/api/public/partners-map');
+        const partners = await response.json();
+
+        if (!partners || partners.length === 0) {
+          document.getElementById('map-loading').style.display = 'none';
+          document.getElementById('map-empty').style.display = 'flex';
+          return;
+        }
+
+        map = new google.maps.Map(document.getElementById('partners-map'), {
+          zoom: 9,
+          center: { lat: 45.4384, lng: 11.3 },
+          mapTypeControl: false,
+          streetViewControl: false,
+          fullscreenControl: true,
+          styles: [
+            { featureType: 'poi', elementType: 'labels', stylers: [{ visibility: 'off' }] }
+          ]
+        });
+
+        const bounds = new google.maps.LatLngBounds();
+        
+        partners.forEach(partner => {
+          const lat = parseFloat(partner.latitude);
+          const lng = parseFloat(partner.longitude);
+          
+          if (isNaN(lat) || isNaN(lng)) return;
+
+          const position = { lat, lng };
+          bounds.extend(position);
+
+          const color = categoryColors[partner.category] || categoryColors.altro;
+          
+          const marker = new google.maps.Marker({
+            position,
+            map,
+            title: partner.companyName,
+            icon: {
+              path: google.maps.SymbolPath.CIRCLE,
+              fillColor: color,
+              fillOpacity: 1,
+              strokeColor: '#ffffff',
+              strokeWeight: 2,
+              scale: 10
+            }
+          });
+
+          const discountText = partner.discountValue ? 
+            (partner.discountType === 'percentage' ? `${partner.discountValue}% di sconto` : `${partner.discountValue} euro di sconto`) : 
+            'Sconto disponibile';
+          
+          const infoWindow = new google.maps.InfoWindow({
+            content: `
+              <div style="padding: 8px; max-width: 200px;">
+                <h3 style="margin: 0 0 4px 0; font-size: 14px; font-weight: 600;">${partner.companyName}</h3>
+                <p style="margin: 0 0 4px 0; color: #666; font-size: 12px;">${partner.city || ''} ${partner.province ? '(' + partner.province + ')' : ''}</p>
+                <p style="margin: 0; color: #0d9488; font-weight: 500; font-size: 12px;">${discountText}</p>
+              </div>
+            `
+          });
+
+          marker.addListener('click', () => {
+            infoWindow.open(map, marker);
+          });
+
+          markers.push(marker);
+        });
+
+        if (markers.length > 1) {
+          map.fitBounds(bounds);
+        }
+
+        document.getElementById('map-loading').style.display = 'none';
+        document.getElementById('map-legend').style.display = 'block';
+
+      } catch (error) {
+        console.error('Error loading partners:', error);
+        document.getElementById('map-loading').style.display = 'none';
+        document.getElementById('map-empty').style.display = 'flex';
+      }
+    }
+
+    async function submitPartnerForm(event) {
+      event.preventDefault();
+      
+      const form = document.getElementById('partner-form');
+      const submitBtn = document.getElementById('submit-btn');
+      const messageDiv = document.getElementById('form-message');
+      
+      const formData = {
+        companyName: document.getElementById('azienda').value,
+        contactName: document.getElementById('referente').value,
+        email: document.getElementById('email').value,
+        phone: document.getElementById('telefono').value || null,
+        message: document.getElementById('messaggio').value || null
+      };
+
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = 'Invio in corso...';
+
+      try {
+        const response = await fetch('/api/partner-requests', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        });
+
+        if (response.ok) {
+          messageDiv.style.display = 'block';
+          messageDiv.style.background = '#dcfce7';
+          messageDiv.style.color = '#166534';
+          messageDiv.innerHTML = '<strong>Grazie!</strong> La tua richiesta e stata inviata con successo. Ti contatteremo presto.';
+          form.reset();
+        } else {
+          const error = await response.json();
+          throw new Error(error.message || 'Errore invio');
+        }
+      } catch (error) {
+        messageDiv.style.display = 'block';
+        messageDiv.style.background = '#fee2e2';
+        messageDiv.style.color = '#dc2626';
+        messageDiv.innerHTML = '<strong>Errore:</strong> ' + error.message;
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg> Invia Richiesta di Partnership';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadStats();
+      initMap();
+    });
+  </script>
+</body>
+</html>

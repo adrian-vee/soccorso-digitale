@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prenota Trasporto Sanitario - Soccorso Digitale</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #0a1628 0%, #0d2137 40%, #0a1628 100%);
+      color: #e0e8f0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .header {
+      text-align: center;
+      padding: 60px 20px 30px;
+      max-width: 700px;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+      letter-spacing: 1px;
+    }
+
+    .header .subtitle {
+      font-size: 15px;
+      color: #8ba3be;
+      margin-bottom: 6px;
+    }
+
+    .header .description {
+      font-size: 14px;
+      color: #6b8299;
+      line-height: 1.5;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    .divider {
+      width: 60px;
+      height: 3px;
+      background: linear-gradient(90deg, #0066CC, #00A651);
+      border-radius: 2px;
+      margin: 24px auto 40px;
+    }
+
+    .orgs-container {
+      width: 100%;
+      max-width: 600px;
+      padding: 0 20px 60px;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #6b8299;
+      font-size: 15px;
+    }
+
+    .loading .spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid rgba(255,255,255,0.1);
+      border-top-color: #0066CC;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 16px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .org-card {
+      display: flex;
+      align-items: center;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      padding: 20px 24px;
+      margin-bottom: 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .org-card:hover {
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(0,102,204,0.4);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    }
+
+    .org-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #0066CC, #00A651);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-right: 18px;
+    }
+
+    .org-icon svg {
+      width: 24px;
+      height: 24px;
+      color: #fff;
+    }
+
+    .org-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .org-name {
+      font-size: 17px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    .org-action {
+      font-size: 13px;
+      color: #0099ff;
+    }
+
+    .org-arrow {
+      flex-shrink: 0;
+      margin-left: 12px;
+      color: #4a6580;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #6b8299;
+    }
+
+    .empty-state svg {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+
+    .empty-state p {
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 20px;
+      color: #4a6580;
+      font-size: 12px;
+      margin-top: auto;
+    }
+
+    .footer a {
+      color: #0066CC;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>SOCCORSO DIGITALE</h1>
+    <p class="subtitle">Hub Prenotazioni Trasporti Sanitari</p>
+    <p class="description">Seleziona la tua organizzazione per prenotare un trasporto sanitario in modo semplice e veloce.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="orgs-container" id="orgs-container">
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      Caricamento organizzazioni...
+    </div>
+  </div>
+
+  <div class="footer">
+    Powered by <a href="/">Soccorso Digitale</a> &middot; v2.0.0
+  </div>
+
+  <script>
+    async function loadDirectory() {
+      const container = document.getElementById('orgs-container');
+      try {
+        const res = await fetch('/api/hub/directory');
+        const orgs = await res.json();
+
+        if (!orgs.length) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+              </svg>
+              <p>Nessuna organizzazione disponibile al momento.<br>Riprova piu' tardi.</p>
+            </div>`;
+          return;
+        }
+
+        container.innerHTML = orgs.map(org => `
+          <a href="/hub/${org.slug}" class="org-card">
+            <div class="org-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+              </svg>
+            </div>
+            <div class="org-info">
+              <div class="org-name">${org.name}</div>
+              <div class="org-action">Prenota trasporto</div>
+            </div>
+            <div class="org-arrow">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </div>
+          </a>
+        `).join('');
+      } catch (err) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <p>Errore nel caricamento. Riprova.</p>
+          </div>`;
+      }
+    }
+
+    loadDirectory();
+  </script>
+</body>
+</html>

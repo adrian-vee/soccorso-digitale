@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scarica l'App - Soccorso Digitale</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f8fafc;
+      color: #1a1a1a;
+      min-height: 100vh;
+    }
+    .top-bar {
+      height: 6px;
+      background: #0066CC;
+    }
+    .top-bar-green {
+      height: 3px;
+      background: #00A651;
+    }
+    .header {
+      background: #fff;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 16px 0;
+    }
+    .header-inner {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .header-logo {
+      width: 40px;
+      height: 40px;
+    }
+    .header-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #0066CC;
+    }
+    .header-subtitle {
+      font-size: 12px;
+      color: #64748b;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px 24px 60px;
+    }
+    .hero {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+    .hero-icon {
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 24px;
+    }
+    .hero h1 {
+      font-size: 32px;
+      font-weight: 800;
+      color: #0066CC;
+      margin-bottom: 8px;
+    }
+    .hero h2 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #00A651;
+      margin-bottom: 16px;
+    }
+    .hero p {
+      font-size: 16px;
+      color: #64748b;
+      max-width: 500px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+    .download-card {
+      background: #fff;
+      border-radius: 16px;
+      border: 1px solid #e2e8f0;
+      padding: 32px;
+      text-align: center;
+      margin-bottom: 32px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .download-card h3 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 8px;
+    }
+    .download-card .version {
+      font-size: 14px;
+      color: #64748b;
+      margin-bottom: 4px;
+    }
+    .download-card .size {
+      font-size: 13px;
+      color: #94a3b8;
+      margin-bottom: 24px;
+    }
+    .download-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: #00A651;
+      color: #fff;
+      font-size: 18px;
+      font-weight: 700;
+      padding: 16px 48px;
+      border-radius: 12px;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.1s;
+      border: none;
+      cursor: pointer;
+    }
+    .download-btn:hover {
+      background: #008c44;
+      transform: translateY(-1px);
+    }
+    .download-btn:active {
+      transform: translateY(0);
+    }
+    .download-btn svg {
+      width: 22px;
+      height: 22px;
+    }
+    .download-unavailable {
+      background: #f1f5f9;
+      border-radius: 12px;
+      padding: 24px;
+      margin-top: 8px;
+    }
+    .download-unavailable p {
+      font-size: 15px;
+      color: #64748b;
+      margin-bottom: 8px;
+    }
+    .download-unavailable .contact {
+      font-size: 14px;
+      color: #0066CC;
+      font-weight: 600;
+    }
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+    .feature {
+      background: #fff;
+      border-radius: 12px;
+      border: 1px solid #e2e8f0;
+      padding: 20px;
+    }
+    .feature-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+    }
+    .feature-icon.blue { background: #e8f0fe; color: #0066CC; }
+    .feature-icon.green { background: #e6f7ed; color: #00A651; }
+    .feature-icon.orange { background: #fff3e0; color: #EA580C; }
+    .feature h4 {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      color: #1a1a1a;
+    }
+    .feature p {
+      font-size: 13px;
+      color: #64748b;
+      line-height: 1.5;
+    }
+    .instructions {
+      background: #fff;
+      border-radius: 16px;
+      border: 1px solid #e2e8f0;
+      padding: 32px;
+      margin-bottom: 32px;
+    }
+    .instructions h3 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #0066CC;
+      margin-bottom: 20px;
+    }
+    .step {
+      display: flex;
+      gap: 14px;
+      margin-bottom: 16px;
+      align-items: flex-start;
+    }
+    .step:last-child { margin-bottom: 0; }
+    .step-num {
+      width: 28px;
+      height: 28px;
+      min-width: 28px;
+      border-radius: 50%;
+      background: #0066CC;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .step p {
+      font-size: 14px;
+      color: #444;
+      line-height: 1.6;
+      padding-top: 3px;
+    }
+    .footer {
+      text-align: center;
+      padding: 32px 24px;
+      border-top: 1px solid #e2e8f0;
+      background: #fff;
+    }
+    .footer-brand {
+      font-size: 14px;
+      font-weight: 700;
+      color: #0066CC;
+      margin-bottom: 4px;
+    }
+    .footer-text {
+      font-size: 12px;
+      color: #94a3b8;
+    }
+    .footer a {
+      color: #0066CC;
+      text-decoration: none;
+    }
+    .android-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #e8f0fe;
+      color: #0066CC;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="top-bar"></div>
+  <div class="top-bar-green"></div>
+  <div class="header">
+    <div class="header-inner">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="40" height="40"><defs><linearGradient id="cg1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#0066CC"/><stop offset="100%" style="stop-color:#0055AA"/></linearGradient><linearGradient id="rg1" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#00A651"/><stop offset="100%" style="stop-color:#00874A"/></linearGradient></defs><rect x="35" y="15" width="30" height="70" rx="4" fill="url(#cg1)"/><rect x="15" y="35" width="70" height="30" rx="4" fill="url(#cg1)"/><path d="M 20 75 Q 50 55 80 75" stroke="url(#rg1)" stroke-width="8" fill="none" stroke-linecap="round"/></svg>
+      <div>
+        <div class="header-title">SOCCORSO DIGITALE</div>
+        <div class="header-subtitle">Gestione Trasporti Sanitari</div>
+      </div>
+    </div>
+  </div>
+  <div class="container">
+    <div class="hero">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" class="hero-icon"><defs><linearGradient id="cg2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#0066CC"/><stop offset="100%" style="stop-color:#0055AA"/></linearGradient><linearGradient id="rg2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#00A651"/><stop offset="100%" style="stop-color:#00874A"/></linearGradient></defs><rect x="35" y="15" width="30" height="70" rx="4" fill="url(#cg2)"/><rect x="15" y="35" width="70" height="30" rx="4" fill="url(#cg2)"/><path d="M 20 75 Q 50 55 80 75" stroke="url(#rg2)" stroke-width="8" fill="none" stroke-linecap="round"/></svg>
+      <h1>Soccorso Digitale</h1>
+      <h2>App Equipaggio</h2>
+      <p>L'applicazione mobile per la gestione completa dei servizi di trasporto sanitario. Registra servizi, compila checklist e gestisci il tuo veicolo in modo semplice e veloce.</p>
+    </div>
+
+    <div class="download-card" id="download-card">
+      <div class="android-badge">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M17.523 2.2l1.735 1.732-2.307 2.308A7.94 7.94 0 0 1 20 12H4a7.94 7.94 0 0 1 3.049-5.76L4.742 3.932 6.477 2.2 8.95 4.672a7.9 7.9 0 0 1 6.1 0L17.523 2.2zM10 9.5a1 1 0 1 0-2 0 1 1 0 0 0 2 0zm6 0a1 1 0 1 0-2 0 1 1 0 0 0 2 0zM4 14h16v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-6z"/></svg>
+        Android
+      </div>
+      <h3>Scarica l'App</h3>
+      <div class="version" id="app-version"></div>
+      <div class="size" id="app-size"></div>
+      <div id="download-area">
+        <p style="color:#94a3b8; font-size:14px;">Caricamento...</p>
+      </div>
+    </div>
+
+    <div class="features">
+      <div class="feature">
+        <div class="feature-icon blue">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        </div>
+        <h4>Registrazione Servizi</h4>
+        <p>Registra ogni trasporto con calcolo automatico dei chilometri e numerazione progressiva.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon green">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <h4>Checklist Pre-Partenza</h4>
+        <p>Verifica le dotazioni del veicolo con checklist digitali e monitoraggio scadenze.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon orange">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <h4>Funziona Offline</h4>
+        <p>L'app funziona anche senza connessione. I dati si sincronizzano automaticamente.</p>
+      </div>
+    </div>
+
+    <div class="instructions">
+      <h3>Come Installare</h3>
+      <div class="step">
+        <div class="step-num">1</div>
+        <p>Tocca il pulsante <strong>"Scarica APK"</strong> qui sopra per scaricare il file di installazione sul tuo telefono Android.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <p>Quando richiesto, consenti l'installazione da <strong>fonti sconosciute</strong> nelle impostazioni del telefono. Questo e necessario solo la prima volta.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <p>Apri il file scaricato e tocca <strong>"Installa"</strong>. L'app comparira nella schermata principale del telefono.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <p>Avvia l'app e inserisci le <strong>credenziali</strong> fornite dal coordinatore della tua organizzazione per iniziare.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="footer-brand">SOCCORSO DIGITALE</div>
+    <div class="footer-text">Gestione Trasporti Sanitari</div>
+    <div class="footer-text" style="margin-top:8px;"><a href="mailto:info@soccorsodigitale.app">info@soccorsodigitale.app</a></div>
+  </div>
+
+  <script>
+    var apkVersion = '';
+    var apkSize = 0;
+
+    async function loadApkInfo() {
+      try {
+        const res = await fetch('/api/public/apk-info');
+        const data = await res.json();
+        const area = document.getElementById('download-area');
+        const versionEl = document.getElementById('app-version');
+        const sizeEl = document.getElementById('app-size');
+
+        if (data.available) {
+          apkVersion = data.version || 'latest';
+          apkSize = data.size || 0;
+          versionEl.textContent = data.version ? 'Versione ' + data.version : '';
+          if (data.size) {
+            const mb = (data.size / (1024 * 1024)).toFixed(1);
+            sizeEl.textContent = mb + ' MB';
+          }
+          if (data.uploadDate) {
+            const d = new Date(data.uploadDate);
+            sizeEl.textContent += ' — Aggiornata il ' + d.toLocaleDateString('it-IT');
+          }
+          area.innerHTML = '<button onclick="downloadApkChunked()" class="download-btn" id="download-btn">' +
+            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>' +
+            'Scarica APK</button>' +
+            '<div id="dl-progress" style="display:none;margin-top:16px;">' +
+            '<div style="background:#e2e8f0;border-radius:8px;height:8px;overflow:hidden;">' +
+            '<div id="dl-bar" style="height:100%;width:0%;background:linear-gradient(90deg,#0066CC,#0055AA);border-radius:8px;transition:width 0.3s;"></div></div>' +
+            '<div style="display:flex;justify-content:space-between;margin-top:6px;font-size:12px;color:#64748b;">' +
+            '<span id="dl-text">Preparazione...</span><span id="dl-pct">0%</span></div></div>';
+        } else {
+          versionEl.textContent = '';
+          sizeEl.textContent = '';
+          area.innerHTML = '<div class="download-unavailable">' +
+            '<p>L\'app e in fase di preparazione e sara disponibile a breve.</p>' +
+            '<p class="contact">Per informazioni: <a href="mailto:info@soccorsodigitale.app">info@soccorsodigitale.app</a></p>' +
+            '</div>';
+        }
+      } catch (e) {
+        document.getElementById('download-area').innerHTML = '<div class="download-unavailable">' +
+          '<p>Impossibile verificare la disponibilita dell\'app. Riprova piu tardi.</p></div>';
+      }
+    }
+
+    async function downloadApkChunked() {
+      var btn = document.getElementById('download-btn');
+      var prog = document.getElementById('dl-progress');
+      var bar = document.getElementById('dl-bar');
+      var text = document.getElementById('dl-text');
+      var pct = document.getElementById('dl-pct');
+
+      btn.disabled = true;
+      btn.style.opacity = '0.6';
+      btn.style.cursor = 'wait';
+      prog.style.display = 'block';
+      text.textContent = 'Download in corso...';
+
+      try {
+        var firstRes = await fetch('/api/public/download-apk?chunk=0');
+        if (!firstRes.ok) throw new Error('Download fallito');
+        var totalSize = parseInt(firstRes.headers.get('X-Total-Size') || '0', 10);
+        var totalChunks = parseInt(firstRes.headers.get('X-Total-Chunks') || '1', 10);
+        var chunks = [];
+        var firstBlob = await firstRes.blob();
+        chunks.push(firstBlob);
+
+        var downloaded = firstBlob.size;
+        var totalMb = (totalSize / (1024*1024)).toFixed(1);
+        bar.style.width = Math.round((1/totalChunks)*100) + '%';
+        pct.textContent = Math.round((1/totalChunks)*100) + '%';
+        text.textContent = (downloaded/(1024*1024)).toFixed(1) + ' MB / ' + totalMb + ' MB';
+
+        for (var i = 1; i < totalChunks; i++) {
+          var chunkRes = await fetch('/api/public/download-apk?chunk=' + i);
+          if (!chunkRes.ok) throw new Error('Chunk ' + i + ' fallito');
+          var chunkBlob = await chunkRes.blob();
+          chunks.push(chunkBlob);
+          downloaded += chunkBlob.size;
+          var p = Math.round(((i+1)/totalChunks)*100);
+          bar.style.width = p + '%';
+          pct.textContent = p + '%';
+          text.textContent = (downloaded/(1024*1024)).toFixed(1) + ' MB / ' + totalMb + ' MB';
+        }
+
+        text.textContent = 'Download completato! Avvio installazione...';
+        bar.style.background = 'linear-gradient(90deg, #00A651, #059669)';
+
+        var fullBlob = new Blob(chunks, { type: 'application/vnd.android.package-archive' });
+        var url = URL.createObjectURL(fullBlob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = 'SoccorsoDigitale-' + apkVersion + '.apk';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(function() { URL.revokeObjectURL(url); }, 5000);
+
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        btn.style.cursor = 'pointer';
+        setTimeout(function() { prog.style.display = 'none'; bar.style.background = ''; }, 4000);
+      } catch(e) {
+        console.error('Download error:', e);
+        text.textContent = 'Errore durante il download. Riprova.';
+        bar.style.background = '#dc2626';
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        btn.style.cursor = 'pointer';
+      }
+    }
+
+    loadApkInfo();
+  </script>
+</body>
+</html>

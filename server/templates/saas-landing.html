@@ -1,0 +1,1656 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SOCCORSO DIGITALE - La Piattaforma che Rivoluziona il Trasporto Sanitario</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --accent: #06b6d4;
+      --accent-glow: rgba(6, 182, 212, 0.4);
+      --dark: #0f172a;
+      --darker: #020617;
+      --light: #f8fafc;
+      --glass: rgba(255, 255, 255, 0.05);
+      --glass-border: rgba(255, 255, 255, 0.1);
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--darker);
+      color: var(--light);
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    /* Animated Background */
+    .bg-gradient {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      background: 
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(99, 102, 241, 0.3), transparent),
+        radial-gradient(ellipse 60% 40% at 100% 0%, rgba(6, 182, 212, 0.2), transparent),
+        radial-gradient(ellipse 50% 30% at 0% 100%, rgba(139, 92, 246, 0.15), transparent),
+        var(--darker);
+    }
+
+    .floating-orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.5;
+      animation: float 20s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    .orb-1 {
+      width: 600px;
+      height: 600px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      top: -200px;
+      right: -200px;
+      animation-delay: 0s;
+    }
+
+    .orb-2 {
+      width: 400px;
+      height: 400px;
+      background: linear-gradient(135deg, #06b6d4, #0891b2);
+      bottom: -100px;
+      left: -100px;
+      animation-delay: -7s;
+    }
+
+    .orb-3 {
+      width: 300px;
+      height: 300px;
+      background: linear-gradient(135deg, #ec4899, #f43f5e);
+      top: 50%;
+      left: 50%;
+      animation-delay: -14s;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      25% { transform: translate(50px, -50px) scale(1.1); }
+      50% { transform: translate(-30px, 30px) scale(0.9); }
+      75% { transform: translate(40px, 40px) scale(1.05); }
+    }
+
+    /* Navbar */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      padding: 1rem 2rem;
+      backdrop-filter: blur(20px);
+      background: rgba(15, 23, 42, 0.8);
+      border-bottom: 1px solid var(--glass-border);
+      transition: all 0.3s ease;
+    }
+
+    .navbar.scrolled {
+      padding: 0.75rem 2rem;
+      background: rgba(15, 23, 42, 0.95);
+    }
+
+    .navbar-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 1.5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #fff, #94a3b8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      -webkit-text-fill-color: white;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: #94a3b8;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.9rem;
+      transition: color 0.3s;
+    }
+
+    .nav-links a:hover {
+      color: white;
+    }
+
+    .nav-cta {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      border: none;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: #94a3b8;
+      border: 1px solid var(--glass-border);
+    }
+
+    .btn-ghost:hover {
+      color: white;
+      border-color: rgba(255,255,255,0.3);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+      box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(99, 102, 241, 0.5);
+    }
+
+    .btn-glow {
+      background: linear-gradient(135deg, var(--accent), #0891b2);
+      color: white;
+      box-shadow: 0 4px 30px var(--accent-glow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-glow::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      animation: shimmer 2s infinite;
+    }
+
+    @keyframes shimmer {
+      100% { left: 100%; }
+    }
+
+    .btn-lg {
+      padding: 1rem 2.5rem;
+      font-size: 1.1rem;
+      border-radius: 14px;
+    }
+
+    /* Hero Section */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding: 8rem 2rem 4rem;
+      position: relative;
+    }
+
+    .hero-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      border-radius: 100px;
+      font-size: 0.85rem;
+      color: var(--accent);
+      margin-bottom: 1.5rem;
+      animation: fadeInUp 0.8s ease;
+    }
+
+    .hero-badge::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.2); }
+    }
+
+    .hero h1 {
+      font-size: 4rem;
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 1.5rem;
+      animation: fadeInUp 0.8s ease 0.1s both;
+    }
+
+    .hero h1 .gradient-text {
+      background: linear-gradient(135deg, var(--primary), var(--accent), #ec4899);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-size: 200% 200%;
+      animation: gradientShift 5s ease infinite;
+    }
+
+    @keyframes gradientShift {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    .hero p {
+      font-size: 1.25rem;
+      color: #94a3b8;
+      margin-bottom: 2rem;
+      max-width: 500px;
+      animation: fadeInUp 0.8s ease 0.2s both;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 1rem;
+      animation: fadeInUp 0.8s ease 0.3s both;
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: 3rem;
+      margin-top: 3rem;
+      animation: fadeInUp 0.8s ease 0.4s both;
+    }
+
+    .hero-stat {
+      text-align: left;
+    }
+
+    .hero-stat-value {
+      font-size: 2.5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #fff, var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-stat-label {
+      font-size: 0.9rem;
+      color: #64748b;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Hero Visual */
+    .hero-visual {
+      position: relative;
+      animation: fadeInUp 0.8s ease 0.3s both;
+    }
+
+    .device-mockup {
+      position: relative;
+      perspective: 1000px;
+    }
+
+    .phone-frame {
+      width: 280px;
+      height: 580px;
+      background: linear-gradient(145deg, #1e293b, #0f172a);
+      border-radius: 40px;
+      padding: 12px;
+      box-shadow: 
+        0 50px 100px -20px rgba(0, 0, 0, 0.5),
+        0 30px 60px -30px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255,255,255,0.1);
+      transform: rotateY(-15deg) rotateX(5deg);
+      transition: transform 0.5s ease;
+      position: relative;
+      z-index: 2;
+    }
+
+    .phone-frame:hover {
+      transform: rotateY(-5deg) rotateX(2deg);
+    }
+
+    .phone-screen {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+      border-radius: 32px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .phone-notch {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 30px;
+      background: #000;
+      border-radius: 0 0 20px 20px;
+      z-index: 10;
+    }
+
+    .screen-content {
+      padding: 50px 20px 20px;
+      height: 100%;
+    }
+
+    .screen-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .screen-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .screen-avatar {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      border-radius: 50%;
+    }
+
+    .screen-card {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .screen-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .screen-card-title {
+      font-size: 0.75rem;
+      color: #64748b;
+    }
+
+    .screen-card-value {
+      font-size: 1.75rem;
+      font-weight: 700;
+    }
+
+    .screen-progress {
+      height: 6px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .screen-progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--primary));
+      border-radius: 3px;
+      animation: progressFill 2s ease infinite alternate;
+    }
+
+    @keyframes progressFill {
+      from { width: 60%; }
+      to { width: 85%; }
+    }
+
+    .screen-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .screen-list-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      background: rgba(255,255,255,0.03);
+      border-radius: 10px;
+    }
+
+    .screen-list-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+    }
+
+    .screen-list-text {
+      font-size: 0.8rem;
+    }
+
+    .screen-list-text span {
+      display: block;
+      font-size: 0.65rem;
+      color: #64748b;
+    }
+
+    /* Floating Cards */
+    .floating-card {
+      position: absolute;
+      background: rgba(30, 41, 59, 0.9);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 16px 20px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+      animation: floatCard 4s ease-in-out infinite;
+    }
+
+    .floating-card-1 {
+      top: 60px;
+      right: -80px;
+      animation-delay: 0s;
+    }
+
+    .floating-card-2 {
+      bottom: 100px;
+      left: -100px;
+      animation-delay: -2s;
+    }
+
+    .floating-card-3 {
+      top: 50%;
+      right: -120px;
+      animation-delay: -1s;
+    }
+
+    @keyframes floatCard {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-15px); }
+    }
+
+    .fc-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .fc-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--accent), var(--primary));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .fc-label {
+      font-size: 0.75rem;
+      color: #64748b;
+    }
+
+    .fc-value {
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+
+    .fc-value.green { color: #10b981; }
+    .fc-value.blue { color: var(--accent); }
+
+    /* Features Section */
+    .section {
+      padding: 6rem 2rem;
+      position: relative;
+    }
+
+    .section-header {
+      text-align: center;
+      max-width: 700px;
+      margin: 0 auto 4rem;
+    }
+
+    .section-tag {
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      border-radius: 100px;
+      font-size: 0.85rem;
+      color: var(--accent);
+      margin-bottom: 1rem;
+    }
+
+    .section-title {
+      font-size: 3rem;
+      font-weight: 800;
+      margin-bottom: 1rem;
+    }
+
+    .section-subtitle {
+      font-size: 1.1rem;
+      color: #64748b;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .feature-card {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      padding: 2rem;
+      transition: all 0.4s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--primary), var(--accent), transparent);
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-8px);
+      border-color: rgba(99, 102, 241, 0.3);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    }
+
+    .feature-card:hover::before {
+      opacity: 1;
+    }
+
+    .feature-icon {
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .feature-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+    }
+
+    .feature-desc {
+      color: #64748b;
+      font-size: 0.95rem;
+      line-height: 1.7;
+    }
+
+    /* Bento Grid */
+    .bento-section {
+      padding: 6rem 2rem;
+      background: linear-gradient(180deg, transparent, rgba(99, 102, 241, 0.03), transparent);
+    }
+
+    .bento-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(2, 280px);
+      gap: 1.5rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .bento-card {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.4s ease;
+    }
+
+    .bento-card:hover {
+      transform: scale(1.02);
+      border-color: rgba(99, 102, 241, 0.4);
+    }
+
+    .bento-large {
+      grid-column: span 2;
+      grid-row: span 2;
+    }
+
+    .bento-wide {
+      grid-column: span 2;
+    }
+
+    .bento-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      margin-bottom: 1rem;
+    }
+
+    .bento-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .bento-desc {
+      color: #64748b;
+      font-size: 0.9rem;
+    }
+
+    .bento-visual {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 60%;
+      height: 60%;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(6, 182, 212, 0.2));
+      border-radius: 24px 0 24px 0;
+      opacity: 0.5;
+    }
+
+    /* Stats Section */
+    .stats-section {
+      padding: 6rem 2rem;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(6, 182, 212, 0.05));
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .stat-card {
+      text-align: center;
+      padding: 2rem;
+    }
+
+    .stat-value {
+      font-size: 4rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #fff, var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+      font-size: 1rem;
+      color: #64748b;
+    }
+
+    /* Pricing Section */
+    .pricing-section {
+      padding: 6rem 2rem;
+    }
+
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .pricing-card {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      padding: 2.5rem;
+      position: relative;
+      transition: all 0.4s ease;
+    }
+
+    .pricing-card:hover {
+      transform: translateY(-8px);
+    }
+
+    .pricing-card.featured {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(6, 182, 212, 0.1));
+      border-color: var(--primary);
+      transform: scale(1.05);
+    }
+
+    .pricing-card.featured:hover {
+      transform: scale(1.08);
+    }
+
+    .pricing-badge {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 0.5rem 1.5rem;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      border-radius: 100px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .pricing-name {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .pricing-price {
+      font-size: 3.5rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+    }
+
+    .pricing-price span {
+      font-size: 1rem;
+      font-weight: 400;
+      color: #64748b;
+    }
+
+    .pricing-desc {
+      color: #64748b;
+      font-size: 0.9rem;
+      margin-bottom: 2rem;
+    }
+
+    .pricing-features {
+      list-style: none;
+      margin-bottom: 2rem;
+    }
+
+    .pricing-features li {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--glass-border);
+      font-size: 0.9rem;
+    }
+
+    .pricing-features li:last-child {
+      border-bottom: none;
+    }
+
+    .pricing-features li::before {
+      content: '\2713';
+      width: 20px;
+      height: 20px;
+      background: rgba(16, 185, 129, 0.2);
+      color: #10b981;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+    }
+
+    .pricing-features li.disabled {
+      color: #64748b;
+    }
+
+    .pricing-features li.disabled::before {
+      content: '\2715';
+      background: rgba(100, 116, 139, 0.2);
+      color: #64748b;
+    }
+
+    /* Testimonials */
+    .testimonials-section {
+      padding: 6rem 2rem;
+      background: linear-gradient(180deg, transparent, rgba(6, 182, 212, 0.03), transparent);
+    }
+
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .testimonial-card {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      padding: 2rem;
+    }
+
+    .testimonial-stars {
+      color: #fbbf24;
+      font-size: 1.25rem;
+      margin-bottom: 1rem;
+    }
+
+    .testimonial-text {
+      font-size: 1rem;
+      line-height: 1.8;
+      margin-bottom: 1.5rem;
+      color: #e2e8f0;
+    }
+
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .testimonial-avatar {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+    }
+
+    .testimonial-name {
+      font-weight: 600;
+    }
+
+    .testimonial-role {
+      font-size: 0.85rem;
+      color: #64748b;
+    }
+
+    /* CTA Section */
+    .cta-section {
+      padding: 8rem 2rem;
+      text-align: center;
+      position: relative;
+    }
+
+    .cta-content {
+      max-width: 800px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .cta-title {
+      font-size: 3.5rem;
+      font-weight: 800;
+      margin-bottom: 1.5rem;
+    }
+
+    .cta-subtitle {
+      font-size: 1.25rem;
+      color: #94a3b8;
+      margin-bottom: 2.5rem;
+    }
+
+    .cta-actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+    }
+
+    .cta-glow {
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.3), transparent 70%);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    /* Footer */
+    .footer {
+      padding: 4rem 2rem 2rem;
+      border-top: 1px solid var(--glass-border);
+    }
+
+    .footer-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 2fr repeat(3, 1fr);
+      gap: 4rem;
+    }
+
+    .footer-brand {
+      max-width: 300px;
+    }
+
+    .footer-brand p {
+      color: #64748b;
+      margin-top: 1rem;
+      font-size: 0.9rem;
+    }
+
+    .footer-title {
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+    }
+
+    .footer-links {
+      list-style: none;
+    }
+
+    .footer-links li {
+      margin-bottom: 0.75rem;
+    }
+
+    .footer-links a {
+      color: #64748b;
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.3s;
+    }
+
+    .footer-links a:hover {
+      color: white;
+    }
+
+    .footer-bottom {
+      max-width: 1400px;
+      margin: 3rem auto 0;
+      padding-top: 2rem;
+      border-top: 1px solid var(--glass-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #64748b;
+      font-size: 0.85rem;
+    }
+
+    /* Animations on scroll */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: all 0.8s ease;
+    }
+
+    .reveal.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .hero-content {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+
+      .hero p {
+        margin: 0 auto 2rem;
+      }
+
+      .hero-actions {
+        justify-content: center;
+      }
+
+      .hero-stats {
+        justify-content: center;
+      }
+
+      .hero-visual {
+        display: none;
+      }
+
+      .features-grid,
+      .pricing-grid,
+      .testimonials-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .bento-grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+      }
+
+      .bento-large,
+      .bento-wide {
+        grid-column: span 1;
+        grid-row: span 1;
+      }
+
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .footer-content {
+        grid-template-columns: 1fr;
+      }
+
+      .hero h1 {
+        font-size: 2.5rem;
+      }
+
+      .section-title {
+        font-size: 2rem;
+      }
+
+      .cta-title {
+        font-size: 2rem;
+      }
+    }
+
+    /* Mobile menu */
+    .mobile-menu-btn {
+      display: none;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    @media (max-width: 768px) {
+      .nav-links,
+      .nav-cta {
+        display: none;
+      }
+
+      .mobile-menu-btn {
+        display: block;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Background -->
+  <div class="bg-gradient"></div>
+  <div class="floating-orb orb-1"></div>
+  <div class="floating-orb orb-2"></div>
+  <div class="floating-orb orb-3"></div>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="navbar-content">
+      <a href="#" class="logo">
+        <div class="logo-icon">S</div>
+        SOCCORSO DIGITALE
+      </a>
+      <ul class="nav-links">
+        <li><a href="#features">Funzionalita</a></li>
+        <li><a href="#pricing">Prezzi</a></li>
+        <li><a href="#testimonials">Testimonianze</a></li>
+        <li><a href="#contact">Contatti</a></li>
+      </ul>
+      <div class="nav-cta">
+        <a href="#demo" class="btn btn-ghost">Demo</a>
+        <a href="#contact" class="btn btn-primary">Inizia Ora</a>
+      </div>
+      <button class="mobile-menu-btn">&#9776;</button>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-content">
+      <div class="hero-text">
+        <div class="hero-badge">Novita 2025 - Piattaforma All-in-One</div>
+        <h1>
+          Gestisci la tua flotta<br>
+          <span class="gradient-text">come mai prima d'ora</span>
+        </h1>
+        <p>
+          La piattaforma completa per ambulanze e trasporto sanitario. 
+          Digitalizza ogni processo, aumenta l'efficienza del 40% e riduci i costi operativi.
+        </p>
+        <div class="hero-actions">
+          <a href="#demo" class="btn btn-glow btn-lg">Richiedi Demo Gratuita</a>
+          <a href="#features" class="btn btn-ghost btn-lg">Scopri di piu</a>
+        </div>
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <div class="hero-stat-value" data-count="150">0</div>
+            <div class="hero-stat-label">Veicoli Gestiti</div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-value" data-count="50000">0</div>
+            <div class="hero-stat-label">Viaggi al Mese</div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-value" data-count="99">0</div>
+            <div class="hero-stat-label">% Uptime</div>
+          </div>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="device-mockup">
+          <div class="phone-frame">
+            <div class="phone-screen">
+              <div class="phone-notch"></div>
+              <div class="screen-content">
+                <div class="screen-header">
+                  <div class="screen-title">Dashboard</div>
+                  <div class="screen-avatar"></div>
+                </div>
+                <div class="screen-card">
+                  <div class="screen-card-header">
+                    <div class="screen-card-title">Viaggi Oggi</div>
+                    <span style="color: #10b981; font-size: 0.75rem;">+12%</span>
+                  </div>
+                  <div class="screen-card-value">47</div>
+                  <div class="screen-progress">
+                    <div class="screen-progress-bar" style="width: 72%;"></div>
+                  </div>
+                </div>
+                <div class="screen-list">
+                  <div class="screen-list-item">
+                    <div class="screen-list-icon">A1</div>
+                    <div class="screen-list-text">
+                      Ambulanza 1
+                      <span>In servizio - Verona</span>
+                    </div>
+                  </div>
+                  <div class="screen-list-item">
+                    <div class="screen-list-icon">A2</div>
+                    <div class="screen-list-text">
+                      Ambulanza 2
+                      <span>Trasporto - Padova</span>
+                    </div>
+                  </div>
+                  <div class="screen-list-item">
+                    <div class="screen-list-icon">A3</div>
+                    <div class="screen-list-text">
+                      Ambulanza 3
+                      <span>Disponibile</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Floating Cards -->
+          <div class="floating-card floating-card-1">
+            <div class="fc-header">
+              <div class="fc-icon">&#9889;</div>
+              <span class="fc-label">Efficienza</span>
+            </div>
+            <div class="fc-value green">+42%</div>
+          </div>
+          <div class="floating-card floating-card-2">
+            <div class="fc-header">
+              <div class="fc-icon">&#128200;</div>
+              <span class="fc-label">Km Oggi</span>
+            </div>
+            <div class="fc-value blue">1,847</div>
+          </div>
+          <div class="floating-card floating-card-3">
+            <div class="fc-header">
+              <div class="fc-icon">&#127793;</div>
+              <span class="fc-label">CO2 Risparmiata</span>
+            </div>
+            <div class="fc-value green">-28%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section id="features" class="section">
+    <div class="section-header reveal">
+      <div class="section-tag">Funzionalita</div>
+      <h2 class="section-title">Tutto quello che ti serve. In un'unica piattaforma.</h2>
+      <p class="section-subtitle">
+        Dalla gestione dei viaggi alla compliance GDPR, 
+        abbiamo pensato a tutto per semplificare il tuo lavoro quotidiano.
+      </p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card reveal">
+        <div class="feature-icon">&#128663;</div>
+        <h3 class="feature-title">Gestione Viaggi</h3>
+        <p class="feature-desc">
+          Registra viaggi in tempo reale con calcolo automatico dei chilometri, 
+          geolocalizzazione e generazione moduli UTIF.
+        </p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon">&#128101;</div>
+        <h3 class="feature-title">Volontari e Turni</h3>
+        <p class="feature-desc">
+          Pianificazione turni mensile con import Excel, 
+          gestione rimborsi chilometrici e monitoraggio burnout.
+        </p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon">&#128202;</div>
+        <h3 class="feature-title">Dashboard ESG</h3>
+        <p class="feature-desc">
+          Report ambientali con fattori ISPRA 2024, 
+          calcolo CO2 e metriche di sostenibilita per investitori.
+        </p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon">&#128274;</div>
+        <h3 class="feature-title">Compliance GDPR</h3>
+        <p class="feature-desc">
+          Gestione consensi, export dati, richieste di cancellazione 
+          e audit trail completo con hash chain crittografico.
+        </p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon">&#128230;</div>
+        <h3 class="feature-title">Inventario Smart</h3>
+        <p class="feature-desc">
+          Checklist veicoli con scansione barcode/QR, 
+          tracking scadenze e alert automatici per rifornimento.
+        </p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon">&#127942;</div>
+        <h3 class="feature-title">Partner Program</h3>
+        <p class="feature-desc">
+          Rete di convenzioni locali con landing page pubblica, 
+          gestione sconti e verifica QR code per i volontari.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Bento Grid Section -->
+  <section class="bento-section">
+    <div class="section-header reveal">
+      <div class="section-tag">Innovazione</div>
+      <h2 class="section-title">Tecnologia all'avanguardia</h2>
+    </div>
+    <div class="bento-grid">
+      <div class="bento-card bento-large reveal">
+        <div class="bento-icon">&#128241;</div>
+        <h3 class="bento-title">App Mobile Nativa</h3>
+        <p class="bento-desc">
+          Disponibile per iOS e Android. I tuoi equipaggi possono registrare 
+          viaggi anche offline, con sincronizzazione automatica.
+        </p>
+        <div class="bento-visual"></div>
+      </div>
+      <div class="bento-card reveal">
+        <div class="bento-icon">&#9729;</div>
+        <h3 class="bento-title">Cloud Sicuro</h3>
+        <p class="bento-desc">Hosting EU con backup giornalieri e crittografia end-to-end.</p>
+      </div>
+      <div class="bento-card reveal">
+        <div class="bento-icon">&#128640;</div>
+        <h3 class="bento-title">Setup in 24h</h3>
+        <p class="bento-desc">Onboarding assistito e migrazione dati inclusa.</p>
+      </div>
+      <div class="bento-card bento-wide reveal">
+        <div class="bento-icon">&#127760;</div>
+        <h3 class="bento-title">White-Label Ready</h3>
+        <p class="bento-desc">
+          Personalizza logo, colori e dominio. La tua app, il tuo brand.
+        </p>
+      </div>
+      <div class="bento-card reveal">
+        <div class="bento-icon">&#128176;</div>
+        <h3 class="bento-title">ROI Garantito</h3>
+        <p class="bento-desc">Risparmia fino al 30% sui costi operativi.</p>
+      </div>
+      <div class="bento-card reveal">
+        <div class="bento-icon">&#128222;</div>
+        <h3 class="bento-title">Supporto Italiano</h3>
+        <p class="bento-desc">Team dedicato, sempre disponibile.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats Section -->
+  <section class="stats-section">
+    <div class="stats-grid">
+      <div class="stat-card reveal">
+        <div class="stat-value" data-count="500">0</div>
+        <div class="stat-label">Volontari Attivi</div>
+      </div>
+      <div class="stat-card reveal">
+        <div class="stat-value" data-count="2500">0</div>
+        <div class="stat-label">Viaggi Settimanali</div>
+      </div>
+      <div class="stat-card reveal">
+        <div class="stat-value" data-count="98">0</div>
+        <div class="stat-label">% Soddisfazione</div>
+      </div>
+      <div class="stat-card reveal">
+        <div class="stat-value" data-count="24">0</div>
+        <div class="stat-label">Ore di Supporto</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing Section -->
+  <section id="pricing" class="pricing-section">
+    <div class="section-header reveal">
+      <div class="section-tag">Prezzi Trasparenti</div>
+      <h2 class="section-title">Scegli il piano perfetto per te</h2>
+      <p class="section-subtitle">
+        Nessun costo nascosto. Paghi solo quello che usi.
+      </p>
+    </div>
+    <div class="pricing-grid">
+      <div class="pricing-card reveal">
+        <div class="pricing-name">Basic</div>
+        <div class="pricing-price">99<span>/mese</span></div>
+        <p class="pricing-desc">Ideale per piccole associazioni</p>
+        <ul class="pricing-features">
+          <li>Fino a 5 veicoli</li>
+          <li>Gestione viaggi completa</li>
+          <li>App mobile iOS/Android</li>
+          <li>Dashboard base</li>
+          <li class="disabled">Modulo ESG</li>
+          <li class="disabled">White-label</li>
+        </ul>
+        <a href="#contact" class="btn btn-ghost" style="width: 100%;">Inizia Gratis</a>
+      </div>
+      <div class="pricing-card featured reveal">
+        <div class="pricing-badge">Piu Popolare</div>
+        <div class="pricing-name">Professional</div>
+        <div class="pricing-price">299<span>/mese</span></div>
+        <p class="pricing-desc">Per organizzazioni in crescita</p>
+        <ul class="pricing-features">
+          <li>Fino a 20 veicoli</li>
+          <li>Tutte le funzionalita Basic</li>
+          <li>Dashboard ESG completa</li>
+          <li>Monitoraggio burnout</li>
+          <li>Inventario con barcode</li>
+          <li>Partner Program</li>
+        </ul>
+        <a href="#contact" class="btn btn-glow" style="width: 100%;">Prova 14 Giorni</a>
+      </div>
+      <div class="pricing-card reveal">
+        <div class="pricing-name">Enterprise</div>
+        <div class="pricing-price">Custom</div>
+        <p class="pricing-desc">Soluzioni su misura</p>
+        <ul class="pricing-features">
+          <li>Veicoli illimitati</li>
+          <li>Tutte le funzionalita Pro</li>
+          <li>White-label completo</li>
+          <li>API dedicate</li>
+          <li>SLA garantito</li>
+          <li>Account manager dedicato</li>
+        </ul>
+        <a href="#contact" class="btn btn-primary" style="width: 100%;">Contattaci</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section id="testimonials" class="testimonials-section">
+    <div class="section-header reveal">
+      <div class="section-tag">Testimonianze</div>
+      <h2 class="section-title">Chi gia ci ha scelto</h2>
+    </div>
+    <div class="testimonials-grid">
+      <div class="testimonial-card reveal">
+        <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p class="testimonial-text">
+          "Abbiamo ridotto i tempi amministrativi del 60%. I nostri volontari 
+          adorano l'app e la semplicita di registrazione viaggi."
+        </p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">MR</div>
+          <div>
+            <div class="testimonial-name">Marco Rossi</div>
+            <div class="testimonial-role">Direttore - Croce Verde Padova</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card reveal">
+        <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p class="testimonial-text">
+          "La dashboard ESG ci ha permesso di ottenere un finanziamento europeo. 
+          Dati precisi e report professionali."
+        </p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">LB</div>
+          <div>
+            <div class="testimonial-name">Laura Bianchi</div>
+            <div class="testimonial-role">Presidente - Misericordia Milano</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card reveal">
+        <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p class="testimonial-text">
+          "Il supporto e eccezionale. Ogni richiesta viene gestita in poche ore. 
+          Consiglio questa piattaforma a tutti."
+        </p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">AV</div>
+          <div>
+            <div class="testimonial-name">Adrian Vasile</div>
+            <div class="testimonial-role">Coordinatore - ANPAS Veneto</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section id="contact" class="cta-section">
+    <div class="cta-glow"></div>
+    <div class="cta-content reveal">
+      <h2 class="cta-title">
+        Pronto a rivoluzionare<br>la tua organizzazione?
+      </h2>
+      <p class="cta-subtitle">
+        Unisciti alle centinaia di associazioni che hanno gia scelto SOCCORSO DIGITALE.
+        Demo gratuita, nessun impegno.
+      </p>
+      <div class="cta-actions">
+        <a href="mailto:info@dataplatform.it" class="btn btn-glow btn-lg">Richiedi Demo</a>
+        <a href="tel:+390458203000" class="btn btn-ghost btn-lg">Chiamaci: 045 820 3000</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <a href="#" class="logo">
+          <div class="logo-icon">S</div>
+          SOCCORSO DIGITALE
+        </a>
+        <p>
+          La piattaforma all-in-one per il trasporto sanitario. 
+          Digitalizza, ottimizza, cresci.
+        </p>
+      </div>
+      <div>
+        <h4 class="footer-title">Prodotto</h4>
+        <ul class="footer-links">
+          <li><a href="#features">Funzionalita</a></li>
+          <li><a href="#pricing">Prezzi</a></li>
+          <li><a href="#">Roadmap</a></li>
+          <li><a href="#">API</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="footer-title">Risorse</h4>
+        <ul class="footer-links">
+          <li><a href="#">Documentazione</a></li>
+          <li><a href="#">Guide</a></li>
+          <li><a href="#">Blog</a></li>
+          <li><a href="#">Supporto</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="footer-title">Azienda</h4>
+        <ul class="footer-links">
+          <li><a href="#">Chi Siamo</a></li>
+          <li><a href="#">Carriere</a></li>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Termini di Servizio</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; 2025 SOCCORSO DIGITALE. Tutti i diritti riservati.</span>
+      <span>Made with &#10084; in Italia</span>
+    </div>
+  </footer>
+
+  <script>
+    // Navbar scroll effect
+    const navbar = document.querySelector('.navbar');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 50) {
+        navbar.classList.add('scrolled');
+      } else {
+        navbar.classList.remove('scrolled');
+      }
+    });
+
+    // Reveal on scroll
+    const reveals = document.querySelectorAll('.reveal');
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('active');
+        }
+      });
+    }, { threshold: 0.1 });
+
+    reveals.forEach(el => revealObserver.observe(el));
+
+    // Counter animation
+    const counters = document.querySelectorAll('[data-count]');
+    const counterObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const target = parseInt(entry.target.dataset.count);
+          let current = 0;
+          const increment = target / 50;
+          const timer = setInterval(() => {
+            current += increment;
+            if (current >= target) {
+              entry.target.textContent = target.toLocaleString('it-IT');
+              clearInterval(timer);
+            } else {
+              entry.target.textContent = Math.floor(current).toLocaleString('it-IT');
+            }
+          }, 30);
+          counterObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.5 });
+
+    counters.forEach(el => counterObserver.observe(el));
+
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+
+    // Parallax effect on mouse move
+    document.addEventListener('mousemove', (e) => {
+      const orbs = document.querySelectorAll('.floating-orb');
+      const x = (e.clientX / window.innerWidth - 0.5) * 30;
+      const y = (e.clientY / window.innerHeight - 0.5) * 30;
+      
+      orbs.forEach((orb, i) => {
+        const speed = (i + 1) * 0.5;
+        orb.style.transform = `translate(${x * speed}px, ${y * speed}px)`;
+      });
+    });
+  </script>
+</body>
+</html>

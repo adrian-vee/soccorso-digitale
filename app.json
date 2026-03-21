@@ -1,0 +1,56 @@
+{
+  "expo": {
+    "name": "Soccorso Digitale",
+    "slug": "soccorso-digitale",
+    "version": "2.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/app-icon-ios.png",
+    "scheme": "croceeuropa",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.croceeuropa.app",
+      "infoPlist": {
+        "UIViewControllerBasedStatusBarAppearance": true
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#FFFFFF",
+        "foregroundImage": "./assets/images/app-icon-android-foreground.png"
+      },
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false,
+      "package": "com.croceeuropa.app"
+    },
+    "web": {
+      "output": "single",
+      "favicon": "./assets/images/app-icon-ios.png"
+    },
+    "plugins": [
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 1,
+          "resizeMode": "contain",
+          "backgroundColor": "#040810",
+          "dark": {
+            "image": "./assets/images/splash-icon.png",
+            "backgroundColor": "#040810"
+          }
+        }
+      ],
+      "expo-web-browser"
+    ],
+    "experiments": {
+      "reactCompiler": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "42dbd14d-1d49-49e8-a7cb-1719d8b901ca"
+      }
+    }
+  }
+}

@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Calendario Turni - Soccorso Digitale</title>
+  <link rel="icon" type="image/png" href="/api/public/impact/favicon">
+  <style>
+    :root {
+      --blue: #0066CC;
+      --blue-dark: #004C99;
+      --blue-light: #E6F0FF;
+      --green: #00A651;
+      --green-dark: #008C44;
+      --green-light: #E6F9EF;
+      --slate-50: #f8fafc;
+      --slate-100: #f1f5f9;
+      --slate-200: #e2e8f0;
+      --slate-300: #cbd5e1;
+      --slate-400: #94a3b8;
+      --slate-500: #64748b;
+      --slate-600: #475569;
+      --slate-700: #334155;
+      --slate-800: #1e293b;
+      --slate-900: #0f172a;
+      --radius: 12px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: var(--slate-50);
+      min-height: 100vh;
+      min-height: 100dvh;
+      color: var(--slate-900);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .header {
+      background: linear-gradient(145deg, var(--slate-900) 0%, #1a365d 50%, var(--blue-dark) 100%);
+      padding: 0 0 24px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .header-safe { padding-top: max(env(safe-area-inset-top, 12px), 12px); }
+    .header-content { max-width: 600px; margin: 0 auto; padding: 0 20px; }
+    .header-brand { display: flex; align-items: center; gap: 14px; padding: 16px 0 14px; }
+    .header-logo {
+      width: 52px; height: 52px; border-radius: 14px;
+      object-fit: contain; background: white; padding: 4px;
+      flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    .header-text h1 { color: white; font-size: 20px; font-weight: 700; line-height: 1.2; letter-spacing: -0.3px; }
+    .header-text p { color: rgba(255,255,255,0.6); font-size: 13px; font-weight: 400; margin-top: 2px; }
+
+    .month-nav {
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 14px; padding: 6px;
+    }
+    .month-btn {
+      width: 40px; height: 40px; border-radius: 10px; border: none;
+      background: rgba(255,255,255,0.1); color: white;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .month-btn:hover { background: rgba(255,255,255,0.2); }
+    .month-btn:active { transform: scale(0.92); }
+    .month-label { color: white; font-size: 16px; font-weight: 600; text-transform: capitalize; letter-spacing: 0.3px; }
+
+    .search-wrapper {
+      max-width: 600px; margin: 0 auto;
+      padding: 16px 16px 0;
+      position: sticky; top: 0; z-index: 40;
+    }
+    .search-box {
+      position: relative;
+      background: white;
+      border-radius: var(--radius);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+      border: 2px solid transparent;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .search-box:focus-within {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(0,102,204,0.12);
+    }
+    .search-icon {
+      position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+      color: var(--slate-400); pointer-events: none;
+    }
+    .search-input {
+      width: 100%; padding: 14px 16px 14px 46px;
+      border: none; background: transparent;
+      font-size: 16px; outline: none; color: var(--slate-900);
+      border-radius: var(--radius);
+    }
+    .search-input::placeholder { color: var(--slate-400); }
+    .search-hint {
+      display: none; padding: 0 16px 12px 46px;
+      font-size: 12px; color: var(--slate-400);
+    }
+    .search-box:focus-within .search-hint { display: block; }
+
+    .container {
+      max-width: 600px; margin: 0 auto;
+      padding: 12px 16px 40px;
+    }
+
+    .results-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 4px 12px; font-size: 13px; color: var(--slate-500);
+    }
+    .results-count { font-weight: 500; }
+
+    .staff-list { display: flex; flex-direction: column; gap: 8px; }
+
+    .staff-card {
+      background: white; border-radius: var(--radius);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      border: 1px solid var(--slate-100);
+      overflow: hidden;
+      transition: border-color 0.15s;
+    }
+    .staff-card:hover { border-color: var(--slate-200); }
+    .staff-card.expanded { border-color: var(--blue); border-width: 1.5px; }
+
+    .staff-header {
+      display: flex; align-items: center; padding: 14px 16px;
+      cursor: pointer; gap: 12px;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    .staff-avatar {
+      width: 44px; height: 44px; border-radius: 12px;
+      background: var(--blue-light); color: var(--blue);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 15px; flex-shrink: 0;
+      letter-spacing: 0.5px;
+    }
+    .staff-info { flex: 1; min-width: 0; }
+    .staff-name { font-size: 15px; font-weight: 600; color: var(--slate-900); line-height: 1.3; }
+    .staff-meta {
+      display: flex; align-items: center; gap: 8px; margin-top: 3px;
+      font-size: 12px; color: var(--slate-500);
+    }
+    .staff-role-tag {
+      display: inline-flex; padding: 1px 7px; border-radius: 5px;
+      font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px;
+    }
+    .tag-autista { background: #dbeafe; color: #1e40af; }
+    .tag-soccorritore { background: #dcfce7; color: #166534; }
+    .tag-infermiere { background: #fce7f3; color: #9d174d; }
+    .tag-operatore { background: var(--slate-100); color: var(--slate-600); }
+    .staff-stats { font-size: 12px; color: var(--blue); font-weight: 600; }
+
+    .staff-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .btn-download-all {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 14px; background: var(--green); color: white;
+      border: none; border-radius: 10px;
+      font-size: 12px; font-weight: 600; cursor: pointer;
+      transition: all 0.15s; white-space: nowrap;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn-download-all:hover { background: var(--green-dark); }
+    .btn-download-all:active { transform: scale(0.95); }
+    .btn-chevron {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: var(--slate-50); border: 1px solid var(--slate-200);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all 0.2s; flex-shrink: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn-chevron:hover { background: var(--blue-light); border-color: var(--blue); }
+    .btn-chevron svg { transition: transform 0.25s ease; color: var(--slate-500); }
+    .btn-chevron.open svg { transform: rotate(180deg); color: var(--blue); }
+
+    .shifts-panel {
+      max-height: 0; overflow: hidden;
+      transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      border-top: 0 solid var(--slate-100);
+    }
+    .shifts-panel.open {
+      max-height: 2000px;
+      border-top-width: 1px;
+    }
+    .shifts-inner { padding: 4px 0; }
+
+    .shift-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--slate-50);
+      transition: background 0.1s;
+    }
+    .shift-row:last-child { border-bottom: none; }
+    .shift-row:hover { background: var(--slate-50); }
+    .shift-row.weekend { background: #fffbeb; }
+    .shift-row.weekend:hover { background: #fef3c7; }
+
+    .shift-day {
+      width: 48px; text-align: center; flex-shrink: 0;
+    }
+    .shift-day-num { font-size: 18px; font-weight: 700; color: var(--slate-900); line-height: 1; }
+    .shift-day-name { font-size: 10px; color: var(--slate-400); font-weight: 500; text-transform: uppercase; margin-top: 2px; }
+    .shift-row.weekend .shift-day-num { color: #b45309; }
+    .shift-row.weekend .shift-day-name { color: #d97706; }
+
+    .shift-detail { flex: 1; min-width: 0; }
+    .shift-time-row { display: flex; align-items: center; gap: 6px; }
+    .shift-time { font-size: 14px; font-weight: 600; color: var(--slate-800); }
+    .shift-vehicle { font-size: 12px; color: var(--slate-500); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .shift-location { font-size: 11px; color: var(--slate-400); margin-top: 1px; }
+
+    .shift-role-pill {
+      display: inline-flex; padding: 2px 8px; border-radius: 6px;
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .btn-add-cal {
+      display: flex; align-items: center; justify-content: center;
+      width: 34px; height: 34px;
+      background: white; border: 1.5px solid var(--slate-200);
+      border-radius: 9px; cursor: pointer;
+      transition: all 0.15s; flex-shrink: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn-add-cal:hover { background: var(--blue-light); border-color: var(--blue); }
+    .btn-add-cal:active { transform: scale(0.9); }
+    .btn-add-cal svg { color: var(--slate-500); }
+    .btn-add-cal:hover svg { color: var(--blue); }
+
+    .empty-state {
+      text-align: center; padding: 60px 24px;
+      color: var(--slate-400); font-size: 15px;
+    }
+    .empty-state svg { margin-bottom: 16px; color: var(--slate-300); }
+    .empty-state p { font-weight: 500; }
+    .empty-state .sub { font-size: 13px; margin-top: 4px; font-weight: 400; }
+
+    .loading-screen {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; padding: 100px 20px; gap: 16px;
+    }
+    .spinner {
+      width: 36px; height: 36px;
+      border: 3px solid var(--slate-200);
+      border-top-color: var(--blue);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text { color: var(--slate-400); font-size: 14px; font-weight: 500; }
+
+    .toast-container {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      display: flex; justify-content: center;
+      padding: 0 16px max(env(safe-area-inset-bottom, 16px), 16px);
+      pointer-events: none; z-index: 100;
+    }
+    .toast {
+      background: var(--slate-900); color: white;
+      padding: 12px 20px; border-radius: 14px;
+      font-size: 13px; font-weight: 500;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+      transform: translateY(80px);
+      opacity: 0; transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
+      max-width: 340px; text-align: center;
+      pointer-events: auto;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.success { background: var(--green); }
+
+    .footer {
+      text-align: center; padding: 32px 20px 24px;
+      border-top: 1px solid var(--slate-100);
+      margin-top: 8px;
+    }
+    .footer-brand { font-size: 11px; color: var(--slate-400); font-weight: 500; letter-spacing: 0.3px; }
+    .footer a { color: var(--blue); text-decoration: none; font-weight: 600; }
+
+    @media (max-width: 380px) {
+      .header-text h1 { font-size: 17px; }
+      .btn-download-all span { display: none; }
+      .btn-download-all { padding: 8px 10px; }
+      .staff-header { padding: 12px 14px; }
+      .shift-row { padding: 10px 14px; gap: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="loading-screen">
+      <div class="spinner"></div>
+      <p class="loading-text">Caricamento turni...</p>
+    </div>
+  </div>
+  <div class="toast-container"><div id="toast" class="toast"></div></div>
+
+  <script>
+    const pathParts = window.location.pathname.split('/');
+    const orgId = pathParts[pathParts.length - 1];
+    let currentMonth = '';
+    let staffData = [];
+    let allData = null;
+    let toastTimer = null;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const lockedMonth = urlParams.get('month');
+
+    function getDefaultMonth() {
+      if (lockedMonth && /^\d{4}-\d{2}$/.test(lockedMonth)) return lockedMonth;
+      const now = new Date();
+      return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    }
+
+    async function loadMonth(month) {
+      currentMonth = month;
+      try {
+        const res = await fetch(`/api/public/turni/${orgId}?month=${month}`);
+        if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'Errore nel caricamento');
+        allData = await res.json();
+        renderPage(allData);
+      } catch (e) {
+        document.getElementById('app').innerHTML = `
+          <div class="header"><div class="header-safe"></div><div class="header-content">
+            <div class="header-brand"><div class="header-text"><h1>Errore</h1></div></div>
+          </div></div>
+          <div class="empty-state" style="padding-top:80px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6M9 9l6 6"/></svg>
+            <p>${e.message}</p>
+            <p class="sub">Verifica il link e riprova</p>
+          </div>`;
+      }
+    }
+
+    function changeMonth(delta) {
+      const [y, m] = currentMonth.split('-').map(Number);
+      const d = new Date(y, m - 1 + delta, 1);
+      loadMonth(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`);
+    }
+
+    function renderPage(data) {
+      staffData = data.staff || [];
+      const logoHtml = data.logoUrl
+        ? `<img class="header-logo" src="${data.logoUrl}" alt="Logo" onerror="this.style.display='none'">`
+        : '';
+      document.getElementById('app').innerHTML = `
+        <div class="header">
+          <div class="header-safe"></div>
+          <div class="header-content">
+            <div class="header-brand">
+              ${logoHtml}
+              <div class="header-text">
+                <h1>${data.orgName || 'Calendario Turni'}</h1>
+                <p>Calendario Turni</p>
+              </div>
+            </div>
+            <div class="month-nav">
+              ${lockedMonth ? '' : `<button class="month-btn" onclick="changeMonth(-1)" aria-label="Mese precedente">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+              </button>`}
+              <span class="month-label">${data.monthLabel}</span>
+              ${lockedMonth ? '' : `<button class="month-btn" onclick="changeMonth(1)" aria-label="Mese successivo">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>`}
+            </div>
+          </div>
+        </div>
+        <div class="search-wrapper">
+          <div class="search-box">
+            <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <input class="search-input" type="text" id="searchInput" placeholder="Cerca per nome o cognome..." oninput="filterStaff()" autocomplete="off" autocorrect="off" spellcheck="false">
+            <div class="search-hint">Digita il tuo nome per trovare i tuoi turni</div>
+          </div>
+        </div>
+        <div class="container">
+          <div class="results-bar">
+            <span id="resultsCount" class="results-count"></span>
+          </div>
+          <div id="staffList" class="staff-list"></div>
+          <div class="footer">
+            <div class="footer-brand">Powered by <a href="https://soccorsodigitale.app" target="_blank" rel="noopener">Soccorso Digitale</a></div>
+          </div>
+        </div>`;
+      renderStaffList(staffData);
+    }
+
+    function filterStaff() {
+      const q = document.getElementById('searchInput').value.toLowerCase().trim();
+      const filtered = q ? staffData.filter(s =>
+        (s.firstName + ' ' + s.lastName).toLowerCase().includes(q) ||
+        (s.lastName + ' ' + s.firstName).toLowerCase().includes(q)
+      ) : staffData;
+      renderStaffList(filtered);
+      if (q && filtered.length === 1) {
+        setTimeout(() => togglePanel(filtered[0].id, true), 200);
+      }
+    }
+
+    const dayNamesShort = ['DOM','LUN','MAR','MER','GIO','VEN','SAB'];
+    const dayNamesFull = ['Domenica','Luned\u00EC','Marted\u00EC','Mercoled\u00EC','Gioved\u00EC','Venerd\u00EC','Sabato'];
+
+    function getRoleTag(role) {
+      const r = role || 'operatore';
+      const labels = { autista: 'Autista', soccorritore: 'Soccorritore', infermiere: 'Infermiere' };
+      const label = labels[r] || 'Operatore';
+      const cls = labels[r] ? `tag-${r}` : 'tag-operatore';
+      return `<span class="staff-role-tag ${cls}">${label}</span>`;
+    }
+
+    function getRolePill(role) {
+      const r = role || 'operatore';
+      const map = {
+        autista: { label: 'AUT', bg: '#dbeafe', color: '#1e40af' },
+        soccorritore: { label: 'SOC', bg: '#dcfce7', color: '#166534' },
+        infermiere: { label: 'INF', bg: '#fce7f3', color: '#9d174d' },
+      };
+      const info = map[r] || { label: 'OPR', bg: '#f1f5f9', color: '#475569' };
+      return `<span class="shift-role-pill" style="background:${info.bg};color:${info.color}">${info.label}</span>`;
+    }
+
+    function getInitials(first, last) {
+      return ((first || '')[0] || '') + ((last || '')[0] || '');
+    }
+
+    function renderStaffList(list) {
+      const countEl = document.getElementById('resultsCount');
+      if (countEl) {
+        countEl.textContent = list.length === 1
+          ? '1 operatore trovato'
+          : `${list.length} operatori con turni assegnati`;
+      }
+      const el = document.getElementById('staffList');
+      if (!list.length) {
+        el.innerHTML = `<div class="empty-state">
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <p>Nessun risultato trovato</p>
+          <p class="sub">Prova a cercare con un nome diverso</p>
+        </div>`;
+        return;
+      }
+      el.innerHTML = list.map(s => {
+        const shifts = (s.shifts || []).slice();
+        const shiftsHtml = shifts.length > 0 ? shifts.map(sh => {
+          const d = new Date(sh.date + 'T12:00:00');
+          const dayNum = d.getDate();
+          const dow = d.getDay();
+          const isWeekend = dow === 0 || dow === 6;
+          return `<div class="shift-row${isWeekend ? ' weekend' : ''}">
+            <div class="shift-day">
+              <div class="shift-day-num">${dayNum}</div>
+              <div class="shift-day-name">${dayNamesShort[dow]}</div>
+            </div>
+            <div class="shift-detail">
+              <div class="shift-time-row">
+                <span class="shift-time">${sh.startTime.slice(0,5)} - ${sh.endTime.slice(0,5)}</span>
+                ${getRolePill(sh.role)}
+              </div>
+              <div class="shift-vehicle">${sh.vehicleLabel}</div>
+              ${sh.locationName ? `<div class="shift-location">${sh.locationName}</div>` : ''}
+            </div>
+            <button class="btn-add-cal" onclick="downloadSingleShift('${s.id}','${sh.date}');event.stopPropagation();" title="Aggiungi al calendario" aria-label="Scarica evento">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M12 14v4M10 16h4"/></svg>
+            </button>
+          </div>`;
+        }).join('') : '<div style="padding:20px;text-align:center;color:var(--slate-400);font-size:13px;">Nessun turno assegnato questo mese</div>';
+
+        return `<div class="staff-card" id="card-${s.id}">
+          <div class="staff-header" onclick="togglePanel('${s.id}')">
+            <div class="staff-avatar">${getInitials(s.firstName, s.lastName)}</div>
+            <div class="staff-info">
+              <div class="staff-name">${s.firstName} ${s.lastName}</div>
+              <div class="staff-meta">
+                ${getRoleTag(s.primaryRole)}
+                <span class="staff-stats">${s.shiftCount} turni &middot; ${s.totalHours.toFixed(0)}h</span>
+              </div>
+            </div>
+            <div class="staff-actions">
+              ${s.shiftCount > 0 ? `<button class="btn-download-all" onclick="downloadCal('${s.id}');event.stopPropagation();" aria-label="Scarica tutti i turni">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <span>Scarica</span>
+              </button>` : ''}
+              <button class="btn-chevron" id="chev-${s.id}" aria-label="Espandi turni">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="shifts-panel" id="panel-${s.id}"><div class="shifts-inner">${shiftsHtml}</div></div>
+        </div>`;
+      }).join('');
+    }
+
+    function togglePanel(staffId, forceOpen) {
+      const panel = document.getElementById('panel-' + staffId);
+      const chev = document.getElementById('chev-' + staffId);
+      const card = document.getElementById('card-' + staffId);
+      if (!panel) return;
+      const isOpen = panel.classList.contains('open');
+      if (forceOpen && isOpen) return;
+      panel.classList.toggle('open');
+      chev?.classList.toggle('open');
+      card?.classList.toggle('expanded');
+    }
+
+    async function downloadCal(staffId) {
+      try {
+        showToast('Generazione calendario...');
+        const res = await fetch(`/api/public/turni/${orgId}/ics/${staffId}?month=${currentMonth}`);
+        if (!res.ok) throw new Error();
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.href = url; a.download = 'turni.ics';
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast('Calendario scaricato! Aprilo per aggiungere i turni.', true);
+      } catch { showToast('Errore nel download. Riprova.'); }
+    }
+
+    async function downloadSingleShift(staffId, date) {
+      try {
+        showToast('Generazione evento...');
+        const res = await fetch(`/api/public/turni/${orgId}/ics/${staffId}?month=${currentMonth}`);
+        if (!res.ok) throw new Error();
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.href = url; a.download = 'turno_' + date + '.ics';
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast('Evento scaricato! Aprilo per aggiungerlo al calendario.', true);
+      } catch { showToast('Errore. Riprova.'); }
+    }
+
+    function showToast(msg, success) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = 'toast show' + (success ? ' success' : '');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => { t.className = 'toast'; }, 4000);
+    }
+
+    loadMonth(getDefaultMonth());
+  </script>
+</body>
+</html>

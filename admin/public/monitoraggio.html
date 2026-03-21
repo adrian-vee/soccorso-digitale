@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monitoraggio Flotta - Soccorso Digitale</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F1F5F9; color: #1E293B; }
+    .header { background: linear-gradient(135deg, #0066CC, #004999); padding: 16px 24px; color: white; display: flex; justify-content: space-between; align-items: center; }
+    .header h1 { font-size: 18px; font-weight: 700; }
+    .header .org-name { font-size: 14px; opacity: 0.8; }
+    .header .refresh-info { font-size: 11px; opacity: 0.6; }
+    .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 20px; }
+    .stat-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+    .stat-card .stat-value { font-size: 32px; font-weight: 800; }
+    .stat-card .stat-label { font-size: 13px; color: #64748B; margin-top: 2px; }
+    .stat-card.blue .stat-value { color: #0066CC; }
+    .stat-card.green .stat-value { color: #059669; }
+    .stat-card.amber .stat-value { color: #D97706; }
+    .stat-card.red .stat-value { color: #DC2626; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 768px) { .grid-2 { grid-template-columns: 1fr; } }
+    .panel { background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); overflow: hidden; }
+    .panel-header { padding: 16px 20px; border-bottom: 1px solid #E5E7EB; font-size: 15px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
+    .panel-body { padding: 16px 20px; }
+    .vehicle-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #F1F5F9; }
+    .vehicle-row:last-child { border-bottom: none; }
+    .vehicle-status { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .vehicle-status.active { background: #22C55E; box-shadow: 0 0 6px rgba(34,197,94,0.4); animation: pulse 2s infinite; }
+    .vehicle-status.idle { background: #94A3B8; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    .vehicle-info { flex: 1; }
+    .vehicle-name { font-size: 14px; font-weight: 600; }
+    .vehicle-detail { font-size: 11px; color: #64748B; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: 600; text-transform: uppercase; }
+    .badge-green { background: #ECFDF5; color: #059669; }
+    .badge-blue { background: #EFF6FF; color: #0066CC; }
+    .badge-amber { background: #FFF7ED; color: #D97706; }
+    .badge-red { background: #FEF2F2; color: #DC2626; }
+    .transport-row { padding: 10px 0; border-bottom: 1px solid #F1F5F9; }
+    .transport-row:last-child { border-bottom: none; }
+    .transport-type { font-size: 13px; font-weight: 600; }
+    .transport-detail { font-size: 11px; color: #64748B; margin-top: 2px; }
+    .loading { text-align: center; padding: 60px; color: #94A3B8; }
+    .error { text-align: center; padding: 60px; color: #DC2626; }
+    .map-placeholder { height: 300px; background: #E2E8F0; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #64748B; font-size: 14px; }
+    .live-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #22C55E; margin-right: 6px; animation: pulse 2s infinite; }
+    .footer { text-align: center; padding: 24px; color: #94A3B8; font-size: 11px; }
+    .vehicle-row { cursor: pointer; transition: background 0.15s; }
+    .vehicle-row:hover { background: #F8FAFC; }
+    .vehicle-row.selected { background: #EFF6FF; border-left: 3px solid #0066CC; }
+    .vehicle-detail-card { background: #F8FAFC; border: 1px solid #E5E7EB; border-radius: 10px; padding: 16px; margin-top: 8px; display: none; }
+    .vehicle-detail-card.visible { display: block; }
+    .vdc-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .vdc-title { font-size: 16px; font-weight: 700; color: #1E293B; }
+    .vdc-close { cursor: pointer; color: #94A3B8; font-size: 18px; padding: 4px 8px; border-radius: 6px; }
+    .vdc-close:hover { background: #E5E7EB; color: #1E293B; }
+    .vdc-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
+    .vdc-stat { background: white; border-radius: 8px; padding: 10px; text-align: center; }
+    .vdc-stat-value { font-size: 18px; font-weight: 700; color: #0066CC; }
+    .vdc-stat-label { font-size: 10px; color: #64748B; }
+    .vdc-trips { max-height: 200px; overflow-y: auto; }
+    .vdc-trip { padding: 8px; background: white; border-radius: 6px; margin-bottom: 4px; font-size: 12px; }
+    .vdc-trip-route { font-weight: 600; color: #1E293B; }
+    .vdc-trip-meta { color: #64748B; font-size: 11px; margin-top: 2px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div>
+      <h1 id="org-title">Monitoraggio Flotta</h1>
+      <span class="org-name" id="org-name"></span>
+    </div>
+    <div style="text-align:right;">
+      <div><span class="live-dot"></span>Dati in tempo reale</div>
+      <div class="refresh-info" id="last-refresh">Ultimo aggiornamento: --</div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div id="content">
+      <div class="loading">
+        <p style="font-size:18px;margin-bottom:8px;">Caricamento dati in corso...</p>
+        <p>Connessione al portale di monitoraggio</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Portale di Monitoraggio Operativo - Powered by SOCCORSO DIGITALE<br>
+    www.soccorsodigitale.app
+  </div>
+
+  <script>
+    const token = window.location.pathname.split('/monitoraggio/')[1];
+    if (!token) {
+      document.getElementById('content').innerHTML = '<div class="error"><h2>Token mancante</h2><p>URL non valido. Contatta l\'organizzazione per ottenere il link corretto.</p></div>';
+    }
+
+    const serviceLabels = {
+      dialisi: 'Dialisi', dimissione: 'Dimissione', trasferimento: 'Trasferimento',
+      trasporto_programmato: 'Trasporto Programmato', visita: 'Visita Ambulatoriale',
+      disabili: 'Trasporto Disabili'
+    };
+
+    async function loadData() {
+      try {
+        const res = await fetch(`/api/public/monitoring/${token}`);
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          document.getElementById('content').innerHTML = `<div class="error"><h2>Accesso negato</h2><p>${err.error || 'Token non valido o scaduto'}</p></div>`;
+          return;
+        }
+        const data = await res.json();
+        renderDashboard(data);
+        document.getElementById('org-name').textContent = data.organizationName;
+        document.getElementById('org-title').textContent = `Monitoraggio Flotta - ${data.organizationName}`;
+        document.title = `Monitoraggio - ${data.organizationName}`;
+        document.getElementById('last-refresh').textContent = `Ultimo aggiornamento: ${new Date().toLocaleTimeString('it-IT')}`;
+      } catch (e) {
+        console.error(e);
+        document.getElementById('content').innerHTML = '<div class="error"><h2>Errore di connessione</h2><p>Impossibile contattare il server</p></div>';
+      }
+    }
+
+    function renderDashboard(data) {
+      const s = data.todaySummary;
+      const inService = data.vehicles.filter(v => v.status === 'in_servizio').length;
+      const available = data.vehicles.filter(v => v.status === 'disponibile').length;
+
+      let html = `
+        <div class="stats-row">
+          <div class="stat-card blue">
+            <div class="stat-value">${data.vehicles.length}</div>
+            <div class="stat-label">Mezzi Totali Attivi</div>
+          </div>
+          <div class="stat-card green">
+            <div class="stat-value">${inService}</div>
+            <div class="stat-label">In Servizio</div>
+          </div>
+          <div class="stat-card amber">
+            <div class="stat-value">${available}</div>
+            <div class="stat-label">Disponibili</div>
+          </div>
+          <div class="stat-card blue">
+            <div class="stat-value">${s.totalTrips}</div>
+            <div class="stat-label">Trasporti Oggi</div>
+          </div>
+          <div class="stat-card green">
+            <div class="stat-value">${s.completed}</div>
+            <div class="stat-label">Completati</div>
+          </div>
+          ${s.slaViolations > 0 ? `<div class="stat-card red"><div class="stat-value">${s.slaViolations}</div><div class="stat-label">Violazioni SLA</div></div>` : ''}
+        </div>
+
+        <div class="grid-2">
+          <div class="panel">
+            <div class="panel-header">
+              Stato Flotta
+              <span class="badge badge-blue">${data.vehicles.length} mezzi</span>
+            </div>
+            <div class="panel-body" style="max-height:500px;overflow-y:auto;" id="fleet-list">
+              ${data.vehicles.map(v => {
+                const isActive = v.status === 'in_servizio';
+                const classLabel = v.vehicleClass === 'tipo_a' ? 'Tipo A' : 'Tipo B';
+                const lastUpdate = v.lastLocationAt ? new Date(v.lastLocationAt).toLocaleTimeString('it-IT') : '--';
+                const vTrips = [...(data.activeTransports || []), ...(data.completedTransports || [])].filter(t => t.vehicleId === v.id);
+                const vKm = vTrips.reduce((s, t) => s + (t.kmTraveled || 0), 0);
+                const locName = v.locationName || '';
+                return `
+                  <div class="vehicle-row" onclick="toggleVehicleDetail('${v.id}')">
+                    <div class="vehicle-status ${isActive ? 'active' : 'idle'}"></div>
+                    <div class="vehicle-info">
+                      <div class="vehicle-name">${v.natoName || v.code} ${v.isReserve ? '<span class="badge badge-amber">RISERVA</span>' : ''}</div>
+                      <div class="vehicle-detail">${v.model || ''} - ${v.licensePlate || ''} - ${classLabel}</div>
+                    </div>
+                    <div style="text-align:right;">
+                      <span class="badge ${isActive ? 'badge-green' : 'badge-blue'}">${isActive ? 'In servizio' : 'Disponibile'}</span>
+                      ${v.latitude && v.longitude ? `<div style="font-size:10px;color:#94A3B8;margin-top:2px;">GPS: ${lastUpdate}</div>` : ''}
+                    </div>
+                  </div>
+                  <div class="vehicle-detail-card" id="vdc-${v.id}">
+                    <div class="vdc-header">
+                      <div class="vdc-title">${v.natoName || v.code} <span style="font-size:12px;font-weight:400;color:#64748B;">${v.licensePlate || ''}</span></div>
+                      <span class="vdc-close" onclick="event.stopPropagation();closeVehicleDetail('${v.id}')">&times;</span>
+                    </div>
+                    ${locName ? `<div style="font-size:12px;color:#64748B;margin-bottom:10px;">Sede: <strong>${locName}</strong></div>` : ''}
+                    <div class="vdc-stats">
+                      <div class="vdc-stat">
+                        <div class="vdc-stat-value">${vTrips.length}</div>
+                        <div class="vdc-stat-label">Servizi oggi</div>
+                      </div>
+                      <div class="vdc-stat">
+                        <div class="vdc-stat-value">${vKm}</div>
+                        <div class="vdc-stat-label">Km oggi</div>
+                      </div>
+                      <div class="vdc-stat">
+                        <div class="vdc-stat-value">${v.maintenanceStatus === 'ok' ? '<span style="color:#059669;">OK</span>' : v.maintenanceStatus === 'warning' ? '<span style="color:#D97706;">Attenzione</span>' : '<span style="color:#DC2626;">Critico</span>'}</div>
+                        <div class="vdc-stat-label">Manutenzione</div>
+                      </div>
+                    </div>
+                    ${vTrips.length > 0 ? `
+                      <div style="font-size:12px;font-weight:600;color:#1E293B;margin-bottom:6px;">Servizi di oggi</div>
+                      <div class="vdc-trips">
+                        ${vTrips.map(t => {
+                          const label = serviceLabels[t.serviceType] || t.serviceType || 'Trasporto';
+                          const isInProgress = !t.returnTime;
+                          return `<div class="vdc-trip">
+                            <div class="vdc-trip-route">${t.origin || 'N/D'} &#8594; ${t.destination || 'N/D'}</div>
+                            <div class="vdc-trip-meta">
+                              ${label} ${isInProgress ? '<span style="color:#059669;font-weight:600;">IN CORSO</span>' : '<span style="color:#3B82F6;">Completato</span>'}
+                              &middot; ${t.departureTime || '--'} ${t.returnTime ? '- ' + t.returnTime : ''}
+                              ${t.kmTraveled ? ' &middot; ' + t.kmTraveled + ' km' : ''}
+                            </div>
+                          </div>`;
+                        }).join('')}
+                      </div>
+                    ` : '<div style="font-size:12px;color:#94A3B8;text-align:center;padding:12px;">Nessun servizio oggi</div>'}
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              Trasporti del Giorno
+              <div style="display:flex;gap:6px;">
+                <span class="badge badge-green">${data.activeTransports.length} in corso</span>
+                <span class="badge badge-blue">${(data.completedTransports || []).length} completati</span>
+              </div>
+            </div>
+            <div class="panel-body" style="max-height:500px;overflow-y:auto;">
+              ${data.activeTransports.length === 0 && (!data.completedTransports || data.completedTransports.length === 0) ? '<p style="color:#94A3B8;text-align:center;padding:24px;">Nessun trasporto registrato oggi</p>' : ''}
+              ${data.activeTransports.map(t => {
+                const vehicle = data.vehicles.find(v => v.id === t.vehicleId);
+                const label = serviceLabels[t.serviceType] || t.serviceType || 'Trasporto';
+                return `
+                  <div class="transport-row" style="border-left:3px solid #059669;">
+                    <div class="transport-type"><span class="live-dot"></span>${label} <span style="font-size:10px;font-weight:600;padding:2px 6px;border-radius:4px;background:#ECFDF5;color:#059669;margin-left:6px;">IN CORSO</span></div>
+                    <div class="transport-detail">
+                      <strong>${vehicle?.natoName || vehicle?.code || 'N/D'}</strong> | 
+                      Partenza: ${t.departureTime || '--'}${t.scheduledDepartureTime ? ' (prog. ' + t.scheduledDepartureTime + ')' : ''}
+                    </div>
+                    <div style="font-size:12px;color:#1F2937;margin-top:4px;">
+                      ${t.origin || 'N/D'} <span style="color:#94A3B8;font-weight:600;margin:0 4px;">&#8594;</span> ${t.destination || 'N/D'}
+                    </div>
+                    ${t.slaViolation ? '<div style="font-size:10px;color:#DC2626;font-weight:600;margin-top:2px;">SLA Violato</div>' : ''}
+                  </div>
+                `;
+              }).join('')}
+              ${(data.completedTransports || []).map(t => {
+                const vehicle = data.vehicles.find(v => v.id === t.vehicleId);
+                const label = serviceLabels[t.serviceType] || t.serviceType || 'Trasporto';
+                return `
+                  <div class="transport-row" style="border-left:3px solid #3B82F6;opacity:0.85;">
+                    <div class="transport-type" style="color:#3B82F6;">${label} <span style="font-size:10px;font-weight:600;padding:2px 6px;border-radius:4px;background:#EFF6FF;color:#3B82F6;margin-left:6px;">COMPLETATO</span></div>
+                    <div class="transport-detail">
+                      <strong>${vehicle?.natoName || vehicle?.code || 'N/D'}</strong> | 
+                      ${t.departureTime || '--'} &#8594; ${t.returnTime || '--'}
+                      ${t.kmTraveled ? ' | ' + t.kmTraveled + ' km' : ''}
+                      ${t.durationMinutes ? ' | ' + t.durationMinutes + ' min' : ''}
+                    </div>
+                    <div style="font-size:12px;color:#1F2937;margin-top:4px;">
+                      ${t.origin || 'N/D'} <span style="color:#94A3B8;font-weight:600;margin:0 4px;">&#8594;</span> ${t.destination || 'N/D'}
+                    </div>
+                    ${t.slaViolation ? '<div style="font-size:10px;color:#DC2626;font-weight:600;margin-top:2px;">SLA Violato</div>' : ''}
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:20px;">
+          <div class="panel">
+            <div class="panel-header">
+              Riepilogo Giornata
+              <span style="font-size:12px;color:#64748B;">${new Date().toLocaleDateString('it-IT', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+            </div>
+            <div class="panel-body">
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;">
+                <div style="text-align:center;padding:16px;background:#F8FAFC;border-radius:10px;">
+                  <div style="font-size:28px;font-weight:800;color:#0066CC;">${s.totalTrips}</div>
+                  <div style="font-size:12px;color:#64748B;">Trasporti Totali</div>
+                </div>
+                <div style="text-align:center;padding:16px;background:#F8FAFC;border-radius:10px;">
+                  <div style="font-size:28px;font-weight:800;color:#059669;">${s.completed}</div>
+                  <div style="font-size:12px;color:#64748B;">Completati</div>
+                </div>
+                <div style="text-align:center;padding:16px;background:#F8FAFC;border-radius:10px;">
+                  <div style="font-size:28px;font-weight:800;color:#D97706;">${s.active}</div>
+                  <div style="font-size:12px;color:#64748B;">In Corso</div>
+                </div>
+                <div style="text-align:center;padding:16px;background:#F8FAFC;border-radius:10px;">
+                  <div style="font-size:28px;font-weight:800;color:#0066CC;">${(s.totalKm || 0).toLocaleString('it-IT')}</div>
+                  <div style="font-size:12px;color:#64748B;">Km Percorsi</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('content').innerHTML = html;
+
+      if (selectedVehicleId) {
+        const card = document.getElementById('vdc-' + selectedVehicleId);
+        if (card) {
+          card.classList.add('visible');
+          card.previousElementSibling?.classList.add('selected');
+        }
+      }
+    }
+
+    let selectedVehicleId = null;
+
+    function toggleVehicleDetail(vehicleId) {
+      const card = document.getElementById('vdc-' + vehicleId);
+      if (!card) return;
+      
+      document.querySelectorAll('.vehicle-detail-card.visible').forEach(c => {
+        if (c.id !== 'vdc-' + vehicleId) c.classList.remove('visible');
+      });
+      document.querySelectorAll('.vehicle-row.selected').forEach(r => r.classList.remove('selected'));
+      
+      if (selectedVehicleId === vehicleId) {
+        card.classList.remove('visible');
+        selectedVehicleId = null;
+      } else {
+        card.classList.add('visible');
+        selectedVehicleId = vehicleId;
+        card.previousElementSibling?.classList.add('selected');
+      }
+    }
+
+    function closeVehicleDetail(vehicleId) {
+      const card = document.getElementById('vdc-' + vehicleId);
+      if (card) card.classList.remove('visible');
+      document.querySelectorAll('.vehicle-row.selected').forEach(r => r.classList.remove('selected'));
+      selectedVehicleId = null;
+    }
+
+    if (token) {
+      loadData();
+      setInterval(loadData, 30000);
+    }
+  </script>
+</body>
+</html>

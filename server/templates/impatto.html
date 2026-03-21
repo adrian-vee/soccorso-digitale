@@ -1,0 +1,1670 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1e3a5f">
+  <title>Impatto Sociale | SOCCORSO DIGITALE</title>
+  <meta name="description" content="Dashboard in tempo reale dell'impatto sociale di SOCCORSO DIGITALE. Trasparenza totale sui nostri servizi di trasporto sanitario.">
+  <meta property="og:title" content="SOCCORSO DIGITALE - Impatto Sociale">
+  <meta property="og:description" content="Scopri l'impatto dei nostri servizi di trasporto sanitario in tempo reale.">
+  <meta property="og:type" content="website">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #1e3a5f;
+      --primary-light: #2d5a8b;
+      --accent: #e8655f;
+      --accent-hover: #d54a44;
+      --green: #10b981;
+      --gold: #f59e0b;
+      --purple: #8b5cf6;
+      --blue: #3b82f6;
+      --glass-bg: rgba(255, 255, 255, 0.08);
+      --glass-border: rgba(255, 255, 255, 0.15);
+      --glass-hover: rgba(255, 255, 255, 0.12);
+      --text-primary: #ffffff;
+      --text-secondary: rgba(255, 255, 255, 0.7);
+      --text-muted: rgba(255, 255, 255, 0.5);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%);
+      min-height: 100vh;
+      color: var(--text-primary);
+      overflow-x: hidden;
+    }
+
+    .animated-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: -1;
+      overflow: hidden;
+    }
+
+    .animated-bg::before,
+    .animated-bg::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.25;
+      animation: float 25s ease-in-out infinite;
+    }
+
+    .animated-bg::before {
+      width: 700px;
+      height: 700px;
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      top: -300px;
+      left: -200px;
+    }
+
+    .animated-bg::after {
+      width: 600px;
+      height: 600px;
+      background: linear-gradient(135deg, #e8655f, #f59e0b);
+      bottom: -200px;
+      right: -200px;
+      animation-delay: -12s;
+    }
+
+    .bg-orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(100px);
+      opacity: 0.15;
+      animation: float 30s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    .bg-orb-1 {
+      width: 400px;
+      height: 400px;
+      background: var(--green);
+      top: 50%;
+      left: 20%;
+      animation-delay: -5s;
+    }
+
+    .bg-orb-2 {
+      width: 300px;
+      height: 300px;
+      background: var(--purple);
+      top: 30%;
+      right: 10%;
+      animation-delay: -15s;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+      25% { transform: translate(40px, -40px) rotate(5deg) scale(1.05); }
+      50% { transform: translate(-30px, 30px) rotate(-5deg) scale(0.95); }
+      75% { transform: translate(20px, 20px) rotate(3deg) scale(1.02); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .animated-bg::before,
+      .animated-bg::after,
+      .bg-orb,
+      .heart-icon,
+      .heart-ring,
+      .live-dot,
+      .progress-fill::after,
+      .floating-element {
+        animation: none !important;
+      }
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Hero Section */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 60px 24px;
+      position: relative;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, rgba(232, 101, 95, 0.2), rgba(245, 158, 11, 0.2));
+      border: 1px solid rgba(232, 101, 95, 0.3);
+      padding: 10px 20px;
+      border-radius: 100px;
+      font-size: 0.85rem;
+      color: var(--accent);
+      margin-bottom: 32px;
+      backdrop-filter: blur(10px);
+      animation: fadeInUp 0.8s ease-out;
+    }
+
+    .hero-badge svg {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
+    }
+
+    .hero-title {
+      font-size: clamp(2.5rem, 8vw, 5rem);
+      font-weight: 900;
+      line-height: 1.1;
+      margin-bottom: 24px;
+      animation: fadeInUp 0.8s ease-out 0.1s both;
+    }
+
+    .hero-title .gradient-text {
+      background: linear-gradient(135deg, #ffffff 0%, #94a3b8 50%, #ffffff 100%);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: shimmerText 3s linear infinite;
+    }
+
+    .hero-title .accent-text {
+      background: linear-gradient(135deg, var(--accent), var(--gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    @keyframes shimmerText {
+      0% { background-position: 0% center; }
+      100% { background-position: 200% center; }
+    }
+
+    .hero-subtitle {
+      font-size: 1.25rem;
+      color: var(--text-secondary);
+      max-width: 600px;
+      margin: 0 auto 48px;
+      line-height: 1.6;
+      animation: fadeInUp 0.8s ease-out 0.2s both;
+    }
+
+    .live-counter-hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      animation: fadeInUp 0.8s ease-out 0.3s both;
+    }
+
+    .live-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--glass-bg);
+      padding: 8px 16px;
+      border-radius: 100px;
+      font-size: 0.85rem;
+      color: var(--green);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(10px);
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--green);
+      border-radius: 50%;
+      animation: pulse-live 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-live {
+      0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+      50% { opacity: 0.8; transform: scale(1.2); box-shadow: 0 0 20px 5px rgba(16, 185, 129, 0.2); }
+    }
+
+    .mega-counter {
+      font-size: clamp(4rem, 15vw, 10rem);
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--accent), var(--gold), var(--accent));
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: shimmerText 3s linear infinite;
+      line-height: 1;
+    }
+
+    .mega-counter-label {
+      font-size: 1.2rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 3px;
+    }
+
+    .scroll-indicator {
+      position: absolute;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      animation: bounce 2s ease-in-out infinite;
+    }
+
+    .scroll-indicator svg {
+      width: 24px;
+      height: 24px;
+      stroke: currentColor;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(10px); }
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Impact Stats Section */
+    .impact-section {
+      padding: 80px 0;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+
+    .section-label {
+      display: inline-block;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      color: var(--accent);
+      margin-bottom: 16px;
+      font-weight: 600;
+    }
+
+    .section-title {
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+
+    .section-subtitle {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 24px;
+    }
+
+    .stat-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      padding: 32px;
+      backdrop-filter: blur(20px);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--gold));
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.4s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-8px);
+      border-color: rgba(232, 101, 95, 0.3);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .stat-card:hover::before {
+      transform: scaleX(1);
+    }
+
+    .stat-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .stat-icon::after {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: 20px;
+      background: inherit;
+      opacity: 0.3;
+      filter: blur(10px);
+      z-index: -1;
+    }
+
+    .stat-icon svg {
+      width: 28px;
+      height: 28px;
+      fill: white;
+    }
+
+    .stat-icon.km { background: linear-gradient(135deg, #3b82f6, #8b5cf6); }
+    .stat-icon.patients { background: linear-gradient(135deg, var(--accent), #f59e0b); }
+    .stat-icon.co2 { background: linear-gradient(135deg, var(--green), #059669); }
+    .stat-icon.vehicles { background: linear-gradient(135deg, #8b5cf6, #a855f7); }
+    .stat-icon.time { background: linear-gradient(135deg, #f59e0b, #f97316); }
+    .stat-icon.locations { background: linear-gradient(135deg, #06b6d4, #0891b2); }
+
+    .stat-label {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 2.8rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      line-height: 1.1;
+      margin-bottom: 4px;
+    }
+
+    .stat-unit {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+    }
+
+    .stat-trend {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--green);
+      padding: 4px 12px;
+      border-radius: 100px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-top: 12px;
+    }
+
+    .stat-trend svg {
+      width: 14px;
+      height: 14px;
+      fill: currentColor;
+    }
+
+    /* Timeline Section */
+    .timeline-section {
+      padding: 80px 0;
+    }
+
+    .timeline {
+      position: relative;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 2px;
+      height: 100%;
+      background: linear-gradient(180deg, var(--accent), var(--gold), var(--green));
+      border-radius: 2px;
+    }
+
+    .timeline-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 48px;
+      position: relative;
+    }
+
+    .timeline-item:nth-child(odd) {
+      flex-direction: row-reverse;
+    }
+
+    .timeline-content {
+      width: 45%;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 24px;
+      backdrop-filter: blur(20px);
+      transition: all 0.3s ease;
+    }
+
+    .timeline-content:hover {
+      transform: translateY(-4px);
+      border-color: var(--accent);
+    }
+
+    .timeline-dot {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 20px;
+      height: 20px;
+      background: linear-gradient(135deg, var(--accent), var(--gold));
+      border-radius: 50%;
+      border: 4px solid #0f172a;
+      z-index: 1;
+    }
+
+    .timeline-year {
+      font-size: 0.8rem;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .timeline-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .timeline-desc {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 768px) {
+      .timeline::before {
+        left: 20px;
+      }
+
+      .timeline-item,
+      .timeline-item:nth-child(odd) {
+        flex-direction: row;
+        padding-left: 50px;
+      }
+
+      .timeline-content {
+        width: 100%;
+      }
+
+      .timeline-dot {
+        left: 20px;
+      }
+    }
+
+    /* Donate Section */
+    .donate-section {
+      padding: 100px 0;
+      position: relative;
+    }
+
+    .donate-container {
+      background: linear-gradient(135deg, rgba(232, 101, 95, 0.1), rgba(245, 158, 11, 0.1));
+      border: 1px solid rgba(232, 101, 95, 0.2);
+      border-radius: 32px;
+      padding: 60px 40px;
+      backdrop-filter: blur(20px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .donate-container::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -20%;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(232, 101, 95, 0.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .donate-header {
+      text-align: center;
+      margin-bottom: 48px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .donate-icon {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, var(--accent), var(--gold));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      animation: heartbeat 1.5s ease-in-out infinite;
+      box-shadow: 0 0 60px rgba(232, 101, 95, 0.3);
+    }
+
+    .donate-icon svg {
+      width: 40px;
+      height: 40px;
+      fill: white;
+    }
+
+    @keyframes heartbeat {
+      0%, 100% { transform: scale(1); }
+      15% { transform: scale(1.1); }
+      30% { transform: scale(1); }
+      45% { transform: scale(1.08); }
+      60% { transform: scale(1); }
+    }
+
+    .donate-title {
+      font-size: clamp(1.8rem, 4vw, 2.5rem);
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+
+    .donate-subtitle {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      max-width: 500px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    .amount-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .amount-card {
+      background: var(--glass-bg);
+      border: 2px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 24px 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .amount-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, var(--accent), var(--gold));
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .amount-card:hover {
+      transform: translateY(-4px) scale(1.02);
+      border-color: var(--accent);
+    }
+
+    .amount-card.selected {
+      border-color: var(--accent);
+      background: linear-gradient(135deg, rgba(232, 101, 95, 0.2), rgba(245, 158, 11, 0.2));
+    }
+
+    .amount-card.selected::after {
+      content: '';
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 24px;
+      height: 24px;
+      background: var(--accent);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .amount-value {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .amount-impact {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      line-height: 1.4;
+      position: relative;
+      z-index: 1;
+    }
+
+    .custom-amount {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 40px;
+      flex-wrap: wrap;
+      position: relative;
+      z-index: 1;
+    }
+
+    .custom-amount-label {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+    }
+
+    .custom-amount-input {
+      background: var(--glass-bg);
+      border: 2px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 16px 24px;
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      width: 150px;
+      text-align: center;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    .custom-amount-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 20px rgba(232, 101, 95, 0.2);
+    }
+
+    .custom-amount-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .donate-cta {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .donate-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 20px 48px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+      color: white;
+      font-size: 1.2rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 10px 40px rgba(232, 101, 95, 0.3);
+      text-decoration: none;
+    }
+
+    .donate-button:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 60px rgba(232, 101, 95, 0.4);
+    }
+
+    .donate-button svg {
+      width: 24px;
+      height: 24px;
+      fill: currentColor;
+    }
+
+    .donate-note {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    .payment-methods {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 24px;
+      opacity: 0.6;
+    }
+
+    .payment-icon {
+      width: 48px;
+      height: 32px;
+      background: var(--glass-bg);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    /* Impact Stories */
+    .stories-section {
+      padding: 80px 0;
+    }
+
+    .stories-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+    }
+
+    .story-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      padding: 32px;
+      backdrop-filter: blur(20px);
+      position: relative;
+    }
+
+    .story-quote {
+      font-size: 3rem;
+      color: var(--accent);
+      opacity: 0.3;
+      position: absolute;
+      top: 20px;
+      left: 24px;
+      font-family: Georgia, serif;
+    }
+
+    .story-text {
+      font-size: 1.05rem;
+      line-height: 1.7;
+      color: var(--text-secondary);
+      margin-bottom: 24px;
+      padding-top: 24px;
+      font-style: italic;
+    }
+
+    .story-author {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .story-avatar {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, var(--accent), var(--gold));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .story-name {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .story-role {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    /* Campaign Progress */
+    .campaign-section {
+      padding: 80px 0;
+    }
+
+    .campaign-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 32px;
+      padding: 48px;
+      backdrop-filter: blur(20px);
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .campaign-header {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+    }
+
+    .campaign-icon {
+      width: 72px;
+      height: 72px;
+      background: linear-gradient(135deg, var(--accent), var(--gold));
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .campaign-icon svg {
+      width: 36px;
+      height: 36px;
+      fill: white;
+    }
+
+    .campaign-name {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .campaign-desc {
+      color: var(--text-secondary);
+    }
+
+    .progress-container {
+      margin: 32px 0;
+    }
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .progress-raised {
+      font-size: 2.5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent), var(--gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .progress-goal {
+      color: var(--text-muted);
+      font-size: 1rem;
+    }
+
+    .progress-bar {
+      height: 20px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 100px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--gold));
+      border-radius: 100px;
+      transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+    }
+
+    .progress-fill::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+      animation: shimmer 2s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    .progress-stats {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 16px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .progress-stat {
+      text-align: center;
+    }
+
+    .progress-stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .progress-stat-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* Yearly Stats */
+    .yearly-section {
+      padding: 60px 0;
+      text-align: center;
+    }
+
+    .yearly-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 40px;
+      color: var(--text-secondary);
+    }
+
+    .yearly-stats {
+      display: flex;
+      justify-content: center;
+      gap: 60px;
+      flex-wrap: wrap;
+    }
+
+    .yearly-stat {
+      text-align: center;
+    }
+
+    .yearly-value {
+      font-size: 3.5rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--accent), var(--gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .yearly-label {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-top: 8px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* Share Section */
+    .share-section {
+      padding: 60px 0;
+      text-align: center;
+    }
+
+    .share-title {
+      font-size: 1.2rem;
+      color: var(--text-secondary);
+      margin-bottom: 24px;
+    }
+
+    .share-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+    }
+
+    .share-button {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .share-button:hover {
+      background: var(--accent);
+      border-color: var(--accent);
+      transform: translateY(-4px);
+    }
+
+    .share-button svg {
+      width: 22px;
+      height: 22px;
+      fill: var(--text-primary);
+    }
+
+    /* Footer */
+    footer {
+      padding: 60px 0 40px;
+      text-align: center;
+      border-top: 1px solid var(--glass-border);
+      margin-top: 40px;
+    }
+
+    .footer-logo {
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(135deg, var(--accent), var(--gold));
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+    }
+
+    .footer-logo svg {
+      width: 36px;
+      height: 36px;
+      fill: white;
+    }
+
+    .footer-text {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      line-height: 1.8;
+      margin-bottom: 24px;
+    }
+
+    .footer-text a {
+      color: var(--accent);
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    .footer-text a:hover {
+      color: var(--gold);
+    }
+
+    .last-update {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .hero {
+        min-height: auto;
+        padding: 100px 24px 60px;
+      }
+
+      .mega-counter {
+        font-size: 5rem;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stat-value {
+        font-size: 2.2rem;
+      }
+
+      .donate-container {
+        padding: 40px 24px;
+      }
+
+      .amount-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .yearly-stats {
+        gap: 40px;
+      }
+
+      .yearly-value {
+        font-size: 2.5rem;
+      }
+
+      .campaign-card {
+        padding: 32px 24px;
+      }
+
+      .scroll-indicator {
+        display: none;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .stats-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="animated-bg"></div>
+  <div class="bg-orb bg-orb-1"></div>
+  <div class="bg-orb bg-orb-2"></div>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-badge">
+      <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+      Dal 2010 al servizio della comunita
+    </div>
+    <h1 class="hero-title">
+      <span class="gradient-text">Il Nostro</span><br>
+      <span class="accent-text">Impatto Sociale</span>
+    </h1>
+    <p class="hero-subtitle">
+      Ogni giorno, le nostre ambulanze percorrono strade per portare assistenza a chi ne ha bisogno. Ecco i numeri del nostro impegno.
+    </p>
+    <div class="live-counter-hero">
+      <div class="live-indicator">
+        <span class="live-dot"></span>
+        Dati in tempo reale
+      </div>
+      <div class="mega-counter" id="total-services">--</div>
+      <div class="mega-counter-label">Servizi completati nel 2025</div>
+    </div>
+    <div class="scroll-indicator">
+      <span>Scopri di piu</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 5v14M19 12l-7 7-7-7"/>
+      </svg>
+    </div>
+  </section>
+
+  <div class="container">
+    <!-- Impact Stats -->
+    <section class="impact-section">
+      <div class="section-header">
+        <span class="section-label">I Numeri</span>
+        <h2 class="section-title">L'impatto in tempo reale</h2>
+        <p class="section-subtitle">Trasparenza totale sui nostri servizi di trasporto sanitario</p>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon km">
+            <svg viewBox="0 0 24 24"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg>
+          </div>
+          <p class="stat-label">Chilometri oggi</p>
+          <p class="stat-value" id="km-today">--</p>
+          <p class="stat-unit">km percorsi</p>
+          <div class="stat-trend">
+            <svg viewBox="0 0 24 24"><path d="M7 14l5-5 5 5z"/></svg>
+            +12% vs ieri
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon patients">
+            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+          </div>
+          <p class="stat-label">Pazienti questo mese</p>
+          <p class="stat-value" id="patients-month">--</p>
+          <p class="stat-unit">persone trasportate</p>
+          <div class="stat-trend">
+            <svg viewBox="0 0 24 24"><path d="M7 14l5-5 5 5z"/></svg>
+            +8% vs mese scorso
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon co2">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+          </div>
+          <p class="stat-label">CO2 risparmiata</p>
+          <p class="stat-value" id="co2-saved">--</p>
+          <p class="stat-unit">kg questo mese</p>
+          <div class="stat-trend">
+            <svg viewBox="0 0 24 24"><path d="M7 14l5-5 5 5z"/></svg>
+            Impatto ambientale
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon vehicles">
+            <svg viewBox="0 0 24 24"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+          </div>
+          <p class="stat-label">Ambulanze attive</p>
+          <p class="stat-value" id="active-vehicles">--</p>
+          <p class="stat-unit">mezzi operativi oggi</p>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon time">
+            <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+          </div>
+          <p class="stat-label">Servizi oggi</p>
+          <p class="stat-value" id="services-today">--</p>
+          <p class="stat-unit">trasporti completati</p>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon locations">
+            <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+          </div>
+          <p class="stat-label">Sedi operative</p>
+          <p class="stat-value">5</p>
+          <p class="stat-unit">in tutta Italia</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Timeline -->
+    <section class="timeline-section">
+      <div class="section-header">
+        <span class="section-label">La Nostra Storia</span>
+        <h2 class="section-title">Anni di impegno</h2>
+        <p class="section-subtitle">Un percorso di crescita al servizio della comunita</p>
+      </div>
+
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-content">
+            <span class="timeline-year">2010</span>
+            <h3 class="timeline-title">La fondazione</h3>
+            <p class="timeline-desc">Nasce SOCCORSO DIGITALE con una sola ambulanza e tanta voglia di fare la differenza.</p>
+          </div>
+          <div class="timeline-dot"></div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-content">
+            <span class="timeline-year">2015</span>
+            <h3 class="timeline-title">Espansione territoriale</h3>
+            <p class="timeline-desc">Apriamo nuove sedi e aumentiamo la flotta per coprire piu territorio.</p>
+          </div>
+          <div class="timeline-dot"></div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-content">
+            <span class="timeline-year">2020</span>
+            <h3 class="timeline-title">In prima linea</h3>
+            <p class="timeline-desc">Durante la pandemia, i nostri operatori non si sono mai fermati.</p>
+          </div>
+          <div class="timeline-dot"></div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-content">
+            <span class="timeline-year">2025</span>
+            <h3 class="timeline-title">Innovazione digitale</h3>
+            <p class="timeline-desc">Lanciamo la piattaforma digitale per maggiore trasparenza e efficienza.</p>
+          </div>
+          <div class="timeline-dot"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Donate Section -->
+    <section class="donate-section" id="dona">
+      <div class="donate-container">
+        <div class="donate-header">
+          <div class="donate-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+          </div>
+          <h2 class="donate-title">Sostieni la nostra missione</h2>
+          <p class="donate-subtitle">Ogni contributo ci aiuta a migliorare i nostri servizi e raggiungere piu persone in difficolta</p>
+        </div>
+
+        <div class="amount-grid">
+          <div class="amount-card" data-amount="10" onclick="selectAmount(this, 10)">
+            <div class="amount-value">10</div>
+            <div class="amount-impact">1 trasporto sicuro per un paziente</div>
+          </div>
+          <div class="amount-card" data-amount="25" onclick="selectAmount(this, 25)">
+            <div class="amount-value">25</div>
+            <div class="amount-impact">Carburante per 50 km di servizio</div>
+          </div>
+          <div class="amount-card selected" data-amount="50" onclick="selectAmount(this, 50)">
+            <div class="amount-value">50</div>
+            <div class="amount-impact">Manutenzione settimanale ambulanza</div>
+          </div>
+          <div class="amount-card" data-amount="100" onclick="selectAmount(this, 100)">
+            <div class="amount-value">100</div>
+            <div class="amount-impact">Formazione di un volontario</div>
+          </div>
+          <div class="amount-card" data-amount="250" onclick="selectAmount(this, 250)">
+            <div class="amount-value">250</div>
+            <div class="amount-impact">Attrezzatura medica essenziale</div>
+          </div>
+          <div class="amount-card" data-amount="500" onclick="selectAmount(this, 500)">
+            <div class="amount-value">500</div>
+            <div class="amount-impact">Una settimana di servizio continuo</div>
+          </div>
+        </div>
+
+        <div class="custom-amount">
+          <span class="custom-amount-label">Oppure inserisci un importo personalizzato:</span>
+          <input type="number" class="custom-amount-input" id="custom-amount" placeholder="EUR" min="1" onchange="selectCustomAmount(this.value)">
+        </div>
+
+        <div class="donate-cta">
+          <button class="donate-button" onclick="handleDonate()">
+            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+            Dona ora
+          </button>
+          <p class="donate-note">Donazione sicura. Riceverai la ricevuta via email.</p>
+          <div class="payment-methods">
+            <div class="payment-icon">VISA</div>
+            <div class="payment-icon">MC</div>
+            <div class="payment-icon">AMEX</div>
+            <div class="payment-icon">PayPal</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stories Section -->
+    <section class="stories-section">
+      <div class="section-header">
+        <span class="section-label">Testimonianze</span>
+        <h2 class="section-title">Le voci di chi ci sostiene</h2>
+        <p class="section-subtitle">Storie di gratitudine e solidarieta</p>
+      </div>
+
+      <div class="stories-grid">
+        <div class="story-card">
+          <span class="story-quote">"</span>
+          <p class="story-text">Quando mia madre aveva bisogno di trasporto per le cure, SOCCORSO DIGITALE era sempre puntuale e premurosa. Un servizio insostituibile per la nostra comunita.</p>
+          <div class="story-author">
+            <div class="story-avatar">MR</div>
+            <div>
+              <div class="story-name">Marco R.</div>
+              <div class="story-role">Familiare assistito</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="story-card">
+          <span class="story-quote">"</span>
+          <p class="story-text">Sostengo SOCCORSO DIGITALE perche so che ogni euro va direttamente ad aiutare chi ne ha bisogno. La trasparenza di questa dashboard e ammirevole.</p>
+          <div class="story-author">
+            <div class="story-avatar">LB</div>
+            <div>
+              <div class="story-name">Laura B.</div>
+              <div class="story-role">Donatrice mensile</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="story-card">
+          <span class="story-quote">"</span>
+          <p class="story-text">Come medico, apprezzo la professionalita degli operatori di SOCCORSO DIGITALE. Sono un anello fondamentale nella catena della cura.</p>
+          <div class="story-author">
+            <div class="story-avatar">GV</div>
+            <div>
+              <div class="story-name">Dr. Giuseppe V.</div>
+              <div class="story-role">Medico di base</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Campaign Section -->
+    <section class="campaign-section">
+      <div class="section-header">
+        <span class="section-label">Campagna in corso</span>
+        <h2 class="section-title">Il nostro prossimo traguardo</h2>
+      </div>
+
+      <div class="campaign-card">
+        <div class="campaign-header">
+          <div class="campaign-icon">
+            <svg viewBox="0 0 24 24"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg>
+          </div>
+          <div>
+            <h3 class="campaign-name">Adotta un Mezzo 2025</h3>
+            <p class="campaign-desc">Aiutaci ad acquistare una nuova ambulanza per la flotta</p>
+          </div>
+        </div>
+
+        <div class="progress-container">
+          <div class="progress-header">
+            <span class="progress-raised" id="campaign-raised">0 EUR</span>
+            <span class="progress-goal">obiettivo: <span id="campaign-goal">80.000 EUR</span></span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="campaign-progress" style="width: 0%"></div>
+          </div>
+          <div class="progress-stats">
+            <div class="progress-stat">
+              <div class="progress-stat-value" id="campaign-percentage">0%</div>
+              <div class="progress-stat-label">Raggiunto</div>
+            </div>
+            <div class="progress-stat">
+              <div class="progress-stat-value" id="campaign-donors">0</div>
+              <div class="progress-stat-label">Donatori</div>
+            </div>
+            <div class="progress-stat">
+              <div class="progress-stat-value" id="campaign-days">--</div>
+              <div class="progress-stat-label">Giorni rimanenti</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Yearly Stats -->
+    <section class="yearly-section">
+      <h2 class="yearly-title">Impatto annuale 2025</h2>
+      <div class="yearly-stats">
+        <div class="yearly-stat">
+          <p class="yearly-value" id="km-year">--</p>
+          <p class="yearly-label">Chilometri totali</p>
+        </div>
+        <div class="yearly-stat">
+          <p class="yearly-value" id="patients-year">--</p>
+          <p class="yearly-label">Pazienti trasportati</p>
+        </div>
+        <div class="yearly-stat">
+          <p class="yearly-value" id="services-year">--</p>
+          <p class="yearly-label">Servizi completati</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Share Section -->
+    <section class="share-section">
+      <h3 class="share-title">Condividi il nostro impatto</h3>
+      <div class="share-buttons">
+        <button class="share-button" onclick="shareOnFacebook()" title="Condividi su Facebook">
+          <svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+        </button>
+        <button class="share-button" onclick="shareOnLinkedIn()" title="Condividi su LinkedIn">
+          <svg viewBox="0 0 24 24"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6zM2 9h4v12H2zM4 2a2 2 0 1 1 0 4 2 2 0 0 1 0-4z"/></svg>
+        </button>
+        <button class="share-button" onclick="shareOnWhatsApp()" title="Condividi su WhatsApp">
+          <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        </button>
+        <button class="share-button" onclick="copyLink()" title="Copia link">
+          <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+        </button>
+      </div>
+    </section>
+
+    <footer>
+      <div class="footer-logo">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+      </div>
+      <p class="footer-text">
+        <strong>SOCCORSO DIGITALE S.R.L.</strong><br>
+        Servizi di Trasporto Sanitario<br><br>
+        Questa dashboard mostra dati aggregati e anonimi.<br>
+        <a href="/">Torna all'app</a> | <a href="#dona">Sostienici</a>
+      </p>
+      <p class="last-update">Ultimo aggiornamento: <span id="last-update">--</span></p>
+    </footer>
+  </div>
+
+  <script>
+    let selectedAmount = 50;
+
+    function formatNumber(num) {
+      if (num >= 1000000) {
+        return (num / 1000000).toFixed(1) + 'M';
+      } else if (num >= 1000) {
+        return (num / 1000).toFixed(1).replace('.', ',') + 'K';
+      }
+      return num.toLocaleString('it-IT');
+    }
+
+    function animateValue(element, start, end, duration) {
+      if (!element) return;
+      let startTimestamp = null;
+      const step = (timestamp) => {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+        const easeOut = 1 - Math.pow(1 - progress, 3);
+        const value = Math.floor(easeOut * (end - start) + start);
+        element.textContent = formatNumber(value);
+        if (progress < 1) {
+          window.requestAnimationFrame(step);
+        }
+      };
+      window.requestAnimationFrame(step);
+    }
+
+    function selectAmount(element, amount) {
+      document.querySelectorAll('.amount-card').forEach(card => card.classList.remove('selected'));
+      element.classList.add('selected');
+      selectedAmount = amount;
+      document.getElementById('custom-amount').value = '';
+    }
+
+    function selectCustomAmount(value) {
+      if (value && value > 0) {
+        document.querySelectorAll('.amount-card').forEach(card => card.classList.remove('selected'));
+        selectedAmount = parseInt(value);
+      }
+    }
+
+    function handleDonate() {
+      alert('Grazie per il tuo interesse! Il sistema di pagamento sara attivato a breve.\n\nImporto selezionato: ' + selectedAmount + ' EUR');
+    }
+
+    async function fetchImpactData() {
+      try {
+        const response = await fetch('/api/public/impact');
+        const data = await response.json();
+        
+        animateValue(document.getElementById('total-services'), 0, data.year.services || 0, 2500);
+        animateValue(document.getElementById('services-today'), 0, data.today.services || 0, 1500);
+        animateValue(document.getElementById('km-today'), 0, data.today.km || 0, 1500);
+        animateValue(document.getElementById('patients-month'), 0, data.month.patients || 0, 1500);
+        animateValue(document.getElementById('active-vehicles'), 0, data.live.activeVehicles || 0, 800);
+        
+        const co2Saved = Math.round((data.month.km || 0) * 0.12);
+        animateValue(document.getElementById('co2-saved'), 0, co2Saved, 1500);
+        
+        animateValue(document.getElementById('km-year'), 0, data.year.km || 0, 2000);
+        animateValue(document.getElementById('patients-year'), 0, data.year.patients || 0, 2000);
+        animateValue(document.getElementById('services-year'), 0, data.year.services || 0, 2000);
+        
+        if (data.campaign) {
+          document.getElementById('campaign-raised').textContent = formatNumber(data.campaign.raised) + ' EUR';
+          document.getElementById('campaign-goal').textContent = formatNumber(data.campaign.goal) + ' EUR';
+          const percentage = Math.min((data.campaign.raised / data.campaign.goal) * 100, 100);
+          document.getElementById('campaign-progress').style.width = percentage + '%';
+          document.getElementById('campaign-percentage').textContent = Math.round(percentage) + '%';
+          document.getElementById('campaign-donors').textContent = data.campaign.donors || 0;
+          document.getElementById('campaign-days').textContent = data.campaign.daysRemaining || 90;
+        }
+        
+        document.getElementById('last-update').textContent = new Date().toLocaleString('it-IT');
+      } catch (error) {
+        console.error('Errore nel caricamento dati:', error);
+      }
+    }
+
+    function shareOnFacebook() {
+      window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(window.location.href), '_blank');
+    }
+
+    function shareOnLinkedIn() {
+      window.open('https://www.linkedin.com/sharing/share-offsite/?url=' + encodeURIComponent(window.location.href), '_blank');
+    }
+
+    function shareOnWhatsApp() {
+      window.open('https://wa.me/?text=' + encodeURIComponent('Scopri l\'impatto sociale di SOCCORSO DIGITALE: ' + window.location.href), '_blank');
+    }
+
+    function copyLink() {
+      navigator.clipboard.writeText(window.location.href).then(() => {
+        alert('Link copiato negli appunti!');
+      });
+    }
+
+    // Intersection Observer for scroll animations
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = 'translateY(0)';
+        }
+      });
+    }, observerOptions);
+
+    document.querySelectorAll('.stat-card, .timeline-item, .story-card').forEach(el => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(30px)';
+      el.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+      observer.observe(el);
+    });
+
+    fetchImpactData();
+    setInterval(fetchImpactData, 30000);
+    
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('online', fetchImpactData);
+    }
+  </script>
+</body>
+</html>
