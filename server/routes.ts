@@ -5,6 +5,7 @@ import path from "node:path";
 import fs from "node:fs";
 import multer from "multer";
 import { WebSocketServer, WebSocket } from "ws";
+import { createProviderRoutes } from "./routes/providers";
 
 const PDFDocument = new Proxy(function(){} as any, {
   construct(_target, args) {
@@ -694,6 +695,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use("/api", auditMiddleware);
   registerOrgAdminRoutes(app);
   registerHubRoutes(app);
+
+  // Provider API routes (geocoding, weather, holidays, validation, alerts)
+  app.use("/api/providers", createProviderRoutes(requireAuth, requireAdmin));
 
   const uploadsLogosDir = path.join(process.cwd(), "uploads", "logos");
   if (!fs.existsSync(uploadsLogosDir)) {

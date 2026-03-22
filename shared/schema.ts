@@ -5775,3 +5775,142 @@ export const pdfLocationMappings = pgTable("pdf_location_mappings", {
 });
 
 export type PdfLocationMapping = typeof pdfLocationMappings.$inferSelect;
+
+// ============================================================
+// PROVIDER INFRASTRUCTURE TABLES
+// ============================================================
+
+/** Generic API response cache (L2 persistent cache) */
+export const apiCache = pgTable("api_cache", {
+  id: varchar("id", { length: 255 }).primaryKey(),
+  category: text("category").notNull(),        // geo, weather, traffic, etc.
+  key: text("key").notNull(),                   // cache key
+  data: jsonb("data").notNull(),                // cached response
+  source: text("source").notNull(),             // provider name
+  hitCount: integer("hit_count").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+  expiresAt: timestamp("expires_at").notNull(),
+  organizationId: text("organization_id"),
+});
+export type ApiCacheEntry = typeof apiCache.$inferSelect;
+
+/** Alert severity enum */
+export const alertSeverityEnum = pgEnum("alert_severity", ["green", "yellow", "orange", "red"]);
+
+/** Emergency alerts from Protezione Civile */
+export const emergencyAlerts = pgTable("emergency_alerts", {
+  id: varchar("id", { length: 255 }).primaryKey().default(sql`gen_random_uuid()`),
+  type: text("type").notNull(),                 // meteo, idro, idrogeo, etc.
+  severity: alertSeverityEnum("severity").notNull(),
+  region: text("region").notNull(),
+  zones: jsonb("zones").default([]),
+  description: text("description"),
+  validFrom: timestamp("valid_from").notNull(),
+  validTo: timestamp("valid_to").notNull(),
+  source: text("source").notNull(),
+  rawData: jsonb("raw_data"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+export type EmergencyAlertRecord = typeof emergencyAlerts.$inferSelect;
+
+/** Italian national/regional holidays */
+export const holidays = pgTable("holidays", {
+  id: varchar("id", { length: 255 }).primaryKey().default(sql`gen_random_uuid()`),
+  date: date("date").notNull(),
+  localName: text("local_name").notNull(),      // Italian name
+  name: text("name").notNull(),                 // English name
+  countryCode: text("country_code").default("IT"),
+  fixed: boolean("fixed").default(true),
+  global: boolean("global").default(true),
+  types: jsonb("types").default([]),
+  year: integer("year").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+export type HolidayRecord = typeof holidays.$inferSelect;
+
+/** SMS notification channel enum */
+export const smsStatusEnum = pgEnum("sms_status", ["queued", "sent", "delivered", "failed", "expired"]);
+
+/** SMS delivery log */
+export const smsLog = pgTable("sms_log", {
+  id: varchar("id", { length: 255 }).primaryKey().default(sql`gen_random_uuid()`),
+  organizationId: text("organization_id").notNull(),
+  recipientPhone: text("recipient_phone").notNull(),
+  recipientName: text("recipient_name"),
+  message: text("message").notNull(),
+  provider: text("provider").notNull(),         // brevo, twilio, etc.
+  status: smsStatusEnum("status").default("queued"),
+  externalId: text("external_id"),              // provider's message ID
+  sentAt: timestamp("sent_at"),
+  deliveredAt: timestamp("delivered_at"),
+  errorMessage: text("error_message"),
+  cost: real("cost"),                           // cost in EUR
+  templateName: text("template_name"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+export type SmsLogEntry = typeof smsLog.$inferSelect;
+
+/** Notification channel preference enum */
+export const notificationChannelEnum = pgEnum("notification_channel", ["push", "sms", "email", "telegram"]);
+
+/** User notification preferences */
+export const notificationPreferences = pgTable("notification_preferences", {
+  id: varchar("id", { length: 255 }).primaryKey().default(sql`gen_random_uuid()`),
+  userId: integer("user_id").notNull(),
+  organizationId: text("organization_id").notNull(),
+  channel: notificationChannelEnum("channel").notNull(),
+  enabled: boolean("enabled").default(true),
+  // Notification types this channel applies to
+  shiftReminders: boolean("shift_reminders").default(true),
+  tripUpdates: boolean("trip_updates").default(true),
+  emergencyAlerts: boolean("emergency_alerts").default(true),
+  systemNotifications: boolean("system_notifications").default(true),
+  marketingComms: boolean("marketing_comms").default(false),
+  // Channel-specific config
+  telegramChatId: text("telegram_chat_id"),
+  preferredLanguage: text("preferred_language").default("it"),
+  quietHoursStart: time("quiet_hours_start"),  // e.g. 22:00
+  quietHoursEnd: time("quiet_hours_end"),      // e.g. 07:00
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+export type NotificationPreference = typeof notificationPreferences.$inferSelect;
+
+/** SSN (Servizio Sanitario Nazionale) structures */
+export const ssnStructures = pgTable("ssn_structures", {
+  id: varchar("id", { length: 255 }).primaryKey().default(sql`gen_random_uuid()`),
+  codiceStruttura: text("codice_struttura"),     // Ministry code
+  denominazione: text("denominazione").notNull(),
+  tipologia: text("tipologia"),                   // ospedale, RSA, ambulatorio, etc.
+  indirizzo: text("indirizzo"),
+  comune: text("comune"),
+  provincia: text("provincia"),
+  regione: text("regione"),
+  cap: text("cap"),
+  lat: real("lat"),
+  lon: real("lon"),
+  telefono: text("telefono"),
+  email: text("email"),
+  website: text("website"),
+  lastSyncedAt: timestamp("last_synced_at"),
+  rawData: jsonb("raw_data"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+export type SsnStructureRecord = typeof ssnStructures.$inferSelect;
+
+/** Isochrone zones — areas reachable within X minutes */
+export const isochroneZones = pgTable("isochrone_zones", {
+  id: varchar("id", { length: 255 }).primaryKey().default(sql`gen_random_uuid()`),
+  organizationId: text("organization_id").notNull(),
+  locationId: integer("location_id"),            // FK to locations
+  centerLat: real("center_lat").notNull(),
+  centerLon: real("center_lon").notNull(),
+  minutesRange: integer("minutes_range").notNull(),  // e.g. 15, 30, 60
+  profile: text("profile").default("driving-car"),   // ORS profile
+  polygon: jsonb("polygon"),                          // GeoJSON polygon
+  calculatedAt: timestamp("calculated_at").defaultNow(),
+  expiresAt: timestamp("expires_at").notNull(),
+  provider: text("provider").default("openrouteservice"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+export type IsochroneZoneRecord = typeof isochroneZones.$inferSelect;
