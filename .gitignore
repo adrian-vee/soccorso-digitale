@@ -77,3 +77,7 @@ __pycache__/
 
 # Windows
 Thumbs.db
+
+# Database backups (contain sensitive data — never commit)
+backup.sql
+backup-inserts.sql

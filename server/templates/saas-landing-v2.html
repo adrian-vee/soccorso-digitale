@@ -1,0 +1,1265 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Soccorso Digitale — Gestionale Cloud per Ambulanze e Trasporti Sanitari</title>
+  <meta name="description" content="Soccorso Digitale: la piattaforma cloud che digitalizza la gestione di ambulanze, trasporti sanitari, turni e flotta. Usata da Croce Rossa, ANPAS, Misericordie e ULSS in tutto il Veneto.">
+  <meta name="keywords" content="gestionale ambulanze, software trasporto sanitario, gestionale EMS Italia, app ambulanza cloud, gestione flotta sanitaria, registro viaggi ambulanza, software croce rossa">
+  <meta name="author" content="Soccorso Digitale">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://soccorsodigitale.app">
+  <meta property="og:title" content="Soccorso Digitale — Gestionale Cloud per Ambulanze e Trasporti Sanitari">
+  <meta property="og:description" content="La piattaforma che digitalizza il soccorso: gestione flotta, registro viaggi, AI predittiva, analytics e booking hub in un unico ecosistema cloud.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://soccorsodigitale.app">
+  <meta property="og:image" content="https://soccorsodigitale.app/assets/images/icon.png">
+  <meta property="og:locale" content="it_IT">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Soccorso Digitale — Gestionale Cloud per Ambulanze">
+  <meta name="twitter:description" content="Digitalizza la gestione del tuo trasporto sanitario. Usato da 40+ organizzazioni in 5 regioni.">
+  <link rel="icon" href="/assets/images/favicon.png" type="image/png" sizes="192x192">
+  <link rel="apple-touch-icon" href="/assets/images/icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: { 50:'#f0f4ff', 100:'#e0e9ff', 200:'#c2d4fe', 300:'#94b3fd', 400:'#6088fa', 500:'#3b63f6', 600:'#2563eb', 700:'#1d4ed8', 800:'#1e3fae', 900:'#0f172a', 950:'#0a0f1e' },
+            emerald: { 400:'#34d399', 500:'#10b981', 600:'#059669' },
+            accent: '#10b981',
+          },
+          fontFamily: {
+            display: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+            body: ['"DM Sans"', 'system-ui', 'sans-serif'],
+          },
+          animation: {
+            'marquee': 'marquee 40s linear infinite',
+            'fade-up': 'fadeUp 0.7s ease-out forwards',
+            'float': 'float 6s ease-in-out infinite',
+          },
+          keyframes: {
+            marquee: { '0%': { transform: 'translateX(0)' }, '100%': { transform: 'translateX(-50%)' } },
+            fadeUp: { '0%': { opacity: '0', transform: 'translateY(24px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+            float: { '0%,100%': { transform: 'translateY(0px)' }, '50%': { transform: 'translateY(-12px)' } },
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: 'DM Sans', system-ui, sans-serif; margin: 0; padding: 0; overflow-x: hidden; color: #1e293b; }
+    h1, h2, h3, h4, h5, h6 { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+    html { scroll-behavior: smooth; }
+
+    /* Reveal animations */
+    .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease-out, transform 0.7s ease-out; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+
+    /* Gradient text */
+    .gradient-text { background: linear-gradient(135deg, #2563eb 0%, #10b981 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+    /* Noise overlay */
+    .noise::before { content:''; position:absolute; inset:0; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E"); pointer-events:none; z-index:1; }
+
+    /* Glass card */
+    .glass { background: rgba(255,255,255,0.7); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.3); }
+
+    /* Glow */
+    .glow-blue { box-shadow: 0 0 60px rgba(37,99,235,0.15), 0 0 120px rgba(37,99,235,0.05); }
+    .glow-emerald { box-shadow: 0 0 60px rgba(16,185,129,0.15), 0 0 120px rgba(16,185,129,0.05); }
+
+    /* Tab active indicator */
+    .tab-btn.active { background: #2563eb; color: white; box-shadow: 0 4px 24px rgba(37,99,235,0.3); }
+
+    /* Counter */
+    .counter-value { font-variant-numeric: tabular-nums; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+    /* Hero mesh gradient background */
+    .hero-bg {
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 80%, rgba(16,185,129,0.12) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 80% at 80% 20%, rgba(37,99,235,0.12) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 50% at 50% 50%, rgba(37,99,235,0.04) 0%, transparent 80%),
+        linear-gradient(180deg, #f8fafc 0%, #f0f4ff 100%);
+    }
+
+    /* Dashboard mockup styles */
+    .dashboard-mockup {
+      background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
+      border-radius: 12px;
+      padding: 2px;
+    }
+    .dashboard-inner {
+      background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .dashboard-topbar {
+      background: rgba(255,255,255,0.05);
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .dashboard-dot { width:8px; height:8px; border-radius:50%; }
+  </style>
+
+  <!-- Schema.org Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://soccorsodigitale.app/#organization",
+        "name": "Soccorso Digitale",
+        "url": "https://soccorsodigitale.app/",
+        "logo": "https://soccorsodigitale.app/assets/images/icon.png",
+        "description": "Piattaforma cloud SaaS per la gestione di ambulanze e trasporti sanitari",
+        "contactPoint": [
+          { "@type": "ContactPoint", "email": "info@soccorsodigitale.app", "contactType": "sales", "availableLanguage": "Italian" },
+          { "@type": "ContactPoint", "email": "supporto@soccorsodigitale.app", "contactType": "customer support", "availableLanguage": "Italian" }
+        ],
+        "address": [
+          { "@type": "PostalAddress", "streetAddress": "Via della Scienza 42", "addressLocality": "Verona", "postalCode": "37139", "addressRegion": "VR", "addressCountry": "IT" },
+          { "@type": "PostalAddress", "addressLocality": "Milano", "addressCountry": "IT" },
+          { "@type": "PostalAddress", "addressLocality": "Dubai", "addressCountry": "AE" },
+          { "@type": "PostalAddress", "addressLocality": "Emeryville", "addressRegion": "CA", "addressCountry": "US" }
+        ],
+        "sameAs": []
+      },
+      {
+        "@type": "SoftwareApplication",
+        "name": "Soccorso Digitale",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web, iOS, Android",
+        "description": "Gestionale cloud per ambulanze e trasporti sanitari: gestione flotta, registro viaggi, AI predittiva, analytics, booking hub, turni personale.",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR", "description": "Demo gratuita disponibile" },
+        "provider": { "@id": "https://soccorsodigitale.app/#organization" }
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://soccorsodigitale.app/#website",
+        "url": "https://soccorsodigitale.app/",
+        "name": "Soccorso Digitale",
+        "inLanguage": "it"
+      },
+      {
+        "@type": "WebPage",
+        "@id": "https://soccorsodigitale.app/#webpage",
+        "url": "https://soccorsodigitale.app/",
+        "name": "Soccorso Digitale - Gestionale Cloud per Ambulanze e Trasporti Sanitari",
+        "inLanguage": "it",
+        "isPartOf": { "@id": "https://soccorsodigitale.app/#website" },
+        "about": { "@id": "https://soccorsodigitale.app/#organization" },
+        "description": "Piattaforma cloud per la gestione completa di ambulanze e trasporti sanitari. Usata da 40+ organizzazioni tra Croce Rossa, ANPAS, Misericordie e ULSS."
+      }
+    ]
+  }
+  </script>
+</head>
+<body class="font-body antialiased">
+
+<!-- ============================================ -->
+<!-- NAVBAR                                       -->
+<!-- ============================================ -->
+<nav id="navbar" class="fixed top-0 z-[999] w-full transition-all duration-300 bg-transparent">
+  <div class="max-w-7xl mx-auto px-5 sm:px-8">
+    <div class="flex justify-between items-center h-[72px]">
+      <!-- Logo -->
+      <a href="/" class="flex items-center gap-2.5 group">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" class="w-9 h-9">
+          <defs>
+            <linearGradient id="cg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#2563eb"/><stop offset="100%" style="stop-color:#1d4ed8"/></linearGradient>
+            <linearGradient id="rg" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#10b981"/><stop offset="100%" style="stop-color:#059669"/></linearGradient>
+          </defs>
+          <rect x="35" y="15" width="30" height="70" rx="4" fill="url(#cg)"/>
+          <rect x="15" y="35" width="70" height="30" rx="4" fill="url(#cg)"/>
+          <path d="M 20 75 Q 50 55 80 75" stroke="url(#rg)" stroke-width="8" fill="none" stroke-linecap="round"/>
+        </svg>
+        <span class="font-display text-lg font-bold">
+          <span class="text-navy-900">Soccorso</span> <span class="text-emerald-500">Digitale</span>
+        </span>
+      </a>
+
+      <!-- Desktop Nav -->
+      <div class="hidden lg:flex items-center gap-10">
+        <div class="flex items-center gap-8">
+          <a href="#piattaforma" class="text-sm font-medium text-slate-600 hover:text-navy-700 transition-colors">Piattaforma</a>
+          <a href="#ai" class="text-sm font-medium text-slate-600 hover:text-navy-700 transition-colors">AI</a>
+          <a href="#risultati" class="text-sm font-medium text-slate-600 hover:text-navy-700 transition-colors">Risultati</a>
+          <a href="#contatti" class="text-sm font-medium text-slate-600 hover:text-navy-700 transition-colors">Contatti</a>
+        </div>
+        <div class="flex items-center gap-3">
+          <a href="/admin" class="text-sm font-medium text-slate-600 hover:text-navy-700 transition-colors px-4 py-2">Accedi</a>
+          <button onclick="openDemoModal()" class="bg-navy-900 hover:bg-navy-800 text-white text-sm font-semibold px-6 py-2.5 rounded-full transition-all duration-200 hover:shadow-lg hover:shadow-navy-900/20 active:scale-[0.97]">
+            Richiedi Demo
+          </button>
+        </div>
+      </div>
+
+      <!-- Mobile hamburger -->
+      <button onclick="toggleMobileMenu()" class="lg:hidden p-2 text-slate-700" aria-label="Apri menu">
+        <svg id="menuIcon" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile menu -->
+  <div id="mobileMenu" class="lg:hidden hidden bg-white/95 backdrop-blur-xl border-t border-slate-200/60 shadow-xl">
+    <div class="px-5 py-6 space-y-4">
+      <a href="#piattaforma" onclick="toggleMobileMenu()" class="block text-base font-medium text-slate-700 hover:text-navy-700">Piattaforma</a>
+      <a href="#ai" onclick="toggleMobileMenu()" class="block text-base font-medium text-slate-700 hover:text-navy-700">AI</a>
+      <a href="#risultati" onclick="toggleMobileMenu()" class="block text-base font-medium text-slate-700 hover:text-navy-700">Risultati</a>
+      <a href="#contatti" onclick="toggleMobileMenu()" class="block text-base font-medium text-slate-700 hover:text-navy-700">Contatti</a>
+      <hr class="border-slate-200">
+      <a href="/admin" class="block text-base font-medium text-slate-700">Accedi</a>
+      <button onclick="openDemoModal();toggleMobileMenu();" class="w-full bg-navy-900 text-white py-3 px-6 font-semibold rounded-full text-base">Richiedi Demo</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ============================================ -->
+<!-- HERO                                         -->
+<!-- ============================================ -->
+<section class="hero-bg relative min-h-screen flex items-center pt-[72px] overflow-hidden">
+  <!-- Decorative elements -->
+  <div class="absolute top-20 right-[10%] w-72 h-72 bg-blue-400/10 rounded-full blur-3xl"></div>
+  <div class="absolute bottom-20 left-[5%] w-96 h-96 bg-emerald-400/10 rounded-full blur-3xl"></div>
+
+  <div class="max-w-7xl mx-auto px-5 sm:px-8 w-full py-16 md:py-24">
+    <div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+      <!-- Left: Copy -->
+      <div class="max-w-xl">
+        <div class="reveal inline-flex items-center gap-2 bg-white/80 backdrop-blur border border-slate-200/60 rounded-full px-4 py-1.5 mb-6">
+          <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+          <span class="text-xs font-medium text-slate-600">Usato da 40+ organizzazioni in 5 regioni</span>
+        </div>
+
+        <h1 class="reveal reveal-delay-1 font-display text-4xl sm:text-5xl lg:text-[3.5rem] font-extrabold leading-[1.1] tracking-tight text-navy-900 mb-6">
+          Il gestionale che il<br>
+          <span class="gradient-text">soccorso sanitario</span><br>
+          stava aspettando
+        </h1>
+
+        <p class="reveal reveal-delay-2 text-lg sm:text-xl text-slate-600 leading-relaxed mb-8 max-w-md">
+          Dal registro trasporti all'AI predittiva: una piattaforma cloud unica per gestire flotta, turni, viaggi e analytics. Tutto in tempo reale.
+        </p>
+
+        <div class="reveal reveal-delay-3 flex flex-wrap gap-3 mb-10">
+          <button onclick="openDemoModal()" class="bg-navy-900 hover:bg-navy-800 text-white font-semibold px-8 py-3.5 rounded-full text-base transition-all duration-200 hover:shadow-xl hover:shadow-navy-900/20 active:scale-[0.97]">
+            Richiedi Demo Gratuita
+          </button>
+          <a href="#piattaforma" class="border-2 border-slate-200 hover:border-slate-300 text-slate-700 font-semibold px-8 py-3.5 rounded-full text-base transition-all duration-200 hover:bg-white">
+            Scopri la Piattaforma
+          </a>
+        </div>
+
+        <!-- Trust badges -->
+        <div class="reveal reveal-delay-4 flex flex-wrap items-center gap-4 text-xs font-medium text-slate-500">
+          <div class="flex items-center gap-1.5">
+            <svg class="w-4 h-4 text-emerald-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+            GDPR Compliant
+          </div>
+          <div class="flex items-center gap-1.5">
+            <svg class="w-4 h-4 text-emerald-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+            99.9% Uptime
+          </div>
+          <div class="flex items-center gap-1.5">
+            <svg class="w-4 h-4 text-emerald-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+            Made in Italy
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Dashboard mockup -->
+      <div class="reveal reveal-delay-2 relative">
+        <div class="animate-float">
+          <div class="dashboard-mockup glow-blue shadow-2xl">
+            <div class="dashboard-inner">
+              <div class="dashboard-topbar">
+                <div class="dashboard-dot bg-red-400/80"></div>
+                <div class="dashboard-dot bg-yellow-400/80"></div>
+                <div class="dashboard-dot bg-green-400/80"></div>
+                <span class="text-[10px] text-white/40 ml-2 font-mono">soccorsodigitale.app/dashboard</span>
+              </div>
+              <!-- Simulated dashboard content -->
+              <div class="p-4 space-y-3">
+                <!-- Top stats row -->
+                <div class="grid grid-cols-4 gap-2">
+                  <div class="bg-white/5 rounded-lg p-3">
+                    <div class="text-[10px] text-white/40 mb-1">Trasporti Oggi</div>
+                    <div class="text-lg font-bold text-white">47</div>
+                    <div class="text-[9px] text-emerald-400">+12% vs ieri</div>
+                  </div>
+                  <div class="bg-white/5 rounded-lg p-3">
+                    <div class="text-[10px] text-white/40 mb-1">Mezzi Attivi</div>
+                    <div class="text-lg font-bold text-white">18</div>
+                    <div class="text-[9px] text-blue-400">su 22 totali</div>
+                  </div>
+                  <div class="bg-white/5 rounded-lg p-3">
+                    <div class="text-[10px] text-white/40 mb-1">Equipaggi</div>
+                    <div class="text-lg font-bold text-white">36</div>
+                    <div class="text-[9px] text-white/40">in servizio</div>
+                  </div>
+                  <div class="bg-white/5 rounded-lg p-3">
+                    <div class="text-[10px] text-white/40 mb-1">Km Percorsi</div>
+                    <div class="text-lg font-bold text-white">1.284</div>
+                    <div class="text-[9px] text-emerald-400">oggi</div>
+                  </div>
+                </div>
+                <!-- Chart area -->
+                <div class="bg-white/5 rounded-lg p-3 h-32 flex items-end gap-1.5">
+                  <div class="flex-1 bg-blue-500/60 rounded-t" style="height:45%"></div>
+                  <div class="flex-1 bg-blue-500/60 rounded-t" style="height:62%"></div>
+                  <div class="flex-1 bg-blue-500/60 rounded-t" style="height:38%"></div>
+                  <div class="flex-1 bg-blue-500/60 rounded-t" style="height:75%"></div>
+                  <div class="flex-1 bg-blue-500/60 rounded-t" style="height:55%"></div>
+                  <div class="flex-1 bg-emerald-500/60 rounded-t" style="height:88%"></div>
+                  <div class="flex-1 bg-blue-500/40 rounded-t" style="height:60%"></div>
+                  <div class="flex-1 bg-blue-500/30 rounded-t" style="height:42%"></div>
+                  <div class="flex-1 bg-blue-500/20 rounded-t" style="height:35%"></div>
+                  <div class="flex-1 bg-blue-500/10 rounded-t" style="height:28%"></div>
+                </div>
+                <!-- Table rows -->
+                <div class="space-y-1.5">
+                  <div class="bg-white/5 rounded-lg px-3 py-2 flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                      <div class="w-1.5 h-1.5 rounded-full bg-emerald-400"></div>
+                      <span class="text-[10px] text-white/70">J-30 • Ospedale Civile → RSA Villa Serena</span>
+                    </div>
+                    <span class="text-[9px] text-emerald-400 font-medium">In corso</span>
+                  </div>
+                  <div class="bg-white/5 rounded-lg px-3 py-2 flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                      <div class="w-1.5 h-1.5 rounded-full bg-blue-400"></div>
+                      <span class="text-[10px] text-white/70">J-63 • Dialisi Mestre → Domicilio</span>
+                    </div>
+                    <span class="text-[9px] text-blue-400 font-medium">Programmato</span>
+                  </div>
+                  <div class="bg-white/5 rounded-lg px-3 py-2 flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                      <div class="w-1.5 h-1.5 rounded-full bg-white/30"></div>
+                      <span class="text-[10px] text-white/70">J-45 • RSA Borgo Roma → Ospedale Borgo Trento</span>
+                    </div>
+                    <span class="text-[9px] text-white/40 font-medium">Completato</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Floating notification card -->
+        <div class="absolute -bottom-4 -left-4 sm:left-0 glass rounded-xl p-3 shadow-lg animate-float" style="animation-delay: -3s;">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center">
+              <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <div>
+              <div class="text-xs font-semibold text-slate-800">Trasporto completato</div>
+              <div class="text-[10px] text-slate-500">J-30 • 14:32 • 23 km</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================ -->
+<!-- LOGO CAROUSEL (Trust Bar)                    -->
+<!-- ============================================ -->
+<section class="py-16 bg-white border-y border-slate-100">
+  <div class="max-w-7xl mx-auto px-5 sm:px-8">
+    <p class="reveal text-center text-sm font-medium text-slate-400 uppercase tracking-widest mb-10">
+      Si fidano di noi
+    </p>
+  </div>
+  <div class="relative overflow-hidden">
+    <div class="flex animate-marquee whitespace-nowrap">
+      <div class="flex items-center gap-16 px-8">
+        <img src="/assets/logos/croce-rossa.png" alt="Croce Rossa Italiana" class="h-10 sm:h-12 object-contain grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
+        <img src="/assets/logos/regione-veneto.png" alt="Regione Veneto" class="h-10 sm:h-12 object-contain grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
+        <img src="/assets/logos/fvs.png" alt="Federazione Veneta del Soccorso" class="h-10 sm:h-12 object-contain grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
+        <img src="/assets/logos/als-soccorso.png" alt="ALS Soccorso" class="h-10 sm:h-12 object-contain grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
+        <img src="/assets/logos/croce-europa.png" alt="Croce Europa" class="h-10 sm:h-12 object-contain grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
+        <img src="/assets/logos/croce-verde.jpg" alt="Croce Verde" class="h-10 sm:h-12 object-contain grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
+        <img src="/assets/logos/croce-bianca-milano.jpg" alt="Croce Bianca Milano" class="h-10 sm:h-12 object-contain grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
+      </div>
+      <!-- Duplicate for seamless loop -->
+      <div class="flex items-center gap-16 px-8" aria-hidden="true">
+        <img src="/assets/logos/croce-rossa.png" alt="" class="h-10 sm:h-12 object-contain grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
+        <img src="/assets/logos/regione-veneto.png" alt="" class="h-10 sm:h-12 object-contain grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
+        <img src="/assets/logos/fvs.png" alt="" class="h-10 sm:h-12 object-contain grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
+        <img src="/assets/logos/als-soccorso.png" alt="" class="h-10 sm:h-12 object-contain grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
+        <img src="/assets/logos/croce-europa.png" alt="" class="h-10 sm:h-12 object-contain grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
+        <img src="/assets/logos/croce-verde.jpg" alt="" class="h-10 sm:h-12 object-contain grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
+        <img src="/assets/logos/croce-bianca-milano.jpg" alt="" class="h-10 sm:h-12 object-contain grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
+      </div>
+    </div>
+    <!-- Fade edges -->
+    <div class="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-white to-transparent pointer-events-none"></div>
+    <div class="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-white to-transparent pointer-events-none"></div>
+  </div>
+</section>
+
+<!-- ============================================ -->
+<!-- PIATTAFORMA                                  -->
+<!-- ============================================ -->
+<section id="piattaforma" class="py-24 md:py-32 bg-slate-50 relative noise overflow-hidden">
+  <div class="max-w-7xl mx-auto px-5 sm:px-8 relative z-10">
+    <!-- Section header -->
+    <div class="text-center max-w-3xl mx-auto mb-16">
+      <h2 class="reveal font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-navy-900 tracking-tight mb-4">
+        Una piattaforma,<br><span class="gradient-text">tutto il tuo soccorso</span>
+      </h2>
+      <p class="reveal reveal-delay-1 text-lg text-slate-500 leading-relaxed">
+        Dal registro trasporti all'analisi predittiva, tutto in un unico ecosistema cloud. Niente fogli Excel, niente dati persi, niente carta.
+      </p>
+    </div>
+
+    <!-- Tabs navigation -->
+    <div class="reveal reveal-delay-2 flex flex-wrap justify-center gap-2 mb-12" role="tablist">
+      <button onclick="switchTab(0)" class="tab-btn active rounded-full px-5 py-2.5 text-sm font-semibold transition-all duration-300" role="tab">
+        <span class="flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+          Flotta & Trasporti
+        </span>
+      </button>
+      <button onclick="switchTab(1)" class="tab-btn rounded-full px-5 py-2.5 text-sm font-semibold text-slate-500 bg-white border border-slate-200 hover:border-slate-300 transition-all duration-300" role="tab">
+        <span class="flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          Registro & Report
+        </span>
+      </button>
+      <button onclick="switchTab(2)" class="tab-btn rounded-full px-5 py-2.5 text-sm font-semibold text-slate-500 bg-white border border-slate-200 hover:border-slate-300 transition-all duration-300" role="tab">
+        <span class="flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          Booking Hub
+        </span>
+      </button>
+      <button onclick="switchTab(3)" class="tab-btn rounded-full px-5 py-2.5 text-sm font-semibold text-slate-500 bg-white border border-slate-200 hover:border-slate-300 transition-all duration-300" role="tab">
+        <span class="flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+          Analytics
+        </span>
+      </button>
+      <button onclick="switchTab(4)" class="tab-btn rounded-full px-5 py-2.5 text-sm font-semibold text-slate-500 bg-white border border-slate-200 hover:border-slate-300 transition-all duration-300" role="tab">
+        <span class="flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          Personale & Turni
+        </span>
+      </button>
+    </div>
+
+    <!-- Tab content panels -->
+    <div class="relative">
+      <!-- Tab 0: Flotta -->
+      <div class="tab-panel" data-tab="0">
+        <div class="grid lg:grid-cols-2 gap-10 items-center">
+          <div>
+            <h3 class="font-display text-2xl font-bold text-navy-900 mb-4">Gestione Flotta & Trasporti</h3>
+            <p class="text-slate-600 mb-6 leading-relaxed">Monitora ogni mezzo della tua flotta in tempo reale. Posizione GPS, stato operativo, kilometraggio, scadenze assicurative e revisioni: tutto in un unico cruscotto.</p>
+            <ul class="space-y-3">
+              <li class="flex items-start gap-3"><svg class="w-5 h-5 text-emerald-500 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg><span class="text-slate-700">Tracciamento GPS in tempo reale di ogni ambulanza</span></li>
+              <li class="flex items-start gap-3"><svg class="w-5 h-5 text-emerald-500 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg><span class="text-slate-700">Digital Twin: stato veicolo, consumi, manutenzioni</span></li>
+              <li class="flex items-start gap-3"><svg class="w-5 h-5 text-emerald-500 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg><span class="text-slate-700">Alert automatici per scadenze e anomalie</span></li>
+            </ul>
+          </div>
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-lg p-6 glow-blue">
+            <div class="space-y-3">
+              <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <span class="text-sm font-semibold text-navy-900">Flotta Operativa</span>
+                <span class="text-xs bg-emerald-100 text-emerald-700 font-medium px-2.5 py-1 rounded-full">18/22 attivi</span>
+              </div>
+              <div class="space-y-2">
+                <div class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl"><div class="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center"><svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div><div class="flex-1"><div class="text-sm font-medium text-slate-800">Ambulanza J-30</div><div class="text-xs text-slate-500">Padova Est • 142.385 km</div></div><span class="text-[10px] bg-emerald-500 text-white px-2 py-0.5 rounded-full">Attivo</span></div>
+                <div class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl"><div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center"><svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div><div class="flex-1"><div class="text-sm font-medium text-slate-800">Ambulanza J-63</div><div class="text-xs text-slate-500">Mestre • 98.210 km</div></div><span class="text-[10px] bg-blue-500 text-white px-2 py-0.5 rounded-full">In servizio</span></div>
+                <div class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl"><div class="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center"><svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/></svg></div><div class="flex-1"><div class="text-sm font-medium text-slate-800">Ambulanza J-45</div><div class="text-xs text-slate-500">Verona • Revisione tra 12 gg</div></div><span class="text-[10px] bg-amber-500 text-white px-2 py-0.5 rounded-full">Attenzione</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 1: Registro -->
+      <div class="tab-panel hidden" data-tab="1">
+        <div class="grid lg:grid-cols-2 gap-10 items-center">
+          <div>
+            <h3 class="font-display text-2xl font-bold text-navy-900 mb-4">Registro Viaggi & Report UTIF</h3>
+            <p class="text-slate-600 mb-6 leading-relaxed">Addio registri cartacei. Ogni viaggio viene registrato dall'equipaggio via app mobile con validazione automatica, calcolo km e generazione report UTIF conformi.</p>
+            <ul class="space-y-3">
+              <li class="flex items-start gap-3"><svg class="w-5 h-5 text-emerald-500 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg><span class="text-slate-700">Inserimento viaggio in 30 secondi da mobile</span></li>
+              <li class="flex items-start gap-3"><svg class="w-5 h-5 text-emerald-500 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg><span class="text-slate-700">Report UTIF generati automaticamente</span></li>
+              <li class="flex items-start gap-3"><svg class="w-5 h-5 text-emerald-500 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg><span class="text-slate-700">Funziona offline, sincronizza quando torna la rete</span></li>
+            </ul>
+          </div>
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-lg p-6 glow-blue">
+            <div class="space-y-3">
+              <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <span class="text-sm font-semibold text-navy-900">Registro Viaggi — Oggi</span>
+                <span class="text-xs bg-blue-100 text-blue-700 font-medium px-2.5 py-1 rounded-full">47 trasporti</span>
+              </div>
+              <div class="space-y-2">
+                <div class="p-3 bg-slate-50 rounded-xl"><div class="flex items-center justify-between mb-1"><span class="text-sm font-medium text-slate-800">#1247 — Dialisi programmata</span><span class="text-xs text-emerald-600 font-medium">Completato</span></div><div class="text-xs text-slate-500">Ospedale Civile → RSA Villa Serena • 23 km • 42 min</div></div>
+                <div class="p-3 bg-slate-50 rounded-xl"><div class="flex items-center justify-between mb-1"><span class="text-sm font-medium text-slate-800">#1248 — Trasporto programmato</span><span class="text-xs text-blue-600 font-medium">In corso</span></div><div class="text-xs text-slate-500">Domicilio → Ospedale Borgo Trento • In transito</div></div>
+                <div class="p-3 bg-slate-50 rounded-xl"><div class="flex items-center justify-between mb-1"><span class="text-sm font-medium text-slate-800">#1249 — Dimissione</span><span class="text-xs text-slate-400 font-medium">Programmato 16:00</span></div><div class="text-xs text-slate-500">Ospedale Mestre → Domicilio paziente</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 2: Booking -->
+      <div class="tab-panel hidden" data-tab="2">
+        <div class="grid lg:grid-cols-2 gap-10 items-center">
+          <div>
+            <h3 class="font-display text-2xl font-bold text-navy-900 mb-4">Booking Hub & Prenotazioni</h3>
+            <p class="text-slate-600 mb-6 leading-relaxed">RSA, ospedali e centri dialisi prenotano direttamente i trasporti dal portale web. Niente telefonate, niente fax, niente errori di trascrizione.</p>
+            <ul class="space-y-3">
+              <li class="flex items-start gap-3"><svg class="w-5 h-5 text-emerald-500 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg><span class="text-slate-700">Portale self-service per RSA e strutture sanitarie</span></li>
+              <li class="flex items-start gap-3"><svg class="w-5 h-5 text-emerald-500 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg><span class="text-slate-700">Conferma automatica e notifiche in tempo reale</span></li>
+              <li class="flex items-start gap-3"><svg class="w-5 h-5 text-emerald-500 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg><span class="text-slate-700">Integrazione calendario e disponibilità mezzi</span></li>
+            </ul>
+          </div>
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-lg p-6 glow-emerald">
+            <div class="space-y-3">
+              <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <span class="text-sm font-semibold text-navy-900">Prenotazioni in arrivo</span>
+                <span class="text-xs bg-emerald-100 text-emerald-700 font-medium px-2.5 py-1 rounded-full">15 RSA connesse</span>
+              </div>
+              <div class="space-y-2">
+                <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-100"><div class="flex items-center justify-between mb-1"><span class="text-sm font-medium text-slate-800">RSA Villa Serena</span><span class="text-[10px] bg-emerald-500 text-white px-2 py-0.5 rounded-full">Confermato</span></div><div class="text-xs text-slate-500">Domani 08:30 • Dialisi • 2 pazienti</div></div>
+                <div class="p-3 bg-blue-50 rounded-xl border border-blue-100"><div class="flex items-center justify-between mb-1"><span class="text-sm font-medium text-slate-800">Centro Dialisi Mestre</span><span class="text-[10px] bg-blue-500 text-white px-2 py-0.5 rounded-full">In attesa</span></div><div class="text-xs text-slate-500">Domani 09:00 • Dialisi • 4 pazienti</div></div>
+                <div class="p-3 bg-slate-50 rounded-xl"><div class="flex items-center justify-between mb-1"><span class="text-sm font-medium text-slate-800">Ospedale Borgo Roma</span><span class="text-[10px] bg-slate-400 text-white px-2 py-0.5 rounded-full">Ricorrente</span></div><div class="text-xs text-slate-500">Lun-Ven 07:30 • Trasporti programmati</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 3: Analytics -->
+      <div class="tab-panel hidden" data-tab="3">
+        <div class="grid lg:grid-cols-2 gap-10 items-center">
+          <div>
+            <h3 class="font-display text-2xl font-bold text-navy-900 mb-4">Analytics & Dashboard</h3>
+            <p class="text-slate-600 mb-6 leading-relaxed">Dashboard executive con KPI in tempo reale. Monitora costi per trasporto, utilizzo flotta, performance sedi e trend mensili con grafici interattivi.</p>
+            <ul class="space-y-3">
+              <li class="flex items-start gap-3"><svg class="w-5 h-5 text-emerald-500 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg><span class="text-slate-700">KPI in tempo reale: costo/km, utilizzo, tempi medi</span></li>
+              <li class="flex items-start gap-3"><svg class="w-5 h-5 text-emerald-500 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg><span class="text-slate-700">Report automatici per Regione e ULSS</span></li>
+              <li class="flex items-start gap-3"><svg class="w-5 h-5 text-emerald-500 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg><span class="text-slate-700">Export Excel/PDF con un click</span></li>
+            </ul>
+          </div>
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-lg p-6 glow-blue">
+            <div class="space-y-4">
+              <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <span class="text-sm font-semibold text-navy-900">Dashboard Direzionale</span>
+                <span class="text-xs text-slate-400">Marzo 2026</span>
+              </div>
+              <div class="grid grid-cols-2 gap-3">
+                <div class="p-3 bg-slate-50 rounded-xl text-center"><div class="text-2xl font-bold text-navy-900">1.284</div><div class="text-xs text-slate-500">Trasporti/mese</div></div>
+                <div class="p-3 bg-slate-50 rounded-xl text-center"><div class="text-2xl font-bold text-emerald-600">-40%</div><div class="text-xs text-slate-500">Costi operativi</div></div>
+                <div class="p-3 bg-slate-50 rounded-xl text-center"><div class="text-2xl font-bold text-navy-900">94%</div><div class="text-xs text-slate-500">Utilizzo flotta</div></div>
+                <div class="p-3 bg-slate-50 rounded-xl text-center"><div class="text-2xl font-bold text-blue-600">23 min</div><div class="text-xs text-slate-500">Tempo medio</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 4: Personale -->
+      <div class="tab-panel hidden" data-tab="4">
+        <div class="grid lg:grid-cols-2 gap-10 items-center">
+          <div>
+            <h3 class="font-display text-2xl font-bold text-navy-900 mb-4">Gestione Personale & Turni</h3>
+            <p class="text-slate-600 mb-6 leading-relaxed">Pianifica turni, gestisci disponibilità volontari, monitora ore lavorate e certificazioni. Con scambio turni self-service e notifiche automatiche.</p>
+            <ul class="space-y-3">
+              <li class="flex items-start gap-3"><svg class="w-5 h-5 text-emerald-500 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg><span class="text-slate-700">Calendario turni drag-and-drop</span></li>
+              <li class="flex items-start gap-3"><svg class="w-5 h-5 text-emerald-500 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg><span class="text-slate-700">Scambio turni e disponibilità via app</span></li>
+              <li class="flex items-start gap-3"><svg class="w-5 h-5 text-emerald-500 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg><span class="text-slate-700">Tracciamento certificazioni e scadenze</span></li>
+            </ul>
+          </div>
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-lg p-6 glow-blue">
+            <div class="space-y-3">
+              <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <span class="text-sm font-semibold text-navy-900">Turni Settimana</span>
+                <span class="text-xs bg-blue-100 text-blue-700 font-medium px-2.5 py-1 rounded-full">36 in servizio</span>
+              </div>
+              <div class="space-y-2">
+                <div class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl"><div class="w-8 h-8 bg-navy-100 rounded-full flex items-center justify-center text-xs font-bold text-navy-700">MR</div><div class="flex-1"><div class="text-sm font-medium text-slate-800">Marco Rossi</div><div class="text-xs text-slate-500">Autista • Turno 06:00-14:00</div></div><span class="text-[10px] bg-emerald-500 text-white px-2 py-0.5 rounded-full">In servizio</span></div>
+                <div class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl"><div class="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center text-xs font-bold text-emerald-700">LB</div><div class="flex-1"><div class="text-sm font-medium text-slate-800">Laura Bianchi</div><div class="text-xs text-slate-500">Soccorritore • Turno 14:00-22:00</div></div><span class="text-[10px] bg-blue-500 text-white px-2 py-0.5 rounded-full">Prossimo</span></div>
+                <div class="flex items-center gap-3 p-3 bg-amber-50 rounded-xl border border-amber-100"><div class="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center text-xs font-bold text-amber-700">GV</div><div class="flex-1"><div class="text-sm font-medium text-slate-800">Giovanni Verdi</div><div class="text-xs text-slate-500">Volontario • Richiesta scambio turno</div></div><span class="text-[10px] bg-amber-500 text-white px-2 py-0.5 rounded-full">Scambio</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================ -->
+<!-- AI & INNOVAZIONE                             -->
+<!-- ============================================ -->
+<section id="ai" class="py-24 md:py-32 bg-navy-900 relative overflow-hidden">
+  <!-- Background decorative -->
+  <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[120px]"></div>
+  <div class="absolute bottom-0 left-0 w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[100px]"></div>
+
+  <div class="max-w-7xl mx-auto px-5 sm:px-8 relative z-10">
+    <div class="text-center max-w-3xl mx-auto mb-16">
+      <h2 class="reveal font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight mb-4">
+        Intelligenza Artificiale che<br><span class="text-emerald-400">salva tempo</span> (e vite)
+      </h2>
+      <p class="reveal reveal-delay-1 text-lg text-slate-400 leading-relaxed">
+        Algoritmi predittivi, ottimizzazione rotte e monitoraggio benessere integrati nativamente nella piattaforma.
+      </p>
+    </div>
+
+    <!-- AI Feature Grid - Asymmetric layout -->
+    <div class="grid md:grid-cols-2 gap-6">
+      <!-- Card 1: Previsioni AI - Large -->
+      <div class="reveal reveal-delay-1 bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-8 hover:bg-white/[0.08] transition-all duration-300 group">
+        <div class="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+          <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        </div>
+        <h3 class="font-display text-xl font-bold text-white mb-3">Previsioni AI della Domanda</h3>
+        <p class="text-slate-400 leading-relaxed mb-4">Il modello analizza storico trasporti, stagionalità, eventi locali e meteo per prevedere la domanda dei prossimi 7 giorni con accuratezza del 92%.</p>
+        <div class="flex items-center gap-2 text-sm text-emerald-400 font-medium">
+          <span>92% accuratezza previsionale</span>
+        </div>
+      </div>
+
+      <!-- Card 2: Ottimizzazione Rotte -->
+      <div class="reveal reveal-delay-2 bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-8 hover:bg-white/[0.08] transition-all duration-300 group">
+        <div class="w-12 h-12 bg-emerald-500/20 rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+          <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
+        </div>
+        <h3 class="font-display text-xl font-bold text-white mb-3">Ottimizzazione Rotte Real-Time</h3>
+        <p class="text-slate-400 leading-relaxed mb-4">Motore OSRM integrato che calcola la rotta ottimale considerando traffico, pedaggi, restrizioni ZTL e multi-pickup. Risparmio medio: 12 minuti per trasporto.</p>
+        <div class="flex items-center gap-2 text-sm text-emerald-400 font-medium">
+          <span>-12 min per trasporto in media</span>
+        </div>
+      </div>
+
+      <!-- Card 3: Wellness Monitor -->
+      <div class="reveal reveal-delay-3 bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-8 hover:bg-white/[0.08] transition-all duration-300 group">
+        <div class="w-12 h-12 bg-rose-500/20 rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+          <svg class="w-6 h-6 text-rose-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+        </div>
+        <h3 class="font-display text-xl font-bold text-white mb-3">Wellness Monitor Anti-Burnout</h3>
+        <p class="text-slate-400 leading-relaxed mb-4">Monitora ore lavorate, turni consecutivi, pause e carico emotivo di ogni operatore. Alert automatici quando i parametri superano le soglie di rischio burnout.</p>
+        <div class="flex items-center gap-2 text-sm text-rose-400 font-medium">
+          <span>Protezione attiva del personale</span>
+        </div>
+      </div>
+
+      <!-- Card 4: Audit Blockchain -->
+      <div class="reveal reveal-delay-4 bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-8 hover:bg-white/[0.08] transition-all duration-300 group">
+        <div class="w-12 h-12 bg-amber-500/20 rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+          <svg class="w-6 h-6 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+        </div>
+        <h3 class="font-display text-xl font-bold text-white mb-3">Audit Trail SHA-256</h3>
+        <p class="text-slate-400 leading-relaxed mb-4">Ogni modifica al registro genera un hash SHA-256 concatenato. Catena di audit immutabile e verificabile, conforme ai requisiti GDPR e delle autorità sanitarie.</p>
+        <div class="flex items-center gap-2 text-sm text-amber-400 font-medium">
+          <span>100% tracciabilità e conformità</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================ -->
+<!-- RISULTATI (Metrics + Case Studies)           -->
+<!-- ============================================ -->
+<section id="risultati" class="py-24 md:py-32 bg-white relative overflow-hidden">
+  <div class="max-w-7xl mx-auto px-5 sm:px-8">
+    <div class="text-center max-w-3xl mx-auto mb-12">
+      <h2 class="reveal font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-navy-900 tracking-tight mb-4">
+        I numeri parlano <span class="gradient-text">chiaro</span>
+      </h2>
+      <p class="reveal reveal-delay-1 text-lg text-slate-500 leading-relaxed">
+        Risultati misurati sul campo da organizzazioni reali che hanno digitalizzato con Soccorso Digitale.
+      </p>
+    </div>
+
+    <!-- Mega metrics bar -->
+    <div class="reveal reveal-delay-2 grid grid-cols-2 md:grid-cols-4 gap-4 mb-16">
+      <div class="text-center p-6 bg-slate-50 rounded-2xl border border-slate-100">
+        <div class="font-display text-4xl sm:text-5xl font-extrabold text-navy-900 counter-value" data-target="95">0</div>
+        <div class="text-lg font-bold text-emerald-600">%</div>
+        <div class="text-sm text-slate-500 mt-1">riduzione errori registro</div>
+      </div>
+      <div class="text-center p-6 bg-slate-50 rounded-2xl border border-slate-100">
+        <div class="font-display text-4xl sm:text-5xl font-extrabold text-navy-900">-<span class="counter-value" data-target="12">0</span></div>
+        <div class="text-lg font-bold text-blue-600">min</div>
+        <div class="text-sm text-slate-500 mt-1">per trasporto in media</div>
+      </div>
+      <div class="text-center p-6 bg-slate-50 rounded-2xl border border-slate-100">
+        <div class="font-display text-4xl sm:text-5xl font-extrabold text-navy-900">-<span class="counter-value" data-target="40">0</span></div>
+        <div class="text-lg font-bold text-emerald-600">%</div>
+        <div class="text-sm text-slate-500 mt-1">costi operativi</div>
+      </div>
+      <div class="text-center p-6 bg-slate-50 rounded-2xl border border-slate-100">
+        <div class="font-display text-4xl sm:text-5xl font-extrabold text-navy-900 counter-value" data-target="15">0</div>
+        <div class="text-lg font-bold text-blue-600">RSA</div>
+        <div class="text-sm text-slate-500 mt-1">connesse al Booking Hub</div>
+      </div>
+    </div>
+
+    <!-- Case Study Cards -->
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- Croce Rossa Padova -->
+      <div class="reveal reveal-delay-1 bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300 hover:-translate-y-1 group">
+        <div class="flex items-center gap-3 mb-4">
+          <img src="/assets/logos/croce-rossa.png" alt="Croce Rossa Padova" class="h-10 w-10 object-contain">
+          <div>
+            <h3 class="font-display font-bold text-navy-900">Croce Rossa Padova</h3>
+            <p class="text-xs text-slate-400">Comitato Provinciale</p>
+          </div>
+        </div>
+        <p class="text-sm text-slate-600 mb-4 leading-relaxed">Digitalizzazione completa del registro trasporti cartaceo. Eliminazione di errori di trascrizione e generazione automatica report UTIF.</p>
+        <div class="flex flex-wrap gap-2 mb-3">
+          <span class="text-xs bg-emerald-100 text-emerald-700 font-medium px-2.5 py-1 rounded-full">-95% errori</span>
+          <span class="text-xs bg-blue-100 text-blue-700 font-medium px-2.5 py-1 rounded-full">Registro digitale</span>
+        </div>
+      </div>
+
+      <!-- ANPAS Venezia -->
+      <div class="reveal reveal-delay-2 bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300 hover:-translate-y-1 group">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center">
+            <span class="text-sm font-bold text-blue-700">AN</span>
+          </div>
+          <div>
+            <h3 class="font-display font-bold text-navy-900">ANPAS Venezia</h3>
+            <p class="text-xs text-slate-400">Pubblica Assistenza</p>
+          </div>
+        </div>
+        <p class="text-sm text-slate-600 mb-4 leading-relaxed">Implementazione AI per ottimizzazione rotte nel territorio lagunare. Riduzione drastica tempi e consumi carburante.</p>
+        <div class="flex flex-wrap gap-2 mb-3">
+          <span class="text-xs bg-emerald-100 text-emerald-700 font-medium px-2.5 py-1 rounded-full">-12 min/trasporto</span>
+          <span class="text-xs bg-blue-100 text-blue-700 font-medium px-2.5 py-1 rounded-full">-18% carburante</span>
+        </div>
+      </div>
+
+      <!-- Misericordia Treviso -->
+      <div class="reveal reveal-delay-3 bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300 hover:-translate-y-1 group">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="h-10 w-10 bg-amber-100 rounded-lg flex items-center justify-center">
+            <span class="text-sm font-bold text-amber-700">MI</span>
+          </div>
+          <div>
+            <h3 class="font-display font-bold text-navy-900">Misericordia Treviso</h3>
+            <p class="text-xs text-slate-400">Confraternita</p>
+          </div>
+        </div>
+        <p class="text-sm text-slate-600 mb-4 leading-relaxed">Analytics avanzate per ottimizzare allocazione risorse e ridurre costi operativi. Dashboard direzionale per il Consiglio.</p>
+        <div class="flex flex-wrap gap-2 mb-3">
+          <span class="text-xs bg-emerald-100 text-emerald-700 font-medium px-2.5 py-1 rounded-full">-40% costi</span>
+          <span class="text-xs bg-blue-100 text-blue-700 font-medium px-2.5 py-1 rounded-full">Analytics</span>
+        </div>
+      </div>
+
+      <!-- Croce Verde Verona -->
+      <div class="reveal reveal-delay-1 bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300 hover:-translate-y-1 group">
+        <div class="flex items-center gap-3 mb-4">
+          <img src="/assets/logos/croce-verde.jpg" alt="Croce Verde Verona" class="h-10 w-10 object-contain">
+          <div>
+            <h3 class="font-display font-bold text-navy-900">Croce Verde Verona</h3>
+            <p class="text-xs text-slate-400">Associazione</p>
+          </div>
+        </div>
+        <p class="text-sm text-slate-600 mb-4 leading-relaxed">Lancio del Booking Hub per collegare 15 RSA al sistema di prenotazione trasporti. Zero telefonate, zero errori.</p>
+        <div class="flex flex-wrap gap-2 mb-3">
+          <span class="text-xs bg-emerald-100 text-emerald-700 font-medium px-2.5 py-1 rounded-full">15 RSA connesse</span>
+          <span class="text-xs bg-blue-100 text-blue-700 font-medium px-2.5 py-1 rounded-full">Booking Hub</span>
+        </div>
+      </div>
+
+      <!-- ULSS 6 Euganea -->
+      <div class="reveal reveal-delay-2 bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300 hover:-translate-y-1 group">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="h-10 w-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+            <span class="text-sm font-bold text-indigo-700">U6</span>
+          </div>
+          <div>
+            <h3 class="font-display font-bold text-navy-900">ULSS 6 Euganea</h3>
+            <p class="text-xs text-slate-400">Azienda Sanitaria</p>
+          </div>
+        </div>
+        <p class="text-sm text-slate-600 mb-4 leading-relaxed">Conformità GDPR totale con audit trail blockchain SHA-256. Ogni modifica al dato sanitario tracciata e verificabile.</p>
+        <div class="flex flex-wrap gap-2 mb-3">
+          <span class="text-xs bg-emerald-100 text-emerald-700 font-medium px-2.5 py-1 rounded-full">100% GDPR</span>
+          <span class="text-xs bg-blue-100 text-blue-700 font-medium px-2.5 py-1 rounded-full">Audit blockchain</span>
+        </div>
+      </div>
+
+      <!-- SVS Rovigo -->
+      <div class="reveal reveal-delay-3 bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300 hover:-translate-y-1 group">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="h-10 w-10 bg-rose-100 rounded-lg flex items-center justify-center">
+            <span class="text-sm font-bold text-rose-700">SV</span>
+          </div>
+          <div>
+            <h3 class="font-display font-bold text-navy-900">SVS Rovigo</h3>
+            <p class="text-xs text-slate-400">Servizio Volontario</p>
+          </div>
+        </div>
+        <p class="text-sm text-slate-600 mb-4 leading-relaxed">Gestione flotta di 50 veicoli con GPS real-time, digital twin e manutenzione predittiva. Uptime flotta al 97%.</p>
+        <div class="flex flex-wrap gap-2 mb-3">
+          <span class="text-xs bg-emerald-100 text-emerald-700 font-medium px-2.5 py-1 rounded-full">50 veicoli</span>
+          <span class="text-xs bg-blue-100 text-blue-700 font-medium px-2.5 py-1 rounded-full">GPS real-time</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================ -->
+<!-- TESTIMONIANZE                                -->
+<!-- ============================================ -->
+<section class="py-24 md:py-32 bg-slate-50 relative overflow-hidden">
+  <div class="max-w-7xl mx-auto px-5 sm:px-8">
+    <div class="text-center max-w-3xl mx-auto mb-16">
+      <h2 class="reveal font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-navy-900 tracking-tight mb-4">
+        Chi lo usa, lo <span class="gradient-text">consiglia</span>
+      </h2>
+    </div>
+
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- Testimonial 1 -->
+      <div class="reveal reveal-delay-1 bg-white rounded-2xl border border-slate-200 p-8">
+        <div class="flex items-center gap-1 mb-4">
+          <svg class="w-5 h-5 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+          <svg class="w-5 h-5 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+          <svg class="w-5 h-5 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+          <svg class="w-5 h-5 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+          <svg class="w-5 h-5 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+        </div>
+        <blockquote class="text-slate-700 leading-relaxed mb-6">
+          "Prima di Soccorso Digitale gestivamo tutto con fogli Excel e registri cartacei. Ora i nostri equipaggi registrano i trasporti in 30 secondi dall'app. Gli errori sono praticamente azzerati."
+        </blockquote>
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center"><span class="text-sm font-bold text-red-700">AP</span></div>
+          <div>
+            <div class="text-sm font-semibold text-navy-900">Antonio Parisi</div>
+            <div class="text-xs text-slate-500">Presidente — Croce Rossa Padova</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Testimonial 2 -->
+      <div class="reveal reveal-delay-2 bg-white rounded-2xl border border-slate-200 p-8">
+        <div class="flex items-center gap-1 mb-4">
+          <svg class="w-5 h-5 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+          <svg class="w-5 h-5 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+          <svg class="w-5 h-5 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+          <svg class="w-5 h-5 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+          <svg class="w-5 h-5 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+        </div>
+        <blockquote class="text-slate-700 leading-relaxed mb-6">
+          "L'ottimizzazione rotte AI ci ha fatto risparmiare 12 minuti per trasporto e il 18% di carburante. Con 80 trasporti al giorno, il risparmio annuo è enorme. Il ROI si vede dal primo mese."
+        </blockquote>
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center"><span class="text-sm font-bold text-blue-700">SF</span></div>
+          <div>
+            <div class="text-sm font-semibold text-navy-900">Stefano Ferro</div>
+            <div class="text-xs text-slate-500">Direttore Operativo — ANPAS Venezia</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Testimonial 3 -->
+      <div class="reveal reveal-delay-3 bg-white rounded-2xl border border-slate-200 p-8">
+        <div class="flex items-center gap-1 mb-4">
+          <svg class="w-5 h-5 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+          <svg class="w-5 h-5 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+          <svg class="w-5 h-5 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+          <svg class="w-5 h-5 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+          <svg class="w-5 h-5 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+        </div>
+        <blockquote class="text-slate-700 leading-relaxed mb-6">
+          "Il Booking Hub ha eliminato completamente le telefonate con le RSA. Le prenotazioni arrivano automaticamente, confermate e con tutti i dati corretti. Non torneremmo mai indietro."
+        </blockquote>
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center"><span class="text-sm font-bold text-emerald-700">MG</span></div>
+          <div>
+            <div class="text-sm font-semibold text-navy-900">Maria Galli</div>
+            <div class="text-xs text-slate-500">Responsabile Servizi — Croce Verde Verona</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================ -->
+<!-- CTA FINALE                                   -->
+<!-- ============================================ -->
+<section id="contatti" class="py-24 md:py-32 relative overflow-hidden">
+  <div class="absolute inset-0 bg-gradient-to-br from-navy-900 via-navy-800 to-navy-900"></div>
+  <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-blue-500/15 rounded-full blur-[120px]"></div>
+  <div class="absolute bottom-0 right-0 w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[100px]"></div>
+
+  <div class="max-w-4xl mx-auto px-5 sm:px-8 relative z-10">
+    <div class="text-center mb-12">
+      <h2 class="reveal font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight mb-4">
+        Pronto a trasformare il<br>tuo <span class="text-emerald-400">soccorso</span>?
+      </h2>
+      <p class="reveal reveal-delay-1 text-lg text-slate-400 leading-relaxed max-w-2xl mx-auto">
+        Unisciti alle 40+ organizzazioni che hanno digitalizzato la gestione del trasporto sanitario. Demo gratuita, nessun impegno.
+      </p>
+    </div>
+
+    <!-- Inline form -->
+    <div class="reveal reveal-delay-2 bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-8">
+      <form id="ctaForm" class="space-y-4">
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-medium text-slate-300 mb-1.5">Nome Referente *</label>
+            <input type="text" name="contactName" required class="w-full bg-white/10 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 transition-all" placeholder="Mario Rossi">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-300 mb-1.5">Organizzazione *</label>
+            <input type="text" name="organizationName" required class="w-full bg-white/10 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 transition-all" placeholder="Croce Rossa Padova">
+          </div>
+        </div>
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-medium text-slate-300 mb-1.5">Email *</label>
+            <input type="email" name="contactEmail" required class="w-full bg-white/10 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 transition-all" placeholder="nome@organizzazione.it">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-300 mb-1.5">N. Veicoli</label>
+            <input type="number" name="vehicleCount" min="1" class="w-full bg-white/10 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 transition-all" placeholder="es. 12">
+          </div>
+        </div>
+        <div class="pt-2">
+          <button type="submit" id="ctaSubmitBtn" class="w-full sm:w-auto bg-emerald-500 hover:bg-emerald-600 text-white font-semibold px-10 py-3.5 rounded-full text-base transition-all duration-200 hover:shadow-lg hover:shadow-emerald-500/30 active:scale-[0.97]">
+            Richiedi Demo Gratuita
+          </button>
+        </div>
+        <div id="ctaMsg" class="text-sm hidden"></div>
+      </form>
+      <p class="text-xs text-slate-500 mt-4">Oppure scrivici: <a href="mailto:info@soccorsodigitale.app" class="text-emerald-400 hover:underline">info@soccorsodigitale.app</a></p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================ -->
+<!-- FOOTER                                       -->
+<!-- ============================================ -->
+<footer class="bg-navy-950 border-t border-white/5 pt-16 pb-8">
+  <div class="max-w-7xl mx-auto px-5 sm:px-8">
+    <div class="grid md:grid-cols-2 lg:grid-cols-5 gap-10 mb-12">
+      <!-- Brand -->
+      <div class="lg:col-span-2">
+        <a href="/" class="flex items-center gap-2.5 mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" class="w-8 h-8">
+            <defs>
+              <linearGradient id="cg2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#2563eb"/><stop offset="100%" style="stop-color:#1d4ed8"/></linearGradient>
+              <linearGradient id="rg2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#10b981"/><stop offset="100%" style="stop-color:#059669"/></linearGradient>
+            </defs>
+            <rect x="35" y="15" width="30" height="70" rx="4" fill="url(#cg2)"/>
+            <rect x="15" y="35" width="70" height="30" rx="4" fill="url(#cg2)"/>
+            <path d="M 20 75 Q 50 55 80 75" stroke="url(#rg2)" stroke-width="8" fill="none" stroke-linecap="round"/>
+          </svg>
+          <span class="font-display text-lg font-bold text-white">Soccorso <span class="text-emerald-400">Digitale</span></span>
+        </a>
+        <p class="text-sm text-slate-500 leading-relaxed max-w-sm mb-6">
+          La piattaforma cloud che digitalizza la gestione di ambulanze e trasporti sanitari per cooperative, associazioni e aziende sanitarie.
+        </p>
+        <div class="flex items-center gap-3">
+          <a href="mailto:info@soccorsodigitale.app" class="text-xs text-slate-400 hover:text-emerald-400 transition-colors">info@soccorsodigitale.app</a>
+        </div>
+      </div>
+
+      <!-- Piattaforma -->
+      <div>
+        <h4 class="font-display font-semibold text-white text-sm mb-4">Piattaforma</h4>
+        <ul class="space-y-2.5">
+          <li><a href="#piattaforma" class="text-sm text-slate-500 hover:text-slate-300 transition-colors">Gestione Flotta</a></li>
+          <li><a href="#piattaforma" class="text-sm text-slate-500 hover:text-slate-300 transition-colors">Registro Viaggi</a></li>
+          <li><a href="#piattaforma" class="text-sm text-slate-500 hover:text-slate-300 transition-colors">Booking Hub</a></li>
+          <li><a href="#piattaforma" class="text-sm text-slate-500 hover:text-slate-300 transition-colors">Analytics</a></li>
+          <li><a href="#ai" class="text-sm text-slate-500 hover:text-slate-300 transition-colors">AI & Innovazione</a></li>
+        </ul>
+      </div>
+
+      <!-- Risorse -->
+      <div>
+        <h4 class="font-display font-semibold text-white text-sm mb-4">Risorse</h4>
+        <ul class="space-y-2.5">
+          <li><a href="#risultati" class="text-sm text-slate-500 hover:text-slate-300 transition-colors">Case Study</a></li>
+          <li><a href="/demo" class="text-sm text-slate-500 hover:text-slate-300 transition-colors">Demo Gratuita</a></li>
+          <li><a href="mailto:supporto@soccorsodigitale.app" class="text-sm text-slate-500 hover:text-slate-300 transition-colors">Supporto</a></li>
+        </ul>
+      </div>
+
+      <!-- Azienda -->
+      <div>
+        <h4 class="font-display font-semibold text-white text-sm mb-4">Sedi</h4>
+        <ul class="space-y-2.5">
+          <li class="text-sm text-slate-500"><span class="text-slate-400">Verona</span> — Sede legale</li>
+          <li class="text-sm text-slate-500"><span class="text-slate-400">Milano</span> — Operativa</li>
+          <li class="text-sm text-slate-500"><span class="text-slate-400">Dubai</span> — Corporate</li>
+          <li class="text-sm text-slate-500"><span class="text-slate-400">Emeryville, CA</span> — Corporate</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Bottom bar -->
+    <div class="border-t border-white/5 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
+      <p class="text-xs text-slate-600">&copy; 2025-2026 Soccorso Digitale. Tutti i diritti riservati.</p>
+      <div class="flex items-center gap-6">
+        <a href="/privacy" class="text-xs text-slate-600 hover:text-slate-400 transition-colors">Privacy Policy</a>
+        <a href="/termini" class="text-xs text-slate-600 hover:text-slate-400 transition-colors">Termini di Servizio</a>
+        <a href="/cookie" class="text-xs text-slate-600 hover:text-slate-400 transition-colors">Cookie Policy</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- ============================================ -->
+<!-- DEMO MODAL                                   -->
+<!-- ============================================ -->
+<div id="demoModal" class="fixed inset-0 z-[9999] hidden">
+  <div class="absolute inset-0 bg-navy-950/60 backdrop-blur-sm" onclick="closeDemoModal()"></div>
+  <div class="absolute inset-0 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto relative">
+      <button onclick="closeDemoModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors" aria-label="Chiudi">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+
+      <div class="p-8">
+        <h3 class="font-display text-2xl font-bold text-navy-900 mb-2">Richiedi una Demo Gratuita</h3>
+        <p class="text-sm text-slate-500 mb-6">Compila il form e ti contatteremo entro 24 ore per organizzare una demo personalizzata.</p>
+
+        <form id="demoForm" class="space-y-4">
+          <div class="grid sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-medium text-slate-700 mb-1.5">Nome Organizzazione *</label>
+              <input type="text" name="organizationName" required class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all" placeholder="es. Croce Rossa Padova">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-700 mb-1.5">Nome Referente *</label>
+              <input type="text" name="contactName" required class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all" placeholder="Mario Rossi">
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-700 mb-1.5">Email *</label>
+            <input type="email" name="contactEmail" required class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all" placeholder="nome@organizzazione.it">
+          </div>
+          <div class="grid sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-medium text-slate-700 mb-1.5">Telefono</label>
+              <input type="tel" name="phone" class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all" placeholder="+39 ...">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-700 mb-1.5">N. Veicoli</label>
+              <input type="number" name="vehicleCount" min="1" class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all" placeholder="es. 12">
+            </div>
+          </div>
+          <div class="grid sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-medium text-slate-700 mb-1.5">Città</label>
+              <input type="text" name="city" class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all" placeholder="Verona">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-700 mb-1.5">Provincia</label>
+              <input type="text" name="province" class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all" placeholder="VR">
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-700 mb-1.5">Note</label>
+            <textarea name="notes" rows="3" class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all resize-none" placeholder="Raccontaci le tue esigenze..."></textarea>
+          </div>
+          <button type="submit" id="demoSubmitBtn" class="w-full bg-navy-900 hover:bg-navy-800 text-white font-semibold py-3.5 rounded-full text-base transition-all duration-200 hover:shadow-lg active:scale-[0.97]">
+            Invia Richiesta
+          </button>
+          <div id="demoMsg" class="text-sm text-center hidden"></div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- JAVASCRIPT                                   -->
+<!-- ============================================ -->
+<script>
+// --- Mobile Menu ---
+function toggleMobileMenu() {
+  document.getElementById('mobileMenu').classList.toggle('hidden');
+}
+
+// --- Demo Modal ---
+function openDemoModal() {
+  document.getElementById('demoModal').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+function closeDemoModal() {
+  document.getElementById('demoModal').classList.add('hidden');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeDemoModal();
+});
+
+// --- Navbar scroll ---
+window.addEventListener('scroll', function() {
+  var nav = document.getElementById('navbar');
+  if (window.scrollY > 50) {
+    nav.classList.add('bg-white/90', 'backdrop-blur-xl', 'shadow-sm', 'border-b', 'border-slate-200/60');
+    nav.classList.remove('bg-transparent');
+  } else {
+    nav.classList.remove('bg-white/90', 'backdrop-blur-xl', 'shadow-sm', 'border-b', 'border-slate-200/60');
+    nav.classList.add('bg-transparent');
+  }
+}, { passive: true });
+
+// --- Scroll reveal ---
+var revealObserver = new IntersectionObserver(function(entries) {
+  entries.forEach(function(entry) {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.reveal').forEach(function(el) {
+  revealObserver.observe(el);
+});
+
+// --- Counter animation ---
+var counterObserver = new IntersectionObserver(function(entries) {
+  entries.forEach(function(entry) {
+    if (entry.isIntersecting) {
+      var el = entry.target;
+      var target = parseInt(el.getAttribute('data-target'));
+      var current = 0;
+      var steps = 60;
+      var increment = target / steps;
+      var timer = setInterval(function() {
+        current += increment;
+        if (current >= target) {
+          el.textContent = target.toLocaleString('it-IT');
+          clearInterval(timer);
+        } else {
+          el.textContent = Math.floor(current).toLocaleString('it-IT');
+        }
+      }, 30);
+      counterObserver.unobserve(el);
+    }
+  });
+}, { threshold: 0.5 });
+
+document.querySelectorAll('.counter-value').forEach(function(el) {
+  counterObserver.observe(el);
+});
+
+// --- Tab switching ---
+function switchTab(index) {
+  // Update buttons
+  document.querySelectorAll('.tab-btn').forEach(function(btn, i) {
+    if (i === index) {
+      btn.classList.add('active');
+      btn.classList.remove('text-slate-500', 'bg-white', 'border', 'border-slate-200', 'hover:border-slate-300');
+    } else {
+      btn.classList.remove('active');
+      btn.classList.add('text-slate-500', 'bg-white', 'border', 'border-slate-200', 'hover:border-slate-300');
+    }
+  });
+  // Update panels
+  document.querySelectorAll('.tab-panel').forEach(function(panel) {
+    var panelIndex = parseInt(panel.getAttribute('data-tab'));
+    if (panelIndex === index) {
+      panel.classList.remove('hidden');
+      panel.style.opacity = '0';
+      panel.style.transform = 'translateY(10px)';
+      requestAnimationFrame(function() {
+        panel.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+        panel.style.opacity = '1';
+        panel.style.transform = 'translateY(0)';
+      });
+    } else {
+      panel.classList.add('hidden');
+    }
+  });
+}
+
+// --- Form submission (both modal and inline CTA) ---
+function handleFormSubmit(form, submitBtn, msgEl) {
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Invio in corso...';
+    msgEl.classList.add('hidden');
+
+    var formData = new FormData(form);
+    var data = Object.fromEntries(formData);
+
+    // Convert vehicleCount to number if present
+    if (data.vehicleCount) {
+      data.vehicleCount = parseInt(data.vehicleCount);
+    }
+
+    fetch('/api/demo-requests', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    })
+    .then(function(res) {
+      if (res.ok) {
+        msgEl.textContent = 'Richiesta inviata con successo! Ti contatteremo presto.';
+        msgEl.className = 'text-sm text-emerald-600 text-center';
+        msgEl.classList.remove('hidden');
+        form.reset();
+      } else {
+        throw new Error('Server error');
+      }
+    })
+    .catch(function() {
+      msgEl.textContent = 'Errore nell\'invio. Riprova o contattaci a info@soccorsodigitale.app';
+      msgEl.className = 'text-sm text-red-600 text-center';
+      msgEl.classList.remove('hidden');
+    })
+    .finally(function() {
+      submitBtn.disabled = false;
+      submitBtn.textContent = form.id === 'demoForm' ? 'Invia Richiesta' : 'Richiedi Demo Gratuita';
+    });
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  var demoForm = document.getElementById('demoForm');
+  var ctaForm = document.getElementById('ctaForm');
+
+  if (demoForm) {
+    handleFormSubmit(demoForm, document.getElementById('demoSubmitBtn'), document.getElementById('demoMsg'));
+  }
+  if (ctaForm) {
+    handleFormSubmit(ctaForm, document.getElementById('ctaSubmitBtn'), document.getElementById('ctaMsg'));
+  }
+});
+</script>
+
+</body>
+</html>

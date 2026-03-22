@@ -1,15 +1,20 @@
+import "./env"; // Validate environment variables at startup
 import express from "express";
 import type { Request, Response, NextFunction } from "express";
 import session from "express-session";
 import connectPgSimple from "connect-pg-simple";
+import helmet from "helmet";
 import { registerRoutes } from "./routes";
 import { seedDatabase } from "./seed";
 import { pool } from "./db";
+import { logger } from "./logger";
+import { setupSwagger } from "./swagger";
+import { globalLimiter, loginLimiter, publicApiLimiter } from "./rate-limit";
 import * as fs from "fs";
 import * as path from "path";
 
 const app = express();
-const log = console.log;
+const log = (...args: unknown[]) => logger.info(args.map(String).join(" "));
 
 declare module "http" {
   interface IncomingMessage {
@@ -78,7 +83,10 @@ function setupBodyParsing(app: express.Application) {
 }
 
 function setupSession(app: express.Application) {
-  const sessionSecret = process.env.SESSION_SECRET || "soccorso-digitale-secret-key-2024";
+  const sessionSecret = process.env.SESSION_SECRET;
+  if (!sessionSecret) {
+    throw new Error("FATAL: SESSION_SECRET environment variable is required");
+  }
   const isProduction = process.env.NODE_ENV === "production" || !!process.env.REPLIT_DOMAINS;
   
   app.set("trust proxy", 1);
@@ -313,7 +321,7 @@ function configureExpoAndLanding(app: express.Application) {
     process.cwd(),
     "server",
     "templates",
-    "saas-landing-home.html",
+    "saas-landing-v2.html",
   );
   const saasLandingTemplate = fs.readFileSync(saasLandingPath, "utf-8");
   const appName = getAppName();
@@ -396,25 +404,45 @@ function configureExpoAndLanding(app: express.Application) {
 }
 
 function setupErrorHandler(app: express.Application) {
-  app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
+  app.use((err: unknown, req: Request, res: Response, _next: NextFunction) => {
     const error = err as {
       status?: number;
       statusCode?: number;
       message?: string;
+      stack?: string;
     };
 
     const status = error.status || error.statusCode || 500;
-    const message = error.message || "Internal Server Error";
+    const message =
+      process.env.NODE_ENV === "production"
+        ? status < 500
+          ? error.message || "Bad Request"
+          : "Internal Server Error"
+        : error.message || "Internal Server Error";
 
-    res.status(status).json({ message });
+    logger.error({
+      method: req.method,
+      path: req.path,
+      status,
+      message: error.message,
+      stack: process.env.NODE_ENV !== "production" ? error.stack : undefined,
+    }, `Error ${status}: ${error.message}`);
 
-    throw err;
+    if (!res.headersSent) {
+      res.status(status).json({ error: message });
+    }
   });
 }
 
 (async () => {
   log("Starting Express server...");
-  
+
+  // Security headers — first middleware
+  app.use(helmet({ contentSecurityPolicy: false }));
+
+  // Global rate limiting
+  app.use(globalLimiter);
+
   setupCors(app);
   setupBodyParsing(app);
   setupSession(app);
@@ -520,19 +548,26 @@ function setupErrorHandler(app: express.Application) {
 
   configureExpoAndLanding(app);
 
+  // Rate limiting for login and public API
+  app.use("/api/auth/login", loginLimiter);
+  app.use("/api/hub", publicApiLimiter);
+
+  // API Documentation
+  setupSwagger(app);
+
   let server;
   try {
     server = await registerRoutes(app);
     log("Routes registered successfully");
   } catch (error) {
-    console.error("Error registering routes:", error);
+    logger.error({ err: error }, "Error registering routes");
     // Create server even if routes fail
     server = require("http").createServer(app);
   }
 
   if (process.env.NODE_ENV !== "production") {
     seedDatabase().catch((error) => {
-      console.error("Error seeding database:", error);
+      logger.error({ err: error }, "Error seeding database");
     });
   } else {
     log("Production mode: skipping database seeding (data already exists)");
