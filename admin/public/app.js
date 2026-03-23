@@ -12666,15 +12666,28 @@ async function toggleRainLayer(show) {
   if (!show) return;
   try {
     const resp = await fetch('https://api.rainviewer.com/public/weather-maps.json');
+    if (!resp.ok) throw new Error('RainViewer API error: ' + resp.status);
     const data = await resp.json();
     const frames = data.radar?.past ?? [];
-    if (!frames.length) return;
+    if (!frames.length) { console.warn('[Fleet] RainViewer: no radar frames available'); return; }
     const latest = frames[frames.length - 1];
-    if (gpsMap.getZoom() > 10) gpsMap.setZoom(10);
-    fleetLayers.rain = L.tileLayer(
-      `https://tilecache.rainviewer.com${latest.path}/256/{z}/{x}/{y}/2/1_1.png`,
-      { opacity: 0.5, attribution: '© RainViewer', minZoom: 3, maxZoom: 12, zIndex: 200 }
-    ).addTo(gpsMap);
+    console.log('[Fleet] RainViewer path:', latest.path, 'timestamp:', latest.time);
+
+    const addRainLayer = () => {
+      if (fleetLayers.rain) { gpsMap.removeLayer(fleetLayers.rain); fleetLayers.rain = null; }
+      fleetLayers.rain = L.tileLayer(
+        `https://tilecache.rainviewer.com${latest.path}/256/{z}/{x}/{y}/2/1_1.png`,
+        { opacity: 0.6, attribution: '© RainViewer', minZoom: 3, maxZoom: 12, zIndex: 200 }
+      ).addTo(gpsMap);
+    };
+
+    // Add layer only AFTER zoom animation completes to avoid "Zoom Level Not Supported" tiles
+    if (gpsMap.getZoom() > 10) {
+      gpsMap.once('zoomend', addRainLayer);
+      gpsMap.setZoom(10, { animate: false });
+    } else {
+      addRainLayer();
+    }
   } catch (e) { console.warn('[Fleet] RainViewer error:', e); }
 }
 
