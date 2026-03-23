@@ -6,7 +6,7 @@
   <title>SOCCORSO DIGITALE - Pannello Amministrativo</title>
   <link rel="stylesheet" href="/admin/styles.css?v=20260225m">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/admin/dashboard-redesign.css?v=20260323b">
+  <link rel="stylesheet" href="/admin/dashboard-redesign.css?v=20260323c">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -10828,14 +10828,14 @@
   <script>
   (function () {
     // Restore saved theme
-    var saved = localStorage.getItem('ds-theme') || 'dark';
+    var saved = localStorage.getItem('ds-theme') || 'light';
     document.documentElement.setAttribute('data-theme', saved);
     updateToggleIcon(saved);
 
     var btn = document.getElementById('ds-theme-toggle');
     if (btn) {
       btn.addEventListener('click', function () {
-        var cur = document.documentElement.getAttribute('data-theme') || 'dark';
+        var cur = document.documentElement.getAttribute('data-theme') || 'light';
         var next = cur === 'dark' ? 'light' : 'dark';
         document.documentElement.setAttribute('data-theme', next);
         localStorage.setItem('ds-theme', next);
@@ -10864,7 +10864,7 @@
       var D = Chart.defaults;
       // Grid lines
       if (D.scale && D.scale.grid) {
-        D.scale.grid.color = 'rgba(255,255,255,0.04)';
+        D.scale.grid.color = '#F1F5F9';
         D.scale.grid.borderColor = 'transparent';
       }
       // Tick labels
@@ -10876,11 +10876,11 @@
       if (D.plugins) {
         // Tooltip
         if (D.plugins.tooltip) {
-          D.plugins.tooltip.backgroundColor = '#141F30';
-          D.plugins.tooltip.borderColor      = 'rgba(255,255,255,0.08)';
+          D.plugins.tooltip.backgroundColor = 'white';
+          D.plugins.tooltip.borderColor      = '#E2E8F0';
           D.plugins.tooltip.borderWidth      = 1;
-          D.plugins.tooltip.titleColor       = '#F1F5F9';
-          D.plugins.tooltip.bodyColor        = '#94A3B8';
+          D.plugins.tooltip.titleColor       = '#1E293B';
+          D.plugins.tooltip.bodyColor        = '#475569';
           D.plugins.tooltip.padding          = 10;
           D.plugins.tooltip.cornerRadius     = 10;
         }
