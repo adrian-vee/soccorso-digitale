@@ -1240,95 +1240,54 @@
     <script src="js/SplitText.min.js"></script>
     <script src="js/TextPlugin.min.js"></script>
     <script src="js/CustomEase.min.js"></script>
-    <script src="js/lenis.min.js"></script>
+    <!-- lenis.min.js replaced by inline no-op stub — zero loops, zero event listeners -->
+    <script>
+    window.Lenis = class Lenis {
+      constructor() {}
+      raf() {}
+      on() {}
+      off() {}
+      scrollTo() {}
+      destroy() {}
+      get scroll() { return window.scrollY; }
+      get progress() { return 0; }
+      get velocity() { return 0; }
+      get isScrolling() { return false; }
+      get isStopped() { return false; }
+    };
+    </script>
     <script src="js/player.js"></script>
 
     <!-- Fetch interceptor: stub out mdx.so API calls and missing local assets -->
     <script>
     (function() {
-      var _origFetch = window.fetch;
+      var _f = window.fetch;
       window.fetch = function(url, opts) {
         var u = typeof url === 'string' ? url : (url && url.url) || '';
-        // Block WordPress projects API — return empty array
-        if (u.indexOf('admin.mdx.so') !== -1 || u.indexOf('wp-json') !== -1) {
+        if (u.indexOf('admin.mdx.so') !== -1 || u.indexOf('wp-json') !== -1)
           return Promise.resolve(new Response('[]', { status: 200, headers: { 'Content-Type': 'application/json' } }));
-        }
-        // Block contact API — return success
-        if (u.indexOf('api.mdx.so') !== -1) {
+        if (u.indexOf('api.mdx.so') !== -1)
           return Promise.resolve(new Response('{"ok":true}', { status: 200, headers: { 'Content-Type': 'application/json' } }));
-        }
-        // Block missing audio file — return empty body
-        if (u.indexOf('.mp3') !== -1 || u.indexOf('soundtrack') !== -1) {
+        if (u.indexOf('.mp3') !== -1 || u.indexOf('soundtrack') !== -1)
           return Promise.resolve(new Response(new ArrayBuffer(0), { status: 200, headers: { 'Content-Type': 'audio/mpeg' } }));
-        }
-        return _origFetch.apply(this, arguments);
+        return _f.apply(this, arguments);
       };
     })();
     </script>
 
-    <!-- Safety timeout: force-close loader + restore scroll after 4s if JS stalls -->
+    <!-- SCRIPTS  -->
+    <script type="module" src="js/homepage.min.js"></script>
+
+    <!-- Safety: hide loader after 4s if still stuck -->
     <script>
     setTimeout(function() {
-      // 1. Force-hide loader if still visible
       var loader = document.querySelector('.loader');
       if (loader) {
         loader.style.transition = 'opacity 0.6s ease';
         loader.style.opacity = '0';
         setTimeout(function() { loader.style.display = 'none'; }, 600);
       }
-
-      // 2. Restore scroll — CSS has body,html{position:fixed;overflow:hidden}
-      //    Lenis normally overrides this by adding html.lenis class.
-      //    If Lenis didn't init, force-enable native scroll as fallback.
-      var hasLenis = document.documentElement.classList.contains('lenis');
-      if (!hasLenis) {
-        document.documentElement.classList.add('sd-unlocked');
-      }
     }, 4000);
-    </script>
-
-    <!-- SCRIPTS  -->
-      <script type="module" src="js/homepage.min.js"></script>
-
-    <!-- Force native scroll — runs AFTER all scripts so it wins -->
-    <script>
-    (function forceScroll() {
-      var forceStyles = function() {
-        document.documentElement.style.setProperty('position', 'static', 'important');
-        document.documentElement.style.setProperty('overflow', 'auto', 'important');
-        document.documentElement.style.setProperty('height', 'auto', 'important');
-        document.body.style.setProperty('position', 'static', 'important');
-        document.body.style.setProperty('overflow', 'auto', 'important');
-        document.body.style.setProperty('overflow-x', 'hidden', 'important');
-        document.body.style.setProperty('height', 'auto', 'important');
-        var wrapper = document.querySelector('.wrapper, .lenis-wrapper, [data-lenis-wrapper]');
-        if (wrapper) {
-          wrapper.style.setProperty('position', 'static', 'important');
-          wrapper.style.setProperty('overflow', 'auto', 'important');
-          wrapper.style.setProperty('height', 'auto', 'important');
-        }
-      };
-
-      forceStyles();
-      [500, 1000, 2000, 3000, 5000].forEach(function(t) { setTimeout(forceStyles, t); });
-
-      var obs = new MutationObserver(function(mutations) {
-        mutations.forEach(function(m) {
-          if (m.target === document.body || m.target === document.documentElement) {
-            forceStyles();
-          }
-        });
-      });
-      obs.observe(document.documentElement, { attributes: true, attributeFilter: ['style', 'class'] });
-      obs.observe(document.body, { attributes: true, attributeFilter: ['style', 'class'] });
-
-      // Destroy Lenis after 2s — the stub is already a no-op but this cleans up any residual state
-      setTimeout(function() {
-        if (window.lenis && typeof window.lenis.destroy === 'function') {
-          try { window.lenis.destroy(); } catch(e) {}
-        }
-      }, 2000);
-    })();
     </script>
 
 </body></html>
