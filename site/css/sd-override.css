@@ -1,0 +1,28 @@
+/* ── Soccorso Digitale overrides for mdx.so clone ── */
+
+/* 1. CTA "LET'S TALK" button — black background */
+.hero-flex__left .cta-1.btn-animate-chars {
+  background: #111822;
+}
+.hero-flex__left .cta-1.btn-animate-chars .btn-animate-chars__bg {
+  background-color: #111822 !important;
+  box-shadow: none !important;
+}
+.hero-flex__left .cta-1.btn-animate-chars .btn-animate-chars__text span,
+.hero-flex__left .cta-1.btn-animate-chars .btn-animate-chars__text {
+  color: #FCFCFD !important;
+}
+.hero-flex__left .cta-1.btn-animate-chars .btn-animate-chars__text::after {
+  background-color: #FCFCFD !important;
+}
+
+/* 2. Hero canvas fallback — show globe image when frame sequence unavailable */
+.hero .secuence-canvas {
+  background: url('../images/clear-globe-desktop-1.webp') center center / contain no-repeat;
+  opacity: 0.35;
+}
+@media (orientation: portrait) {
+  .hero .secuence-canvas {
+    background-image: url('../images/clear-globe-mobile.webp');
+  }
+}
