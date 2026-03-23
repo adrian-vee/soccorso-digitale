@@ -662,6 +662,30 @@ export function registerAdminRoutes(app: Express) {
     }
   });
 
+  app.get("/api/org/primary-location", requireAuth, async (req, res) => {
+    try {
+      const orgId = getEffectiveOrgId(req);
+      // Get all locations for this org
+      const locs = await db.select().from(locations).where(eq(locations.organizationId, orgId || ''));
+      // Find primary or fallback to first
+      const primary = locs.find((l: any) => l.isPrimary) || locs[0];
+      if (primary) {
+        res.json({
+          id: primary.id,
+          name: primary.name,
+          lat: parseFloat((primary as any).latitude) || null,
+          lng: parseFloat((primary as any).longitude) || null,
+          isPrimary: (primary as any).isPrimary || false,
+        });
+      } else {
+        // Fallback: San Giovanni Lupatoto (Croce Europa HQ)
+        res.json({ lat: 45.3833, lng: 11.0458, name: 'San Giovanni Lupatoto', isPrimary: false });
+      }
+    } catch (e) {
+      res.json({ lat: 45.3833, lng: 11.0458, name: 'San Giovanni Lupatoto', isPrimary: false });
+    }
+  });
+
   app.get("/api/locations/:id", requireAuth, async (req, res) => {
     try {
       const location = await storage.getLocation(req.params.id);

@@ -566,6 +566,17 @@ function setupErrorHandler(app: express.Application) {
     server = require("http").createServer(app);
   }
 
+  // Auto-migrate location columns if needed
+  try {
+    await pool.query(`
+      ALTER TABLE locations ADD COLUMN IF NOT EXISTS latitude TEXT;
+      ALTER TABLE locations ADD COLUMN IF NOT EXISTS longitude TEXT;
+      ALTER TABLE locations ADD COLUMN IF NOT EXISTS is_primary BOOLEAN DEFAULT FALSE;
+    `);
+  } catch (e) {
+    // ignore if pool not available
+  }
+
   if (process.env.NODE_ENV !== "production") {
     seedDatabase().catch((error) => {
       logger.error({ err: error }, "Error seeding database");

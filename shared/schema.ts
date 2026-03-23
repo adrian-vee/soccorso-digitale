@@ -95,6 +95,9 @@ export const locations = pgTable("locations", {
   address: text("address"),
   phone: text("phone"),
   email: text("email"),
+  latitude: text("latitude"),
+  longitude: text("longitude"),
+  isPrimary: boolean("is_primary").default(false),
   organizationId: varchar("organization_id"), // tenant isolation
   createdAt: timestamp("created_at").defaultNow().notNull(),
 }, (table) => ({

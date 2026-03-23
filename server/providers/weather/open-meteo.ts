@@ -20,9 +20,19 @@ export interface WeatherData {
   readonly isAdverse: boolean;       // fog, heavy rain, snow, ice
 }
 
+export interface DailyForecast {
+  readonly time: string[];
+  readonly temperature_2m_max: number[];
+  readonly temperature_2m_min: number[];
+  readonly weather_code: number[];
+  readonly weathercode: number[]; // alias for weather_code (frontend compat)
+  readonly precipitation_sum: number[];
+}
+
 export interface WeatherForecast {
   readonly current: WeatherData;
   readonly hourly: readonly HourlyForecast[];
+  readonly daily: DailyForecast;
 }
 
 export interface HourlyForecast {
@@ -93,7 +103,9 @@ export class OpenMeteoProvider implements IProvider {
       longitude: lon.toFixed(4),
       current: "temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m,visibility",
       hourly: "temperature_2m,precipitation,weather_code,wind_speed_10m,visibility",
+      daily: "temperature_2m_max,temperature_2m_min,weather_code,precipitation_sum",
       forecast_hours: "24",
+      forecast_days: "7",
       timezone: "Europe/Rome",
     });
 
@@ -135,7 +147,12 @@ export class OpenMeteoProvider implements IProvider {
       };
     });
 
-    return { current, hourly };
+    const dailyWithAlias: DailyForecast = {
+      ...raw.daily,
+      weathercode: raw.daily.weather_code,
+    };
+
+    return { current, hourly, daily: dailyWithAlias };
   }
 
   /** Calculate weather impact factor for ETA (0-1, higher = worse) */
@@ -186,5 +203,12 @@ interface OpenMeteoResponse {
     weather_code: number[];
     wind_speed_10m: number[];
     visibility?: number[];
+  };
+  daily: {
+    time: string[];
+    temperature_2m_max: number[];
+    temperature_2m_min: number[];
+    weather_code: number[];
+    precipitation_sum: number[];
   };
 }

@@ -671,7 +671,7 @@ export async function seedDatabase() {
 
   // Seed locations (Sedi) if missing
   const locationData = [
-    { name: "Verona", address: "Via Verona 1, Verona (VR)" },
+    { name: "San Giovanni Lupatoto", address: "Via Forte Garofolo 1, San Giovanni Lupatoto (VR)", latitude: "45.3833", longitude: "11.0458", isPrimary: true },
     { name: "Cologna Veneta", address: "Via Cologna 1, Cologna Veneta (VR)" },
     { name: "Montecchio Maggiore", address: "Via Montecchio 1, Montecchio Maggiore (VI)" },
     { name: "Nogara", address: "Via Nogara 1, Nogara (VR)" },
@@ -685,6 +685,23 @@ export async function seedDatabase() {
   } else {
     insertedLocations = await db.select().from(locations);
     console.log(`Locations already exist (${numLoc})`);
+    // Ensure primary location has coordinates (idempotent update)
+    try {
+      const primaryLoc = insertedLocations.find((l: any) => l.name === 'San Giovanni Lupatoto')
+        || insertedLocations.find((l: any) => l.name === 'Verona')
+        || insertedLocations[0];
+      if (primaryLoc) {
+        await db.execute(sql`
+          UPDATE locations
+          SET latitude = '45.3833', longitude = '11.0458', is_primary = TRUE
+          WHERE id = ${primaryLoc.id}
+            AND (latitude IS NULL OR longitude IS NULL OR is_primary IS NULL OR is_primary = FALSE)
+        `);
+        console.log(`Primary location coordinates set for: ${primaryLoc.name}`);
+      }
+    } catch (e) {
+      // columns may not exist yet on first run before migration
+    }
   }
 
   if (numVeh === 0) {

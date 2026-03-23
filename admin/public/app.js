@@ -34,12 +34,12 @@ function restoreSidebarSections() {
       const header = section.querySelector('.nav-section-header');
       if (!body || !header) return;
       
-      if (key && state[key] === true) {
-        body.classList.add('open');
-        header.setAttribute('aria-expanded', 'true');
-      } else {
+      if (key && state[key] === false) {
         body.classList.remove('open');
         header.setAttribute('aria-expanded', 'false');
+      } else {
+        body.classList.add('open');
+        header.setAttribute('aria-expanded', 'true');
       }
     });
   } catch(e) {}
@@ -3127,11 +3127,26 @@ async function loadEnvironmentalIntelligence() {
   ]);
 }
 
+let _orgCoordsCache = null;
+async function getOrgWeatherCoords() {
+  if (_orgCoordsCache) return _orgCoordsCache;
+  try {
+    const r = await adminFetch('/api/org/primary-location');
+    if (r.ok) {
+      const d = await r.json();
+      if (d.lat && d.lng) { _orgCoordsCache = d; return d; }
+    }
+  } catch(e) {}
+  return { lat: 45.3833, lng: 11.0458 };
+}
+
 async function loadEnvWeather() {
   try {
-    const resp = await adminFetch('/api/providers/weather?lat=45.4095&lon=11.8759');
+    const coords = await getOrgWeatherCoords();
+    const resp = await adminFetch(`/api/providers/weather?lat=${coords.lat}&lon=${coords.lng}`);
     if (!resp.ok) throw new Error('weather fetch failed');
-    const data = await resp.json();
+    const json = await resp.json();
+    const data = json.data || json;
     renderEnvWeather(data);
   } catch (e) {
     const body = document.getElementById('env-weather-forecast');
@@ -3141,9 +3156,9 @@ async function loadEnvWeather() {
 
 function renderEnvWeather(data) {
   const w = data.current || data;
-  const code = w.weathercode ?? w.weather_code ?? 0;
+  const code = w.weathercode ?? w.weather_code ?? w.weatherCode ?? 0;
   const temp = w.temperature_2m ?? w.temperature ?? '--';
-  const wind = w.windspeed_10m ?? w.wind_speed ?? '--';
+  const wind = w.windspeed_10m ?? w.wind_speed ?? w.windSpeed ?? '--';
   const precip = w.precipitation ?? '--';
 
   const iconEl = document.getElementById('env-weather-icon');
@@ -3391,9 +3406,11 @@ async function loadPgIntelligenceBanner(dateStr) {
 
   // Check weather
   try {
-    const resp = await adminFetch('/api/providers/weather?lat=45.4095&lon=11.8759');
+    const coords = await getOrgWeatherCoords();
+    const resp = await adminFetch(`/api/providers/weather?lat=${coords.lat}&lon=${coords.lng}`);
     if (resp.ok) {
-      const data = await resp.json();
+      const json = await resp.json();
+      const data = json.data || json;
       const daily = data.daily;
       if (daily && daily.time) {
         const idx = daily.time.indexOf(dateStr);
@@ -3412,10 +3429,10 @@ async function loadPgIntelligenceBanner(dateStr) {
 
   if (parts.length > 0) {
     bannerEl.innerHTML = parts.join('');
-    bannerEl.style.display = 'flex';
   } else {
-    bannerEl.style.display = 'none';
+    bannerEl.innerHTML = '<div class="pg-banner-pill pg-banner-weather-ok">📅 Nessun evento speciale oggi</div>';
   }
+  bannerEl.style.display = 'flex';
 }
 
 // ============================================================
@@ -3432,7 +3449,7 @@ async function initCoverageMap() {
   if (coverageMap) { coverageMap.invalidateSize(); updateCovLayers(); return; }
 
   coverageMap = L.map(container).setView([45.3836, 11.0397], 9);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(coverageMap);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors', maxZoom: 19 }).addTo(coverageMap);
 
   // Sede markers
   const sediCoords = [
@@ -3558,7 +3575,7 @@ function initEaMap(alerts) {
 
   if (!eaMap) {
     eaMap = L.map(container).setView([45.4095, 11.8759], 7);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(eaMap);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors', maxZoom: 19 }).addTo(eaMap);
   }
 
   eaMarkers.forEach(m => eaMap.removeLayer(m));
@@ -4013,7 +4030,7 @@ function initVehicleMap() {
   if (!mapContainer) return;
   vehicleMap = L.map(mapContainer).setView([45.4384, 11.0798], 10);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap'
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors', maxZoom: 19
   }).addTo(vehicleMap);
 }
 
@@ -4252,7 +4269,7 @@ function showVehicleDetailPage(vehicleId) {
     setTimeout(() => {
       try {
         detailVehicleMap = L.map(mapEl).setView([lat, lon], 14);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap' }).addTo(detailVehicleMap);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors', maxZoom: 19 }).addTo(detailVehicleMap);
         const detailAmbIcon = L.icon({ iconUrl: '/admin/ambulance-marker.png', iconSize: [44, 44], iconAnchor: [22, 22] });
         L.marker([lat, lon], { icon: detailAmbIcon }).addTo(detailVehicleMap);
       } catch (e) {
@@ -4276,7 +4293,7 @@ async function showTripRoute(tripId) {
   if (!detailVehicleMap && mapEl) {
     mapEl.innerHTML = '';
     detailVehicleMap = L.map(mapEl).setView([45.4408, 10.9930], 10);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap' }).addTo(detailVehicleMap);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors', maxZoom: 19 }).addTo(detailVehicleMap);
   }
   if (!detailVehicleMap) { showNotification('Mappa non disponibile', 'warning'); return; }
   currentRouteOverlays.forEach(o => { if (detailVehicleMap) detailVehicleMap.removeLayer(o); });
@@ -9216,7 +9233,7 @@ function renderAdvancedHeatmap(heatmapData) {
   if (!heatmapMapInstance) {
     container.innerHTML = '';
     heatmapMapInstance = L.map(container).setView([45.4384, 11.0], 9);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap' }).addTo(heatmapMapInstance);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors', maxZoom: 19 }).addTo(heatmapMapInstance);
   }
   if (heatmapLayer) {
     heatmapLayer.forEach(m => heatmapMapInstance.removeLayer(m));
@@ -12562,8 +12579,9 @@ async function initGpsMap() {
   if (!mapContainer) return;
   if (gpsMap) { if (loadingOverlay) loadingOverlay.classList.add('hidden'); await loadGpsData(); return; }
   gpsMap = L.map(mapContainer).setView([45.3836, 11.0397], 10);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap'
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+    maxZoom: 19
   }).addTo(gpsMap);
   const sediLocations = [
     { name: 'San Giovanni Lupatoto', address: 'Via Forte Garofolo, 20', lat: 45.3836, lng: 11.0397, isPrimary: true },
@@ -12628,7 +12646,7 @@ async function toggleRainLayer(show) {
     const latest = frames[frames.length - 1];
     fleetLayers.rain = L.tileLayer(
       `https://tilecache.rainviewer.com${latest.path}/256/{z}/{x}/{y}/2/1_1.png`,
-      { opacity: 0.5, attribution: '© RainViewer', maxZoom: 18, zIndex: 200 }
+      { opacity: 0.5, attribution: '© RainViewer', minZoom: 3, maxZoom: 18, zIndex: 200 }
     ).addTo(gpsMap);
   } catch (e) { console.warn('[Fleet] RainViewer error:', e); }
 }
@@ -13115,7 +13133,7 @@ async function initHistoryMap(points, dayTrips, sedeLocation) {
   if (gpsHistoryPolyline && gpsHistoryMap) { gpsHistoryMap.removeLayer(gpsHistoryPolyline); gpsHistoryPolyline = null; }
   if (!gpsHistoryMap) {
     gpsHistoryMap = L.map(mapContainer).setView([45.38, 11.04], 12);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap' }).addTo(gpsHistoryMap);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors', maxZoom: 19 }).addTo(gpsHistoryMap);
   }
   const bounds = L.latLngBounds([]);
   if (points && points.length > 0) {
@@ -14099,7 +14117,7 @@ function initTerritoryMap() {
   }
   
   territoryMap = L.map(mapContainer).setView([45.3845, 11.1500], 10);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap' }).addTo(territoryMap);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors', maxZoom: 19 }).addTo(territoryMap);
   const locations = [
     { id: 'b73829f0-8cb9-453b-8f91-f5a1efc59061', name: 'Verona', position: [45.4384, 10.9916], type: 'hq', label: 'Sede Centrale' },
     { id: '3a897440-10a9-4540-a9a7-bbf5b3450cd4', name: 'Nogara', position: [45.1750, 11.0667], type: 'satellite', label: 'Sede Operativa' },
