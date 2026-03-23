@@ -16,6 +16,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Spacing, BorderRadius } from "@/constants/theme";
 import { apiRequest } from "@/lib/query-client";
 import { scheduleExpiryNotifications } from "@/services/expiryNotifications";
+import { NotificationPreferences } from "@/components/NotificationPreferences";
 
 interface NotificationSettings {
   notificationsEnabled: boolean;
@@ -282,6 +283,17 @@ export default function NotificationsSettingsScreen() {
             disabled={!settings.notificationsEnabled}
           />
         </View>
+      </Card>
+
+      {/* Canali multi-canale: SMS + Telegram */}
+      <Card style={[styles.settingsCard, { paddingBottom: Spacing.lg }]}>
+        <View style={styles.sectionHeader}>
+          <View style={[styles.iconCircle, { backgroundColor: "rgba(77,163,255,0.15)" }]}>
+            <Feather name="share-2" size={18} color={theme.primary} />
+          </View>
+          <ThemedText type="h3" style={styles.sectionTitle}>Canali di Notifica</ThemedText>
+        </View>
+        <NotificationPreferences />
       </Card>
 
       <View style={styles.infoBox}>

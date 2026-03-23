@@ -24,3 +24,6 @@ export { getDataProvider, type Holiday, type EmergencyAlert } from "./data";
 
 // Validation (CF locale, P.IVA VATComply, HIBP)
 export { getValidationProvider, type CodiceFiscaleValidation, type VatValidationResult, type PasswordBreachResult } from "./validation";
+
+// Notifications (Brevo SMS)
+export { getNotificationsProvider, type SmsSendResult, type SmsCreditsResult } from "./notifications";

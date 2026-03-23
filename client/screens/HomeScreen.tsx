@@ -42,6 +42,10 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { Spacing, BorderRadius } from "@/constants/theme";
 import { getApiUrl, getAuthToken } from "@/lib/query-client";
+import * as Location from "expo-location";
+import { WeatherBadge } from "@/components/WeatherBadge";
+import { HolidayChip } from "@/components/HolidayChip";
+import { EmergencyAlertBanner } from "@/components/EmergencyAlertBanner";
 
 
 function getGreeting(): string {
@@ -68,12 +72,29 @@ export default function HomeScreen() {
   const [photoSubmitterName, setPhotoSubmitterName] = useState("");
   const [reportsExpanded, setReportsExpanded] = useState(false);
   const [selectedReport, setSelectedReport] = useState<any>(null);
-  
+  const [userCoords, setUserCoords] = useState<{ lat: number; lon: number } | null>(null);
+
   const statusPulse = useSharedValue(1);
   const betaPulse = useSharedValue(0.4);
 
   useEffect(() => {
     refreshUserData();
+  }, []);
+
+  // Fetch cached device location for weather widget (no permission dialog)
+  useEffect(() => {
+    Location.getLastKnownPositionAsync()
+      .then((pos) => {
+        if (pos) {
+          setUserCoords({ lat: pos.coords.latitude, lon: pos.coords.longitude });
+        } else {
+          // Fallback: Legnago (sede principale)
+          setUserCoords({ lat: 45.1553, lon: 11.307 });
+        }
+      })
+      .catch(() => {
+        setUserCoords({ lat: 45.1553, lon: 11.307 });
+      });
   }, []);
 
   const vehicleCode = user?.vehicle?.code || "---";
@@ -386,21 +407,32 @@ export default function HomeScreen() {
                 backgroundColor: isDark ? "rgba(0, 102, 204, 0.12)" : "rgba(0, 102, 204, 0.06)",
                 borderColor: theme.primary,
                 opacity: pressed ? 0.8 : 1,
+                flexDirection: "column",
+                alignItems: "stretch",
               },
             ]}
           >
-            <View style={styles.oggiWidgetLeft}>
-              <View style={[styles.oggiIconCircle, { backgroundColor: theme.primary }]}>
-                <Feather name="calendar" size={20} color="#fff" />
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <View style={[styles.oggiWidgetLeft, { flex: 1 }]}>
+                <View style={[styles.oggiIconCircle, { backgroundColor: theme.primary }]}>
+                  <Feather name="calendar" size={20} color="#fff" />
+                </View>
+                <View>
+                  <ThemedText style={styles.oggiTitle}>Servizi di Oggi</ThemedText>
+                  <ThemedText style={[styles.oggiSubtitle, { color: theme.textSecondary }]}>
+                    Visualizza il programma giornaliero
+                  </ThemedText>
+                </View>
               </View>
-              <View>
-                <ThemedText style={styles.oggiTitle}>Servizi di Oggi</ThemedText>
-                <ThemedText style={[styles.oggiSubtitle, { color: theme.textSecondary }]}>
-                  Visualizza il programma giornaliero
-                </ThemedText>
-              </View>
+              <Feather name="chevron-right" size={20} color={theme.textSecondary} />
             </View>
-            <Feather name="chevron-right" size={20} color={theme.textSecondary} />
+            {/* Meteo + Festivo row */}
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 8, marginTop: 8, marginLeft: 48, flexWrap: "wrap" }}>
+              <HolidayChip date={new Date()} />
+              {userCoords && (
+                <WeatherBadge lat={userCoords.lat} lon={userCoords.lon} compact />
+              )}
+            </View>
           </Pressable>
         </Animated.View>
 
@@ -540,6 +572,11 @@ export default function HomeScreen() {
         )}
 
         {/* MISSIONI PROGRAMMATE HUB - hidden, Hub in lavorazione */}
+
+        {/* Protezione Civile Alerts */}
+        <View style={{ marginTop: Spacing.md }}>
+          <EmergencyAlertBanner region="Veneto" />
+        </View>
 
         {/* ============================================================ */}
         {/* SEGNALAZIONE DANNI / PROBLEMI MEZZO */}

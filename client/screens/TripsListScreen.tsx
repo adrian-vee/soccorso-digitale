@@ -53,6 +53,8 @@ interface Trip {
   isEmergencyService: boolean;
   locationName: string | null;
   vehicleCode: string | null;
+  weatherIcon: string | null;
+  weatherTemp: number | null;
   waypoints?: TripWaypoint[];
 }
 
@@ -342,6 +344,14 @@ export default function TripsListScreen() {
                 <Feather name="clock" size={14} color={theme.textSecondary} />
                 <ThemedText type="small" style={{ color: theme.textSecondary, marginLeft: 4 }}>
                   {item.durationMinutes} min
+                </ThemedText>
+              </View>
+            ) : null}
+            {item.weatherIcon && item.weatherTemp !== null ? (
+              <View style={[styles.statBadge, { backgroundColor: theme.backgroundDefault }]}>
+                <Feather name={item.weatherIcon as any} size={13} color={theme.textSecondary} />
+                <ThemedText type="small" style={{ color: theme.textSecondary, marginLeft: 3 }}>
+                  {Math.round(item.weatherTemp)}°
                 </ThemedText>
               </View>
             ) : null}

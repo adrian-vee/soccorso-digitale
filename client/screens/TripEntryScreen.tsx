@@ -37,6 +37,9 @@ import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import type { TripEntryStackParamList } from "@/navigation/TripEntryStackNavigator";
 import { SignaturePad } from "@/components/SignaturePad";
+import { HolidayChip } from "@/components/HolidayChip";
+import { WeatherBadge } from "@/components/WeatherBadge";
+import { What3WordsInput } from "@/components/What3WordsInput";
 
 const AUTHORIZER_TYPES = [
   { value: "medico_bordo", label: "Medico a bordo" },
@@ -404,6 +407,7 @@ export default function TripEntryScreen() {
   const [showWaypoint2Picker, setShowWaypoint2Picker] = useState(false);
   const [waypointKmBreakdown, setWaypointKmBreakdown] = useState<{leg1: number | null, leg2: number | null, leg3: number | null}>({leg1: null, leg2: null, leg3: null});
   const [isCalculatingWaypointKm, setIsCalculatingWaypointKm] = useState(false);
+  const [formUserCoords, setFormUserCoords] = useState<{ lat: number; lon: number } | null>(null);
 
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showDepartureTimePicker, setShowDepartureTimePicker] = useState(false);
@@ -435,6 +439,18 @@ export default function TripEntryScreen() {
   const locationSubscriptionRef = useRef<Location.LocationSubscription | null>(null);
   const lastLocationUpdateRef = useRef<number>(0);
   const draftTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    Location.getLastKnownPositionAsync()
+      .then((pos) => {
+        if (pos) {
+          setFormUserCoords({ lat: pos.coords.latitude, lon: pos.coords.longitude });
+        } else {
+          setFormUserCoords({ lat: 45.1553, lon: 11.307 });
+        }
+      })
+      .catch(() => setFormUserCoords({ lat: 45.1553, lon: 11.307 }));
+  }, []);
 
   useEffect(() => {
     const startLocationTracking = async () => {
@@ -1907,6 +1923,14 @@ export default function TripEntryScreen() {
           </>
         )}
 
+        {/* Festivo + Meteo previsionale per la data selezionata */}
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: Spacing.xs }}>
+          <HolidayChip date={serviceDate} />
+          {formUserCoords && (
+            <WeatherBadge lat={formUserCoords.lat} lon={formUserCoords.lon} compact />
+          )}
+        </View>
+
         <View style={styles.timeRow}>
           <View style={styles.halfInput}>
             {Platform.OS === "web" ? (
@@ -2326,24 +2350,35 @@ export default function TripEntryScreen() {
       {isEmergencyService ? (
         <View style={[styles.section, { borderLeftWidth: 3, borderLeftColor: "#DC3545", paddingLeft: Spacing.md }]}>
           <SectionHeader icon="alert-circle" title="2. Luogo Intervento" />
-          <InterventionLocationTabs 
-            selectedType={waypoint1Type} 
-            isLoading={isGettingWaypoint1Gps}
-            onSelectType={(type) => {
-              if (type === "gps") {
-                getWaypoint1GpsLocation();
-              } else {
-                setWaypoint1Type(type);
-                setWaypoint1StructureId("");
-                setWaypoint1DepartmentId("");
-                setWaypoint1Address("");
-                setWaypoint1Coords(null);
-                if (type !== "domicilio") {
-                  setShowWaypoint1Picker(true);
-                }
-              }
-            }} 
-          />
+          <View style={{ flexDirection: "row", alignItems: "center", gap: Spacing.sm, flexWrap: "wrap" }}>
+            <View style={{ flex: 1, minWidth: 200 }}>
+              <InterventionLocationTabs
+                selectedType={waypoint1Type}
+                isLoading={isGettingWaypoint1Gps}
+                onSelectType={(type) => {
+                  if (type === "gps") {
+                    getWaypoint1GpsLocation();
+                  } else {
+                    setWaypoint1Type(type);
+                    setWaypoint1StructureId("");
+                    setWaypoint1DepartmentId("");
+                    setWaypoint1Address("");
+                    setWaypoint1Coords(null);
+                    if (type !== "domicilio") {
+                      setShowWaypoint1Picker(true);
+                    }
+                  }
+                }}
+              />
+            </View>
+            <What3WordsInput
+              onResolve={(coords, address, w3wAddr) => {
+                setWaypoint1Type("gps");
+                setWaypoint1Coords(coords);
+                setWaypoint1Address(address);
+              }}
+            />
+          </View>
           {waypoint1Type === "gps" && waypoint1Address ? (
             <View style={[styles.emergencyLocationLocked, { 
               backgroundColor: theme.cardBackground, 

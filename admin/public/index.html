@@ -77,6 +77,9 @@
           </div>
 
           <nav class="sidebar-nav">
+            <!-- Operational Nav Wrapper (org admin view + super admin support mode) -->
+            <div id="operational-nav">
+
             <div class="nav-section">
               <button class="nav-item active" data-page="dashboard">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
@@ -268,6 +271,36 @@
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
                   <span>Richieste Strutture</span>
                   <span class="nav-badge nav-badge-warning" id="structure-requests-badge" style="display:none;">0</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="nav-section nav-section-collapsible" data-section="territorio">
+              <button class="nav-section-header" onclick="toggleNavSection(this)" aria-expanded="false">
+                <span class="nav-section-header-icon" style="--section-color: #ef4444;">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                </span>
+                <span class="nav-section-header-label">Territorio e Sicurezza</span>
+                <span class="nav-section-count">4</span>
+                <svg class="nav-section-chevron" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <div class="nav-section-body">
+                <button class="nav-item" data-page="coverage-map">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+                  <span>Mappa Copertura</span>
+                </button>
+                <button class="nav-item" data-page="emergency-alerts">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                  <span>Alert Emergenze</span>
+                  <span class="env-alerts-count" id="nav-alert-badge" style="display:none;">0</span>
+                </button>
+                <button class="nav-item" data-page="notif-config">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                  <span>Config. Notifiche</span>
+                </button>
+                <button class="nav-item" data-page="security-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                  <span>Centro Sicurezza</span>
                 </button>
               </div>
             </div>
@@ -468,6 +501,179 @@
               </div>
             </div>
 
+            </div><!-- /operational-nav -->
+
+            <!-- Platform Nav Wrapper (super admin platform mode — all orgs) -->
+            <div id="platform-nav" style="display:none;">
+
+              <!-- SaaS Dashboard shortcut -->
+              <div class="nav-section">
+                <button class="nav-item" data-page="saas-dashboard">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+                  <span>Dashboard SaaS</span>
+                  <span class="nav-badge" style="background:linear-gradient(135deg,#3b82f6,#8b5cf6);color:#fff;">PLATFORM</span>
+                </button>
+              </div>
+
+              <!-- ORGANIZZAZIONI -->
+              <div class="nav-section nav-section-collapsible" data-section="sa-organizzazioni">
+                <button class="nav-section-header" onclick="toggleNavSection(this)" aria-expanded="true">
+                  <span class="nav-section-header-icon" style="--section-color:#0066CC;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                  </span>
+                  <span class="nav-section-header-label">Organizzazioni</span>
+                  <span class="nav-section-count">3</span>
+                  <svg class="nav-section-chevron" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="nav-section-body" style="display:block;">
+                  <button class="nav-item" data-page="client-overview">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    <span>Panoramica Clienti</span>
+                  </button>
+                  <button class="nav-item" data-page="onboarding-pipeline">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+                    <span>Onboarding</span>
+                    <span class="nav-badge" style="background:#10b981;color:#fff;">NEW</span>
+                  </button>
+                  <button class="nav-item" data-page="plans-billing">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                    <span>Piani &amp; Billing</span>
+                    <span class="nav-badge" style="background:#0066CC;color:#fff;">STRIPE</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- ANALYTICS PIATTAFORMA -->
+              <div class="nav-section nav-section-collapsible" data-section="sa-analytics">
+                <button class="nav-section-header" onclick="toggleNavSection(this)" aria-expanded="true">
+                  <span class="nav-section-header-icon" style="--section-color:#8b5cf6;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M7 16V8"/><path d="M11 16V11"/><path d="M15 16V14"/><path d="M19 16V10"/></svg>
+                  </span>
+                  <span class="nav-section-header-label">Analytics Piattaforma</span>
+                  <span class="nav-section-count">5</span>
+                  <svg class="nav-section-chevron" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="nav-section-body" style="display:block;">
+                  <button class="nav-item" data-page="saas-metrics">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>
+                    <span>Metriche SaaS</span>
+                    <span class="nav-badge" style="background:linear-gradient(135deg,#3b82f6,#8b5cf6);color:#fff;">SaaS</span>
+                  </button>
+                  <button class="nav-item" data-page="benchmarking">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+                    <span>Benchmarking</span>
+                  </button>
+                  <button class="nav-item" data-page="revenue-forecasts">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                    <span>Previsioni Ricavi</span>
+                    <span class="nav-badge" style="background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;">AI</span>
+                  </button>
+                  <button class="nav-item" data-page="score-card">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
+                    <span>Score Card</span>
+                  </button>
+                  <button class="nav-item" data-page="adoption-usage">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="12" r="10"/><path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72m2.54-15.38c-3.72 4.35-8.94 5.66-16.88 5.85m19.5 1.9c-3.5-.93-6.63-.82-8.94 0-2.58.92-5.01 2.86-7.44 6.32"/></svg>
+                    <span>Adoption &amp; Usage</span>
+                    <span class="nav-badge" style="background:#10b981;color:#fff;">NEW</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- INTELLIGENCE -->
+              <div class="nav-section nav-section-collapsible" data-section="sa-intelligence">
+                <button class="nav-section-header" onclick="toggleNavSection(this)" aria-expanded="true">
+                  <span class="nav-section-header-icon" style="--section-color:#f59e0b;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/><circle cx="12" cy="12" r="10"/></svg>
+                  </span>
+                  <span class="nav-section-header-label">Intelligence</span>
+                  <span class="nav-section-count">3</span>
+                  <svg class="nav-section-chevron" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="nav-section-body" style="display:block;">
+                  <button class="nav-item" data-page="predictive-alerts">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    <span>Intelligence Predittiva</span>
+                    <span class="nav-badge" style="background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;">AI</span>
+                  </button>
+                  <button class="nav-item" data-page="tenders">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>
+                    <span>Gare d'Appalto</span>
+                    <span class="nav-badge" style="background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;">AI</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- GOVERNANCE -->
+              <div class="nav-section nav-section-collapsible" data-section="sa-governance">
+                <button class="nav-section-header" onclick="toggleNavSection(this)" aria-expanded="true">
+                  <span class="nav-section-header-icon" style="--section-color:#10b981;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                  </span>
+                  <span class="nav-section-header-label">Governance &amp; Compliance</span>
+                  <span class="nav-section-count">4</span>
+                  <svg class="nav-section-chevron" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="nav-section-body" style="display:block;">
+                  <button class="nav-item nav-item-compliance" data-page="compliance">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+                    <span>Compliance e Audit</span>
+                    <span class="nav-badge" id="compliance-status-badge-2">ISO</span>
+                  </button>
+                  <button class="nav-item" data-page="data-quality">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                    <span>Qualità del Dato</span>
+                  </button>
+                  <button class="nav-item" data-page="security-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    <span>Centro Sicurezza</span>
+                  </button>
+                  <button class="nav-item" data-page="documents">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    <span>Documenti Legali</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- SISTEMA PIATTAFORMA -->
+              <div class="nav-section nav-section-collapsible" data-section="sa-sistema">
+                <button class="nav-section-header" onclick="toggleNavSection(this)" aria-expanded="true">
+                  <span class="nav-section-header-icon" style="--section-color:#64748b;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 9a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9z"/></svg>
+                  </span>
+                  <span class="nav-section-header-label">Sistema Piattaforma</span>
+                  <span class="nav-section-count">5</span>
+                  <svg class="nav-section-chevron" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="nav-section-body" style="display:block;">
+                  <button class="nav-item" data-page="settings">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4z"/></svg>
+                    <span>Impostazioni Piattaforma</span>
+                  </button>
+                  <button class="nav-item" data-page="api-providers">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                    <span>Gestione API &amp; Provider</span>
+                    <span class="nav-badge" style="background:#0066CC;color:#fff;">NEW</span>
+                  </button>
+                  <button class="nav-item" data-page="apk-management">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    <span>Gestione App APK</span>
+                    <span class="nav-badge" style="background:linear-gradient(135deg,#00A651,#059669);color:#fff;">APP</span>
+                  </button>
+                  <button class="nav-item" data-page="marketplace-manage">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                    <span>Gestione Marketplace</span>
+                  </button>
+                  <button class="nav-item" data-page="spid-config">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/><circle cx="12" cy="16" r="1"/></svg>
+                    <span>SPID / CIE Config</span>
+                    <span class="nav-badge" style="background:#697386;color:#fff;">Fase 3</span>
+                  </button>
+                </div>
+              </div>
+
+            </div><!-- /platform-nav -->
+
             <div class="nav-section">
               <button class="nav-item nav-item-marketplace" data-page="marketplace">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
@@ -553,6 +759,20 @@
             </aside>
 
             <main class="content" id="main-content">
+
+              <!-- Super Admin Support Mode Banner -->
+              <div id="support-mode-banner" class="support-mode-banner" style="display:none;">
+                <div class="smb-inner">
+                  <span class="smb-icon">🔧</span>
+                  <div class="smb-text">
+                    <span class="smb-label">Modalità Supporto Tecnico</span>
+                    <span class="smb-org" id="smb-org-name">—</span>
+                  </div>
+                  <span class="smb-warn">⚠ Stai modificando dati di una specifica organizzazione</span>
+                  <button class="smb-exit" onclick="exitSupportMode()">← Torna a Vista Piattaforma</button>
+                </div>
+              </div>
+
               <section id="dashboard-section" class="section dashboard-dark">
                 <!-- New Professional Dashboard -->
                 
@@ -577,6 +797,90 @@
                   </div>
                 </div>
                 
+                <!-- Environmental Intelligence Row -->
+                <div class="dash-env-row" id="dash-env-row">
+
+                  <!-- Weather Widget -->
+                  <div class="env-widget env-weather" id="env-weather-widget">
+                    <div class="env-widget-header">
+                      <span class="env-widget-icon">🌤</span>
+                      <span class="env-widget-title">Meteo Operativo</span>
+                      <span class="env-weather-impact-badge" id="env-weather-impact">--</span>
+                    </div>
+                    <div class="env-widget-body">
+                      <div class="weather-current-row">
+                        <span class="weather-main-icon" id="env-weather-icon">--</span>
+                        <div class="weather-current-info">
+                          <span class="weather-temp" id="env-weather-temp">--°C</span>
+                          <span class="weather-desc" id="env-weather-desc">Caricamento...</span>
+                        </div>
+                        <div class="weather-extras">
+                          <span id="env-weather-wind">-- km/h</span>
+                          <span id="env-weather-precip">-- mm</span>
+                        </div>
+                      </div>
+                      <div class="weather-forecast-strip" id="env-weather-forecast">
+                        <!-- Populated by JS -->
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Emergency Alerts Widget -->
+                  <div class="env-widget env-alerts" id="env-alerts-widget">
+                    <div class="env-widget-header">
+                      <span class="env-widget-icon">⚠️</span>
+                      <span class="env-widget-title">Alert Protezione Civile</span>
+                      <span class="env-alerts-count" id="env-alerts-count">0</span>
+                    </div>
+                    <div class="env-widget-body" id="env-alerts-body">
+                      <div class="env-loading-state">Caricamento alert...</div>
+                    </div>
+                  </div>
+
+                  <!-- ETA Accuracy Widget -->
+                  <div class="env-widget env-eta" id="env-eta-widget">
+                    <div class="env-widget-header">
+                      <span class="env-widget-icon">📊</span>
+                      <span class="env-widget-title">ETA Accuracy</span>
+                    </div>
+                    <div class="env-widget-body">
+                      <div class="eta-score-wrap">
+                        <div class="eta-score-ring">
+                          <svg viewBox="0 0 60 60" class="eta-ring-svg">
+                            <circle cx="30" cy="30" r="24" class="eta-ring-bg"/>
+                            <circle cx="30" cy="30" r="24" class="eta-ring-fill" id="env-eta-ring"/>
+                          </svg>
+                          <span class="eta-ring-label" id="env-eta-value">--%</span>
+                        </div>
+                        <div class="eta-stats-col">
+                          <div class="eta-stat-row"><span class="eta-stat-val" id="env-eta-on-time">--</span><span class="eta-stat-lbl">in orario</span></div>
+                          <div class="eta-stat-row"><span class="eta-stat-val eta-late" id="env-eta-late">--</span><span class="eta-stat-lbl">ritardo</span></div>
+                          <div class="eta-stat-row"><span class="eta-stat-val" id="env-eta-avg-delta">--</span><span class="eta-stat-lbl">Δ min medio</span></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Demand Forecast Widget -->
+                  <div class="env-widget env-demand" id="env-demand-widget">
+                    <div class="env-widget-header">
+                      <span class="env-widget-icon">📈</span>
+                      <span class="env-widget-title">Demand Forecast</span>
+                      <span class="env-demand-badge" id="env-demand-badge">+7gg</span>
+                    </div>
+                    <div class="env-widget-body">
+                      <div class="demand-chart-container">
+                        <canvas id="env-demand-chart"></canvas>
+                      </div>
+                      <div class="demand-summary" id="env-demand-summary">
+                        <span>Stima: <strong id="env-demand-count">--</strong> servizi</span>
+                        <span class="demand-trend-badge" id="env-demand-trend">--</span>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+
                 <!-- KPI Cards Row -->
                 <div class="dash-kpi-row">
                   <div class="dash-kpi-card">
@@ -812,6 +1116,9 @@
                 </button>
               </div>
             </div>
+
+            <!-- Intelligence Banner: Holiday + Weather for selected day -->
+            <div id="pg-intel-banner" class="pg-intel-banner"></div>
 
             <div id="pg-stats-cards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:20px;"></div>
 
@@ -3968,6 +4275,13 @@
                 <div class="gps-map-panel panel-card">
                   <div class="gps-map-container-v2">
                     <div id="gps-map" class="gps-map-canvas"></div>
+                    <!-- Layer Controls Toolbar -->
+                    <div class="fleet-layer-toolbar" id="fleet-layer-toolbar">
+                      <button class="flt-btn" id="flt-rain" onclick="toggleFleetLayer('rain')" title="Radar precipitazioni RainViewer">🌧 Pioggia</button>
+                      <button class="flt-btn" id="flt-iso" onclick="toggleFleetLayer('isochrone')" title="Isocrona 5/10/20 min dalla HQ">⏱ Isocrona</button>
+                      <button class="flt-btn" id="flt-pciv" onclick="toggleFleetLayer('pciv')" title="Alert Protezione Civile su mappa">⚠ Alert PC</button>
+                      <button class="flt-btn" id="flt-traf" onclick="toggleFleetLayer('traffic')" title="Overlay traffico strade">🚦 Traffico</button>
+                    </div>
                     <div class="gps-map-loading" id="map-loading">
                       <div class="gps-map-spinner-v2"></div>
                       <span>Caricamento mappa...</span>
@@ -8860,7 +9174,457 @@
             </div>
           </section>
 
+          <!-- SaaS Dashboard Section (Super Admin Platform Mode) -->
+          <section id="saas-dashboard-section" class="section hidden">
+            <div class="saas-db-header">
+              <div>
+                <h2 class="saas-db-title">Dashboard Piattaforma</h2>
+                <p class="saas-db-subtitle" id="saas-db-last-update">Caricamento dati in corso...</p>
+              </div>
+              <div class="saas-db-header-actions">
+                <button class="btn btn-secondary" onclick="loadSaasDashboard()">Aggiorna</button>
+                <select class="form-control" id="saas-period-select" onchange="loadSaasDashboard()" style="width:140px;">
+                  <option value="30">Ultimi 30 giorni</option>
+                  <option value="90">Ultimi 90 giorni</option>
+                  <option value="365" selected>Ultimi 12 mesi</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- KPI Row -->
+            <div class="saas-kpi-row" id="saas-kpi-row">
+              <div class="saas-kpi-card saas-kpi-mrr">
+                <div class="skc-label">MRR</div>
+                <div class="skc-value" id="saas-kpi-mrr">€ --</div>
+                <div class="skc-trend" id="saas-kpi-mrr-trend">-- %</div>
+              </div>
+              <div class="saas-kpi-card">
+                <div class="skc-label">Org Attive</div>
+                <div class="skc-value" id="saas-kpi-orgs">--</div>
+                <div class="skc-trend" id="saas-kpi-orgs-trend">--</div>
+              </div>
+              <div class="saas-kpi-card">
+                <div class="skc-label">Churn Rate</div>
+                <div class="skc-value" id="saas-kpi-churn">-- %</div>
+                <div class="skc-sub">mensile</div>
+              </div>
+              <div class="saas-kpi-card">
+                <div class="skc-label">LTV Medio</div>
+                <div class="skc-value" id="saas-kpi-ltv">€ --</div>
+                <div class="skc-sub">per organizzazione</div>
+              </div>
+              <div class="saas-kpi-card saas-kpi-trial">
+                <div class="skc-label">In Trial</div>
+                <div class="skc-value" id="saas-kpi-trial">--</div>
+                <div class="skc-sub">conversione -- %</div>
+              </div>
+            </div>
+
+            <!-- Main Charts Row -->
+            <div class="saas-charts-row">
+              <div class="saas-panel saas-revenue-panel">
+                <div class="saas-panel-header">
+                  <span class="saas-panel-title">Revenue Trend</span>
+                  <span class="saas-panel-badge">MRR 12 mesi</span>
+                </div>
+                <div class="saas-chart-wrap">
+                  <canvas id="saas-revenue-chart"></canvas>
+                </div>
+              </div>
+              <div class="saas-panel saas-health-panel">
+                <div class="saas-panel-header">
+                  <span class="saas-panel-title">Health Score per Org</span>
+                </div>
+                <div class="saas-health-list" id="saas-health-list">
+                  <div class="env-loading-state">Caricamento...</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bottom Row -->
+            <div class="saas-charts-row">
+              <div class="saas-panel saas-today-panel">
+                <div class="saas-panel-header">
+                  <span class="saas-panel-title">Piattaforma Oggi</span>
+                  <span class="saas-live-dot"></span>
+                </div>
+                <div class="saas-today-grid" id="saas-today-grid">
+                  <div class="saas-today-item"><span class="sti-val" id="saas-today-services">--</span><span class="sti-lbl">servizi totali</span></div>
+                  <div class="saas-today-item"><span class="sti-val" id="saas-today-km">--</span><span class="sti-lbl">km percorsi</span></div>
+                  <div class="saas-today-item"><span class="sti-val" id="saas-today-vehicles">--</span><span class="sti-lbl">mezzi attivi</span></div>
+                  <div class="saas-today-item"><span class="sti-val" id="saas-today-alerts">--</span><span class="sti-lbl">alert attivi</span></div>
+                </div>
+              </div>
+              <div class="saas-panel saas-adoption-panel">
+                <div class="saas-panel-header">
+                  <span class="saas-panel-title">Feature Adoption</span>
+                  <button class="btn btn-link" onclick="navigateTo('adoption-usage')">Dettaglio →</button>
+                </div>
+                <div class="saas-adoption-list" id="saas-adoption-list">
+                  <!-- Populated by JS -->
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Client Overview Section -->
+          <section id="client-overview-section" class="section hidden">
+            <div class="section-header-row">
+              <h2>Panoramica Clienti</h2>
+              <div class="header-actions">
+                <input type="text" id="co-search" placeholder="Cerca organizzazione..." class="form-control" style="width:220px;" oninput="filterClientOverview(this.value)">
+                <select id="co-status-filter" class="form-control" style="width:150px;" onchange="filterClientOverview()">
+                  <option value="">Tutti gli stati</option>
+                  <option value="active">Attivi</option>
+                  <option value="trial">Trial</option>
+                  <option value="suspended">Sospesi</option>
+                  <option value="churned">Churned</option>
+                </select>
+                <button class="btn btn-primary" onclick="openNewOrgModal()">+ Nuova Org</button>
+              </div>
+            </div>
+            <div id="co-stats-row" class="co-stats-row">
+              <div class="co-stat"><span class="co-stat-val" id="co-total">--</span><span class="co-stat-lbl">Totali</span></div>
+              <div class="co-stat co-stat-active"><span class="co-stat-val" id="co-active">--</span><span class="co-stat-lbl">Attive</span></div>
+              <div class="co-stat co-stat-trial"><span class="co-stat-val" id="co-trial">--</span><span class="co-stat-lbl">Trial</span></div>
+              <div class="co-stat co-stat-risk"><span class="co-stat-val" id="co-risk">--</span><span class="co-stat-lbl">A rischio</span></div>
+            </div>
+            <div class="co-table-wrap">
+              <table class="co-table" id="co-table">
+                <thead>
+                  <tr>
+                    <th>Organizzazione</th>
+                    <th>Piano</th>
+                    <th>Health</th>
+                    <th>MRR</th>
+                    <th>Utenti</th>
+                    <th>Ultimo accesso</th>
+                    <th>Stato</th>
+                    <th>Azioni</th>
+                  </tr>
+                </thead>
+                <tbody id="co-tbody">
+                  <tr><td colspan="8" class="env-loading-state" style="text-align:center;padding:40px;">Caricamento organizzazioni...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- Onboarding Pipeline Section -->
+          <section id="onboarding-pipeline-section" class="section hidden">
+            <div class="section-header-row">
+              <h2>Pipeline Onboarding</h2>
+              <div class="header-actions">
+                <button class="btn btn-primary" onclick="openNewLeadModal()">+ Nuovo Lead</button>
+              </div>
+            </div>
+            <div class="pipeline-board" id="pipeline-board">
+              <!-- Kanban columns populated by JS -->
+              <div class="pipeline-col" data-stage="lead">
+                <div class="pipeline-col-header pipeline-lead"><span>🎯 Lead</span><span class="pipeline-count" id="pcol-lead-count">0</span></div>
+                <div class="pipeline-cards" id="pcol-lead"></div>
+              </div>
+              <div class="pipeline-col" data-stage="demo">
+                <div class="pipeline-col-header pipeline-demo"><span>🖥 Demo</span><span class="pipeline-count" id="pcol-demo-count">0</span></div>
+                <div class="pipeline-cards" id="pcol-demo"></div>
+              </div>
+              <div class="pipeline-col" data-stage="trial">
+                <div class="pipeline-col-header pipeline-trial"><span>🔬 Trial</span><span class="pipeline-count" id="pcol-trial-count">0</span></div>
+                <div class="pipeline-cards" id="pcol-trial"></div>
+              </div>
+              <div class="pipeline-col" data-stage="onboarding">
+                <div class="pipeline-col-header pipeline-onboarding"><span>⚙️ Onboarding</span><span class="pipeline-count" id="pcol-onboarding-count">0</span></div>
+                <div class="pipeline-cards" id="pcol-onboarding"></div>
+              </div>
+              <div class="pipeline-col" data-stage="active">
+                <div class="pipeline-col-header pipeline-active"><span>✅ Attivo</span><span class="pipeline-count" id="pcol-active-count">0</span></div>
+                <div class="pipeline-cards" id="pcol-active"></div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Plans & Billing Section -->
+          <section id="plans-billing-section" class="section hidden">
+            <div class="section-header-row">
+              <h2>Piani &amp; Billing</h2>
+            </div>
+            <div class="pb-layout">
+              <div class="pb-plans-grid" id="pb-plans-grid">
+                <!-- Populated by JS -->
+              </div>
+              <div class="pb-billing-table-wrap">
+                <h3 style="font-size:15px;font-weight:700;margin-bottom:12px;">Abbonamenti Attivi</h3>
+                <table class="co-table" id="pb-subs-table">
+                  <thead><tr><th>Organizzazione</th><th>Piano</th><th>MRR</th><th>Prossimo rinnovo</th><th>Stato</th></tr></thead>
+                  <tbody id="pb-subs-tbody"><tr><td colspan="5" class="env-loading-state" style="text-align:center;padding:20px;">Caricamento abbonamenti...</td></tr></tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- Adoption & Usage Section -->
+          <section id="adoption-usage-section" class="section hidden">
+            <div class="section-header-row">
+              <h2>Adoption &amp; Usage Analytics</h2>
+            </div>
+            <div class="adoption-layout">
+              <div class="adoption-chart-panel">
+                <div class="saas-panel-header"><span class="saas-panel-title">Feature Adoption per Organizzazione</span></div>
+                <div style="height:320px;"><canvas id="adoption-chart"></canvas></div>
+              </div>
+              <div class="adoption-feature-list" id="adoption-feature-list">
+                <!-- Populated by JS -->
+              </div>
+            </div>
+          </section>
+
+          <!-- API Providers Section -->
+          <section id="api-providers-section" class="section hidden">
+            <div class="section-header-row">
+              <h2>Gestione API &amp; Provider</h2>
+              <div class="header-actions">
+                <button class="btn btn-secondary" onclick="loadApiProviders()">Aggiorna</button>
+              </div>
+            </div>
+            <div class="api-prov-stats-row">
+              <div class="api-prov-stat api-prov-up"><span class="aps-val" id="aps-up">--</span><span class="aps-lbl">UP</span></div>
+              <div class="api-prov-stat api-prov-degraded"><span class="aps-val" id="aps-degraded">--</span><span class="aps-lbl">DEGRADED</span></div>
+              <div class="api-prov-stat api-prov-down"><span class="aps-val" id="aps-down">--</span><span class="aps-lbl">DOWN</span></div>
+              <div class="api-prov-stat"><span class="aps-val" id="aps-cache">-- %</span><span class="aps-lbl">Cache hit rate</span></div>
+              <div class="api-prov-stat"><span class="aps-val" id="aps-cost">€ --</span><span class="aps-lbl">Costo oggi</span></div>
+            </div>
+            <div class="api-prov-table-wrap">
+              <table class="api-prov-table" id="api-prov-table">
+                <thead>
+                  <tr>
+                    <th>Provider</th>
+                    <th>Categoria</th>
+                    <th>Status</th>
+                    <th>Req / oggi</th>
+                    <th>Errori</th>
+                    <th>Latenza ms</th>
+                    <th>Costo oggi</th>
+                    <th>Rate limit</th>
+                  </tr>
+                </thead>
+                <tbody id="api-prov-tbody">
+                  <tr><td colspan="8" class="env-loading-state" style="text-align:center;padding:40px;">Caricamento provider...</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="api-prov-footer" id="api-prov-footer"></div>
+          </section>
+
+          <!-- SPID/CIE Config Section -->
+          <section id="spid-config-section" class="section hidden">
+            <div class="section-header-row">
+              <h2>SPID / CIE Configurazione</h2>
+              <span class="nav-badge" style="background:#697386;color:#fff;font-size:12px;padding:4px 12px;border-radius:10px;">Disponibile in Fase 3</span>
+            </div>
+            <div class="spid-coming-soon">
+              <div class="spid-cs-icon">🔐</div>
+              <h3>Autenticazione SPID e CIE</h3>
+              <p>L'integrazione con il sistema SPID (Sistema Pubblico di Identità Digitale) e CIE (Carta d'Identità Elettronica) permetterà ai volontari di autenticarsi senza credenziali aziendali.</p>
+              <div class="spid-cs-features">
+                <div class="spid-cs-feat">✅ Identity Provider: ArubaPEC, Namirial, Lepida</div>
+                <div class="spid-cs-feat">✅ Livelli SPID 1, 2, 3</div>
+                <div class="spid-cs-feat">✅ CIE tramite NFC mobile</div>
+                <div class="spid-cs-feat">⏳ Certificati AgID richiesti</div>
+                <div class="spid-cs-feat">⏳ Metadata SP da configurare</div>
+              </div>
+              <button class="btn btn-primary" style="margin-top:24px;">Richiedi accesso anticipato</button>
+            </div>
+          </section>
+
+          <!-- Mappa Copertura Section -->
+          <section id="coverage-map-section" class="section hidden">
+            <div class="section-header-row">
+              <h2>Mappa Copertura Territoriale</h2>
+              <div class="header-actions">
+                <button class="btn btn-secondary" id="cov-refresh-btn" onclick="loadCoverageMap()">Aggiorna</button>
+              </div>
+            </div>
+            <div class="coverage-map-layout">
+              <div class="coverage-sidebar">
+                <div class="coverage-sidebar-card">
+                  <div class="csb-title">Copertura Attuale</div>
+                  <div class="csb-metric" id="cov-pct">--%</div>
+                  <div class="csb-label">del territorio coperto</div>
+                </div>
+                <div class="coverage-sidebar-card">
+                  <div class="csb-title">Sedi Attive</div>
+                  <div class="csb-metric" id="cov-sedi">--</div>
+                  <div class="csb-label">su 5 sedi operative</div>
+                </div>
+                <div class="coverage-sidebar-card">
+                  <div class="csb-title">Raggio Medio</div>
+                  <div class="csb-metric" id="cov-radius">-- km</div>
+                  <div class="csb-label">copertura per sede</div>
+                </div>
+                <div class="coverage-layer-controls">
+                  <div class="csb-title" style="margin-bottom:8px;">Livelli</div>
+                  <label class="cov-toggle"><input type="checkbox" id="cov-layer-5min" checked onchange="updateCovLayers()"><span>5 min (2km)</span></label>
+                  <label class="cov-toggle"><input type="checkbox" id="cov-layer-10min" checked onchange="updateCovLayers()"><span>10 min (5km)</span></label>
+                  <label class="cov-toggle"><input type="checkbox" id="cov-layer-20min" onchange="updateCovLayers()"><span>20 min (10km)</span></label>
+                  <label class="cov-toggle"><input type="checkbox" id="cov-layer-gaps" onchange="updateCovLayers()"><span>Zone scoperte</span></label>
+                </div>
+              </div>
+              <div class="coverage-map-container">
+                <div id="coverage-map" class="coverage-map-canvas"></div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Alert Emergenze Section -->
+          <section id="emergency-alerts-section" class="section hidden">
+            <div class="section-header-row">
+              <h2>Alert Emergenze — Protezione Civile</h2>
+              <div class="header-actions">
+                <select id="ea-region-filter" class="form-control" style="width:180px;" onchange="loadEmergencyAlerts()">
+                  <option value="Veneto">Veneto</option>
+                  <option value="Lombardia">Lombardia</option>
+                  <option value="Trentino-Alto Adige">Trentino-Alto Adige</option>
+                  <option value="Friuli-Venezia Giulia">Friuli-Venezia Giulia</option>
+                </select>
+                <button class="btn btn-secondary" onclick="loadEmergencyAlerts()">Aggiorna</button>
+              </div>
+            </div>
+            <div class="ea-layout">
+              <div class="ea-stats-row" id="ea-stats-row">
+                <div class="ea-stat-card ea-stat-critical"><span class="ea-stat-val" id="ea-count-critical">0</span><span class="ea-stat-lbl">Critici</span></div>
+                <div class="ea-stat-card ea-stat-high"><span class="ea-stat-val" id="ea-count-high">0</span><span class="ea-stat-lbl">Alta priorità</span></div>
+                <div class="ea-stat-card ea-stat-medium"><span class="ea-stat-val" id="ea-count-medium">0</span><span class="ea-stat-lbl">Media priorità</span></div>
+                <div class="ea-stat-card ea-stat-low"><span class="ea-stat-val" id="ea-count-low">0</span><span class="ea-stat-lbl">Bassa priorità</span></div>
+              </div>
+              <div class="ea-main">
+                <div class="ea-list-panel">
+                  <div id="ea-alerts-list" class="ea-alerts-list"><div class="env-loading-state">Caricamento alert...</div></div>
+                </div>
+                <div class="ea-map-panel">
+                  <div id="ea-map" class="ea-map-canvas"></div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Configurazione Notifiche Section -->
+          <section id="notif-config-section" class="section hidden">
+            <div class="section-header-row">
+              <h2>Configurazione Notifiche</h2>
+            </div>
+            <div class="notif-config-layout">
+              <div class="notif-config-card">
+                <div class="ncc-header">
+                  <span class="ncc-icon">📱</span>
+                  <div>
+                    <div class="ncc-title">SMS via Brevo</div>
+                    <div class="ncc-subtitle">Notifiche transazionali via SMS</div>
+                  </div>
+                  <div class="ncc-status" id="ncc-brevo-status">
+                    <span class="status-dot" id="brevo-status-dot"></span>
+                    <span id="brevo-status-text">Verifica...</span>
+                  </div>
+                </div>
+                <div class="ncc-body">
+                  <div class="ncc-metric-row">
+                    <span class="ncc-metric-label">Crediti SMS rimanenti</span>
+                    <span class="ncc-metric-val" id="brevo-credits">--</span>
+                  </div>
+                  <div class="ncc-metric-row">
+                    <span class="ncc-metric-label">Rate limit (req/s)</span>
+                    <span class="ncc-metric-val">10</span>
+                  </div>
+                  <div class="ncc-metric-row">
+                    <span class="ncc-metric-label">Mittente predefinito</span>
+                    <span class="ncc-metric-val">SoccDigit</span>
+                  </div>
+                </div>
+                <div class="ncc-triggers">
+                  <div class="ncc-triggers-title">Trigger attivi</div>
+                  <label class="ncc-trigger-row"><input type="checkbox" checked> Conferma prenotazione</label>
+                  <label class="ncc-trigger-row"><input type="checkbox" checked> Promemoria 24h prima</label>
+                  <label class="ncc-trigger-row"><input type="checkbox"> Cancellazione servizio</label>
+                  <label class="ncc-trigger-row"><input type="checkbox"> Cambio autista</label>
+                  <label class="ncc-trigger-row"><input type="checkbox"> Ritardo &gt;15 min</label>
+                </div>
+                <div class="ncc-footer">
+                  <button class="btn btn-secondary" onclick="testSmsNotification()">Invia SMS di test</button>
+                  <button class="btn btn-primary" onclick="saveNotifConfig()">Salva configurazione</button>
+                </div>
+              </div>
+
+              <div class="notif-config-card">
+                <div class="ncc-header">
+                  <span class="ncc-icon">🔔</span>
+                  <div>
+                    <div class="ncc-title">Push Notifications</div>
+                    <div class="ncc-subtitle">Notifiche app mobile volontari</div>
+                  </div>
+                  <div class="ncc-status"><span class="status-dot status-coming-soon"></span><span>Coming soon</span></div>
+                </div>
+                <div class="ncc-body" style="color:var(--text-secondary);">
+                  <p style="font-size:13px;">Integrazione Firebase FCM disponibile nella prossima release. I volontari riceveranno notifiche push per cambio turno, nuovi servizi e alert emergenza.</p>
+                </div>
+              </div>
+
+              <div class="notif-config-card">
+                <div class="ncc-header">
+                  <span class="ncc-icon">📧</span>
+                  <div>
+                    <div class="ncc-title">Email via Brevo</div>
+                    <div class="ncc-subtitle">Email transazionali e newsletter</div>
+                  </div>
+                  <div class="ncc-status" id="ncc-email-status">
+                    <span class="status-dot" id="email-status-dot"></span>
+                    <span id="email-status-text">Verifica...</span>
+                  </div>
+                </div>
+                <div class="ncc-body">
+                  <div class="ncc-metric-row">
+                    <span class="ncc-metric-label">Email/giorno (piano free)</span>
+                    <span class="ncc-metric-val">300</span>
+                  </div>
+                  <div class="ncc-metric-row">
+                    <span class="ncc-metric-label">Template predefiniti</span>
+                    <span class="ncc-metric-val">3</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Centro Sicurezza Section -->
+          <section id="security-center-section" class="section hidden">
+            <div class="section-header-row">
+              <h2>Centro Sicurezza</h2>
+            </div>
+            <div class="sec-center-layout">
+              <div class="sec-overview-row">
+                <div class="sec-score-card">
+                  <div class="sec-score-ring-wrap">
+                    <svg viewBox="0 0 80 80" class="sec-score-svg">
+                      <circle cx="40" cy="40" r="32" class="sec-ring-bg"/>
+                      <circle cx="40" cy="40" r="32" class="sec-ring-fill" id="sec-score-ring"/>
+                    </svg>
+                    <span class="sec-score-val" id="sec-score-val">--</span>
+                  </div>
+                  <div class="sec-score-label">Security Score</div>
+                </div>
+                <div class="sec-checks-grid" id="sec-checks-grid">
+                  <!-- Populated by JS -->
+                </div>
+              </div>
+              <div class="sec-activity-panel">
+                <div class="sec-activity-title">Attività Recente</div>
+                <div class="sec-activity-list" id="sec-activity-list">
+                  <div class="env-loading-state">Caricamento log sicurezza...</div>
+                </div>
+              </div>
+            </div>
+          </section>
+
         </main>
+        <div id="notification-container" class="notification-container"></div>
 
         <aside class="detail-panel hidden" id="detail-panel">
           <div class="detail-header">

@@ -5,7 +5,7 @@ import path from "node:path";
 import fs from "node:fs";
 import multer from "multer";
 import { WebSocketServer, WebSocket } from "ws";
-import { createProviderRoutes } from "./routes/providers";
+import { createProviderRoutes } from "./routes/providers.routes";
 
 const PDFDocument = new Proxy(function(){} as any, {
   construct(_target, args) {

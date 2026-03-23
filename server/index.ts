@@ -4,7 +4,7 @@ import type { Request, Response, NextFunction } from "express";
 import session from "express-session";
 import connectPgSimple from "connect-pg-simple";
 import helmet from "helmet";
-import { registerRoutes } from "./routes";
+import { registerRoutes } from "./routes/index";
 import { seedDatabase } from "./seed";
 import { pool } from "./db";
 import { logger } from "./logger";
