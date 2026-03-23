@@ -329,16 +329,19 @@ function configureExpoAndLanding(app: express.Application) {
 
   log("Serving static Expo files with dynamic manifest routing");
 
-  // Serve new public marketing site (site/) — must come before /admin and / handlers
+  // Public marketing site — explicit routes + /site/* static assets
   const sitePath = path.resolve(process.cwd(), "site");
   if (fs.existsSync(sitePath)) {
-    app.use(express.static(sitePath, {
-      extensions: ["html"],
-      index: "index.html",
-      etag: false,
-      maxAge: 0,
-    }));
-    log("Serving public site from site/ directory");
+    const adminPath0 = path.resolve(process.cwd(), "admin", "public");
+    // Serve site CSS/JS/images under /site/ prefix
+    app.use("/site", express.static(sitePath, { etag: false, maxAge: 0 }));
+    // Serve logo from admin/public at root level (HTML files reference /logo.svg)
+    app.get("/logo.svg", (_req, res) => res.sendFile(path.join(adminPath0, "logo.svg")));
+    // Explicit page routes — must be before /admin handlers
+    app.get("/piattaforma", (_req, res) => res.sendFile(path.join(sitePath, "piattaforma.html")));
+    app.get("/clienti",     (_req, res) => res.sendFile(path.join(sitePath, "clienti.html")));
+    app.get("/contatti",    (_req, res) => res.sendFile(path.join(sitePath, "contatti.html")));
+    log("Public site: /piattaforma /clienti /contatti + /site/* assets");
   }
 
   // Serve admin panel with SPA fallback (no cache for development)
@@ -400,6 +403,10 @@ function configureExpoAndLanding(app: express.Application) {
     }
 
     if (req.path === "/") {
+      const siteIndex = path.resolve(process.cwd(), "site", "index.html");
+      if (fs.existsSync(siteIndex)) {
+        return res.sendFile(siteIndex);
+      }
       const html = saasLandingTemplate.replace(/APP_NAME_PLACEHOLDER/g, appName);
       res.setHeader("Content-Type", "text/html; charset=utf-8");
       return res.status(200).send(html);
