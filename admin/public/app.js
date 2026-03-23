@@ -12640,8 +12640,8 @@ async function initGpsMap() {
 // FLEET COMMAND CENTER — MAP LAYERS
 // ============================================================
 
-const fleetLayers = { rain: null, isochrone: [], pciv: [], traffic: null };
-const fleetLayerActive = { rain: false, isochrone: false, pciv: false, traffic: false };
+const fleetLayers = { isochrone: [], pciv: [], traffic: null };
+const fleetLayerActive = { isochrone: false, pciv: false, traffic: false };
 const FLEET_HQ_COORDS = [[45.3836, 11.0397], [45.3129, 11.3835], [45.1863, 11.3151], [45.5003, 11.4213], [45.1790, 11.0637]];
 
 function initFleetMapLayers() {
@@ -12650,45 +12650,14 @@ function initFleetMapLayers() {
 
 async function toggleFleetLayer(name) {
   if (!gpsMap) return;
-  const btnIds = { rain: 'flt-rain', isochrone: 'flt-iso', pciv: 'flt-pciv', traffic: 'flt-traf' };
+  const btnIds = { isochrone: 'flt-iso', pciv: 'flt-pciv', traffic: 'flt-traf' };
   fleetLayerActive[name] = !fleetLayerActive[name];
   const btn = document.getElementById(btnIds[name]);
   if (btn) btn.classList.toggle('flt-btn-active', fleetLayerActive[name]);
 
-  if (name === 'rain')       await toggleRainLayer(fleetLayerActive.rain);
-  else if (name === 'isochrone') toggleIsochroneLayer(fleetLayerActive.isochrone);
+  if (name === 'isochrone') toggleIsochroneLayer(fleetLayerActive.isochrone);
   else if (name === 'pciv')  await togglePcivLayer(fleetLayerActive.pciv);
   else if (name === 'traffic') toggleTrafficLayer(fleetLayerActive.traffic);
-}
-
-async function toggleRainLayer(show) {
-  if (fleetLayers.rain) { gpsMap.removeLayer(fleetLayers.rain); fleetLayers.rain = null; }
-  if (!show) return;
-  try {
-    const resp = await fetch('https://api.rainviewer.com/public/weather-maps.json');
-    if (!resp.ok) throw new Error('RainViewer API error: ' + resp.status);
-    const data = await resp.json();
-    const frames = data.radar?.past ?? [];
-    if (!frames.length) { console.warn('[Fleet] RainViewer: no radar frames available'); return; }
-    const latest = frames[frames.length - 1];
-    console.log('[Fleet] RainViewer path:', latest.path, 'timestamp:', latest.time);
-
-    const addRainLayer = () => {
-      if (fleetLayers.rain) { gpsMap.removeLayer(fleetLayers.rain); fleetLayers.rain = null; }
-      fleetLayers.rain = L.tileLayer(
-        `https://tilecache.rainviewer.com${latest.path}/256/{z}/{x}/{y}/2/1_1.png`,
-        { opacity: 0.6, attribution: '© RainViewer', minZoom: 3, maxZoom: 12, zIndex: 200 }
-      ).addTo(gpsMap);
-    };
-
-    // Add layer only AFTER zoom animation completes to avoid "Zoom Level Not Supported" tiles
-    if (gpsMap.getZoom() > 10) {
-      gpsMap.once('zoomend', addRainLayer);
-      gpsMap.setZoom(10, { animate: false });
-    } else {
-      addRainLayer();
-    }
-  } catch (e) { console.warn('[Fleet] RainViewer error:', e); }
 }
 
 function toggleIsochroneLayer(show) {
