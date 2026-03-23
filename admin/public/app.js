@@ -3145,11 +3145,17 @@ async function loadEnvWeather() {
   try {
     const coords = await getOrgWeatherCoords();
     const resp = await adminFetch(`/api/providers/weather?lat=${coords.lat}&lon=${coords.lng}`);
-    if (!resp.ok) throw new Error('weather fetch failed');
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
     const json = await resp.json();
+    // Provider may return {data: null, error: "..."} when circuit breaker is open
+    if (!json.data && json.error) throw new Error(json.error);
     const data = json.data || json;
+    if (!data || (!data.current && data.temperature == null && data.temperature_2m == null)) {
+      throw new Error('empty weather response');
+    }
     renderEnvWeather(data);
   } catch (e) {
+    console.warn('[Weather] loadEnvWeather:', e.message);
     const body = document.getElementById('env-weather-forecast');
     if (body) body.innerHTML = '<span style="color:#a3acb9;font-size:12px">Dati meteo non disponibili</span>';
   }
@@ -3158,8 +3164,10 @@ async function loadEnvWeather() {
 function renderEnvWeather(data) {
   const w = data.current || data;
   const code = w.weathercode ?? w.weather_code ?? w.weatherCode ?? 0;
-  const temp = w.temperature_2m ?? w.temperature ?? '--';
-  const wind = w.windspeed_10m ?? w.wind_speed ?? w.windSpeed ?? '--';
+  const tempRaw = w.temperature_2m ?? w.temperature;
+  const windRaw = w.windspeed_10m ?? w.wind_speed ?? w.windSpeed;
+  const temp = (tempRaw != null && !isNaN(Number(tempRaw))) ? Number(tempRaw) : null;
+  const wind = (windRaw != null && !isNaN(Number(windRaw))) ? Number(windRaw) : null;
   const precip = w.precipitation ?? '--';
 
   const iconEl = document.getElementById('env-weather-icon');
@@ -3170,9 +3178,9 @@ function renderEnvWeather(data) {
   const impactEl = document.getElementById('env-weather-impact');
 
   if (iconEl) iconEl.textContent = WMO_ICONS[code] ?? '🌡';
-  if (tempEl) tempEl.textContent = `${Math.round(temp)}°C`;
+  if (tempEl) tempEl.textContent = temp !== null ? `${Math.round(temp)}°C` : '--°C';
   if (descEl) descEl.textContent = WMO_DESC[code] ?? 'Condizioni variabili';
-  if (windEl) windEl.textContent = `💨 ${Math.round(wind)} km/h`;
+  if (windEl) windEl.textContent = wind !== null ? `💨 ${Math.round(wind)} km/h` : '💨 -- km/h';
   if (precipEl) precipEl.textContent = `💧 ${precip} mm`;
 
   // Compute operational impact
@@ -12640,8 +12648,8 @@ async function initGpsMap() {
 // FLEET COMMAND CENTER — MAP LAYERS
 // ============================================================
 
-const fleetLayers = { isochrone: [], pciv: [], traffic: null };
-const fleetLayerActive = { isochrone: false, pciv: false, traffic: false };
+const fleetLayers = { rain: null, isochrone: [], pciv: [], traffic: null };
+const fleetLayerActive = { rain: false, isochrone: false, pciv: false, traffic: false };
 const FLEET_HQ_COORDS = [[45.3836, 11.0397], [45.3129, 11.3835], [45.1863, 11.3151], [45.5003, 11.4213], [45.1790, 11.0637]];
 
 function initFleetMapLayers() {
@@ -12650,14 +12658,49 @@ function initFleetMapLayers() {
 
 async function toggleFleetLayer(name) {
   if (!gpsMap) return;
-  const btnIds = { isochrone: 'flt-iso', pciv: 'flt-pciv', traffic: 'flt-traf' };
+  const btnIds = { rain: 'flt-rain', isochrone: 'flt-iso', pciv: 'flt-pciv', traffic: 'flt-traf' };
   fleetLayerActive[name] = !fleetLayerActive[name];
   const btn = document.getElementById(btnIds[name]);
   if (btn) btn.classList.toggle('flt-btn-active', fleetLayerActive[name]);
 
-  if (name === 'isochrone') toggleIsochroneLayer(fleetLayerActive.isochrone);
+  if (name === 'rain')       await toggleRainLayer(fleetLayerActive.rain);
+  else if (name === 'isochrone') toggleIsochroneLayer(fleetLayerActive.isochrone);
   else if (name === 'pciv')  await togglePcivLayer(fleetLayerActive.pciv);
   else if (name === 'traffic') toggleTrafficLayer(fleetLayerActive.traffic);
+}
+
+async function toggleRainLayer(show) {
+  if (fleetLayers.rain) { gpsMap.removeLayer(fleetLayers.rain); fleetLayers.rain = null; }
+  if (!show) return;
+  try {
+    const resp = await fetch('https://api.rainviewer.com/public/weather-maps.json');
+    if (!resp.ok) throw new Error('API ' + resp.status);
+    const data = await resp.json();
+    const frames = data.radar?.past ?? [];
+    if (!frames.length) throw new Error('no radar frames');
+    const latest = frames[frames.length - 1];
+    const host = data.host ?? 'https://tilecache.rainviewer.com';
+    const tileUrl = `${host}${latest.path}/256/{z}/{x}/{y}/2/1_1.png`;
+
+    // Ensure zoom <= 12 before adding layer.
+    // Use animate:false + direct call (no zoomend wait needed) since setZoom is sync at animate:false.
+    if (gpsMap.getZoom() > 12) gpsMap.setZoom(12, { animate: false });
+
+    fleetLayers.rain = L.tileLayer(tileUrl, {
+      opacity: 0.6,
+      attribution: '© RainViewer',
+      minZoom: 1,
+      maxZoom: 12,        // hard cap: RainViewer tiles only exist up to zoom 12
+      detectRetina: false, // CRITICAL: prevents Leaflet requesting zoom*2 tiles on Retina displays
+      zIndex: 200,
+    }).addTo(gpsMap);
+  } catch (e) {
+    console.warn('[Fleet] RainViewer error:', e.message);
+    fleetLayerActive.rain = false;
+    const btn = document.getElementById('flt-rain');
+    if (btn) btn.classList.remove('flt-btn-active');
+    showNotification('Layer pioggia non disponibile: ' + e.message, 'warning');
+  }
 }
 
 function toggleIsochroneLayer(show) {
