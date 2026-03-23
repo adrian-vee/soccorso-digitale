@@ -31,6 +31,7 @@ COPY --from=builder /app/package.json ./
 COPY --from=builder /app/server/templates ./server/templates
 COPY --from=builder /app/admin/public ./admin/public
 COPY --from=builder /app/assets ./assets
+COPY --from=builder /app/site ./site
 
 # Create upload directories (preserved by .gitkeep but need to exist in container)
 RUN mkdir -p uploads/apk uploads/logos uploads/signatures
