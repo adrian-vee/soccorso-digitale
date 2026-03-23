@@ -20,7 +20,7 @@
   --font-mono:    'JetBrains Mono', 'Courier New', monospace;
 
   --nav-h:       72px;
-  --sec-pad:     clamp(80px, 10vw, 140px);
+  --sec-pad:     clamp(48px, 6vw, 88px);
   --wrap:        1280px;
   --gutter:      clamp(20px, 5vw, 80px);
   --r-sm:        8px;
@@ -564,7 +564,13 @@ input,textarea,select { font:inherit; }
   justify-content:center;
   font-size:20px;
   flex-shrink:0;
+  color:var(--sd-neutral);
 }
+.mod-icon svg {
+  width:22px; height:22px;
+  flex-shrink:0;
+}
+.mod-card.feat .mod-icon svg { color:var(--sd-accent); }
 .mod-card.feat .mod-icon {
   background:rgba(255,107,53,.12);
   border-color:rgba(255,107,53,.28);
@@ -634,7 +640,9 @@ input,textarea,select { font:inherit; }
   align-items:center;
   justify-content:center;
   font-size:22px;
+  color:var(--sd-accent);
 }
+.step-icon svg { width:24px; height:24px; }
 .step-title {
   font-family:var(--font-display);
   font-size:clamp(22px,2.3vw,30px);
@@ -826,7 +834,7 @@ footer {
 }
 .footer-giant-letters {
   font-family:var(--font-display);
-  font-size:clamp(88px,18vw,230px);
+  font-size:clamp(18px,5.5vw,60px);
   font-weight:400;
   line-height:.88;
   color:transparent;
@@ -899,7 +907,19 @@ footer {
   border-color:rgba(252,252,253,.18);
   transform:translateY(-3px);
 }
-.int-icon { font-size:28px; }
+.int-icon {
+  font-size:28px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:44px; height:44px;
+  border-radius:var(--r-sm);
+  background:rgba(252,252,253,.05);
+  border:var(--bdr);
+  color:var(--sd-neutral);
+  flex-shrink:0;
+}
+.int-icon svg { width:22px; height:22px; }
 .int-name { font-size:14px; font-weight:600; color:var(--sd-white); }
 .int-desc { font-size:12.5px; color:rgba(252,252,253,.45); line-height:1.55; }
 .int-badge {
@@ -1291,11 +1311,9 @@ footer {
 }
 
 /* ─── Scroll Animations ──────────────────────────────────────── */
-[data-anim] { opacity:0; transform:translateY(28px); }
-[data-anim="fade"] { opacity:0; transform:none; }
-[data-anim="left"] { opacity:0; transform:translateX(-30px); }
-[data-anim="right"] { opacity:0; transform:translateX(30px); }
-[data-anim="scale"] { opacity:0; transform:scale(.96); }
+/* NOTE: Elements are visible by default (opacity:1).
+   GSAP uses gsap.from({opacity:0}) to animate 0→1.
+   This ensures content is always visible as a safe fallback. */
 
 /* ─── Responsive ─────────────────────────────────────────────── */
 @media (max-width: 991px) {

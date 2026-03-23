@@ -87,8 +87,17 @@
       font-size:32px;
       flex-shrink:0;
       width:52px;
+      height:52px;
       line-height:1;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:var(--r-sm);
+      background:rgba(255,107,53,.08);
+      border:1px solid rgba(255,107,53,.18);
+      color:var(--sd-accent);
     }
+    .mod-full-icon svg { width:26px; height:26px; flex-shrink:0; }
     .mod-full-body { display:flex; flex-direction:column; gap:10px; }
     .mod-full-title { font-size:17px; font-weight:600; color:var(--sd-white); }
     .mod-full-desc { font-size:14px; line-height:1.68; color:rgba(252,252,253,.52); }
@@ -148,7 +157,7 @@
 
 <main>
 <!-- ─── Hero ─────────────────────────────────────────────────── -->
-<section class="section" style="min-height:60vh;display:flex;align-items:center;padding-top:calc(var(--nav-h) + 80px)" aria-labelledby="plat-title">
+<section class="section" style="display:flex;align-items:center;padding-top:calc(var(--nav-h) + 40px);padding-bottom:var(--sec-pad)" aria-labelledby="plat-title">
   <div class="hero-bg-grid" aria-hidden="true" style="position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.4"></div>
   <div class="wrap" style="position:relative;z-index:1">
     <div class="sec-label t-label" data-anim>La Piattaforma</div>
@@ -179,7 +188,7 @@
     </div>
     <div class="modules-full-grid" data-stagger-group>
       <div class="mod-full-card" data-stagger-item>
-        <div class="mod-full-icon">🚑</div>
+        <div class="mod-full-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10h18M9 21V10m6 11V10M3 6l9-3 9 3v4H3V6z"/><path d="M7 21h10"/></svg></div>
         <div class="mod-full-body">
           <div class="mod-full-title">Dispatch & Gestione Servizi</div>
           <p class="mod-full-desc">Cuore operativo della piattaforma. Assegna servizi, tracciali in tempo reale su mappa, gestisci priorità e crea note di viaggio digitali con firma elettronica.</p>
@@ -192,7 +201,7 @@
         </div>
       </div>
       <div class="mod-full-card" data-stagger-item>
-        <div class="mod-full-icon">🚐</div>
+        <div class="mod-full-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div>
         <div class="mod-full-body">
           <div class="mod-full-title">Flotta & Veicoli</div>
           <p class="mod-full-desc">Gestione completa della flotta: tracciamento GPS, scadenze revisioni, assicurazioni, documenti e manutenzioni. Alert automatici per ogni scadenza.</p>
@@ -205,7 +214,7 @@
         </div>
       </div>
       <div class="mod-full-card" data-stagger-item>
-        <div class="mod-full-icon">👥</div>
+        <div class="mod-full-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
         <div class="mod-full-body">
           <div class="mod-full-title">Personale & Turni</div>
           <p class="mod-full-desc">Pianificazione turni intelligente con vista mensile e settimanale. Gestione disponibilità, certificazioni, formazione e pagamenti volontari.</p>
@@ -218,7 +227,7 @@
         </div>
       </div>
       <div class="mod-full-card" data-stagger-item>
-        <div class="mod-full-icon">📊</div>
+        <div class="mod-full-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
         <div class="mod-full-body">
           <div class="mod-full-title">Analytics & Report</div>
           <p class="mod-full-desc">Dashboard KPI in tempo reale con metriche di performance, conformità SLA e ULSS, analisi costi e sostenibilità. Export PDF/Excel automatico.</p>
@@ -231,7 +240,7 @@
         </div>
       </div>
       <div class="mod-full-card" data-stagger-item>
-        <div class="mod-full-icon">🏥</div>
+        <div class="mod-full-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"/></svg></div>
         <div class="mod-full-body">
           <div class="mod-full-title">Hub Prenotazioni</div>
           <p class="mod-full-desc">Portale web e mobile per pazienti e strutture sanitarie. Prenotazione online, conferme automatiche via SMS/email, gestione liste d'attesa e riprogrammazioni.</p>
@@ -244,7 +253,7 @@
         </div>
       </div>
       <div class="mod-full-card" data-stagger-item>
-        <div class="mod-full-icon">📦</div>
+        <div class="mod-full-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></div>
         <div class="mod-full-body">
           <div class="mod-full-title">Inventario & Magazzino</div>
           <p class="mod-full-desc">Gestione DPI, farmaci, dispositivi medici e materiali di consumo. Tracciamento per veicolo, alert scadenze, ordini automatici e reportistica GDPR.</p>
@@ -257,7 +266,7 @@
         </div>
       </div>
       <div class="mod-full-card" data-stagger-item>
-        <div class="mod-full-icon">🌐</div>
+        <div class="mod-full-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
         <div class="mod-full-body">
           <div class="mod-full-title">Intelligence Territoriale</div>
           <p class="mod-full-desc">Meteo operativo Open-Meteo, alert Protezione Civile in tempo reale, mappa copertura isocrona e localizzazione What3Words per precisione al metro.</p>
@@ -270,7 +279,7 @@
         </div>
       </div>
       <div class="mod-full-card" data-stagger-item>
-        <div class="mod-full-icon">🔐</div>
+        <div class="mod-full-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
         <div class="mod-full-body">
           <div class="mod-full-title">Governance & Compliance</div>
           <p class="mod-full-desc">Audit log immutabile, gestione GDPR e consensi, crittografia end-to-end, accesso ruolo-basato granulare e reportistica per audit esterni.</p>
@@ -298,49 +307,49 @@
     </div>
     <div class="integration-grid" data-stagger-group>
       <div class="int-card" data-stagger-item>
-        <div class="int-icon">🌤</div>
+        <div class="int-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v2M4.93 4.93l1.41 1.41M20 12h2M2 12h2M4.93 19.07l1.41-1.41M19.07 4.93l-1.41 1.41M12 20v2M17.66 17.66l1.41 1.41"/><circle cx="12" cy="12" r="4"/></svg></div>
         <div class="int-name">Open-Meteo</div>
         <p class="int-desc">Meteo operativo gratuito, 7 giorni di previsioni, dati orari per le sedi operative.</p>
         <span class="int-badge">Attivo</span>
       </div>
       <div class="int-card" data-stagger-item>
-        <div class="int-icon">📍</div>
+        <div class="int-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
         <div class="int-name">Nominatim OSM</div>
         <p class="int-desc">Geocoding e ricerca indirizzi basato su OpenStreetMap. Precisione italiana garantita.</p>
         <span class="int-badge">Attivo</span>
       </div>
       <div class="int-card" data-stagger-item>
-        <div class="int-icon">🛡</div>
+        <div class="int-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
         <div class="int-name">Protezione Civile</div>
         <p class="int-desc">Alert meteo e rischi territoriali dal Dipartimento Nazionale della Protezione Civile.</p>
         <span class="int-badge">Attivo</span>
       </div>
       <div class="int-card" data-stagger-item>
-        <div class="int-icon">⬛</div>
+        <div class="int-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg></div>
         <div class="int-name">What3Words</div>
         <p class="int-desc">Localizzazione precisa al metro quadrato per interventi in zone difficili da descrivere.</p>
         <span class="int-badge">Attivo</span>
       </div>
       <div class="int-card" data-stagger-item>
-        <div class="int-icon">✉️</div>
+        <div class="int-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
         <div class="int-name">Brevo (ex Sendinblue)</div>
         <p class="int-desc">Email transazionali, notifiche prenotazioni e comunicazioni ai pazienti in italiano.</p>
         <span class="int-badge">Attivo</span>
       </div>
       <div class="int-card" data-stagger-item>
-        <div class="int-icon">🌧</div>
+        <div class="int-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="19" x2="8" y2="21"/><line x1="8" y1="13" x2="8" y2="15"/><line x1="16" y1="19" x2="16" y2="21"/><line x1="16" y1="13" x2="16" y2="15"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="12" y1="15" x2="12" y2="17"/><path d="M20 16.58A5 5 0 0 0 18 7h-1.26A8 8 0 1 0 4 15.25"/></svg></div>
         <div class="int-name">RainViewer</div>
         <p class="int-desc">Radar precipitazioni in tempo reale su mappa flotta per decisioni operative meteo-aware.</p>
         <span class="int-badge">Attivo</span>
       </div>
       <div class="int-card" data-stagger-item>
-        <div class="int-icon">🪪</div>
+        <div class="int-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="8" cy="12" r="2"/><path d="M12 12h6M12 16h4"/></svg></div>
         <div class="int-name">SPID / CIE</div>
         <p class="int-desc">Accesso con identità digitale italiana per operatori e pazienti delle strutture convenzionate.</p>
         <span class="int-badge soon">In arrivo</span>
       </div>
       <div class="int-card" data-stagger-item>
-        <div class="int-icon">🏥</div>
+        <div class="int-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg></div>
         <div class="int-name">FSE — Fascicolo Sanitario</div>
         <p class="int-desc">Integrazione con il Fascicolo Sanitario Elettronico regionale per accesso ai dati paziente.</p>
         <span class="int-badge soon">In arrivo</span>

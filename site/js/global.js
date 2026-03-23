@@ -39,9 +39,18 @@ function initLoader() {
     return;
   }
 
+  // Safety: if GSAP animation stalls, force reveal after 3s
+  const safetyTimer = setTimeout(() => {
+    loader.style.display = 'none';
+    document.body.classList.remove('loading');
+    initHeroEntrance();
+    initPageAnimations();
+  }, 3000);
+
   const ease = typeof CustomEase !== 'undefined' ? 'mdx-smooth' : 'power3.inOut';
   const tl = gsap.timeline({
     onComplete: () => {
+      clearTimeout(safetyTimer);
       loader.style.display = 'none';
       document.body.classList.remove('loading');
       initHeroEntrance();
@@ -250,13 +259,19 @@ function initButtonHover() {
 
 /* ─── 11. Counters ──────────────────────────────────────────── */
 function initCounters() {
-  if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
-
   document.querySelectorAll('[data-counter]').forEach(el => {
     const target  = parseInt(el.dataset.counter, 10);
     const suffix  = el.dataset.suffix  || '';
     const prefix  = el.dataset.prefix  || '';
+
+    // Always show final value immediately — animation is progressive enhancement
+    el.textContent = prefix + target + suffix;
+
+    if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+
+    // Reset to 0 just before animating — only when GSAP is confirmed available
     const obj = { v: 0 };
+    el.textContent = prefix + '0' + suffix;
 
     ScrollTrigger.create({
       trigger: el, start: 'top 82%', once: true,
@@ -266,8 +281,6 @@ function initCounters() {
         onComplete: () => { el.textContent = prefix + target + suffix; }
       })
     });
-
-    el.textContent = prefix + '0' + suffix;
   });
 }
 
