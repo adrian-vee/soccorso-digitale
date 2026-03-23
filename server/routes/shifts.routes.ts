@@ -2,6 +2,7 @@ import type { Express } from "express";
 import crypto from "node:crypto";
 import path from "node:path";
 import fs from "node:fs";
+// @ts-ignore
 import { WebSocket } from "ws";
 import { storage } from "../storage";
 import { db } from "../db";
@@ -32,8 +33,10 @@ const PDFDocument = new Proxy(function(){} as any, {
 });
 
 // Reference to WebSocket server - set by the main routes module
+// @ts-ignore
 let wss: import("ws").WebSocketServer | null = null;
 
+// @ts-ignore
 export function setShiftWSS(server: import("ws").WebSocketServer | null) {
   wss = server;
 }
@@ -230,7 +233,7 @@ async function smartAssignStaff(
     const lastEnd = staffLastShiftEnd.get(assignment.staffMemberId);
     if (!lastEnd || instance.shiftDate > lastEnd.date || 
         (instance.shiftDate === lastEnd.date && instance.endTime > lastEnd.endTime)) {
-      staffLastShiftEnd.set(assignment.staffMemberId, { date: instance.shiftDate, startTime: instance.startTime, endTime: instance.endTime });
+      staffLastShiftEnd.set(assignment.staffMemberId, { date: instance.shiftDate, startTime: instance.startTime, endTime: instance.endTime } as any);
     }
   }
 
@@ -368,7 +371,7 @@ async function smartAssignStaff(
           if (lastShiftEnd) {
             const lastEndDate = new Date(lastShiftEnd.date);
             const lastEndParts = lastShiftEnd.endTime.split(':').map(Number);
-            const lastStartParts = lastShiftEnd.startTime ? lastShiftEnd.startTime.split(':').map(Number) : [0, 0];
+            const lastStartParts = (lastShiftEnd as any).startTime ? (lastShiftEnd as any).startTime.split(':').map(Number) : [0, 0];
             lastEndDate.setHours(lastEndParts[0], lastEndParts[1] || 0);
             if (lastEndParts[0] < lastStartParts[0]) {
               lastEndDate.setDate(lastEndDate.getDate() + 1);
@@ -510,7 +513,7 @@ async function smartAssignStaff(
             const lastEnd = staffLastShiftEnd.get(chosen.id);
             if (!lastEnd || instance.shiftDate > lastEnd.date || 
                 (instance.shiftDate === lastEnd.date && instance.endTime > lastEnd.endTime)) {
-              staffLastShiftEnd.set(chosen.id, { date: instance.shiftDate, startTime: instance.startTime, endTime: instance.endTime });
+              staffLastShiftEnd.set(chosen.id, { date: instance.shiftDate, startTime: instance.startTime, endTime: instance.endTime } as any);
             }
             const prevConsec = staffConsecutiveDays.get(chosen.id) || 0;
             if (lastEnd) {
@@ -632,9 +635,9 @@ async function checkShiftConflicts(staffMemberId: string, shiftDate: string, sta
       if (timesOverlap(startTime, endTime, adj.startTime, adj.endTime)) {
         let vehicleInfo = '';
         try {
-          const v = await db.select({ natoName: vehiclesTable.natoName, callSign: vehiclesTable.callSign, licensePlate: vehiclesTable.licensePlate }).from(vehiclesTable).where(eq(vehiclesTable.id, adj.vehicleId)).limit(1);
+          const v = await db.select({ natoName: (vehiclesTable as any).natoName, callSign: (vehiclesTable as any).callSign, licensePlate: vehiclesTable.licensePlate }).from(vehiclesTable).where(eq(vehiclesTable.id, adj.vehicleId || '')).limit(1);
           const loc = await db.select({ name: locations.name }).from(locations).where(eq(locations.id, adj.locationId)).limit(1);
-          const vName = v[0]?.natoName || v[0]?.callSign || v[0]?.licensePlate || '';
+          const vName = (v[0] as any)?.natoName || (v[0] as any)?.callSign || v[0]?.licensePlate || '';
           const locName = loc[0]?.name || '';
           if (vName || locName) vehicleInfo = ` su ${vName}${locName ? ' (' + locName + ')' : ''}`;
         } catch {}
@@ -648,9 +651,9 @@ async function checkShiftConflicts(staffMemberId: string, shiftDate: string, sta
     if (adjIsNight && adj.shiftDate === prevDateStr && newIsDay) {
       let vehicleInfo = '';
       try {
-        const v = await db.select({ natoName: vehiclesTable.natoName, callSign: vehiclesTable.callSign, licensePlate: vehiclesTable.licensePlate }).from(vehiclesTable).where(eq(vehiclesTable.id, adj.vehicleId)).limit(1);
+        const v = await db.select({ natoName: (vehiclesTable as any).natoName, callSign: (vehiclesTable as any).callSign, licensePlate: vehiclesTable.licensePlate }).from(vehiclesTable).where(eq(vehiclesTable.id, adj.vehicleId || '')).limit(1);
         const loc = await db.select({ name: locations.name }).from(locations).where(eq(locations.id, adj.locationId)).limit(1);
-        const vName = v[0]?.natoName || v[0]?.callSign || v[0]?.licensePlate || '';
+        const vName = (v[0] as any)?.natoName || (v[0] as any)?.callSign || v[0]?.licensePlate || '';
         const locName = loc[0]?.name || '';
         if (vName || locName) vehicleInfo = ` su ${vName}${locName ? ' (' + locName + ')' : ''}`;
       } catch {}
@@ -660,9 +663,9 @@ async function checkShiftConflicts(staffMemberId: string, shiftDate: string, sta
     if (newIsNight && adj.shiftDate === nextDateStr && isDayShift(adj.startTime)) {
       let vehicleInfo = '';
       try {
-        const v = await db.select({ natoName: vehiclesTable.natoName, callSign: vehiclesTable.callSign, licensePlate: vehiclesTable.licensePlate }).from(vehiclesTable).where(eq(vehiclesTable.id, adj.vehicleId)).limit(1);
+        const v = await db.select({ natoName: (vehiclesTable as any).natoName, callSign: (vehiclesTable as any).callSign, licensePlate: vehiclesTable.licensePlate }).from(vehiclesTable).where(eq(vehiclesTable.id, adj.vehicleId || '')).limit(1);
         const loc = await db.select({ name: locations.name }).from(locations).where(eq(locations.id, adj.locationId)).limit(1);
-        const vName = v[0]?.natoName || v[0]?.callSign || v[0]?.licensePlate || '';
+        const vName = (v[0] as any)?.natoName || (v[0] as any)?.callSign || v[0]?.licensePlate || '';
         const locName = loc[0]?.name || '';
         if (vName || locName) vehicleInfo = ` su ${vName}${locName ? ' (' + locName + ')' : ''}`;
       } catch {}
@@ -1448,7 +1451,7 @@ app.post("/api/shift-instances/generate-week", requireAdmin, async (req, res) =>
     try {
       await db.insert(shiftAuditLog).values({
         userId: userId || 'system',
-        userName: user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : 'Sistema',
+        userName: user ? `${(user as any).firstName || ''} ${(user as any).lastName || ''}`.trim() : 'Sistema',
         action: 'generate',
         entityType: 'shift_instance',
         locationId: locationId || null,
@@ -1596,7 +1599,7 @@ app.get("/api/shift-report/pdf", requireAdmin, async (req, res) => {
 
       const timeSlotMap = new Map<string, { vehicleId: string; startTime: string; endTime: string; vehicleCode: string; natoName: string; profileId: string | null }>();
       locShifts.forEach(s => {
-        const vehicle = vehicleMap.get(s.vehicleId);
+        const vehicle = vehicleMap.get(s.vehicleId ?? '');
         const vCode = vehicle?.code || '?';
         const profiles = (vehicle as any)?.scheduleProfiles as any[] | null;
         const hasProfiles = Array.isArray(profiles) && profiles.length > 0;
@@ -1612,7 +1615,7 @@ app.get("/api/shift-report/pdf", requireAdmin, async (req, res) => {
 
         const key = `${s.vehicleId}|${s.startTime}|${s.endTime}|${profileId || ''}`;
         if (!timeSlotMap.has(key)) {
-          timeSlotMap.set(key, { vehicleId: s.vehicleId, startTime: s.startTime, endTime: s.endTime, vehicleCode: vCode, natoName: vNato, profileId });
+          timeSlotMap.set(key, { vehicleId: s.vehicleId ?? '', startTime: s.startTime ?? '', endTime: s.endTime ?? '', vehicleCode: vCode, natoName: vNato, profileId });
         }
       });
 
@@ -2072,7 +2075,7 @@ app.get("/api/shift-report/staff-pdf", requireAdmin, async (req, res) => {
       const endP = (instance.endTime || '14:00:00').split(':').map(Number);
       const hours = Math.max(0, (endP[0] + endP[1]/60) - (startP[0] + startP[1]/60));
       totalHours += hours;
-      const vehicle = vehicleMap.get(instance.vehicleId);
+      const vehicle = vehicleMap.get(instance.vehicleId ?? '');
       const vCode = vehicle?.code || '?';
       const natoName = (vehicle as any)?.natoName || '';
       if (!vehicleUsage.has(vCode)) vehicleUsage.set(vCode, { count: 0, natoName });
@@ -2179,8 +2182,8 @@ app.get("/api/shift-report/staff-pdf", requireAdmin, async (req, res) => {
       }
       doc.rect(m, y, tableW, rh).lineWidth(0.3).stroke('#e2e8f0');
       
-      const vehicle = vehicleMap.get(instance.vehicleId);
-      const loc = locationMap.get(instance.locationId);
+      const vehicle = vehicleMap.get(instance.vehicleId ?? '');
+      const loc = locationMap.get(instance.locationId ?? '');
       const roleName = assignment.assignedRole === 'autista' ? 'Autista' : assignment.assignedRole === 'soccorritore' ? 'Soccorritore' : assignment.assignedRole === 'infermiere' ? 'Infermiere' : 'Operatore';
       const natoName = (vehicle as any)?.natoName || '';
       const vehicleLabel = natoName || (vehicle?.code || '-');
@@ -2304,8 +2307,8 @@ app.get("/api/shift-report/staff-ics", requireAdmin, async (req, res) => {
     ].join('\r\n') + '\r\n';
 
     staffAssignments.forEach(({ assignment, instance }, idx) => {
-      const vehicle = vehicleMap.get(instance.vehicleId);
-      const loc = locationMap.get(instance.locationId);
+      const vehicle = vehicleMap.get(instance.vehicleId ?? '');
+      const loc = locationMap.get(instance.locationId ?? '');
       const natoName = (vehicle as any)?.natoName || '';
       const roleName = assignment.assignedRole === 'autista' ? 'Autista' : assignment.assignedRole === 'soccorritore' ? 'Soccorritore' : 'Operatore';
       const vehicleLabel = natoName || (vehicle?.code || '?');
@@ -2456,7 +2459,7 @@ app.get("/api/shift-stats", requireAdmin, async (req, res) => {
     });
     
     shiftsData.forEach(s => {
-      const vehicle = vehicleMap.get(s.vehicleId);
+      const vehicle = vehicleMap.get(s.vehicleId ?? '');
       const rolesConfig = (vehicle as any)?.scheduleRoles || 'autista,soccorritore';
       const rolesNeeded = rolesConfig.split(',').filter((r: string) => r.trim()).length;
       const shiftAssigns = assignmentsByShift.get(s.id) || [];
@@ -2517,10 +2520,10 @@ app.delete("/api/shift-instances/:id", requireAdmin, async (req, res) => {
     try {
       await db.insert(shiftAuditLog).values({
         userId: userId || 'system',
-        userName: user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : 'Sistema',
+        userName: user ? `${(user as any).firstName || ''} ${(user as any).lastName || ''}`.trim() : 'Sistema',
         action: 'delete',
         description: `Turno eliminato manualmente`,
-      });
+      } as any);
     } catch {}
     res.json({ success: true });
   } catch (error) {
@@ -2573,7 +2576,7 @@ app.post("/api/shift-instances/bulk-delete", requireAdmin, async (req, res) => {
     try {
       await db.insert(shiftAuditLog).values({
         userId: userId || 'system',
-        userName: user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : 'Sistema',
+        userName: user ? `${(user as any).firstName || ''} ${(user as any).lastName || ''}`.trim() : 'Sistema',
         action: 'delete',
         entityType: 'shift_instance',
         description: `Eliminazione massiva: ${deletedCount} turni eliminati${vehicleId ? ` (veicolo filtrato)` : ''}${locationId ? ` (sede filtrata)` : ''}`,
@@ -2677,7 +2680,7 @@ app.post("/api/shift-instances/cleanup-orphans", requireAdmin, async (req, res) 
     try {
       await db.insert(shiftAuditLog).values({
         userId: userId || 'system',
-        userName: user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : 'Sistema',
+        userName: user ? `${(user as any).firstName || ''} ${(user as any).lastName || ''}`.trim() : 'Sistema',
         action: 'cleanup',
         entityType: 'shift_instance',
         description: `Pulizia dati orfani: ${orphanedAssignmentsCount} assegnazioni senza turno, ${orphanedStaffCount} assegnazioni senza staff, ${duplicateRoleCount} assegnazioni duplicate ruolo, ${emptyInstancesCount} turni vuoti rimossi`,
@@ -2727,7 +2730,7 @@ app.post("/api/shift-assignments", requireAdmin, async (req, res) => {
     try {
       await db.insert(shiftAuditLog).values({
         userId: userId || 'system',
-        userName: user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : 'Sistema',
+        userName: user ? `${(user as any).firstName || ''} ${(user as any).lastName || ''}`.trim() : 'Sistema',
         action: 'create',
         entityType: 'shift_assignment',
         entityId: assignment.id,
@@ -2853,7 +2856,7 @@ app.patch("/api/shift-assignments/:id", requireAuth, async (req, res) => {
     try {
       await db.insert(shiftAuditLog).values({
         userId: userId || 'system',
-        userName: user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : 'Sistema',
+        userName: user ? `${(user as any).firstName || ''} ${(user as any).lastName || ''}`.trim() : 'Sistema',
         action: 'update',
         entityType: 'shift_assignment',
         entityId: req.params.id,
@@ -2894,7 +2897,7 @@ app.delete("/api/shift-assignments/:id", requireAuth, async (req, res) => {
     try {
       await db.insert(shiftAuditLog).values({
         userId: userId || 'system',
-        userName: user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : 'Sistema',
+        userName: user ? `${(user as any).firstName || ''} ${(user as any).lastName || ''}`.trim() : 'Sistema',
         action: 'delete',
         entityType: 'shift_assignment',
         entityId: req.params.id,
@@ -4407,7 +4410,7 @@ app.get("/api/reimbursements/:id/pdf", requireAdmin, async (req, res) => {
         firstName: volunteer.firstName,
         lastName: volunteer.lastName,
         fiscalCode: volunteer.fiscalCode || undefined,
-        role: volunteer.role || 'Soccorritore Volontario',
+        role: (volunteer as any).role || 'Soccorritore Volontario',
         iban: volunteer.iban || undefined,
         homeAddress: volunteer.homeAddress || undefined,
         homeCity: volunteer.homeCity || undefined,

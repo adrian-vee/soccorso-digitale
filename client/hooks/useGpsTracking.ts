@@ -54,7 +54,7 @@ export function useGpsTracking() {
   
   const locationSubscription = useRef<Location.LocationSubscription | null>(null);
   const gpsBuffer = useRef<GpsPoint[]>([]);
-  const syncTimeout = useRef<NodeJS.Timeout | null>(null);
+  const syncTimeout = useRef<ReturnType<typeof setInterval> | null>(null);
   const tokenRef = useRef<string | null>(null);
   const appState = useRef(AppState.currentState);
 

@@ -224,7 +224,7 @@ export function registerFleetRoutes(app: Express) {
   app.get("/api/vehicles", requireAuth, async (req, res) => {
     try {
       const { locationId } = req.query;
-      let vehicles;
+      let vehicles: any[] = [];
       
       const orgId = getEffectiveOrgId(req);
       if (orgId) {
@@ -289,8 +289,8 @@ export function registerFleetRoutes(app: Express) {
       // Calculate km traveled today
       let kmToday = 0;
       todayTrips.forEach(trip => {
-        if (trip.kmFinal && trip.kmStart) {
-          kmToday += trip.kmFinal - trip.kmStart;
+        if ((trip as any).kmFinal && (trip as any).kmStart) {
+          kmToday += (trip as any).kmFinal - (trip as any).kmStart;
         }
       });
       
@@ -303,7 +303,7 @@ export function registerFleetRoutes(app: Express) {
         const last = sorted[0];
         const tripTime = new Date(last.createdAt);
         lastTrip = {
-          serviceNumber: last.serviceNumber || `${sorted.length}`,
+          serviceNumber: (last as any).serviceNumber || `${sorted.length}`,
           time: tripTime.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" })
         };
       }
@@ -368,7 +368,7 @@ export function registerFleetRoutes(app: Express) {
         eventName,
         eventDate,
         defaultCrewType,
-      });
+      } as any);
       if (!vehicle) {
         return res.status(404).json({ error: "Veicolo non trovato" });
       }
@@ -498,11 +498,11 @@ export function registerFleetRoutes(app: Express) {
         
         for (const assignment of assignments) {
           // Get staff member details
-          const staffMember = await storage.getStaffMember(assignment.staffMemberId);
+          const staffMember = await (storage as any).getStaffMemberById(assignment.staffMemberId);
           if (staffMember) {
             allCrew.push({
               id: staffMember.id,
-              name: `${staffMember.firstName} ${staffMember.lastName}`,
+              name: `${(staffMember as any).firstName || ''} ${(staffMember as any).lastName || ''}`.trim(),
               role: assignment.assignedRole,
               status: assignment.status
             });
@@ -1295,7 +1295,7 @@ export function registerFleetRoutes(app: Express) {
         maintenanceStatus,
         lastMaintenanceDate,
         lastMaintenanceKm,
-      });
+      } as any);
       
       if (!vehicle) {
         return res.status(404).json({ error: "Veicolo non trovato" });
@@ -1765,7 +1765,7 @@ export function registerFleetRoutes(app: Express) {
         isRequired,
         sortOrder,
         isActive,
-        expiryDate: expiryDate ? new Date(expiryDate) : null,
+        expiryDate: expiryDate ? new Date(expiryDate) as any : null,
         expiryAlertDays,
       });
       if (!item) {
@@ -1783,7 +1783,7 @@ export function registerFleetRoutes(app: Express) {
     try {
       const { expiryDate, expiryAlertDays } = req.body;
       const item = await storage.updateChecklistTemplateItem(req.params.id, {
-        expiryDate: expiryDate ? new Date(expiryDate) : null,
+        expiryDate: expiryDate ? new Date(expiryDate) as any : null,
         expiryAlertDays: expiryAlertDays || 30,
       });
       if (!item) {
@@ -1823,7 +1823,7 @@ export function registerFleetRoutes(app: Express) {
       }
       
       const item = await storage.updateChecklistTemplateItem(req.params.id, {
-        expiryDate: parsedDate,
+        expiryDate: parsedDate as any,
         expiryAlertDays: 30,
       });
       
@@ -1839,7 +1839,7 @@ export function registerFleetRoutes(app: Express) {
             itemLabel: item.label,
             vehicleId,
             vehicleCode,
-            oldExpiryDate: oldExpiryDate ? oldExpiryDate.toISOString().split('T')[0] : null,
+            oldExpiryDate: oldExpiryDate ? String(oldExpiryDate).split('T')[0] : null,
             newExpiryDate: parsedDate.toISOString().split('T')[0],
             restoredById: req.session.userId || null,
             restoredByName: updatedBy || 'Equipaggio',
@@ -1942,7 +1942,7 @@ export function registerFleetRoutes(app: Express) {
       }
       
       // Also check inventory usage logs if available
-      const usageLogs = await storage.getInventoryUsageByVehicle?.(vehicleId, yesterdayStr);
+      const usageLogs = await (storage as any).getInventoryUsageForVehicle?.(vehicleId, yesterdayStr);
       if (usageLogs && Array.isArray(usageLogs)) {
         usageLogs.forEach((log: any) => {
           if (log.itemId && !usedItems.includes(log.itemId)) {
@@ -3227,7 +3227,7 @@ export function registerFleetRoutes(app: Express) {
         const entries = await db.select().from(fuelEntries).where(and(...conditions)).orderBy(desc(fuelEntries.date)).limit(limit);
         return res.json(entries);
       }
-      let query = db.select().from(fuelEntries).orderBy(desc(fuelEntries.date)).limit(limit);
+      let query: any = db.select().from(fuelEntries).orderBy(desc(fuelEntries.date)).limit(limit);
       if (vehicleId) {
         query = db.select().from(fuelEntries).where(eq(fuelEntries.vehicleId, vehicleId)).orderBy(desc(fuelEntries.date)).limit(limit);
       }

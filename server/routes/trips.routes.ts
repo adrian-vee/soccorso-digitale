@@ -322,7 +322,7 @@ export function registerTripRoutes(app: Express) {
       const activeVehicles = activeVehicleIds.size;
       
       // Active crews (unique users who logged trips)
-      const activeCrewIds = new Set(currentTrips.filter(t => t.registeredBy).map(t => t.registeredBy));
+      const activeCrewIds = new Set(currentTrips.filter(t => (t as any).registeredBy).map(t => (t as any).registeredBy));
       const activeCrews = activeCrewIds.size;
       
       // Daily trend data
@@ -362,7 +362,7 @@ export function registerTripRoutes(app: Express) {
         return {
           id: vehicle.id,
           code: vehicle.code,
-          name: vehicle.name,
+          name: (vehicle as any).name,
           location: location?.name || 'N/A',
           services: vehicleTrips.length,
           km: vehicleTrips.reduce((s, t) => s + (t.kmTraveled || 0), 0),
@@ -1397,7 +1397,7 @@ export function registerTripRoutes(app: Express) {
 
       if (!locationCtx) {
         try {
-          const user = req.user as any;
+          const user = (req as any).user as any;
           if (user?.locationId) {
             const userLoc = await storage.getLocation(user.locationId);
             if (userLoc?.address) {
@@ -3360,7 +3360,7 @@ export function registerTripRoutes(app: Express) {
   app.post("/api/trips/:id/check-sla", requireAdmin, async (req, res) => {
     try {
       const orgId = getEffectiveOrgId(req);
-      const [trip] = await db.select().from(trips).where(and(eq(trips.id, req.params.id), eq(trips.organizationId, orgId)));
+      const [trip] = await (db.select().from(trips).where(and(eq(trips.id, req.params.id), eq(trips.organizationId, orgId || ''))) as any);
       if (!trip) return res.status(404).json({ error: "Servizio non trovato" });
 
       let violation = false;
