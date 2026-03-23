@@ -1,0 +1,9 @@
+node_modules
+server_dist
+.git
+.claude
+*.log
+*.md
+.env
+.env.*
+uploads
