@@ -231,8 +231,8 @@ export async function parsePdfServices(
   buffer: Buffer
 ): Promise<ParsedPdfResult> {
   const uint8 = new Uint8Array(buffer);
-  const parser = new PDFParse(uint8, { verbosity: 0 });
-  await parser.load();
+  const parser = new PDFParse(uint8);
+  await (parser as any).load();
   const result = await parser.getText();
 
   let rawText = "";

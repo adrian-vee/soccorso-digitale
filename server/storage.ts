@@ -1906,15 +1906,15 @@ export class DatabaseStorage implements IStorage {
     
     const conditions = [
       eq(inventoryItems.hasExpiry, true),
-      sql`${warehouseStock.expiryDate} IS NOT NULL`,
-      sql`${warehouseStock.expiryDate} <= ${futureDate.toISOString().split('T')[0]}`,
+      sql`${(warehouseStock as any).expiryDate} IS NOT NULL`,
+      sql`${(warehouseStock as any).expiryDate} <= ${futureDate.toISOString().split('T')[0]}`,
       sql`${warehouseStock.quantity} > 0`
     ];
-    
+
     if (locationId) {
       conditions.push(eq(warehouseStock.locationId, locationId));
     }
-    
+
     return await db
       .select({
         stock: warehouseStock,
@@ -1923,7 +1923,7 @@ export class DatabaseStorage implements IStorage {
       .from(warehouseStock)
       .innerJoin(inventoryItems, eq(warehouseStock.itemId, inventoryItems.id))
       .where(and(...conditions))
-      .orderBy(warehouseStock.expiryDate);
+      .orderBy((warehouseStock as any).expiryDate);
   }
 
   // Inventory dashboard metrics
@@ -1941,7 +1941,7 @@ export class DatabaseStorage implements IStorage {
         .innerJoin(inventoryItems, eq(warehouseStock.itemId, inventoryItems.id))
         .where(sql`${warehouseStock.quantity} <= ${warehouseStock.minStockLevel}`),
       db.select({ count: sql<number>`count(*)` }).from(vehicleInventoryTemplates).where(eq(vehicleInventoryTemplates.isActive, true)),
-      db.select({ count: sql<number>`count(*)` }).from(vehicleTemplateAssignments).where(eq(vehicleTemplateAssignments.isActive, true)),
+      db.select({ count: sql<number>`count(*)` }).from(vehicleTemplateAssignments).where(eq((vehicleTemplateAssignments as any).isActive, true)),
       db.select({ count: sql<number>`count(*)` }).from(sportingEvents).where(eq(sportingEvents.status, 'active'))
     ]);
     
@@ -1953,8 +1953,8 @@ export class DatabaseStorage implements IStorage {
       .innerJoin(inventoryItems, eq(warehouseStock.itemId, inventoryItems.id))
       .where(and(
         eq(inventoryItems.hasExpiry, true),
-        sql`${warehouseStock.expiryDate} IS NOT NULL`,
-        sql`${warehouseStock.expiryDate} <= ${futureDate.toISOString().split('T')[0]}`,
+        sql`${(warehouseStock as any).expiryDate} IS NOT NULL`,
+        sql`${(warehouseStock as any).expiryDate} <= ${futureDate.toISOString().split('T')[0]}`,
         sql`${warehouseStock.quantity} > 0`
       ));
     
@@ -2574,7 +2574,7 @@ export class DatabaseStorage implements IStorage {
     const [updated] = await db.update(shiftAssignments)
       .set({ 
         checkedInAt: new Date(),
-        status: "checked_in",
+        status: "checked_in" as any,
         updatedAt: new Date()
       })
       .where(eq(shiftAssignments.id, id))
@@ -2591,7 +2591,7 @@ export class DatabaseStorage implements IStorage {
     const [updated] = await db.update(shiftAssignments)
       .set({ 
         checkedOutAt: new Date(),
-        status: "completed",
+        status: "completed" as any,
         updatedAt: new Date()
       })
       .where(eq(shiftAssignments.id, id))

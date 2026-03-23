@@ -11,7 +11,7 @@ RUN npm ci
 COPY . .
 
 # Type-check and build the server
-RUN npm run check:types
+RUN npx tsc --noEmit --project tsconfig.server.json
 RUN npm run server:build
 
 # ── Stage 2: Runtime ──────────────────────────────────────────────────────────

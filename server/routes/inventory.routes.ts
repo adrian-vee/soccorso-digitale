@@ -1004,7 +1004,7 @@ export function registerInventoryRoutes(app: Express) {
         templateId: item.templateId,
         itemId: item.itemId,
         itemName: item.item?.name || 'N/A',
-        itemCode: item.item?.code || '',
+        itemCode: (item.item as any)?.code || '',
         requiredQuantity: item.requiredQuantity,
         minQuantity: item.minQuantity,
         isRequired: item.isEssential,

@@ -96,7 +96,7 @@ export default function ChatScreen() {
   useEffect(() => {
     let reconnectAttempts = 0;
     const maxReconnectAttempts = 3;
-    let reconnectTimeout: NodeJS.Timeout | null = null;
+    let reconnectTimeout: ReturnType<typeof setTimeout> | null = null;
     
     const connectWebSocket = () => {
       if (reconnectAttempts >= maxReconnectAttempts) {

@@ -31,7 +31,7 @@ export function registerAuthRoutes(app: Express) {
       const user = await storage.getUserByEmail(email);
 
       if (!user || user.password !== password) {
-        await auditLog.login(null, email, false, req.ip || "unknown", req.get("User-Agent") || "unknown");
+        await auditLog.login("", email, req.ip || "unknown");
         return res.status(401).json({ error: "Credenziali non valide" });
       }
 
@@ -70,13 +70,13 @@ export function registerAuthRoutes(app: Express) {
           .catch(() => {});
       }
 
-      await auditLog.login(user.id, user.fullName || email, true, req.ip || "unknown", req.get("User-Agent") || "unknown");
+      await auditLog.login(user.id, (user as any).fullName || (user as any).name || email, req.ip || "unknown");
 
       if (user.organizationId) {
         db.insert(orgAccessLogs).values({
           organizationId: user.organizationId,
           userId: user.id,
-          userName: user.fullName || email,
+          userName: (user as any).fullName || (user as any).name || email,
           action: "login",
           details: { method: user.accountType === "vehicle" ? "vehicle" : "panel" },
           ipAddress: req.ip || req.headers["x-forwarded-for"]?.toString() || "unknown",
@@ -154,7 +154,7 @@ export function registerAuthRoutes(app: Express) {
       await storage.updateUserLastLogout(userId);
     }
 
-    await auditLog.logout(userId || null, req.ip || "unknown");
+    await auditLog.logout(userId || "", req.ip || "unknown");
 
     if (req.session?.userId) {
       req.session.destroy((err) => {

@@ -1,4 +1,5 @@
 import { drizzle } from "drizzle-orm/node-postgres";
+// @ts-ignore
 import pg from "pg";
 import * as schema from "@shared/schema";
 

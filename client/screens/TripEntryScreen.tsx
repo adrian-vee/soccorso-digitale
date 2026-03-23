@@ -966,7 +966,7 @@ export default function TripEntryScreen() {
 
   // Get current GPS location and reverse geocode to address
   const getCurrentGpsLocation = async () => {
-    if (Platform.OS === "web") {
+    if ((Platform.OS as string) === "web") {
       Alert.alert("GPS non disponibile", "Usa l'app Expo Go sul telefono per usare il GPS");
       return;
     }
@@ -1005,8 +1005,8 @@ export default function TripEntryScreen() {
         const formattedAddress = parts.join(", ");
         setEmergencyStartAddress(formattedAddress);
         setEmergencyStartType("gps");
-        
-        if (Platform.OS !== "web") {
+
+        if ((Platform.OS as string) !== "web") {
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         }
       } else {
@@ -1023,7 +1023,7 @@ export default function TripEntryScreen() {
 
   // Get GPS location for waypoint1 (Luogo Intervento)
   const getWaypoint1GpsLocation = async () => {
-    if (Platform.OS === "web") {
+    if ((Platform.OS as string) === "web") {
       Alert.alert("GPS non disponibile", "Usa l'app Expo Go sul telefono per usare il GPS");
       return;
     }
@@ -1062,8 +1062,8 @@ export default function TripEntryScreen() {
         const formattedAddress = parts.join(", ");
         setWaypoint1Address(formattedAddress);
         setWaypoint1Type("gps");
-        
-        if (Platform.OS !== "web") {
+
+        if ((Platform.OS as string) !== "web") {
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         }
       } else {
@@ -1819,7 +1819,7 @@ export default function TripEntryScreen() {
       <View style={styles.section}>
         <SectionHeader icon="calendar" title="Data e Ora" />
         
-        {Platform.OS === "web" ? (
+        {(Platform.OS as string) === "web" ? (
           <TextInput
             label="Data Servizio"
             placeholder="gg/mm/aaaa"
@@ -1933,7 +1933,7 @@ export default function TripEntryScreen() {
 
         <View style={styles.timeRow}>
           <View style={styles.halfInput}>
-            {Platform.OS === "web" ? (
+            {(Platform.OS as string) === "web" ? (
               <TextInput
                 label="Ora Inizio"
                 placeholder="HH:MM"
@@ -2038,7 +2038,7 @@ export default function TripEntryScreen() {
             )}
           </View>
           <View style={styles.halfInput}>
-            {Platform.OS === "web" ? (
+            {(Platform.OS as string) === "web" ? (
               <TextInput
                 label="Ora Fine"
                 placeholder="HH:MM"

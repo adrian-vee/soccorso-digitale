@@ -116,7 +116,7 @@ async function encryptWithSubtleCrypto(data: string, keyBase64: string): Promise
   
   const cryptoKey = await crypto.subtle.importKey(
     "raw",
-    keyBytes,
+    keyBytes.buffer as ArrayBuffer,
     { name: "AES-GCM" },
     false,
     ["encrypt"]
@@ -147,7 +147,7 @@ async function decryptWithSubtleCrypto(encryptedBase64: string, keyBase64: strin
   
   const cryptoKey = await crypto.subtle.importKey(
     "raw",
-    keyBytes,
+    keyBytes.buffer as ArrayBuffer,
     { name: "AES-GCM" },
     false,
     ["decrypt"]

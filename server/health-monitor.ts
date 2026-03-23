@@ -18,7 +18,7 @@ interface HealthCheckResult {
 }
 
 let lastIncidentState: Record<string, boolean> = {};
-let monitoringInterval: NodeJS.Timeout | null = null;
+let monitoringInterval: ReturnType<typeof setInterval> | null = null;
 
 async function checkDatabase(): Promise<ServiceCheck> {
   const start = Date.now();

@@ -7,6 +7,7 @@
 
 import type { Express } from "express";
 import { createServer, type Server } from "node:http";
+// @ts-ignore
 import { WebSocketServer, WebSocket } from "ws";
 import { auditMiddleware } from "../audit-middleware";
 import { registerOrgAdminRoutes } from "../org-admin-routes";

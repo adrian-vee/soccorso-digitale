@@ -124,7 +124,7 @@ export function LocationPickerModal({
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
   const [userLocation, setUserLocation] = useState<{ lat: number; lon: number } | null>(null);
   const [domicilioQuery, setDomicilioQuery] = useState("");
-  const autocompleteTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const autocompleteTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const requestIdRef = useRef(0);
 
   useEffect(() => {

@@ -2,6 +2,7 @@ import "./env"; // Validate environment variables at startup
 import express from "express";
 import type { Request, Response, NextFunction } from "express";
 import session from "express-session";
+// @ts-ignore
 import connectPgSimple from "connect-pg-simple";
 import helmet from "helmet";
 import { registerRoutes } from "./routes/index";

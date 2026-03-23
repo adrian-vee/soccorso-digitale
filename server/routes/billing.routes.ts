@@ -50,7 +50,7 @@ export function registerBillingRoutes(app: Express) {
     try {
       const userOrgId = req.session?.organizationId;
       const subs = await db.select().from(orgSubscriptions)
-        .where(eq(orgSubscriptions.organizationId, userOrgId));
+        .where(eq(orgSubscriptions.organizationId, userOrgId as any));
       res.json(subs);
     } catch (error) {
       res.status(500).json({ error: "Errore del server" });
@@ -68,13 +68,13 @@ export function registerBillingRoutes(app: Express) {
         .where(eq(premiumModules.moduleKey, moduleKey));
       if (!module) return res.status(404).json({ error: "Modulo non trovato" });
 
-      const [org] = await db.select().from(organizations).where(eq(organizations.id, userOrgId));
+      const [org] = await db.select().from(organizations).where(eq(organizations.id, userOrgId as any));
       const price = billingPeriod === 'yearly' ? module.priceYearly : module.priceMonthly;
 
       const stripeKey = process.env.STRIPE_SECRET_KEY;
       if (!stripeKey) {
         const [sub] = await db.insert(orgSubscriptions).values({
-          organizationId: userOrgId,
+          organizationId: userOrgId as any,
           moduleKey,
           status: 'pending_payment',
           billingPeriod: billingPeriod || 'monthly',
@@ -93,7 +93,7 @@ export function registerBillingRoutes(app: Express) {
 
       let customerId;
       const [existingSub] = await db.select().from(orgSubscriptions)
-        .where(eq(orgSubscriptions.organizationId, userOrgId)).limit(1);
+        .where(eq(orgSubscriptions.organizationId, userOrgId as any)).limit(1);
 
       if (existingSub?.stripeCustomerId) {
         customerId = existingSub.stripeCustomerId;
@@ -101,7 +101,7 @@ export function registerBillingRoutes(app: Express) {
         const customer = await stripe.customers.create({
           name: org?.name || 'Organizzazione',
           email: org?.email || undefined,
-          metadata: { organizationId: userOrgId },
+          metadata: { organizationId: userOrgId || '' },
         });
         customerId = customer.id;
       }
@@ -151,7 +151,7 @@ export function registerBillingRoutes(app: Express) {
         mode: 'subscription',
         success_url: `${protocol}://${domain}/admin?payment=success&module=${moduleKey}`,
         cancel_url: `${protocol}://${domain}/admin?payment=cancelled`,
-        metadata: { organizationId: userOrgId, moduleKey },
+        metadata: { organizationId: userOrgId || '', moduleKey },
       });
 
       res.json({ url: session.url, sessionId: session.id });
@@ -239,7 +239,7 @@ export function registerBillingRoutes(app: Express) {
     try {
       const userOrgId = req.session?.organizationId;
       const payments = await db.select().from(paymentHistory)
-        .where(eq(paymentHistory.organizationId, userOrgId))
+        .where(eq(paymentHistory.organizationId, userOrgId as any))
         .orderBy(desc(paymentHistory.createdAt));
       res.json(payments);
     } catch (error) {
@@ -356,10 +356,10 @@ export function registerBillingRoutes(app: Express) {
         .where(and(eq(premiumModules.isActive, true), eq(premiumModules.isVisible, true)))
         .orderBy(premiumModules.sortOrder);
       const userOrgId = req.session?.organizationId;
-      const [org] = await db.select().from(organizations).where(eq(organizations.id, userOrgId));
+      const [org] = await db.select().from(organizations).where(eq(organizations.id, userOrgId as any));
       const enabledModules = Array.isArray(org?.enabledModules) ? (org.enabledModules as string[]) : [];
       const subs = await db.select().from(orgSubscriptions)
-        .where(eq(orgSubscriptions.organizationId, userOrgId));
+        .where(eq(orgSubscriptions.organizationId, userOrgId as any));
       const enriched = items.map(item => ({
         ...item,
         isOwned: enabledModules.includes(item.moduleKey),
@@ -375,10 +375,10 @@ export function registerBillingRoutes(app: Express) {
     try {
       const userOrgId = req.session?.organizationId;
       const subs = await db.select().from(orgSubscriptions)
-        .where(eq(orgSubscriptions.organizationId, userOrgId))
+        .where(eq(orgSubscriptions.organizationId, userOrgId as any))
         .orderBy(desc(orgSubscriptions.createdAt));
       const payments = await db.select().from(paymentHistory)
-        .where(eq(paymentHistory.organizationId, userOrgId))
+        .where(eq(paymentHistory.organizationId, userOrgId as any))
         .orderBy(desc(paymentHistory.createdAt));
       res.json({ subscriptions: subs, payments });
     } catch (error) {
@@ -401,14 +401,14 @@ export function registerBillingRoutes(app: Express) {
       if (!module.trialDays || module.trialDays <= 0) return res.status(400).json({ error: "Questo modulo non prevede un periodo di prova" });
 
       const existingSub = await db.select().from(orgSubscriptions)
-        .where(and(eq(orgSubscriptions.organizationId, userOrgId), eq(orgSubscriptions.moduleKey, moduleKey)));
+        .where(and(eq(orgSubscriptions.organizationId, userOrgId as any), eq(orgSubscriptions.moduleKey, moduleKey)));
       if (existingSub.length > 0) return res.status(409).json({ error: "Hai gia una sottoscrizione o trial attivo per questo modulo" });
 
       const trialStart = new Date();
       const trialEnd = new Date(trialStart.getTime() + module.trialDays * 24 * 60 * 60 * 1000);
 
       const [sub] = await db.insert(orgSubscriptions).values({
-        organizationId: userOrgId,
+        organizationId: userOrgId as any,
         moduleKey,
         moduleName: module.name,
         status: 'trialing',
@@ -420,11 +420,11 @@ export function registerBillingRoutes(app: Express) {
         amount: module.priceMonthly || 0,
       }).returning();
 
-      const [org] = await db.select().from(organizations).where(eq(organizations.id, userOrgId));
+      const [org] = await db.select().from(organizations).where(eq(organizations.id, userOrgId as any));
       const enabledModules = Array.isArray(org?.enabledModules) ? [...(org.enabledModules as string[])] : [];
       if (!enabledModules.includes(moduleKey)) {
         enabledModules.push(moduleKey);
-        await db.update(organizations).set({ enabledModules }).where(eq(organizations.id, userOrgId));
+        await db.update(organizations).set({ enabledModules }).where(eq(organizations.id, userOrgId as any));
       }
 
       res.json({ success: true, subscription: sub, trialEnd: trialEnd.toISOString() });
@@ -441,7 +441,7 @@ export function registerBillingRoutes(app: Express) {
       if (!subscriptionId) return res.status(400).json({ error: "ID sottoscrizione obbligatorio" });
 
       const [sub] = await db.select().from(orgSubscriptions)
-        .where(and(eq(orgSubscriptions.id, subscriptionId), eq(orgSubscriptions.organizationId, userOrgId)));
+        .where(and(eq(orgSubscriptions.id, subscriptionId), eq(orgSubscriptions.organizationId, userOrgId as any)));
       if (!sub) return res.status(404).json({ error: "Sottoscrizione non trovata" });
 
       await db.update(orgSubscriptions).set({
@@ -450,9 +450,9 @@ export function registerBillingRoutes(app: Express) {
         updatedAt: new Date(),
       }).where(eq(orgSubscriptions.id, subscriptionId));
 
-      const [org] = await db.select().from(organizations).where(eq(organizations.id, userOrgId));
+      const [org] = await db.select().from(organizations).where(eq(organizations.id, userOrgId as any));
       const enabledModules = Array.isArray(org?.enabledModules) ? (org.enabledModules as string[]).filter(m => m !== sub.moduleKey) : [];
-      await db.update(organizations).set({ enabledModules }).where(eq(organizations.id, userOrgId));
+      await db.update(organizations).set({ enabledModules }).where(eq(organizations.id, userOrgId as any));
 
       res.json({ success: true });
     } catch (error) {
@@ -472,7 +472,7 @@ export function registerBillingRoutes(app: Express) {
 
       const existingActive = await db.select().from(orgSubscriptions)
         .where(and(
-          eq(orgSubscriptions.organizationId, userOrgId),
+          eq(orgSubscriptions.organizationId, userOrgId as any),
           eq(orgSubscriptions.moduleKey, moduleKey),
           sql`${orgSubscriptions.status} IN ('active')`
         ));
@@ -485,11 +485,11 @@ export function registerBillingRoutes(app: Express) {
       if (period === 'yearly') periodEnd.setFullYear(periodEnd.getFullYear() + 1);
       else periodEnd.setMonth(periodEnd.getMonth() + 1);
 
-      const [org] = await db.select().from(organizations).where(eq(organizations.id, userOrgId));
+      const [org] = await db.select().from(organizations).where(eq(organizations.id, userOrgId as any));
 
       const existingTrialing = await db.select().from(orgSubscriptions)
         .where(and(
-          eq(orgSubscriptions.organizationId, userOrgId),
+          eq(orgSubscriptions.organizationId, userOrgId as any),
           eq(orgSubscriptions.moduleKey, moduleKey),
           eq(orgSubscriptions.status, 'trialing')
         ));
@@ -506,7 +506,7 @@ export function registerBillingRoutes(app: Express) {
         }).where(eq(orgSubscriptions.id, existingTrialing[0].id)).returning();
       } else {
         [sub] = await db.insert(orgSubscriptions).values({
-          organizationId: userOrgId,
+          organizationId: userOrgId as any,
           moduleKey,
           moduleName: module.name,
           status: 'active',
@@ -520,14 +520,14 @@ export function registerBillingRoutes(app: Express) {
       const enabledModules = Array.isArray(org?.enabledModules) ? [...(org.enabledModules as string[])] : [];
       if (!enabledModules.includes(moduleKey)) {
         enabledModules.push(moduleKey);
-        await db.update(organizations).set({ enabledModules }).where(eq(organizations.id, userOrgId));
+        await db.update(organizations).set({ enabledModules }).where(eq(organizations.id, userOrgId as any));
       }
 
       const invoiceCount = await db.select({ count: sql<number>`count(*)::int` }).from(paymentHistory);
       const invoiceNumber = `SD-${now.getFullYear()}-${String((invoiceCount[0]?.count || 0) + 1).padStart(5, '0')}`;
 
       await db.insert(paymentHistory).values({
-        organizationId: userOrgId,
+        organizationId: userOrgId as any,
         amount,
         currency: 'eur',
         status: 'succeeded',
@@ -550,10 +550,10 @@ export function registerBillingRoutes(app: Express) {
     try {
       const userOrgId = req.session?.organizationId;
       const subs = await db.select().from(orgSubscriptions)
-        .where(eq(orgSubscriptions.organizationId, userOrgId))
+        .where(eq(orgSubscriptions.organizationId, userOrgId as any))
         .orderBy(desc(orgSubscriptions.createdAt));
       const payments = await db.select().from(paymentHistory)
-        .where(eq(paymentHistory.organizationId, userOrgId))
+        .where(eq(paymentHistory.organizationId, userOrgId as any))
         .orderBy(desc(paymentHistory.createdAt));
 
       const allModules = await db.select().from(premiumModules);
@@ -687,7 +687,7 @@ export function registerBillingRoutes(app: Express) {
         [paymentQuery] = await db.select().from(paymentHistory).where(eq(paymentHistory.id, paymentId));
       } else {
         [paymentQuery] = await db.select().from(paymentHistory)
-          .where(and(eq(paymentHistory.id, paymentId), eq(paymentHistory.organizationId, userOrgId)));
+          .where(and(eq(paymentHistory.id, paymentId), eq(paymentHistory.organizationId, userOrgId as any)));
       }
 
       if (!paymentQuery) return res.status(404).json({ error: "Fattura non trovata" });

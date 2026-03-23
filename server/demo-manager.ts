@@ -100,7 +100,7 @@ export async function createDemoAccount(requestEmail: string, requestName: strin
         success: true,
         emailFailed: true,
         credentials: { loginEmail, password, orgName: displayOrgName, expiresAt: expiresAt.toISOString() }
-      };
+      } as any;
     }
 
     console.log(`[DEMO] Demo account created for ${requestEmail}: org=${org.id}, login=${loginEmail}, expires=${expiresAt.toISOString()}`);

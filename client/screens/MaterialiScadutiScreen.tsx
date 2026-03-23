@@ -211,7 +211,7 @@ export default function MaterialiScadutiScreen() {
             ))}
           </Card>
         ) : (
-          <Card style={[styles.listCard, { alignItems: "center", paddingVertical: Spacing.xxl }]}>
+          <Card style={[styles.listCard, { alignItems: "center", paddingVertical: Spacing.xl }]}>
             <View style={[styles.successIcon, { backgroundColor: theme.successLight }]}>
               <Feather name="check-circle" size={48} color={theme.success} />
             </View>

@@ -647,7 +647,7 @@ export default function InventoryScannerScreen() {
                 </ThemedText>
                 {scanCount > 0 && (
                   <View style={styles.scanCountBadge}>
-                    <ThemedText type="caption" style={styles.scanCountText}>
+                    <ThemedText type="small" style={styles.scanCountText}>
                       {scanCount}
                     </ThemedText>
                   </View>

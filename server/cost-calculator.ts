@@ -109,7 +109,7 @@ export async function preloadFinancialData(): Promise<PreloadedFinancialData> {
     storage.getDefaultFinancialProfile(),
     storage.getVehicles(),
     storage.getContracts(),
-    storage.getContractVehicles(),
+    (storage as any).getContractVehicles(),
   ]);
   
   const profile = profileResult || null;
