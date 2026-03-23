@@ -44,6 +44,19 @@
     }
   }
   </script>
+
+  <!-- Override: restore scroll when Lenis fails to init (safety fallback) -->
+  <style>
+    html.sd-unlocked,
+    html.sd-unlocked body {
+      position: static !important;
+      overflow-x: hidden !important;
+      overflow-y: auto !important;
+      height: auto !important;
+      top: auto !important;
+      left: auto !important;
+    }
+  </style>
   </head>
 
   <body>
@@ -1230,17 +1243,23 @@
     })();
     </script>
 
-    <!-- Safety timeout: force-close loader after 4s if JS stalls -->
+    <!-- Safety timeout: force-close loader + restore scroll after 4s if JS stalls -->
     <script>
     setTimeout(function() {
+      // 1. Force-hide loader if still visible
       var loader = document.querySelector('.loader');
-      if (loader && loader.style.display !== 'none' && getComputedStyle(loader).display !== 'none') {
+      if (loader) {
         loader.style.transition = 'opacity 0.6s ease';
         loader.style.opacity = '0';
-        setTimeout(function() {
-          loader.style.display = 'none';
-          document.body.style.overflow = '';
-        }, 600);
+        setTimeout(function() { loader.style.display = 'none'; }, 600);
+      }
+
+      // 2. Restore scroll — CSS has body,html{position:fixed;overflow:hidden}
+      //    Lenis normally overrides this by adding html.lenis class.
+      //    If Lenis didn't init, force-enable native scroll as fallback.
+      var hasLenis = document.documentElement.classList.contains('lenis');
+      if (!hasLenis) {
+        document.documentElement.classList.add('sd-unlocked');
       }
     }, 4000);
     </script>

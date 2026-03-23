@@ -348,6 +348,12 @@ function configureExpoAndLanding(app: express.Application) {
     app.get("/contatti",    (_req, res) => res.sendFile(path.join(sitePath, "contatti.html")));
     // Test route — mdx.so clone (same as / but explicit for QA)
     app.get("/new", (_req, res) => res.sendFile(path.join(sitePath, "index.html")));
+    // mdx.so page routes — redirect to home (these are mdx.so internal pages)
+    app.get("/projects",  (_req, res) => res.redirect("/"));
+    app.get("/services",  (_req, res) => res.redirect("/"));
+    app.get("/contact",   (_req, res) => res.redirect("/"));
+    app.get("/about-us",  (_req, res) => res.redirect("/"));
+    app.get("/about",     (_req, res) => res.redirect("/"));
     log("Public site: /piattaforma /clienti /contatti + /css /js /fonts /images /new assets");
   }
 
