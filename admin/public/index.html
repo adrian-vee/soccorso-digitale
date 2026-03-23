@@ -6,7 +6,7 @@
   <title>SOCCORSO DIGITALE - Pannello Amministrativo</title>
   <link rel="stylesheet" href="/admin/styles.css?v=20260225m">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/admin/dashboard-redesign.css?v=20260323a">
+  <link rel="stylesheet" href="/admin/dashboard-redesign.css?v=20260323b">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -675,6 +675,11 @@
               </div>
               <button class="btn-icon" id="refresh-btn" title="Aggiorna dati">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
+              </button>
+              <!-- Dark/Light mode toggle — cosmetic only, no logic -->
+              <button id="ds-theme-toggle" title="Cambia tema" aria-label="Toggle dark/light mode">
+                <svg id="ds-icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                <svg id="ds-icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
               </button>
             </div>
           </header>
@@ -10818,5 +10823,89 @@
   </div>
 
   <script src="/admin/app.js?v=20260225m"></script>
+
+  <!-- ── Dark/Light toggle (cosmetic only) ── -->
+  <script>
+  (function () {
+    // Restore saved theme
+    var saved = localStorage.getItem('ds-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    updateToggleIcon(saved);
+
+    var btn = document.getElementById('ds-theme-toggle');
+    if (btn) {
+      btn.addEventListener('click', function () {
+        var cur = document.documentElement.getAttribute('data-theme') || 'dark';
+        var next = cur === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('ds-theme', next);
+        updateToggleIcon(next);
+      });
+    }
+
+    function updateToggleIcon(theme) {
+      var moon = document.getElementById('ds-icon-moon');
+      var sun  = document.getElementById('ds-icon-sun');
+      if (!moon || !sun) return;
+      if (theme === 'dark') {
+        sun.style.display  = 'block';  // show sun (switch to light)
+        moon.style.display = 'none';
+      } else {
+        sun.style.display  = 'none';
+        moon.style.display = 'block';  // show moon (switch to dark)
+      }
+    }
+
+    // ── Chart.js global defaults — cosmetic color patch ──
+    // Only runs after Chart.js is loaded; changes visual defaults only.
+    // Zero data/logic/callback modification.
+    function patchChartDefaults() {
+      if (typeof Chart === 'undefined') return;
+      var D = Chart.defaults;
+      // Grid lines
+      if (D.scale && D.scale.grid) {
+        D.scale.grid.color = 'rgba(255,255,255,0.04)';
+        D.scale.grid.borderColor = 'transparent';
+      }
+      // Tick labels
+      if (D.scale && D.scale.ticks) {
+        D.scale.ticks.color = '#475569';
+        D.scale.ticks.font = { family: "'DM Sans','Inter',sans-serif", size: 11 };
+      }
+      // Plugins
+      if (D.plugins) {
+        // Tooltip
+        if (D.plugins.tooltip) {
+          D.plugins.tooltip.backgroundColor = '#141F30';
+          D.plugins.tooltip.borderColor      = 'rgba(255,255,255,0.08)';
+          D.plugins.tooltip.borderWidth      = 1;
+          D.plugins.tooltip.titleColor       = '#F1F5F9';
+          D.plugins.tooltip.bodyColor        = '#94A3B8';
+          D.plugins.tooltip.padding          = 10;
+          D.plugins.tooltip.cornerRadius     = 10;
+        }
+        // Legend
+        if (D.plugins.legend && D.plugins.legend.labels) {
+          D.plugins.legend.labels.color = '#64748B';
+          D.plugins.legend.labels.font  = { family: "'DM Sans','Inter',sans-serif", size: 12 };
+        }
+      }
+      // Color for default datasets
+      D.color = '#94A3B8';
+    }
+
+    // Patch immediately if Chart is already loaded, else wait
+    if (typeof Chart !== 'undefined') {
+      patchChartDefaults();
+    } else {
+      var chartScripts = document.querySelectorAll('script[src*="chart"]');
+      if (chartScripts.length) {
+        chartScripts[0].addEventListener('load', patchChartDefaults);
+      }
+      // Fallback: patch on DOMContentLoaded
+      document.addEventListener('DOMContentLoaded', patchChartDefaults);
+    }
+  })();
+  </script>
 </body>
 </html>
