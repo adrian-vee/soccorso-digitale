@@ -333,15 +333,22 @@ function configureExpoAndLanding(app: express.Application) {
   const sitePath = path.resolve(process.cwd(), "site");
   if (fs.existsSync(sitePath)) {
     const adminPath0 = path.resolve(process.cwd(), "admin", "public");
-    // Serve site CSS/JS/images under /site/ prefix
+    // Serve site CSS/JS/images under /site/ prefix (legacy)
     app.use("/site", express.static(sitePath, { etag: false, maxAge: 0 }));
+    // Serve site assets at root-level paths (mdx.so clone uses relative paths resolving to /)
+    app.use("/css",    express.static(path.join(sitePath, "css"),    { etag: false, maxAge: 0 }));
+    app.use("/js",     express.static(path.join(sitePath, "js"),     { etag: false, maxAge: 0 }));
+    app.use("/fonts",  express.static(path.join(sitePath, "fonts"),  { etag: false, maxAge: 0 }));
+    app.use("/images", express.static(path.join(sitePath, "images"), { etag: false, maxAge: 0 }));
     // Serve logo from admin/public at root level (HTML files reference /logo.svg)
     app.get("/logo.svg", (_req, res) => res.sendFile(path.join(adminPath0, "logo.svg")));
     // Explicit page routes — must be before /admin handlers
     app.get("/piattaforma", (_req, res) => res.sendFile(path.join(sitePath, "piattaforma.html")));
     app.get("/clienti",     (_req, res) => res.sendFile(path.join(sitePath, "clienti.html")));
     app.get("/contatti",    (_req, res) => res.sendFile(path.join(sitePath, "contatti.html")));
-    log("Public site: /piattaforma /clienti /contatti + /site/* assets");
+    // Test route — mdx.so clone (same as / but explicit for QA)
+    app.get("/new", (_req, res) => res.sendFile(path.join(sitePath, "index.html")));
+    log("Public site: /piattaforma /clienti /contatti + /css /js /fonts /images /new assets");
   }
 
   // Serve admin panel with SPA fallback (no cache for development)
