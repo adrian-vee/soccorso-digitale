@@ -5,8 +5,16 @@
 
 /* ─── 1. GSAP Setup ─────────────────────────────────────────── */
 if (typeof gsap !== 'undefined') {
-  const plugins = [ScrollTrigger, TextPlugin, CustomEase, Flip, Draggable, InertiaPlugin];
-  const available = plugins.filter(p => typeof p !== 'undefined');
+  // Safe: typeof never throws ReferenceError for undeclared variables
+  const plugins = [
+    typeof ScrollTrigger !== 'undefined' && ScrollTrigger,
+    typeof TextPlugin !== 'undefined' && TextPlugin,
+    typeof CustomEase !== 'undefined' && CustomEase,
+    typeof Flip !== 'undefined' && Flip,
+    typeof Draggable !== 'undefined' && Draggable,
+    typeof InertiaPlugin !== 'undefined' && InertiaPlugin,
+  ];
+  const available = plugins.filter(Boolean);
   if (available.length) gsap.registerPlugin(...available);
 
   if (typeof SplitText !== 'undefined') gsap.registerPlugin(SplitText);
