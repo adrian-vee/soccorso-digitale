@@ -12670,7 +12670,7 @@ async function toggleRainLayer(show) {
     const frames = data.radar?.past ?? [];
     if (!frames.length) return;
     const latest = frames[frames.length - 1];
-    if (gpsMap.getZoom() > 12) gpsMap.setZoom(12);
+    if (gpsMap.getZoom() > 10) gpsMap.setZoom(10);
     fleetLayers.rain = L.tileLayer(
       `https://tilecache.rainviewer.com${latest.path}/256/{z}/{x}/{y}/2/1_1.png`,
       { opacity: 0.5, attribution: '© RainViewer', minZoom: 3, maxZoom: 12, zIndex: 200 }
