@@ -773,6 +773,24 @@ input,textarea,select { font:inherit; }
   min-width:0;
 }
 .cta-input::placeholder { color:rgba(11,18,21,.38); }
+.btn-cta {
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:11px 22px;
+  border-radius:var(--r-pill);
+  background:var(--sd-black);
+  color:var(--sd-white);
+  font-family:var(--font-sans);
+  font-size:14px;
+  font-weight:500;
+  cursor:pointer;
+  border:none;
+  white-space:nowrap;
+  transition:all .2s var(--ease-smooth);
+  flex-shrink:0;
+}
+.btn-cta:hover { background:#1A2332; transform:translateY(-1px); }
 
 /* ─── Footer ─────────────────────────────────────────────────── */
 footer {
@@ -1347,4 +1365,189 @@ footer {
   .clients-grid { grid-template-columns:1fr; }
   .form-grid { grid-template-columns:1fr; }
   .contact-form-card { padding:32px 24px; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PHASE 2 — Responsiveness & Design Polish
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ─── Hero Frame: Browser Mockup Chrome ─────────────────────── */
+.hero-frame::before {
+  content:'';
+  position:absolute;
+  top:0; left:0; right:0;
+  height:30px;
+  z-index:2;
+  background:rgba(15,20,30,.95);
+  border-bottom:1px solid rgba(255,255,255,.07);
+  /* Traffic light dots */
+  background-image:
+    radial-gradient(circle at 16px 50%, #ff5f57 4.5px, transparent 4.5px),
+    radial-gradient(circle at 34px 50%, #ffbd2e 4.5px, transparent 4.5px),
+    radial-gradient(circle at 52px 50%, #28ca41 4.5px, transparent 4.5px);
+}
+
+/* ─── Integration Badges — Refined ─────────────────────────── */
+.int-badge {
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:0;
+  border-radius:0;
+  background:none;
+  font-family:var(--font-mono);
+  font-size:10px;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:rgba(252,252,253,.35);
+  width:fit-content;
+  margin-top:auto;
+}
+.int-badge::before {
+  content:'';
+  width:6px; height:6px;
+  border-radius:50%;
+  background:#28ca41;
+  flex-shrink:0;
+}
+.int-badge.soon {
+  color:rgba(252,252,253,.22);
+  font-style:italic;
+  text-transform:none;
+  font-family:var(--font-sans);
+  font-size:11px;
+  letter-spacing:.02em;
+}
+.int-badge.soon::before { background:rgba(252,252,253,.18); }
+
+/* ─── Menu Overlay: Bottom CTA Fixed ───────────────────────── */
+.menu-overlay-footer {
+  position:fixed;
+  bottom:0; left:0; right:0;
+  padding:20px 20px 32px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  align-items:center;
+  background:linear-gradient(to top, rgba(17,24,34,1) 60%, transparent);
+}
+.menu-overlay-footer .btn-primary {
+  width:100%;
+  justify-content:center;
+  border-radius:var(--r-md);
+}
+.menu-overlay-footer .btn-outline {
+  border:none;
+  background:none;
+  font-size:13px;
+  color:rgba(252,252,253,.45);
+  padding:8px;
+  min-height:auto;
+}
+
+/* ─── Steps: Visual Improvements ───────────────────────────── */
+.steps-grid {
+  gap:1px; /* tighter separator */
+}
+.step-num-large {
+  font-family:var(--font-display);
+  font-size:clamp(40px,5vw,60px);
+  font-weight:400;
+  color:var(--sd-accent);
+  opacity:.18;
+  line-height:1;
+  user-select:none;
+  position:absolute;
+  top:16px; right:20px;
+  letter-spacing:-.04em;
+}
+.step-card { position:relative; overflow:hidden; }
+
+/* ─── 768px Breakpoint ──────────────────────────────────────── */
+@media (max-width:768px) {
+  /* Nav: hide desktop buttons at this breakpoint too */
+  .nav-right > .btn-outline { display:none; }
+
+  /* Hero: reduce visual size, hide floating chips */
+  .hero { min-height:auto; padding-top:calc(var(--nav-h) + 40px); padding-bottom:56px; }
+  .hero-chip { display:none; }
+  .hero-frame { aspect-ratio:16/9; }
+
+  /* Stats: compact */
+  .stats-section { padding:48px 0; }
+  .stat-card { padding:28px 22px; }
+
+  /* Modules grid: 2 col at 768px (already 2 at 991px, stays 2) */
+
+  /* Steps: stack */
+  .steps-grid { grid-template-columns:1fr; }
+  .step-card { padding:36px 32px; }
+  .step-num-large { font-size:40px; }
+
+  /* Testimonials: 1 col */
+  .testimonial-grid { grid-template-columns:1fr; }
+
+  /* Integrations: 1 col */
+  .integration-grid { grid-template-columns:1fr; }
+
+  /* Piattaforma modules full grid: 1 col */
+  .modules-full-grid { grid-template-columns:1fr !important; }
+
+  /* CTA form: stack */
+  .cta-form-wrap { flex-direction:column; border-radius:var(--r-md); padding:12px; }
+  .cta-input { padding:8px 4px; }
+  .btn-cta { width:100%; justify-content:center; }
+
+  /* Footer: stack main columns at 768px */
+  .footer-main-inner { grid-template-columns:1fr 1fr; gap:28px; }
+  .footer-cta-inner { gap:28px; }
+  .footer-bottom-inner { flex-direction:column; gap:12px; text-align:center; }
+
+  /* Contact inner: reduce top padding */
+  .contact-inner { padding-top:40px; padding-bottom:56px; }
+
+  /* Logo wall: smaller chips */
+  .logo-mark { width:56px; height:56px; font-size:10px; }
+}
+
+/* ─── 480px Breakpoint (additions) ─────────────────────────── */
+@media (max-width:480px) {
+  /* Footer: 1 col */
+  .footer-main-inner { grid-template-columns:1fr; text-align:center; }
+  .f-brand { align-items:center; }
+  .f-brand-desc { text-align:center; }
+
+  /* Giant footer text */
+  .footer-giant-letters { font-size:clamp(12px,4vw,28px); letter-spacing:.04em; }
+
+  /* CTA section */
+  .cta-section { padding-left:0; padding-right:0; }
+  .cta-form-wrap { max-width:100%; }
+
+  /* Wrap gutter reduction */
+  .wrap { padding-left:16px; padding-right:16px; }
+
+  /* Step cards: reduce padding */
+  .step-card { padding:28px 22px; }
+
+  /* Hide hero floating chips */
+  .hero-chip { display:none; }
+
+  /* Logo wall */
+  .logo-mark { width:48px; height:48px; }
+  .logo-name { font-size:10px; max-width:60px; }
+}
+
+/* ─── Touch Targets ─────────────────────────────────────────── */
+@media (max-width:991px) {
+  .nav-ham { min-height:44px; min-width:44px; justify-content:center; padding:10px; }
+  .f-col a { display:block; padding:6px 0; }
+  .menu-overlay-links a { min-height:56px; display:flex; align-items:center; }
+  .footer-scroll-top { min-height:44px; min-width:44px; }
+}
+
+/* ─── Dashboard Image Fallback ──────────────────────────────── */
+.hero-frame img {
+  background:var(--sd-black-soft);
+  min-height:160px;
 }
