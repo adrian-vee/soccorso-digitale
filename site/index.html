@@ -35,6 +35,15 @@
 
     <!-- STYLES  -->
       <link rel="stylesheet" href="css/homepage.min.css">
+
+  <!-- Import map: redirect CDN modules to local stubs so homepage.min.js loads offline -->
+  <script type="importmap">
+  {
+    "imports": {
+      "https://cdn.skypack.dev/canvas-sketch-util/random": "/js/canvas-sketch-random-stub.js"
+    }
+  }
+  </script>
   </head>
 
   <body>
@@ -1198,8 +1207,45 @@
     <script src="js/lenis.min.js"></script>
     <script src="js/player.js"></script>
 
+    <!-- Fetch interceptor: stub out mdx.so API calls and missing local assets -->
+    <script>
+    (function() {
+      var _origFetch = window.fetch;
+      window.fetch = function(url, opts) {
+        var u = typeof url === 'string' ? url : (url && url.url) || '';
+        // Block WordPress projects API — return empty array
+        if (u.indexOf('admin.mdx.so') !== -1 || u.indexOf('wp-json') !== -1) {
+          return Promise.resolve(new Response('[]', { status: 200, headers: { 'Content-Type': 'application/json' } }));
+        }
+        // Block contact API — return success
+        if (u.indexOf('api.mdx.so') !== -1) {
+          return Promise.resolve(new Response('{"ok":true}', { status: 200, headers: { 'Content-Type': 'application/json' } }));
+        }
+        // Block missing audio file — return empty body
+        if (u.indexOf('.mp3') !== -1 || u.indexOf('soundtrack') !== -1) {
+          return Promise.resolve(new Response(new ArrayBuffer(0), { status: 200, headers: { 'Content-Type': 'audio/mpeg' } }));
+        }
+        return _origFetch.apply(this, arguments);
+      };
+    })();
+    </script>
+
+    <!-- Safety timeout: force-close loader after 4s if JS stalls -->
+    <script>
+    setTimeout(function() {
+      var loader = document.querySelector('.loader');
+      if (loader && loader.style.display !== 'none' && getComputedStyle(loader).display !== 'none') {
+        loader.style.transition = 'opacity 0.6s ease';
+        loader.style.opacity = '0';
+        setTimeout(function() {
+          loader.style.display = 'none';
+          document.body.style.overflow = '';
+        }, 600);
+      }
+    }, 4000);
+    </script>
+
     <!-- SCRIPTS  -->
       <script type="module" src="js/homepage.min.js"></script>
-  <script defer="" src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516" data-cf-beacon="{" version":"2024.11.0","token":"d69fbc016102498ebe9684534994f30c","server_timing":{"name":{"cfcachestatus":true,"cfedge":true,"cfextpri":true,"cfl4":true,"cforigin":true,"cfspeedbrain":true},"location_startswith":null}}"="" crossorigin="anonymous"></script>
 
 </body></html>
