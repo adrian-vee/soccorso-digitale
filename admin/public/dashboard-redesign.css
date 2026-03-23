@@ -1,0 +1,1264 @@
+/* ═══════════════════════════════════════════════════════════════
+   SOCCORSO DIGITALE — Dashboard Redesign
+   ClyHealth-inspired dark glassmorphism UI
+   Override layer: loaded AFTER styles.css, does NOT touch logic
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── 0. Fonts ──────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap');
+
+/* ── 1. New Design Tokens (override :root) ─────────────────── */
+:root {
+  /* Background layers */
+  --ds-bg-deepest:  #080C14;
+  --ds-bg-deep:     #0C1220;
+  --ds-bg-base:     #111827;
+  --ds-bg-elevated: #1A2332;
+  --ds-bg-surface:  #1F2B3D;
+
+  /* Glass */
+  --ds-glass-card:         rgba(255,255,255,0.04);
+  --ds-glass-card-hover:   rgba(255,255,255,0.07);
+  --ds-glass-inner:        rgba(255,255,255,0.06);
+  --ds-glass-border:       rgba(255,255,255,0.08);
+  --ds-glass-border-hover: rgba(255,255,255,0.14);
+  --ds-blur-card:          blur(20px);
+  --ds-blur-heavy:         blur(40px);
+
+  /* Text */
+  --ds-text-primary:   #F1F5F9;
+  --ds-text-secondary: #94A3B8;
+  --ds-text-muted:     #64748B;
+
+  /* Accent */
+  --ds-blue:        #3B82F6;
+  --ds-blue-soft:   rgba(59,130,246,0.15);
+  --ds-blue-glow:   rgba(59,130,246,0.25);
+  --ds-accent:      #FF6B35;
+  --ds-accent-soft: rgba(255,107,53,0.15);
+
+  /* Status */
+  --ds-green:       #22C55E;
+  --ds-green-soft:  rgba(34,197,94,0.12);
+  --ds-yellow:      #EAB308;
+  --ds-yellow-soft: rgba(234,179,8,0.12);
+  --ds-red:         #EF4444;
+  --ds-red-soft:    rgba(239,68,68,0.12);
+  --ds-orange:      #F97316;
+  --ds-orange-soft: rgba(249,115,22,0.12);
+
+  /* Shadows */
+  --ds-shadow-card:       0 4px 24px rgba(0,0,0,0.3), 0 0 0 1px var(--ds-glass-border);
+  --ds-shadow-card-hover: 0 8px 40px rgba(0,0,0,0.4), 0 0 0 1px var(--ds-glass-border-hover);
+  --ds-shadow-glow-blue:  0 0 20px rgba(59,130,246,0.2);
+
+  /* Radius */
+  --ds-radius-sm: 8px;
+  --ds-radius-md: 12px;
+  --ds-radius-lg: 16px;
+  --ds-radius-xl: 20px;
+
+  /* Old variables mapped to new values */
+  --primary:          #3B82F6;
+  --primary-dark:     #2563EB;
+  --primary-light:    rgba(59,130,246,0.15);
+  --secondary:        #22C55E;
+  --secondary-light:  rgba(34,197,94,0.12);
+  --background:       var(--ds-bg-base);
+  --surface:          var(--ds-bg-elevated);
+  --surface-elevated: var(--ds-bg-surface);
+  --text-primary:     var(--ds-text-primary);
+  --text-secondary:   var(--ds-text-secondary);
+  --text-muted:       var(--ds-text-muted);
+  --border:           var(--ds-glass-border);
+  --border-light:     rgba(255,255,255,0.04);
+  --shadow:           var(--ds-shadow-card);
+  --shadow-lg:        var(--ds-shadow-card-hover);
+
+  /* Sidebar collapsed width */
+  --ds-sidebar-collapsed: 72px;
+  --ds-sidebar-expanded:  260px;
+}
+
+/* ── 2. Global Base ────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  background: var(--ds-bg-deepest) !important;
+  color: var(--ds-text-primary) !important;
+  font-family: 'DM Sans', 'Inter', -apple-system, sans-serif;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.12);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255,255,255,0.22);
+}
+
+/* ── 3. Login Page ─────────────────────────────────────────── */
+.login-container {
+  background: var(--ds-bg-deepest) !important;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-card {
+  background: var(--ds-glass-card) !important;
+  backdrop-filter: var(--ds-blur-card) !important;
+  border: 1px solid var(--ds-glass-border) !important;
+  box-shadow: var(--ds-shadow-card) !important;
+  border-radius: var(--ds-radius-xl) !important;
+  padding: 48px !important;
+  width: 420px !important;
+  max-width: 92vw !important;
+}
+
+.login-header h1 {
+  color: var(--ds-text-primary) !important;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.login-header .subtitle {
+  color: var(--ds-text-secondary) !important;
+}
+
+/* ── 4. Layout Shell ───────────────────────────────────────── */
+.enterprise-layout {
+  background: var(--ds-bg-deepest) !important;
+  min-height: 100vh;
+}
+
+/* ── 5. SIDEBAR — Icon-only collapsed, expands on hover ────── */
+.main-sidebar {
+  width: var(--ds-sidebar-collapsed) !important;
+  background: var(--ds-bg-deepest) !important;
+  border-right: 1px solid var(--ds-glass-border) !important;
+  overflow: hidden !important;
+  transition: width 0.28s cubic-bezier(0.4,0,0.2,1) !important;
+  z-index: 300 !important;
+}
+
+.main-sidebar:hover {
+  width: var(--ds-sidebar-expanded) !important;
+  box-shadow: 4px 0 40px rgba(0,0,0,0.4) !important;
+}
+
+/* Content shifts to match collapsed sidebar */
+.main-wrapper {
+  margin-left: var(--ds-sidebar-collapsed) !important;
+  background: var(--ds-bg-deep) !important;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* Sidebar brand: show only icon at 72px, text on expand */
+.sidebar-brand {
+  padding: 20px 0 !important;
+  justify-content: center !important;
+  flex-direction: column;
+  gap: 4px;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--ds-glass-border) !important;
+  overflow: hidden;
+}
+
+.sidebar-brand-text {
+  opacity: 0;
+  white-space: nowrap;
+  transition: opacity 0.2s ease 0.1s;
+  overflow: hidden;
+  max-width: 0;
+}
+
+.main-sidebar:hover .sidebar-brand-text {
+  opacity: 1;
+  max-width: 200px;
+}
+
+.brand-name {
+  font-size: 13px !important;
+  letter-spacing: 0.08em !important;
+  color: var(--ds-text-primary) !important;
+}
+
+.brand-subtitle {
+  font-size: 10px !important;
+  color: var(--ds-text-muted) !important;
+  letter-spacing: 0.06em !important;
+}
+
+/* Sidebar logo icon — always visible */
+.sidebar-brand::before {
+  content: '';
+  display: block;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--ds-radius-md);
+  background: var(--ds-blue-soft);
+  border: 1px solid rgba(59,130,246,0.25);
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='12' cy='12' r='10' stroke='%233B82F6' stroke-width='1.5'/%3E%3Cpath d='M12 7v10M7 12h10' stroke='%233B82F6' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-size: 22px;
+  background-repeat: no-repeat;
+  background-position: center;
+  flex-shrink: 0;
+  margin: 0 auto;
+  order: -1;
+}
+
+/* Search box — hidden when collapsed */
+.sidebar-search-box {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  background: var(--ds-glass-inner) !important;
+  border-color: var(--ds-glass-border) !important;
+  margin: 8px 12px !important;
+  border-radius: var(--ds-radius-md) !important;
+}
+
+.main-sidebar:hover .sidebar-search-box {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.sidebar-search-box input {
+  color: var(--ds-text-secondary) !important;
+}
+
+.sidebar-search-box::placeholder,
+.sidebar-search-box input::placeholder {
+  color: var(--ds-text-muted) !important;
+}
+
+/* Org filter — hidden when collapsed */
+#org-filter-container {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  overflow: hidden;
+  border-bottom: 1px solid var(--ds-glass-border) !important;
+}
+
+.main-sidebar:hover #org-filter-container {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Nav items */
+.sidebar-nav {
+  padding: 8px 0;
+  overflow: visible;
+}
+
+.nav-section {
+  padding: 0 4px;
+  margin-bottom: 2px;
+}
+
+.nav-item {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  width: calc(var(--ds-sidebar-expanded) - 8px) !important;
+  padding: 10px 14px !important;
+  border-radius: var(--ds-radius-md) !important;
+  color: var(--ds-text-muted) !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  transition: all 0.18s ease !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  background: transparent !important;
+  border: none !important;
+  cursor: pointer !important;
+}
+
+.nav-item svg {
+  flex-shrink: 0 !important;
+  opacity: 0.6;
+  transition: opacity 0.18s ease;
+}
+
+.nav-item:hover {
+  background: var(--ds-glass-card) !important;
+  color: var(--ds-text-secondary) !important;
+}
+
+.nav-item:hover svg {
+  opacity: 1 !important;
+}
+
+.nav-item.active {
+  background: var(--ds-blue-soft) !important;
+  color: var(--ds-text-primary) !important;
+}
+
+.nav-item.active svg {
+  color: var(--ds-blue) !important;
+  opacity: 1 !important;
+}
+
+/* nav-item text label — invisible but space preserved to avoid layout shift */
+.nav-item > span:not(.nav-section-header-label) {
+  opacity: 0;
+  transition: opacity 0.18s ease 0.06s;
+  overflow: hidden;
+}
+
+.main-sidebar:hover .nav-item > span:not(.nav-section-header-label) {
+  opacity: 1;
+}
+
+/* Section headers */
+.nav-section-header {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  width: calc(var(--ds-sidebar-expanded) - 8px) !important;
+  padding: 8px 14px 4px !important;
+  background: transparent !important;
+  border: none !important;
+  cursor: pointer !important;
+  color: var(--ds-text-muted) !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+}
+
+.nav-section-header-label,
+.nav-section-chevron {
+  opacity: 0;
+  transition: opacity 0.18s ease;
+}
+
+.main-sidebar:hover .nav-section-header-label,
+.main-sidebar:hover .nav-section-chevron {
+  opacity: 1;
+}
+
+.nav-section-header-label {
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.1em !important;
+  color: var(--ds-text-muted) !important;
+}
+
+/* Section body collapse/expand — keep existing JS behavior */
+.nav-section-body {
+  padding: 2px 0 4px !important;
+}
+
+/* Sidebar footer */
+.sidebar-footer {
+  border-top: 1px solid var(--ds-glass-border) !important;
+  background: transparent !important;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.sidebar-user {
+  background: var(--ds-glass-inner) !important;
+  border-radius: var(--ds-radius-md) !important;
+}
+
+.sidebar-user .user-info {
+  opacity: 0;
+  max-width: 0;
+  overflow: hidden;
+  transition: opacity 0.2s ease, max-width 0.2s ease;
+}
+
+.main-sidebar:hover .sidebar-user .user-info {
+  opacity: 1;
+  max-width: 160px;
+}
+
+.fleet-summary {
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: opacity 0.2s ease, max-height 0.2s ease;
+}
+
+.main-sidebar:hover .fleet-summary {
+  opacity: 1;
+  max-height: 60px;
+}
+
+/* Nav badge */
+.nav-badge {
+  background: var(--ds-green-soft) !important;
+  color: var(--ds-green) !important;
+  font-size: 9px !important;
+}
+
+/* ── 6. Top Header ─────────────────────────────────────────── */
+.top-header {
+  background: rgba(8,12,20,0.85) !important;
+  backdrop-filter: var(--ds-blur-card) !important;
+  -webkit-backdrop-filter: var(--ds-blur-card) !important;
+  border-bottom: 1px solid var(--ds-glass-border) !important;
+  height: 64px !important;
+}
+
+.header-title h1 {
+  color: var(--ds-text-primary) !important;
+  font-size: 17px !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.01em;
+}
+
+.header-title .last-update {
+  color: var(--ds-text-muted) !important;
+  font-size: 11px !important;
+}
+
+/* ── 7. Page Content — Ambient Orbs Background ─────────────── */
+.page-content,
+.main-content,
+.content-area {
+  background: transparent !important;
+  position: relative;
+  z-index: 1;
+}
+
+.main-wrapper::before {
+  content: '';
+  position: fixed;
+  top: -15%;
+  right: 5%;
+  width: 560px;
+  height: 560px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(59,130,246,0.07) 0%, transparent 68%);
+  filter: blur(60px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.main-wrapper::after {
+  content: '';
+  position: fixed;
+  bottom: -15%;
+  left: 15%;
+  width: 440px;
+  height: 440px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,107,53,0.045) 0%, transparent 68%);
+  filter: blur(60px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── 8. KPI Cards — ClyHealth big-number style ─────────────── */
+.kpi-grid-enterprise {
+  gap: 16px !important;
+}
+
+.kpi-card-enterprise {
+  background: var(--ds-glass-card) !important;
+  backdrop-filter: var(--ds-blur-card) !important;
+  -webkit-backdrop-filter: var(--ds-blur-card) !important;
+  border: 1px solid var(--ds-glass-border) !important;
+  box-shadow: var(--ds-shadow-card) !important;
+  border-radius: var(--ds-radius-lg) !important;
+  overflow: hidden !important;
+  transition: all 0.3s ease !important;
+}
+
+.kpi-card-enterprise::before {
+  display: none !important; /* remove old pseudo overlay */
+}
+
+.kpi-card-enterprise:hover {
+  background: var(--ds-glass-card-hover) !important;
+  border-color: var(--ds-glass-border-hover) !important;
+  box-shadow: var(--ds-shadow-card-hover) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* KPI Icon */
+.kpi-card-enterprise .kpi-icon {
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: var(--ds-radius-md) !important;
+  background: var(--ds-glass-inner) !important;
+  border: 1px solid var(--ds-glass-border) !important;
+  box-shadow: none !important;
+  flex-shrink: 0;
+}
+
+.kpi-card-enterprise .kpi-icon svg {
+  width: 20px !important;
+  height: 20px !important;
+  color: var(--ds-blue) !important;
+}
+
+.kpi-card-enterprise.green .kpi-icon svg { color: var(--ds-green) !important; }
+.kpi-card-enterprise.orange .kpi-icon svg { color: var(--ds-orange) !important; }
+.kpi-card-enterprise.purple .kpi-icon svg { color: #A78BFA !important; }
+
+/* KPI Number — ClyHealth big thin style */
+.kpi-card-enterprise .kpi-value {
+  font-family: 'DM Sans', sans-serif !important;
+  font-size: 2.6rem !important;
+  font-weight: 300 !important;
+  color: var(--ds-text-primary) !important;
+  letter-spacing: -0.04em !important;
+  line-height: 1 !important;
+  margin: 16px 0 6px !important;
+}
+
+.kpi-card-enterprise .kpi-label {
+  font-size: 0.6875rem !important;
+  font-weight: 500 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+  color: var(--ds-text-muted) !important;
+}
+
+/* Delta trend */
+.kpi-card-enterprise .kpi-trend {
+  font-size: 0.75rem !important;
+  font-family: 'DM Sans', monospace !important;
+  margin-top: 10px !important;
+  font-weight: 500 !important;
+}
+
+.kpi-card-enterprise .kpi-trend.up {
+  color: var(--ds-green) !important;
+}
+
+.kpi-card-enterprise .kpi-trend.down {
+  color: var(--ds-red) !important;
+}
+
+/* Also used kpi-card (alternate class) */
+.kpi-card {
+  background: var(--ds-glass-card) !important;
+  backdrop-filter: var(--ds-blur-card) !important;
+  border: 1px solid var(--ds-glass-border) !important;
+  box-shadow: var(--ds-shadow-card) !important;
+  border-radius: var(--ds-radius-lg) !important;
+  transition: all 0.3s ease !important;
+}
+
+.kpi-card:hover {
+  background: var(--ds-glass-card-hover) !important;
+  border-color: var(--ds-glass-border-hover) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* ── 9. Panel Enterprise — Glassmorphism Cards ─────────────── */
+.panel-enterprise,
+.panel,
+.card,
+.card-enterprise {
+  background: var(--ds-glass-card) !important;
+  backdrop-filter: var(--ds-blur-card) !important;
+  -webkit-backdrop-filter: var(--ds-blur-card) !important;
+  border: 1px solid var(--ds-glass-border) !important;
+  box-shadow: var(--ds-shadow-card) !important;
+  border-radius: var(--ds-radius-lg) !important;
+  transition: all 0.3s ease !important;
+}
+
+.panel-enterprise:hover,
+.panel:hover,
+.card:hover {
+  background: var(--ds-glass-card-hover) !important;
+  border-color: var(--ds-glass-border-hover) !important;
+  box-shadow: var(--ds-shadow-card-hover) !important;
+}
+
+/* Panel header */
+.panel-enterprise .panel-header-ent,
+.panel-header,
+.card-header {
+  border-bottom: 1px solid var(--ds-glass-border) !important;
+  background: transparent !important;
+  padding: 18px 24px !important;
+}
+
+.panel-enterprise .panel-title,
+.panel-title,
+.card-title {
+  color: var(--ds-text-primary) !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.01em;
+}
+
+.panel-enterprise .panel-title-icon,
+.panel-title-icon {
+  background: var(--ds-glass-inner) !important;
+  border: 1px solid var(--ds-glass-border) !important;
+  border-radius: var(--ds-radius-sm) !important;
+  box-shadow: none !important;
+}
+
+.panel-enterprise .panel-title-icon svg {
+  color: var(--ds-blue) !important;
+}
+
+/* Panel badge */
+.panel-enterprise .panel-badge-ent,
+.panel-badge {
+  border-radius: 9999px !important;
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  padding: 3px 10px !important;
+}
+
+/* Panel body */
+.panel-enterprise .panel-body-ent,
+.panel-body,
+.card-body {
+  background: transparent !important;
+}
+
+/* Chart panel */
+.chart-panel-ent .chart-container-ent,
+.chart-container,
+.chart-container-dark {
+  background: transparent !important;
+  border-radius: var(--ds-radius-md) !important;
+}
+
+/* ── 10. Status Badges ─────────────────────────────────────── */
+.status-badge,
+.badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  padding: 3px 10px !important;
+  border-radius: 9999px !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.02em !important;
+  border: none !important;
+}
+
+/* Status-specific: map old class names */
+.status-badge.success,
+.badge-success,
+.status-completato,
+.status-completed { background: var(--ds-green-soft) !important; color: var(--ds-green) !important; }
+
+.status-badge.warning,
+.badge-warning,
+.status-in-corso,
+.status-in_progress,
+.status-pending { background: var(--ds-yellow-soft) !important; color: var(--ds-yellow) !important; }
+
+.status-badge.danger,
+.badge-danger,
+.status-urgente,
+.status-error,
+.status-cancelled { background: var(--ds-red-soft) !important; color: var(--ds-red) !important; }
+
+.status-badge.info,
+.badge-info,
+.status-programmato,
+.status-scheduled { background: var(--ds-blue-soft) !important; color: var(--ds-blue) !important; }
+
+.status-badge.orange,
+.status-in-ritardo { background: var(--ds-orange-soft) !important; color: var(--ds-orange) !important; }
+
+/* Live pulse badge */
+.panel-badge-ent.live {
+  background: var(--ds-green-soft) !important;
+  color: var(--ds-green) !important;
+}
+
+.panel-badge-ent.live::before {
+  background: var(--ds-green) !important;
+  box-shadow: 0 0 4px var(--ds-green) !important;
+}
+
+/* ── 11. Gradient Status Bar (ClyHealth HbA1c style) ───────── */
+.status-bar-gradient {
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--ds-red) 0%, var(--ds-orange) 25%, var(--ds-yellow) 55%, var(--ds-green) 80%, var(--ds-green) 100%);
+  position: relative;
+  margin: 8px 0;
+}
+
+.status-bar-indicator {
+  position: absolute;
+  top: -4px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--ds-text-primary);
+  border: 2px solid var(--ds-bg-base);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+/* ── 12. Data Tables ───────────────────────────────────────── */
+.modern-table,
+.data-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.modern-table th,
+.data-table th {
+  background: transparent !important;
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+  color: var(--ds-text-muted) !important;
+  padding: 12px 16px !important;
+  border-bottom: 1px solid var(--ds-glass-border) !important;
+}
+
+.modern-table th.sortable:hover,
+.data-table th.sortable:hover {
+  color: var(--ds-blue) !important;
+}
+
+.modern-table td,
+.data-table td {
+  font-size: 13px !important;
+  color: var(--ds-text-secondary) !important;
+  padding: 13px 16px !important;
+  border-bottom: 1px solid rgba(255,255,255,0.03) !important;
+}
+
+.modern-table td strong,
+.data-table td strong,
+.modern-table .cell-number,
+.data-table .cell-number {
+  color: var(--ds-text-primary) !important;
+  font-family: 'DM Sans', monospace;
+}
+
+.modern-table tr:hover td,
+.data-table tr:hover td,
+.modern-table tr:hover,
+.data-table tr:hover {
+  background: var(--ds-glass-card) !important;
+}
+
+.table-wrapper,
+.table-container {
+  border-radius: var(--ds-radius-md);
+}
+
+/* ── 13. Buttons ───────────────────────────────────────────── */
+.btn-primary {
+  background: var(--ds-blue) !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: var(--ds-radius-md) !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  transition: all 0.2s ease !important;
+}
+
+.btn-primary:hover {
+  background: var(--primary-dark) !important;
+  box-shadow: var(--ds-shadow-glow-blue) !important;
+  transform: translateY(-1px) !important;
+}
+
+.btn-secondary,
+.btn-outline,
+.btn-ghost {
+  background: var(--ds-glass-card) !important;
+  color: var(--ds-text-secondary) !important;
+  border: 1px solid var(--ds-glass-border) !important;
+  border-radius: var(--ds-radius-md) !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  transition: all 0.2s ease !important;
+}
+
+.btn-secondary:hover,
+.btn-outline:hover,
+.btn-ghost:hover {
+  background: var(--ds-glass-card-hover) !important;
+  border-color: var(--ds-glass-border-hover) !important;
+  color: var(--ds-text-primary) !important;
+}
+
+.btn-danger {
+  background: var(--ds-red-soft) !important;
+  color: var(--ds-red) !important;
+  border: 1px solid rgba(239,68,68,0.2) !important;
+  border-radius: var(--ds-radius-md) !important;
+}
+
+.btn-danger:hover {
+  background: var(--ds-red) !important;
+  color: #fff !important;
+}
+
+.btn-success {
+  background: var(--ds-green-soft) !important;
+  color: var(--ds-green) !important;
+  border: 1px solid rgba(34,197,94,0.2) !important;
+  border-radius: var(--ds-radius-md) !important;
+}
+
+.btn-success:hover {
+  background: var(--ds-green) !important;
+  color: #fff !important;
+}
+
+/* Icon button */
+.btn-icon,
+.btn-icon-sm {
+  background: var(--ds-glass-inner) !important;
+  border: 1px solid var(--ds-glass-border) !important;
+  color: var(--ds-text-secondary) !important;
+  border-radius: var(--ds-radius-sm) !important;
+  transition: all 0.2s ease !important;
+}
+
+.btn-icon:hover,
+.btn-icon-sm:hover {
+  background: var(--ds-glass-card-hover) !important;
+  color: var(--ds-text-primary) !important;
+  border-color: var(--ds-glass-border-hover) !important;
+}
+
+/* ── 14. Form Inputs ───────────────────────────────────────── */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="date"],
+input[type="time"],
+input[type="search"],
+textarea,
+select,
+.form-control,
+.form-input,
+.form-select {
+  background: var(--ds-glass-inner) !important;
+  border: 1px solid var(--ds-glass-border) !important;
+  border-radius: var(--ds-radius-md) !important;
+  color: var(--ds-text-primary) !important;
+  font-size: 13px !important;
+  transition: all 0.2s ease !important;
+  font-family: inherit !important;
+}
+
+input:focus,
+textarea:focus,
+select:focus,
+.form-control:focus,
+.form-input:focus {
+  border-color: var(--ds-blue) !important;
+  box-shadow: 0 0 0 3px var(--ds-blue-soft) !important;
+  outline: none !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--ds-text-muted) !important;
+}
+
+select option {
+  background: var(--ds-bg-elevated) !important;
+  color: var(--ds-text-primary) !important;
+}
+
+/* Form labels */
+label,
+.form-label {
+  color: var(--ds-text-secondary) !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+}
+
+/* ── 15. Section / Page Header Row ─────────────────────────── */
+.section-header-row,
+.page-header,
+.section-header {
+  background: transparent !important;
+  border-bottom: 1px solid var(--ds-glass-border) !important;
+  padding: 20px 24px !important;
+}
+
+.section-header-row h2,
+.page-header h2,
+.section-title {
+  color: var(--ds-text-primary) !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.01em;
+}
+
+/* ── 16. Modal / Dialog ────────────────────────────────────── */
+.modal,
+.dialog,
+[class*="modal-content"],
+[class*="dialog-content"] {
+  background: var(--ds-bg-elevated) !important;
+  border: 1px solid var(--ds-glass-border) !important;
+  border-radius: var(--ds-radius-xl) !important;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.5) !important;
+  color: var(--ds-text-primary) !important;
+}
+
+.modal-header,
+.dialog-header {
+  border-bottom: 1px solid var(--ds-glass-border) !important;
+  background: transparent !important;
+}
+
+.modal-footer,
+.dialog-footer {
+  border-top: 1px solid var(--ds-glass-border) !important;
+  background: transparent !important;
+}
+
+.modal-overlay,
+.overlay {
+  background: rgba(0,0,0,0.7) !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+/* ── 17. Demo Banner ───────────────────────────────────────── */
+#demo-banner {
+  background: linear-gradient(90deg, rgba(255,107,53,0.9) 0%, rgba(249,115,22,0.9) 100%) !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+/* ── 18. Chart Legend ──────────────────────────────────────── */
+.legend-row {
+  border-radius: var(--ds-radius-sm) !important;
+  transition: background 0.15s ease !important;
+}
+
+.legend-row:hover {
+  background: var(--ds-glass-card) !important;
+}
+
+.legend-text {
+  color: var(--ds-text-secondary) !important;
+}
+
+.legend-value {
+  color: var(--ds-text-primary) !important;
+  font-family: 'DM Sans', monospace;
+  font-weight: 600 !important;
+}
+
+.legend-percent {
+  color: var(--ds-text-muted) !important;
+}
+
+/* ── 19. Map container ─────────────────────────────────────── */
+.panel-enterprise .map-container-ent,
+.map-container,
+.leaflet-container {
+  border-radius: var(--ds-radius-md) !important;
+}
+
+/* ── 20. Dropdown / Context Menus ─────────────────────────── */
+.dropdown-menu,
+[class*="dropdown"],
+[class*="context-menu"] {
+  background: var(--ds-bg-elevated) !important;
+  border: 1px solid var(--ds-glass-border) !important;
+  border-radius: var(--ds-radius-lg) !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4) !important;
+}
+
+.dropdown-item {
+  color: var(--ds-text-secondary) !important;
+  border-radius: var(--ds-radius-sm) !important;
+  font-size: 13px !important;
+  transition: all 0.15s ease !important;
+}
+
+.dropdown-item:hover {
+  background: var(--ds-glass-card) !important;
+  color: var(--ds-text-primary) !important;
+}
+
+/* ── 21. Tabs ──────────────────────────────────────────────── */
+.tabs,
+.tab-bar,
+[class*="tab-list"] {
+  background: transparent !important;
+  border-bottom: 1px solid var(--ds-glass-border) !important;
+  gap: 4px;
+}
+
+.tab,
+[class*="tab-item"] {
+  padding: 8px 16px !important;
+  border-radius: 9999px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: var(--ds-text-muted) !important;
+  cursor: pointer !important;
+  transition: all 0.18s ease !important;
+  border: none !important;
+  background: transparent !important;
+}
+
+.tab:hover,
+[class*="tab-item"]:hover {
+  background: var(--ds-glass-card) !important;
+  color: var(--ds-text-secondary) !important;
+}
+
+.tab.active,
+[class*="tab-item"].active {
+  background: var(--ds-blue-soft) !important;
+  color: var(--ds-text-primary) !important;
+  border: 1px solid rgba(59,130,246,0.2) !important;
+}
+
+/* ── 22. Alert / notification strips ───────────────────────── */
+.alert,
+.notification-bar,
+[class*="alert-"] {
+  border-radius: var(--ds-radius-md) !important;
+  border: 1px solid;
+  font-size: 13px !important;
+}
+
+.alert-success { background: var(--ds-green-soft) !important; border-color: rgba(34,197,94,0.2) !important; color: var(--ds-green) !important; }
+.alert-warning { background: var(--ds-yellow-soft) !important; border-color: rgba(234,179,8,0.2) !important; color: var(--ds-yellow) !important; }
+.alert-danger  { background: var(--ds-red-soft)    !important; border-color: rgba(239,68,68,0.2) !important;  color: var(--ds-red)    !important; }
+.alert-info    { background: var(--ds-blue-soft)   !important; border-color: rgba(59,130,246,0.2) !important; color: var(--ds-blue)   !important; }
+
+/* ── 23. Donut/Gauge center ────────────────────────────────── */
+.donut-center .donut-value {
+  color: var(--ds-text-primary) !important;
+  font-family: 'DM Sans', sans-serif !important;
+  font-weight: 300 !important;
+  font-size: 2rem !important;
+}
+
+.donut-center .donut-label {
+  color: var(--ds-text-muted) !important;
+  font-size: 10px !important;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* ── 24. Filter/toolbar bars ───────────────────────────────── */
+.filters-bar,
+.toolbar,
+.filter-row {
+  background: var(--ds-glass-card) !important;
+  border: 1px solid var(--ds-glass-border) !important;
+  border-radius: var(--ds-radius-lg) !important;
+  padding: 12px 16px !important;
+  margin-bottom: 16px !important;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* ── 25. Search inputs ─────────────────────────────────────── */
+.search-input,
+[class*="search-"] input,
+input[type="search"] {
+  background: var(--ds-glass-inner) !important;
+  border: 1px solid var(--ds-glass-border) !important;
+  color: var(--ds-text-primary) !important;
+  border-radius: var(--ds-radius-md) !important;
+}
+
+/* ── 26. Super Admin sections — SaaS KPIs ──────────────────── */
+.saas-metric-card {
+  background: var(--ds-glass-card) !important;
+  border: 1px solid var(--ds-glass-border) !important;
+  border-radius: var(--ds-radius-lg) !important;
+  transition: all 0.3s ease !important;
+}
+
+.saas-metric-card:hover {
+  background: var(--ds-glass-card-hover) !important;
+  border-color: var(--ds-glass-border-hover) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* ── 27. Super Admin org cards ─────────────────────────────── */
+.org-card,
+[class*="org-card"],
+.organization-card {
+  background: var(--ds-glass-card) !important;
+  border: 1px solid var(--ds-glass-border) !important;
+  border-radius: var(--ds-radius-lg) !important;
+  transition: all 0.3s ease !important;
+}
+
+.org-card:hover,
+[class*="org-card"]:hover {
+  background: var(--ds-glass-card-hover) !important;
+  border-color: var(--ds-glass-border-hover) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: var(--ds-shadow-card-hover) !important;
+}
+
+/* ── 28. Pagination ────────────────────────────────────────── */
+.pagination,
+[class*="pagination"] {
+  gap: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.page-item .page-link,
+[class*="page-btn"] {
+  background: var(--ds-glass-card) !important;
+  border: 1px solid var(--ds-glass-border) !important;
+  color: var(--ds-text-secondary) !important;
+  border-radius: var(--ds-radius-sm) !important;
+  transition: all 0.15s ease !important;
+}
+
+.page-item.active .page-link,
+[class*="page-btn"].active {
+  background: var(--ds-blue-soft) !important;
+  border-color: rgba(59,130,246,0.3) !important;
+  color: var(--ds-blue) !important;
+}
+
+/* ── 29. Misc Text Colors ──────────────────────────────────── */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--ds-text-primary) !important;
+}
+
+p, span, div, li {
+  color: inherit;
+}
+
+.text-secondary,
+.text-muted {
+  color: var(--ds-text-muted) !important;
+}
+
+a {
+  color: var(--ds-blue) !important;
+}
+
+a:hover {
+  color: #60A5FA !important;
+}
+
+/* ── 30. Fleet monitoring page specifics ───────────────────── */
+.vehicle-card,
+[class*="vehicle-row"],
+.fleet-card {
+  background: var(--ds-glass-card) !important;
+  border: 1px solid var(--ds-glass-border) !important;
+  border-radius: var(--ds-radius-md) !important;
+  transition: all 0.2s ease !important;
+}
+
+.vehicle-card:hover,
+.fleet-card:hover {
+  background: var(--ds-glass-card-hover) !important;
+}
+
+/* ── 31. Timeline / schedule items ─────────────────────────── */
+.timeline-item,
+.schedule-item,
+.service-row {
+  background: var(--ds-glass-card) !important;
+  border: 1px solid var(--ds-glass-border) !important;
+  border-radius: var(--ds-radius-md) !important;
+  transition: background 0.18s ease !important;
+}
+
+.timeline-item:hover,
+.schedule-item:hover,
+.service-row:hover {
+  background: var(--ds-glass-card-hover) !important;
+}
+
+/* ── 32. Tooltip ───────────────────────────────────────────── */
+.tooltip,
+[class*="tooltip"] {
+  background: var(--ds-bg-elevated) !important;
+  border: 1px solid var(--ds-glass-border) !important;
+  border-radius: var(--ds-radius-sm) !important;
+  color: var(--ds-text-primary) !important;
+  font-size: 12px !important;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3) !important;
+}
+
+/* ── 33. Progress bars ─────────────────────────────────────── */
+.progress,
+[class*="progress-bar"] {
+  background: rgba(255,255,255,0.06) !important;
+  border-radius: 9999px !important;
+  overflow: hidden;
+}
+
+.progress-fill,
+.progress-value {
+  border-radius: 9999px !important;
+  background: linear-gradient(90deg, var(--ds-blue), #60A5FA) !important;
+}
+
+/* ── 34. Responsive adjustments ─────────────────────────────── */
+@media (max-width: 1024px) {
+  .main-sidebar {
+    width: var(--ds-sidebar-expanded) !important;
+    transform: translateX(-100%);
+  }
+
+  .main-sidebar.open {
+    transform: translateX(0) !important;
+    box-shadow: 4px 0 40px rgba(0,0,0,0.5) !important;
+  }
+
+  .main-sidebar.open .nav-item > span,
+  .main-sidebar.open .sidebar-brand-text,
+  .main-sidebar.open .nav-section-header-label,
+  .main-sidebar.open .nav-section-chevron,
+  .main-sidebar.open .sidebar-search-box,
+  .main-sidebar.open .sidebar-user .user-info,
+  .main-sidebar.open .fleet-summary {
+    opacity: 1 !important;
+    max-width: 200px !important;
+    max-height: 100px !important;
+    pointer-events: auto !important;
+  }
+
+  .main-wrapper {
+    margin-left: 0 !important;
+  }
+}
+
+/* ── 35. Animations ────────────────────────────────────────── */
+@keyframes ds-fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.panel-enterprise,
+.kpi-card-enterprise,
+.kpi-card {
+  animation: ds-fade-in 0.4s ease-out both;
+}
+
+.kpi-card-enterprise:nth-child(1) { animation-delay: 0s; }
+.kpi-card-enterprise:nth-child(2) { animation-delay: 0.07s; }
+.kpi-card-enterprise:nth-child(3) { animation-delay: 0.14s; }
+.kpi-card-enterprise:nth-child(4) { animation-delay: 0.21s; }
