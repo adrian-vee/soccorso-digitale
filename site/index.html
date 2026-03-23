@@ -1290,4 +1290,45 @@
     <!-- SCRIPTS  -->
       <script type="module" src="js/homepage.min.js"></script>
 
+    <!-- Force native scroll — runs AFTER all scripts so it wins -->
+    <script>
+    (function forceScroll() {
+      var forceStyles = function() {
+        document.documentElement.style.setProperty('position', 'static', 'important');
+        document.documentElement.style.setProperty('overflow', 'auto', 'important');
+        document.documentElement.style.setProperty('height', 'auto', 'important');
+        document.body.style.setProperty('position', 'static', 'important');
+        document.body.style.setProperty('overflow', 'auto', 'important');
+        document.body.style.setProperty('overflow-x', 'hidden', 'important');
+        document.body.style.setProperty('height', 'auto', 'important');
+        var wrapper = document.querySelector('.wrapper, .lenis-wrapper, [data-lenis-wrapper]');
+        if (wrapper) {
+          wrapper.style.setProperty('position', 'static', 'important');
+          wrapper.style.setProperty('overflow', 'auto', 'important');
+          wrapper.style.setProperty('height', 'auto', 'important');
+        }
+      };
+
+      forceStyles();
+      [500, 1000, 2000, 3000, 5000].forEach(function(t) { setTimeout(forceStyles, t); });
+
+      var obs = new MutationObserver(function(mutations) {
+        mutations.forEach(function(m) {
+          if (m.target === document.body || m.target === document.documentElement) {
+            forceStyles();
+          }
+        });
+      });
+      obs.observe(document.documentElement, { attributes: true, attributeFilter: ['style', 'class'] });
+      obs.observe(document.body, { attributes: true, attributeFilter: ['style', 'class'] });
+
+      // Destroy Lenis after 2s — the stub is already a no-op but this cleans up any residual state
+      setTimeout(function() {
+        if (window.lenis && typeof window.lenis.destroy === 'function') {
+          try { window.lenis.destroy(); } catch(e) {}
+        }
+      }, 2000);
+    })();
+    </script>
+
 </body></html>
