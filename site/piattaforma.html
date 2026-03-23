@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>La Piattaforma — Soccorso Digitale</title>
+  <meta name="description" content="Scopri tutti i moduli della piattaforma Soccorso Digitale: dispatch, fleet, turni, analytics, prenotazioni e molto altro."/>
+  <link rel="canonical" href="https://soccorsodigitale.app/piattaforma"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link rel="stylesheet" href="/css/global.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/CustomEase.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/SplitText.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/Draggable.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/InertiaPlugin.min.js"></script>
+  <script src="https://unpkg.com/lenis@1.1.14/dist/lenis.min.js"></script>
+  <style>
+    /* ─── Pricing toggle ─── */
+    .pricing-toggle-wrap {
+      display:flex;
+      align-items:center;
+      gap:14px;
+      justify-content:center;
+      margin-bottom:48px;
+    }
+    .pricing-toggle {
+      position:relative;
+      width:52px; height:28px;
+      background:rgba(255,255,255,.1);
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      cursor:pointer;
+      transition:background .25s;
+    }
+    .pricing-toggle.annual { background:var(--sd-accent); }
+    .pricing-toggle::after {
+      content:'';
+      position:absolute;
+      top:3px; left:3px;
+      width:20px; height:20px;
+      border-radius:50%;
+      background:#fff;
+      transition:transform .25s var(--ease-smooth);
+    }
+    .pricing-toggle.annual::after { transform:translateX(24px); }
+    .toggle-lbl {
+      font-size:13.5px;
+      color:rgba(252,252,253,.6);
+      cursor:pointer;
+      transition:color .2s;
+    }
+    .toggle-lbl.active { color:var(--sd-white); font-weight:500; }
+    .savings-badge {
+      display:inline-flex;
+      padding:2px 8px;
+      border-radius:var(--r-pill);
+      background:rgba(255,107,53,.15);
+      border:1px solid rgba(255,107,53,.25);
+      font-family:var(--font-mono);
+      font-size:10px;
+      color:var(--sd-accent);
+      letter-spacing:.08em;
+    }
+    /* module expanded grid */
+    .modules-full-grid {
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:18px;
+    }
+    .mod-full-card {
+      background:var(--card-bg);
+      border:var(--bdr);
+      border-radius:var(--r-md);
+      padding:36px 32px;
+      display:flex;
+      gap:24px;
+      transition:all .3s var(--ease-smooth);
+    }
+    .mod-full-card:hover {
+      background:var(--card-hover);
+      border-color:rgba(252,252,253,.18);
+      transform:translateX(4px);
+    }
+    .mod-full-icon {
+      font-size:32px;
+      flex-shrink:0;
+      width:52px;
+      line-height:1;
+    }
+    .mod-full-body { display:flex; flex-direction:column; gap:10px; }
+    .mod-full-title { font-size:17px; font-weight:600; color:var(--sd-white); }
+    .mod-full-desc { font-size:14px; line-height:1.68; color:rgba(252,252,253,.52); }
+    .mod-full-features { display:flex; flex-wrap:wrap; gap:6px; margin-top:4px; }
+    .feat-pill {
+      padding:3px 10px;
+      border-radius:var(--r-pill);
+      background:rgba(252,252,253,.05);
+      border:var(--bdr);
+      font-size:11.5px;
+      color:rgba(252,252,253,.55);
+    }
+    @media (max-width:640px) {
+      .modules-full-grid { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ─── Navbar ───────────────────────────────────────────────── -->
+<header>
+  <nav class="nav scrolled" aria-label="Navigazione principale">
+    <div class="nav-inner">
+      <a href="/" class="nav-logo" aria-label="Soccorso Digitale — home">
+        <img src="/logo.svg" alt="" width="34" height="34"/>
+        <span class="nav-logo-text">Soccorso Digitale</span>
+      </a>
+      <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="/piattaforma">Piattaforma</a>
+        <a href="/clienti">Clienti</a>
+        <a href="/contatti">Contatti</a>
+      </div>
+      <div class="nav-right">
+        <a href="/admin" class="btn btn-outline btn-sm">Accedi</a>
+        <a href="/contatti" class="btn btn-primary btn-sm btn-animate">
+          <span class="btn-lbl">Inizia Ora</span>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+        </a>
+        <button class="nav-ham" aria-label="Menu"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<div class="menu-overlay">
+  <div class="menu-ellipse" aria-hidden="true"></div>
+  <nav class="menu-overlay-links">
+    <a href="/">Home</a><a href="/piattaforma">Piattaforma</a>
+    <a href="/clienti">Clienti</a><a href="/contatti">Contatti</a>
+  </nav>
+  <div class="menu-overlay-footer">
+    <a href="/admin" class="btn btn-outline">Accedi</a>
+    <a href="/contatti" class="btn btn-primary">Richiedi Demo</a>
+  </div>
+</div>
+
+<main>
+<!-- ─── Hero ─────────────────────────────────────────────────── -->
+<section class="section" style="min-height:60vh;display:flex;align-items:center;padding-top:calc(var(--nav-h) + 80px)" aria-labelledby="plat-title">
+  <div class="hero-bg-grid" aria-hidden="true" style="position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.4"></div>
+  <div class="wrap" style="position:relative;z-index:1">
+    <div class="sec-label t-label" data-anim>La Piattaforma</div>
+    <h1 id="plat-title" class="t-display" data-split style="max-width:820px;margin-top:12px">
+      Una piattaforma.<br>Otto moduli.<br><span style="color:var(--sd-accent);font-style:italic">Zero compromessi.</span>
+    </h1>
+    <p class="t-body" data-anim style="max-width:540px;margin-top:28px">
+      Soccorso Digitale è il sistema operativo per il trasporto sanitario programmato. Costruito per le realtà italiane del volontariato, delle cooperative ambulanze e dei consorzi sanitari.
+    </p>
+    <div style="display:flex;gap:14px;margin-top:36px;flex-wrap:wrap" data-anim>
+      <a href="/contatti" class="btn btn-primary btn-lg btn-animate">
+        <span class="btn-lbl">Richiedi Demo</span>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+      </a>
+      <a href="#pricing" class="btn btn-outline btn-lg btn-animate">
+        <span class="btn-lbl">Vedi i Prezzi</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Modules Detail ────────────────────────────────────────── -->
+<section class="section section-soft" aria-labelledby="mod-title">
+  <div class="wrap">
+    <div class="sec-header">
+      <div class="sec-label t-label" data-anim>Moduli</div>
+      <h2 id="mod-title" class="t-h2" data-split>Tutto ciò che serve,<br>niente di superfluo.</h2>
+    </div>
+    <div class="modules-full-grid" data-stagger-group>
+      <div class="mod-full-card" data-stagger-item>
+        <div class="mod-full-icon">🚑</div>
+        <div class="mod-full-body">
+          <div class="mod-full-title">Dispatch & Gestione Servizi</div>
+          <p class="mod-full-desc">Cuore operativo della piattaforma. Assegna servizi, tracciali in tempo reale su mappa, gestisci priorità e crea note di viaggio digitali con firma elettronica.</p>
+          <div class="mod-full-features">
+            <span class="feat-pill">Mappa in tempo reale</span>
+            <span class="feat-pill">Firma digitale</span>
+            <span class="feat-pill">Note di viaggio</span>
+            <span class="feat-pill">Priorità automatiche</span>
+          </div>
+        </div>
+      </div>
+      <div class="mod-full-card" data-stagger-item>
+        <div class="mod-full-icon">🚐</div>
+        <div class="mod-full-body">
+          <div class="mod-full-title">Flotta & Veicoli</div>
+          <p class="mod-full-desc">Gestione completa della flotta: tracciamento GPS, scadenze revisioni, assicurazioni, documenti e manutenzioni. Alert automatici per ogni scadenza.</p>
+          <div class="mod-full-features">
+            <span class="feat-pill">GPS tracking</span>
+            <span class="feat-pill">Manutenzioni</span>
+            <span class="feat-pill">Scadenze</span>
+            <span class="feat-pill">Documenti</span>
+          </div>
+        </div>
+      </div>
+      <div class="mod-full-card" data-stagger-item>
+        <div class="mod-full-icon">👥</div>
+        <div class="mod-full-body">
+          <div class="mod-full-title">Personale & Turni</div>
+          <p class="mod-full-desc">Pianificazione turni intelligente con vista mensile e settimanale. Gestione disponibilità, certificazioni, formazione e pagamenti volontari.</p>
+          <div class="mod-full-features">
+            <span class="feat-pill">Disponibilità</span>
+            <span class="feat-pill">Certificazioni</span>
+            <span class="feat-pill">Rimborsi</span>
+            <span class="feat-pill">Calendario</span>
+          </div>
+        </div>
+      </div>
+      <div class="mod-full-card" data-stagger-item>
+        <div class="mod-full-icon">📊</div>
+        <div class="mod-full-body">
+          <div class="mod-full-title">Analytics & Report</div>
+          <p class="mod-full-desc">Dashboard KPI in tempo reale con metriche di performance, conformità SLA e ULSS, analisi costi e sostenibilità. Export PDF/Excel automatico.</p>
+          <div class="mod-full-features">
+            <span class="feat-pill">KPI live</span>
+            <span class="feat-pill">SLA compliance</span>
+            <span class="feat-pill">Export PDF</span>
+            <span class="feat-pill">Sostenibilità</span>
+          </div>
+        </div>
+      </div>
+      <div class="mod-full-card" data-stagger-item>
+        <div class="mod-full-icon">🏥</div>
+        <div class="mod-full-body">
+          <div class="mod-full-title">Hub Prenotazioni</div>
+          <p class="mod-full-desc">Portale web e mobile per pazienti e strutture sanitarie. Prenotazione online, conferme automatiche via SMS/email, gestione liste d'attesa e riprogrammazioni.</p>
+          <div class="mod-full-features">
+            <span class="feat-pill">Portale pazienti</span>
+            <span class="feat-pill">SMS/Email</span>
+            <span class="feat-pill">Lista attesa</span>
+            <span class="feat-pill">API strutture</span>
+          </div>
+        </div>
+      </div>
+      <div class="mod-full-card" data-stagger-item>
+        <div class="mod-full-icon">📦</div>
+        <div class="mod-full-body">
+          <div class="mod-full-title">Inventario & Magazzino</div>
+          <p class="mod-full-desc">Gestione DPI, farmaci, dispositivi medici e materiali di consumo. Tracciamento per veicolo, alert scadenze, ordini automatici e reportistica GDPR.</p>
+          <div class="mod-full-features">
+            <span class="feat-pill">DPI tracking</span>
+            <span class="feat-pill">Alert scadenze</span>
+            <span class="feat-pill">Per veicolo</span>
+            <span class="feat-pill">Ordini</span>
+          </div>
+        </div>
+      </div>
+      <div class="mod-full-card" data-stagger-item>
+        <div class="mod-full-icon">🌐</div>
+        <div class="mod-full-body">
+          <div class="mod-full-title">Intelligence Territoriale</div>
+          <p class="mod-full-desc">Meteo operativo Open-Meteo, alert Protezione Civile in tempo reale, mappa copertura isocrona e localizzazione What3Words per precisione al metro.</p>
+          <div class="mod-full-features">
+            <span class="feat-pill">Meteo live</span>
+            <span class="feat-pill">Alert PC</span>
+            <span class="feat-pill">Isocrona</span>
+            <span class="feat-pill">What3Words</span>
+          </div>
+        </div>
+      </div>
+      <div class="mod-full-card" data-stagger-item>
+        <div class="mod-full-icon">🔐</div>
+        <div class="mod-full-body">
+          <div class="mod-full-title">Governance & Compliance</div>
+          <p class="mod-full-desc">Audit log immutabile, gestione GDPR e consensi, crittografia end-to-end, accesso ruolo-basato granulare e reportistica per audit esterni.</p>
+          <div class="mod-full-features">
+            <span class="feat-pill">Audit log</span>
+            <span class="feat-pill">GDPR</span>
+            <span class="feat-pill">E2E cripto</span>
+            <span class="feat-pill">RBAC</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Integrazioni ──────────────────────────────────────────── -->
+<section class="section" id="integrazioni" aria-labelledby="int-title">
+  <div class="wrap">
+    <div class="sec-header">
+      <div class="sec-label t-label" data-anim>Integrazioni</div>
+      <h2 id="int-title" class="t-h2" data-split>Connesso con<br>l'ecosistema italiano.</h2>
+      <p class="t-body" data-anim style="max-width:500px;margin-top:18px">
+        Soccorso Digitale si integra nativamente con i principali provider di dati sanitari e territoriali italiani ed europei.
+      </p>
+    </div>
+    <div class="integration-grid" data-stagger-group>
+      <div class="int-card" data-stagger-item>
+        <div class="int-icon">🌤</div>
+        <div class="int-name">Open-Meteo</div>
+        <p class="int-desc">Meteo operativo gratuito, 7 giorni di previsioni, dati orari per le sedi operative.</p>
+        <span class="int-badge">Attivo</span>
+      </div>
+      <div class="int-card" data-stagger-item>
+        <div class="int-icon">📍</div>
+        <div class="int-name">Nominatim OSM</div>
+        <p class="int-desc">Geocoding e ricerca indirizzi basato su OpenStreetMap. Precisione italiana garantita.</p>
+        <span class="int-badge">Attivo</span>
+      </div>
+      <div class="int-card" data-stagger-item>
+        <div class="int-icon">🛡</div>
+        <div class="int-name">Protezione Civile</div>
+        <p class="int-desc">Alert meteo e rischi territoriali dal Dipartimento Nazionale della Protezione Civile.</p>
+        <span class="int-badge">Attivo</span>
+      </div>
+      <div class="int-card" data-stagger-item>
+        <div class="int-icon">⬛</div>
+        <div class="int-name">What3Words</div>
+        <p class="int-desc">Localizzazione precisa al metro quadrato per interventi in zone difficili da descrivere.</p>
+        <span class="int-badge">Attivo</span>
+      </div>
+      <div class="int-card" data-stagger-item>
+        <div class="int-icon">✉️</div>
+        <div class="int-name">Brevo (ex Sendinblue)</div>
+        <p class="int-desc">Email transazionali, notifiche prenotazioni e comunicazioni ai pazienti in italiano.</p>
+        <span class="int-badge">Attivo</span>
+      </div>
+      <div class="int-card" data-stagger-item>
+        <div class="int-icon">🌧</div>
+        <div class="int-name">RainViewer</div>
+        <p class="int-desc">Radar precipitazioni in tempo reale su mappa flotta per decisioni operative meteo-aware.</p>
+        <span class="int-badge">Attivo</span>
+      </div>
+      <div class="int-card" data-stagger-item>
+        <div class="int-icon">🪪</div>
+        <div class="int-name">SPID / CIE</div>
+        <p class="int-desc">Accesso con identità digitale italiana per operatori e pazienti delle strutture convenzionate.</p>
+        <span class="int-badge soon">In arrivo</span>
+      </div>
+      <div class="int-card" data-stagger-item>
+        <div class="int-icon">🏥</div>
+        <div class="int-name">FSE — Fascicolo Sanitario</div>
+        <p class="int-desc">Integrazione con il Fascicolo Sanitario Elettronico regionale per accesso ai dati paziente.</p>
+        <span class="int-badge soon">In arrivo</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Pricing ───────────────────────────────────────────────── -->
+<section class="section section-soft" id="pricing" aria-labelledby="price-title">
+  <div class="wrap">
+    <div class="sec-header" style="text-align:center">
+      <div class="sec-label t-label" data-anim style="justify-content:center">Pricing</div>
+      <h2 id="price-title" class="t-h2" data-split style="text-align:center">Trasparente.<br>Scalabile. Giusto.</h2>
+      <p class="t-body" data-anim style="text-align:center;max-width:480px;margin:18px auto 0">
+        Nessun costo nascosto. Prezzi disegnati per le realtà del volontariato italiano.
+      </p>
+    </div>
+
+    <div class="pricing-toggle-wrap" data-anim>
+      <span class="toggle-lbl active" id="lbl-mensile">Mensile</span>
+      <div class="pricing-toggle" id="pricing-toggle" role="switch" aria-checked="false" tabindex="0" aria-label="Passa alla fatturazione annuale"></div>
+      <span class="toggle-lbl" id="lbl-annuale">Annuale</span>
+      <span class="savings-badge">Risparmia 20%</span>
+    </div>
+
+    <div class="pricing-grid" data-stagger-group>
+      <!-- Starter -->
+      <div class="price-card" data-stagger-item>
+        <div>
+          <div class="price-tier">Starter</div>
+          <div class="price-amount" style="margin-top:12px">
+            <sup>€</sup><span id="p-starter">0</span><span>/mese</span>
+          </div>
+          <p class="price-desc" style="margin-top:12px">Perfetto per iniziare. Gratuito per sempre per organizzazioni con 1 veicolo.</p>
+        </div>
+        <div class="price-features">
+          <div class="price-feat">1 veicolo, 2 operatori</div>
+          <div class="price-feat">Dispatch base</div>
+          <div class="price-feat">App mobile iOS/Android</div>
+          <div class="price-feat">Report mensile</div>
+          <div class="price-feat">Support community</div>
+        </div>
+        <a href="/contatti" class="btn btn-outline btn-lg" style="width:100%;justify-content:center">Inizia Gratis</a>
+      </div>
+
+      <!-- Professional (featured) -->
+      <div class="price-card featured" data-stagger-item>
+        <div class="price-featured-badge">Più Scelto</div>
+        <div>
+          <div class="price-tier">Professional</div>
+          <div class="price-amount" style="margin-top:12px">
+            <sup>€</sup><span id="p-pro">149</span><span id="p-pro-period">/mese</span>
+          </div>
+          <p class="price-desc" style="margin-top:12px">Per organizzazioni attive. Tutto il necessario per operare al massimo.</p>
+        </div>
+        <div class="price-features">
+          <div class="price-feat">Fino a 10 veicoli</div>
+          <div class="price-feat">Tutto Starter incluso</div>
+          <div class="price-feat">Analytics avanzati & KPI</div>
+          <div class="price-feat">Fleet management GPS</div>
+          <div class="price-feat">Turni & disponibilità</div>
+          <div class="price-feat">Inventario & magazzino</div>
+          <div class="price-feat">Hub prenotazioni</div>
+          <div class="price-feat">Support email 24h</div>
+        </div>
+        <a href="/contatti" class="btn btn-primary btn-lg" style="width:100%;justify-content:center">
+          <span class="btn-lbl">Richiedi Demo</span>
+        </a>
+      </div>
+
+      <!-- Enterprise -->
+      <div class="price-card" data-stagger-item>
+        <div>
+          <div class="price-tier">Enterprise</div>
+          <div class="price-amount" style="margin-top:12px">
+            <sup>€</sup><span id="p-ent">499</span><span id="p-ent-period">/mese</span>
+          </div>
+          <p class="price-desc" style="margin-top:12px">Per grandi organizzazioni e consorzi. SLA garantito e supporto dedicato.</p>
+        </div>
+        <div class="price-features">
+          <div class="price-feat">Veicoli illimitati</div>
+          <div class="price-feat">Tutto Professional incluso</div>
+          <div class="price-feat">Intelligence territoriale</div>
+          <div class="price-feat">Governance & Compliance</div>
+          <div class="price-feat">SPID integration (arrivo 2025)</div>
+          <div class="price-feat">SLA 99.9% garantito</div>
+          <div class="price-feat">Account manager dedicato</div>
+          <div class="price-feat">Onboarding assistito</div>
+        </div>
+        <a href="/contatti" class="btn btn-outline btn-lg" style="width:100%;justify-content:center">Contattaci</a>
+      </div>
+    </div>
+
+    <p class="t-small" data-anim style="text-align:center;margin-top:32px;color:rgba(252,252,253,.35)">
+      Tutti i prezzi sono IVA esclusa. Per organizzazioni non profit sono disponibili sconti dedicati — <a href="/contatti" style="color:var(--sd-accent)">contattaci</a>.
+    </p>
+  </div>
+</section>
+</main>
+
+<!-- ─── Footer ────────────────────────────────────────────────── -->
+<footer>
+  <div class="footer-cta-strip">
+    <div class="wrap footer-cta-inner">
+      <div class="footer-tagline t-h2" data-split>
+        Pronto a semplificare<br>la tua <span class="accent">operatività?</span>
+      </div>
+      <div class="footer-contact">
+        <a href="mailto:info@soccorsodigitale.app" class="footer-email">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+          info@soccorsodigitale.app
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-main">
+    <div class="wrap footer-main-inner">
+      <div class="f-brand">
+        <div class="f-brand-logo">
+          <img src="/logo.svg" alt="" width="30" height="30"/>
+          <span class="f-brand-name">Soccorso Digitale</span>
+        </div>
+        <p class="f-brand-desc">La piattaforma cloud per il trasporto sanitario programmato. Made in Italy.</p>
+      </div>
+      <div class="f-col">
+        <span class="f-col-title">Prodotto</span>
+        <a href="/piattaforma">Piattaforma</a>
+        <a href="/piattaforma#pricing">Prezzi</a>
+        <a href="/piattaforma#integrazioni">Integrazioni</a>
+      </div>
+      <div class="f-col">
+        <span class="f-col-title">Azienda</span>
+        <a href="/clienti">Clienti</a>
+        <a href="/contatti">Contatti</a>
+      </div>
+      <div class="f-col">
+        <span class="f-col-title">Accesso</span>
+        <a href="/admin">Dashboard</a>
+        <a href="/contatti">Demo</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-giant" aria-hidden="true">
+    <div class="wrap"><div class="footer-giant-letters">SOCCORSO DIGITALE</div></div>
+  </div>
+  <div class="footer-bottom">
+    <div class="wrap footer-bottom-inner">
+      <span class="f-copy">© 2025 Soccorso Digitale S.r.l. — Verona, Italia</span>
+      <div class="f-social">
+        <a href="https://linkedin.com" target="_blank" rel="noopener" aria-label="LinkedIn">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="15" height="15"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+        </a>
+        <a href="https://twitter.com" target="_blank" rel="noopener" aria-label="Twitter">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="15" height="15"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.742l7.726-8.84L2.25 2.25H8.08l4.262 5.634 5.902-5.634zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+  <button class="footer-scroll-top" aria-label="Torna in cima">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="17" height="17"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+  </button>
+</footer>
+
+<script src="/js/global.js"></script>
+<script>
+  // Pricing toggle
+  document.addEventListener('DOMContentLoaded', () => {
+    const toggle = document.getElementById('pricing-toggle');
+    const lblM   = document.getElementById('lbl-mensile');
+    const lblA   = document.getElementById('lbl-annuale');
+    let annual = false;
+
+    const prices = {
+      starter: [0, 0],
+      pro:     [149, 119],
+      ent:     [499, 399]
+    };
+
+    function update() {
+      const i = annual ? 1 : 0;
+      document.getElementById('p-starter').textContent = prices.starter[i];
+      document.getElementById('p-pro').textContent     = prices.pro[i];
+      document.getElementById('p-ent').textContent     = prices.ent[i];
+      const period = annual ? '/mese (annuale)' : '/mese';
+      document.getElementById('p-pro-period').textContent = period;
+      document.getElementById('p-ent-period').textContent = period;
+    }
+
+    toggle.addEventListener('click', () => {
+      annual = !annual;
+      toggle.classList.toggle('annual', annual);
+      toggle.setAttribute('aria-checked', annual);
+      lblM.classList.toggle('active', !annual);
+      lblA.classList.toggle('active', annual);
+      update();
+    });
+    toggle.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle.click(); }
+    });
+  });
+</script>
+</body>
+</html>

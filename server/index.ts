@@ -329,6 +329,18 @@ function configureExpoAndLanding(app: express.Application) {
 
   log("Serving static Expo files with dynamic manifest routing");
 
+  // Serve new public marketing site (site/) — must come before /admin and / handlers
+  const sitePath = path.resolve(process.cwd(), "site");
+  if (fs.existsSync(sitePath)) {
+    app.use(express.static(sitePath, {
+      extensions: ["html"],
+      index: "index.html",
+      etag: false,
+      maxAge: 0,
+    }));
+    log("Serving public site from site/ directory");
+  }
+
   // Serve admin panel with SPA fallback (no cache for development)
   const adminPath = path.resolve(process.cwd(), "admin", "public");
   app.use("/admin", express.static(adminPath, {
