@@ -744,6 +744,29 @@ export function registerAdminRoutes(app: Express) {
     }
   });
 
+  app.put("/api/locations/:id/set-primary", requireAdmin, async (req, res) => {
+    try {
+      const orgId = getEffectiveOrgId(req);
+      if (!orgId) return res.status(403).json({ error: "Non autorizzato" });
+      const existing = await storage.getLocation(req.params.id);
+      if (!existing || existing.organizationId !== orgId) {
+        return res.status(404).json({ error: "Sede non trovata" });
+      }
+      // Unset all others, then set this one
+      const allLocs = (await storage.getLocations()).filter(l => l.organizationId === orgId);
+      for (const loc of allLocs) {
+        if (loc.id !== req.params.id && loc.isPrimary) {
+          await storage.updateLocation(loc.id, { isPrimary: false } as any);
+        }
+      }
+      const updated = await storage.updateLocation(req.params.id, { isPrimary: true } as any);
+      res.json(updated);
+    } catch (error) {
+      console.error("Error setting primary location:", error);
+      res.status(500).json({ error: "Errore del server" });
+    }
+  });
+
   app.delete("/api/locations/:id", requireAdmin, async (req, res) => {
     try {
       const orgId = getEffectiveOrgId(req);

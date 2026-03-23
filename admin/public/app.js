@@ -1565,7 +1565,8 @@ function applyRoleBasedAccess() {
       'marketplace', 'realtime-availability',
       'confidentiality-agreements', 'structure-requests',
       'documents',
-      'sla-management', 'compliance-ulss9', 'art8-reports'
+      'sla-management', 'compliance-ulss9', 'art8-reports',
+      'coverage-map', 'emergency-alerts', 'notif-config', 'security-center'
     ];
     
     // Build the full allowed pages list: base + enabled module pages
@@ -1603,7 +1604,7 @@ function applyRoleBasedAccess() {
         if (!item.querySelector('.nav-badge-pro')) {
           const proBadge = document.createElement('span');
           proBadge.className = 'nav-badge-pro';
-          proBadge.textContent = 'PRO';
+          proBadge.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>';
           item.appendChild(proBadge);
         }
       } else if (!allowedPages.has(page)) {
@@ -8744,9 +8745,13 @@ async function updateSediTable() {
   
   tbody.innerHTML = locations.map(loc => {
     const vehicleCount = vehicles.filter(v => v.locationId === loc.id).length;
+    const isPrimary = loc.isPrimary === true;
     return `
       <tr>
-        <td><strong>${escapeHtml(loc.name || '')}</strong></td>
+        <td>
+          <strong>${escapeHtml(loc.name || '')}</strong>
+          ${isPrimary ? '<span style="margin-left:6px;background:#10b981;color:#fff;padding:2px 7px;border-radius:10px;font-size:11px;font-weight:600;">PRINCIPALE</span>' : ''}
+        </td>
         <td style="color: var(--text-secondary); font-size: 13px;">${loc.address ? escapeHtml(loc.address) : '-'}</td>
         <td style="font-size: 13px;">${loc.phone ? `<a href="tel:${loc.phone}" style="color: var(--primary);">${escapeHtml(loc.phone)}</a>` : '<span style="color: var(--text-muted);">-</span>'}</td>
         <td style="font-size: 13px;">${loc.email ? `<a href="mailto:${loc.email}" style="color: var(--primary);">${escapeHtml(loc.email)}</a>` : '<span style="color: var(--text-muted);">-</span>'}</td>
@@ -8755,6 +8760,9 @@ async function updateSediTable() {
         </td>
         <td>
           <div class="action-buttons">
+            ${!isPrimary ? `<button class="btn-icon-sm" onclick="setPrimaryLocation('${loc.id}')" title="Imposta come sede principale" style="color: #10b981; border-color: #10b981;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </button>` : ''}
             <button class="btn-icon-sm" onclick="editSede('${loc.id}')" title="Modifica">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
             </button>
@@ -8766,6 +8774,24 @@ async function updateSediTable() {
       </tr>
     `;
   }).join('');
+}
+
+async function setPrimaryLocation(id) {
+  try {
+    const resp = await adminFetch(`/api/locations/${id}/set-primary`, { method: 'PUT' });
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      showNotification(err.error || 'Errore nell\'impostare la sede principale', 'error');
+      return;
+    }
+    // Update local data optimistically
+    locations = locations.map(l => ({ ...l, isPrimary: l.id === id }));
+    updateSediTable();
+    showNotification('Sede principale aggiornata', 'success');
+  } catch (e) {
+    console.error('setPrimaryLocation error:', e);
+    showNotification('Errore di rete', 'error');
+  }
 }
 
 function openSedeModal(isEdit = false) {
@@ -12644,9 +12670,10 @@ async function toggleRainLayer(show) {
     const frames = data.radar?.past ?? [];
     if (!frames.length) return;
     const latest = frames[frames.length - 1];
+    if (gpsMap.getZoom() > 12) gpsMap.setZoom(12);
     fleetLayers.rain = L.tileLayer(
       `https://tilecache.rainviewer.com${latest.path}/256/{z}/{x}/{y}/2/1_1.png`,
-      { opacity: 0.5, attribution: '© RainViewer', minZoom: 3, maxZoom: 18, zIndex: 200 }
+      { opacity: 0.5, attribution: '© RainViewer', minZoom: 3, maxZoom: 12, zIndex: 200 }
     ).addTo(gpsMap);
   } catch (e) { console.warn('[Fleet] RainViewer error:', e); }
 }
@@ -12695,11 +12722,11 @@ async function togglePcivLayer(show) {
 function toggleTrafficLayer(show) {
   if (fleetLayers.traffic) { gpsMap.removeLayer(fleetLayers.traffic); fleetLayers.traffic = null; }
   if (!show) return;
-  // Uses HERE-style transport overlay (requires key in prod); falls back to dense road tile
-  fleetLayers.traffic = L.tileLayer(
-    'https://tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
-    { opacity: 0.45, attribution: '© OpenStreetMap', maxZoom: 19, zIndex: 150 }
-  ).addTo(gpsMap);
+  // Traffic layer requires a paid API key (HERE or TomTom) — reset toggle and show notice
+  fleetLayerActive.traffic = false;
+  const btn = document.getElementById('flt-traf');
+  if (btn) btn.classList.remove('flt-btn-active');
+  showNotification('Il layer traffico richiede un\'API key HERE o TomTom (non ancora configurata)', 'info');
 }
 
 async function loadGpsData() {
