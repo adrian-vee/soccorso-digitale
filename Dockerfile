@@ -1,4 +1,4 @@
-# ── Stage 1: Builder ──────────────────────────────────────────────────────────
+# ── Stage 1: Express Builder ──────────────────────────────────────────────────
 FROM node:22-alpine AS builder
 
 WORKDIR /app
@@ -14,7 +14,24 @@ COPY . .
 RUN npx tsc --noEmit --project tsconfig.server.json
 RUN npm run server:build
 
-# ── Stage 2: Runtime ──────────────────────────────────────────────────────────
+# ── Stage 2: Dashboard Static Builder ─────────────────────────────────────────
+FROM node:18-alpine AS dashboard-builder
+
+WORKDIR /app/dashboard
+
+COPY dashboard/package*.json ./
+RUN npm ci
+
+COPY dashboard/ .
+
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+ENV NEXT_PUBLIC_SUPABASE_URL=https://utafppoxmgaskwyrsdnu.supabase.co
+ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV0YWZwcG94bWdhc2t3eXJzZG51Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzNTA0NjIsImV4cCI6MjA4OTkyNjQ2Mn0.O1ZoA1tb70vNKYKe0gDthctJMvPRJZUXhYqy221Er9E
+
+RUN npm run build
+
+# ── Stage 3: Runtime ──────────────────────────────────────────────────────────
 FROM node:22-alpine AS runtime
 
 WORKDIR /app
@@ -32,6 +49,9 @@ COPY --from=builder /app/server/templates ./server/templates
 COPY --from=builder /app/admin/public ./admin/public
 COPY --from=builder /app/assets ./assets
 COPY --from=builder /app/site ./site
+
+# Copy Next.js static export → served at /dashboard by Express
+COPY --from=dashboard-builder /app/dashboard/out ./dashboard-static
 
 # Create upload directories (preserved by .gitkeep but need to exist in container)
 RUN mkdir -p uploads/apk uploads/logos uploads/signatures
