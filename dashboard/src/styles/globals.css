@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 213 41% 95%;
+    --foreground: 213 55% 15%;
+    --card: 0 0% 100%;
+    --card-foreground: 213 55% 15%;
+    --primary: 213 55% 39%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 213 35% 64%;
+    --secondary-foreground: 213 55% 15%;
+    --muted: 213 25% 88%;
+    --muted-foreground: 213 35% 50%;
+    --accent: 213 55% 39%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 213 25% 88%;
+    --input: 213 25% 88%;
+    --ring: 213 55% 39%;
+    --radius: 0.75rem;
+    --sd-bg: #E7F0FA;
+    --sd-blue-light: #7BA4D0;
+    --sd-blue-strong: #2E5E99;
+    --sd-navy: #0D2440;
+    --sd-glass: rgba(255,255,255,0.6);
+    --sd-glass-border: rgba(46,94,153,0.10);
+    --sidebar-w: 240px;
+  }
+  .dark {
+    --background: 213 55% 8%;
+    --foreground: 213 41% 93%;
+    --card: 213 45% 12%;
+    --card-foreground: 213 41% 93%;
+    --primary: 213 35% 64%;
+    --primary-foreground: 213 55% 10%;
+    --secondary: 213 55% 39%;
+    --secondary-foreground: 213 41% 93%;
+    --muted: 213 40% 16%;
+    --muted-foreground: 213 25% 52%;
+    --border: 213 30% 18%;
+    --input: 213 30% 18%;
+    --ring: 213 35% 64%;
+    --sd-bg: #0D2440;
+    --sd-glass: rgba(13,36,64,0.6);
+    --sd-glass-border: rgba(123,164,208,0.12);
+  }
+  * { @apply border-border; }
+  body { @apply bg-background text-foreground; font-feature-settings: "cv11", "ss01"; }
+}
