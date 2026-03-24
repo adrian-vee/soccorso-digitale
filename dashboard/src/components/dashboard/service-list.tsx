@@ -1,6 +1,4 @@
 import * as React from "react"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 
 const MOCK_SERVICES = [
@@ -11,37 +9,54 @@ const MOCK_SERVICES = [
   { id: "SD-005", time: "11:00", patient: "Gallo Pietro", type: "Trasferimento", vehicle: "AZ-001", status: "ritardo" },
 ]
 
-const STATUS_MAP = {
-  completato:  { label: "Completato",  variant: "success"  as const },
-  "in-corso":  { label: "In Corso",    variant: "default"  as const },
-  programmato: { label: "Programmato", variant: "secondary" as const },
-  ritardo:     { label: "Ritardo",     variant: "warning"  as const },
+const STATUS_STYLE: Record<string, { label: string; cls: string }> = {
+  completato:  { label: "Completato",  cls: "bg-emerald-50 text-emerald-700 border-emerald-200" },
+  "in-corso":  { label: "In Corso",    cls: "bg-[#2E5E99]/[0.08] text-[#2E5E99] border-[#2E5E99]/20" },
+  programmato: { label: "Programmato", cls: "bg-[#7BA4D0]/[0.10] text-[#7BA4D0] border-[#7BA4D0]/20" },
+  ritardo:     { label: "Ritardo",     cls: "bg-amber-50 text-amber-700 border-amber-200" },
 }
 
 export function ServiceList() {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-sm">Programma Odierno</CardTitle>
-        <CardDescription>{new Date().toLocaleDateString("it-IT", { weekday: "long", day: "numeric", month: "long" })}</CardDescription>
-      </CardHeader>
-      <CardContent className="p-0">
-        <div className="divide-y divide-[#2E5E99]/6">
-          {MOCK_SERVICES.map((s) => {
-            const status = STATUS_MAP[s.status as keyof typeof STATUS_MAP]
-            return (
-              <div key={s.id} className="flex items-center gap-3 px-5 py-3 hover:bg-[#2E5E99]/3 transition-colors">
-                <span className="text-xs font-mono text-[#7BA4D0] w-10 shrink-0">{s.time}</span>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-[#0D2440] truncate">{s.patient}</p>
-                  <p className="text-xs text-[#7BA4D0]">{s.type} · {s.vehicle}</p>
-                </div>
-                <Badge variant={status.variant} className="shrink-0 text-[10px]">{status.label}</Badge>
+    <div className="relative overflow-hidden rounded-[14px] bg-white/55 backdrop-blur-xl border border-white/60 shadow-[0_2px_12px_rgba(46,94,153,0.06)]">
+      {/* Accent line top */}
+      <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[#2E5E99] to-[#7BA4D0] opacity-40" />
+
+      <div className="px-5 pt-5 pb-3">
+        <p className="text-[13px] font-semibold text-[#0D2440]">Programma Odierno</p>
+        <p className="text-[11px] text-[#7BA4D0]/80 mt-0.5">
+          {new Date().toLocaleDateString("it-IT", { weekday: "long", day: "numeric", month: "long" })}
+        </p>
+      </div>
+
+      <div className="px-3 pb-3 space-y-1.5">
+        {MOCK_SERVICES.map((s) => {
+          const status = STATUS_STYLE[s.status] ?? STATUS_STYLE.programmato
+          return (
+            <div
+              key={s.id}
+              className="flex items-center gap-3 px-3 py-2.5 rounded-[9px] bg-white/40 border border-white/50 hover:bg-white/60 transition-colors"
+            >
+              <span className="text-[11px] font-mono text-[#7BA4D0] w-10 shrink-0">{s.time}</span>
+              <div className="flex-1 min-w-0">
+                <p className="text-[13px] font-medium text-[#0D2440] truncate">{s.patient}</p>
+                <p className="text-[11px] text-[#7BA4D0]">{s.type}</p>
               </div>
-            )
-          })}
-        </div>
-      </CardContent>
-    </Card>
+              {/* Vehicle badge */}
+              <span className="shrink-0 px-1.5 py-0.5 rounded-md bg-[#2E5E99]/[0.07] border border-[#2E5E99]/[0.12] text-[10px] font-mono text-[#2E5E99]/80">
+                {s.vehicle}
+              </span>
+              {/* Status badge */}
+              <span className={cn(
+                "shrink-0 px-2 py-0.5 rounded-full border text-[10px] font-medium",
+                status.cls
+              )}>
+                {status.label}
+              </span>
+            </div>
+          )
+        })}
+      </div>
+    </div>
   )
 }

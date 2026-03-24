@@ -10,7 +10,7 @@ export default function DashboardPage() {
 
       {/* KPI Bar */}
       <KpiGrid>
-        <KpiCard label="Servizi Oggi" value={47} unit="servizi" delta={12} deltaLabel="vs ieri" accent />
+        <KpiCard label="Servizi Oggi" value={47} unit="servizi" delta={12} deltaLabel="vs ieri" />
         <KpiCard label="Completati" value={34} unit="" delta={5} deltaLabel="questa settimana" />
         <KpiCard label="In Corso" value={8} unit="" />
         <KpiCard label="KM Oggi" value="1.284" unit="km" delta={-3} deltaLabel="vs media" />

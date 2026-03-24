@@ -26,28 +26,56 @@
     --sd-blue-light: #7BA4D0;
     --sd-blue-strong: #2E5E99;
     --sd-navy: #0D2440;
-    --sd-glass: rgba(255,255,255,0.6);
+    --sd-glass: rgba(255,255,255,0.55);
     --sd-glass-border: rgba(46,94,153,0.10);
     --sidebar-w: 240px;
   }
+
   .dark {
-    --background: 213 55% 8%;
+    --background: 218 60% 8%;
     --foreground: 213 41% 93%;
-    --card: 213 45% 12%;
+    --card: 213 50% 11%;
     --card-foreground: 213 41% 93%;
     --primary: 213 35% 64%;
     --primary-foreground: 213 55% 10%;
     --secondary: 213 55% 39%;
     --secondary-foreground: 213 41% 93%;
-    --muted: 213 40% 16%;
+    --muted: 213 40% 15%;
     --muted-foreground: 213 25% 52%;
-    --border: 213 30% 18%;
-    --input: 213 30% 18%;
+    --border: 213 30% 17%;
+    --input: 213 30% 17%;
     --ring: 213 35% 64%;
-    --sd-bg: #0D2440;
-    --sd-glass: rgba(13,36,64,0.6);
-    --sd-glass-border: rgba(123,164,208,0.12);
+    --sd-bg: #0D1A2E;
+    --sd-glass: rgba(255,255,255,0.04);
+    --sd-glass-border: rgba(123,164,208,0.10);
   }
+
   * { @apply border-border; }
-  body { @apply bg-background text-foreground; font-feature-settings: "cv11", "ss01"; }
+  body {
+    @apply bg-[#E7F0FA] text-foreground;
+    font-feature-settings: "cv11", "ss01";
+  }
+  .dark body { background-color: #0D1A2E; }
 }
+
+/* ── Custom thin scrollbar ── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(46,94,153,0.12);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(46,94,153,0.25); }
+* { scrollbar-width: thin; scrollbar-color: rgba(46,94,153,0.12) transparent; }
+
+/* ── Dark mode glass cards ── */
+.dark [class*="bg-white/"] {
+  --tw-bg-opacity: 0.04;
+}
+
+/* ── Page fade-in ── */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in { animation: fade-in 0.35s ease both; }

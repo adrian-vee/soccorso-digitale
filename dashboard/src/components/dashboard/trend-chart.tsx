@@ -1,16 +1,15 @@
 "use client"
 import * as React from "react"
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 
 const mockData = [
-  { day: "Lun", servizi: 32, completati: 30, km: 420 },
-  { day: "Mar", servizi: 28, completati: 26, km: 380 },
-  { day: "Mer", servizi: 41, completati: 38, km: 560 },
-  { day: "Gio", servizi: 35, completati: 34, km: 490 },
-  { day: "Ven", servizi: 47, completati: 44, km: 640 },
-  { day: "Sab", servizi: 22, completati: 21, km: 310 },
-  { day: "Dom", servizi: 18, completati: 18, km: 250 },
+  { day: "Lun", servizi: 32, completati: 30 },
+  { day: "Mar", servizi: 28, completati: 26 },
+  { day: "Mer", servizi: 41, completati: 38 },
+  { day: "Gio", servizi: 35, completati: 34 },
+  { day: "Ven", servizi: 47, completati: 44 },
+  { day: "Sab", servizi: 22, completati: 21 },
+  { day: "Dom", servizi: 18, completati: 18 },
 ]
 
 interface CustomTooltipProps { active?: boolean; payload?: Array<{ value: number; name: string }>; label?: string }
@@ -32,33 +31,56 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
 
 export function TrendChart() {
   return (
-    <Card className="col-span-2">
-      <CardHeader>
-        <CardTitle className="text-sm">Trend Operativo — Settimana</CardTitle>
-        <CardDescription>Servizi programmati vs completati</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <ResponsiveContainer width="100%" height={180}>
+    <div className="relative col-span-2 overflow-hidden rounded-[14px] bg-white/55 backdrop-blur-xl border border-white/60 shadow-[0_2px_12px_rgba(46,94,153,0.06)]">
+      {/* Accent line top */}
+      <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[#2E5E99] to-[#7BA4D0] opacity-40" />
+
+      <div className="px-5 pt-5 pb-2">
+        <p className="text-[13px] font-semibold text-[#0D2440]">Trend Operativo — Settimana</p>
+        <p className="text-[11px] text-[#7BA4D0]/80 mt-0.5">Servizi programmati vs completati</p>
+      </div>
+
+      <div className="px-4 pb-4">
+        <ResponsiveContainer width="100%" height={168}>
           <AreaChart data={mockData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
             <defs>
               <linearGradient id="gradServizi" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#2E5E99" stopOpacity={0.15} />
+                <stop offset="5%" stopColor="#2E5E99" stopOpacity={0.12} />
                 <stop offset="95%" stopColor="#2E5E99" stopOpacity={0} />
               </linearGradient>
               <linearGradient id="gradCompletati" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#7BA4D0" stopOpacity={0.15} />
+                <stop offset="5%" stopColor="#7BA4D0" stopOpacity={0.10} />
                 <stop offset="95%" stopColor="#7BA4D0" stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#2E5E99" strokeOpacity={0.06} />
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(46,94,153,0.06)" vertical={false} />
             <XAxis dataKey="day" tick={{ fontSize: 10, fill: "#7BA4D0" }} axisLine={false} tickLine={false} />
             <YAxis tick={{ fontSize: 10, fill: "#7BA4D0" }} axisLine={false} tickLine={false} />
             <Tooltip content={<CustomTooltip />} />
-            <Area type="monotone" dataKey="servizi" name="Programmati" stroke="#2E5E99" strokeWidth={2} fill="url(#gradServizi)" dot={false} activeDot={{ r: 4, fill: "#2E5E99" }} />
-            <Area type="monotone" dataKey="completati" name="Completati" stroke="#7BA4D0" strokeWidth={1.5} fill="url(#gradCompletati)" dot={false} activeDot={{ r: 4, fill: "#7BA4D0" }} strokeDasharray="4 2" />
+            <Area
+              type="monotone"
+              dataKey="servizi"
+              name="Programmati"
+              stroke="#2E5E99"
+              strokeWidth={2}
+              fill="url(#gradServizi)"
+              dot={false}
+              activeDot={{ r: 4, fill: "#2E5E99", strokeWidth: 0 }}
+            />
+            <Area
+              type="monotone"
+              dataKey="completati"
+              name="Completati"
+              stroke="#7BA4D0"
+              strokeWidth={1.5}
+              fill="url(#gradCompletati)"
+              dot={false}
+              activeDot={{ r: 4, fill: "#7BA4D0", strokeWidth: 0 }}
+              strokeDasharray="4 2"
+            />
           </AreaChart>
         </ResponsiveContainer>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }
