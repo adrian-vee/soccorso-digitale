@@ -14,6 +14,7 @@ export function ServiceKpis({ services }: ServiceKpisProps) {
   const completati = services.filter((s) => s.status === "completato").length
   const vehiclesUsed = new Set(services.filter((s) => s.vehicle).map((s) => s.vehicle)).size
   const totalKm = services.reduce((sum, s) => sum + s.km, 0)
+  const kmDisplay = totalKm > 0 ? totalKm.toFixed(0) : "—"
 
   const kpis = [
     { label: "Totale Servizi", value: total, unit: "", icon: ClipboardList, color: "#2E5E99" },
@@ -21,7 +22,7 @@ export function ServiceKpis({ services }: ServiceKpisProps) {
     { label: "In Corso", value: inCorso, unit: "", icon: PlayCircle, color: "#2E5E99" },
     { label: "Completati", value: completati, unit: "", icon: CheckCircle2, color: "#2E5E99" },
     { label: "Mezzi Impegnati", value: `${vehiclesUsed}/5`, unit: "", icon: Truck, color: "#7BA4D0" },
-    { label: "KM Stimati", value: totalKm.toFixed(0), unit: "km", icon: MapPin, color: "#7BA4D0" },
+    { label: "KM Stimati", value: kmDisplay, unit: totalKm > 0 ? "km" : "", icon: MapPin, color: "#7BA4D0" },
   ]
 
   return (

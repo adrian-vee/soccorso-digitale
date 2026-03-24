@@ -197,7 +197,9 @@ export function ServiceTable({ services, onServiceUpdate }: ServiceTableProps) {
 
                   {/* KM */}
                   <td className="px-3 py-3 text-right">
-                    <span className="text-[11px] font-mono text-[#7BA4D0]">{s.km.toFixed(1)}</span>
+                    <span className="text-[11px] font-mono text-[#7BA4D0]">
+                      {s.km > 0 ? `${s.km % 1 === 0 ? s.km : s.km.toFixed(1)}` : "—"}
+                    </span>
                   </td>
 
                   {/* Mezzo */}

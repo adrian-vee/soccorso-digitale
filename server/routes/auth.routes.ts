@@ -1,5 +1,6 @@
 import type { Express } from "express";
 import crypto from "node:crypto";
+import bcrypt from "bcrypt";
 import { storage } from "../storage";
 import { db } from "../db";
 import {
@@ -30,7 +31,10 @@ export function registerAuthRoutes(app: Express) {
       const { email, password } = req.body;
       const user = await storage.getUserByEmail(email);
 
-      if (!user || user.password !== password) {
+      const passwordValid = user?.password
+        ? await bcrypt.compare(password, user.password).catch(() => false)
+        : false
+      if (!user || !passwordValid) {
         await auditLog.login("", email, req.ip || "unknown");
         return res.status(401).json({ error: "Credenziali non valide" });
       }
