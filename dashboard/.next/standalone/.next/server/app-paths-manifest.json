@@ -1,0 +1,17 @@
+{
+  "/_not-found/page": "app/_not-found/page.js",
+  "/auth/callback/route": "app/auth/callback/route.js",
+  "/inventario/page": "app/inventario/page.js",
+  "/flotta/page": "app/flotta/page.js",
+  "/documenti/page": "app/documenti/page.js",
+  "/impostazioni/page": "app/impostazioni/page.js",
+  "/login/forgot-password/page": "app/login/forgot-password/page.js",
+  "/login/page": "app/login/page.js",
+  "/login/register/page": "app/login/register/page.js",
+  "/analytics/page": "app/analytics/page.js",
+  "/page": "app/page.js",
+  "/personale/page": "app/personale/page.js",
+  "/prenotazioni/page": "app/prenotazioni/page.js",
+  "/turni/page": "app/turni/page.js",
+  "/servizi/page": "app/servizi/page.js"
+}
