@@ -434,13 +434,7 @@ function configureExpoAndLanding(app: express.Application) {
     }
 
     if (req.path === "/") {
-      const siteIndex = path.resolve(process.cwd(), "site", "index.html");
-      if (fs.existsSync(siteIndex)) {
-        return res.sendFile(siteIndex);
-      }
-      const html = saasLandingTemplate.replace(/APP_NAME_PLACEHOLDER/g, appName);
-      res.setHeader("Content-Type", "text/html; charset=utf-8");
-      return res.status(200).send(html);
+      return res.redirect(302, "/admin");
     }
 
     next();
