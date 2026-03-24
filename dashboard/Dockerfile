@@ -16,6 +16,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_OPTIONS="--max-old-space-size=4096"
 ENV NEXT_PUBLIC_SUPABASE_URL=https://utafppoxmgaskwyrsdnu.supabase.co
 ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV0YWZwcG94bWdhc2t3eXJzZG51Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzNTA0NjIsImV4cCI6MjA4OTkyNjQ2Mn0.O1ZoA1tb70vNKYKe0gDthctJMvPRJZUXhYqy221Er9E
+ENV NEXT_PUBLIC_API_URL=https://soccorso-digitale-production.up.railway.app/api
 RUN npm run build
 
 # Production image
