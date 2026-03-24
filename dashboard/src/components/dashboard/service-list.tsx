@@ -16,7 +16,11 @@ const STATUS_STYLE: Record<string, { label: string; cls: string }> = {
   ritardo:     { label: "Ritardo",     cls: "bg-amber-50 text-amber-700 border-amber-200" },
 }
 
-export function ServiceList() {
+interface ServiceItem { id: string | number; time?: string; departureTime?: string; patient?: string; patientName?: string; type?: string; serviceType?: string; vehicle?: string; vehicleLabel?: string; vehicleCode?: string; status?: string }
+
+export function ServiceList({ items }: { items?: ServiceItem[] }) {
+  const services = (items && items.length > 0 ? items : MOCK_SERVICES).slice(0, 8)
+
   return (
     <div className="relative overflow-hidden rounded-[14px] bg-white/55 backdrop-blur-xl border border-white/60 shadow-[0_2px_12px_rgba(46,94,153,0.06)]">
       {/* Accent line top */}
@@ -30,21 +34,29 @@ export function ServiceList() {
       </div>
 
       <div className="px-3 pb-3 space-y-1.5">
-        {MOCK_SERVICES.map((s) => {
-          const status = STATUS_STYLE[s.status] ?? STATUS_STYLE.programmato
+        {services.map((s) => {
+          const normalized = {
+            id: s.id,
+            time: s.time ?? s.departureTime ?? '--:--',
+            patient: s.patient ?? s.patientName ?? 'N/D',
+            type: s.type ?? s.serviceType ?? '',
+            vehicle: s.vehicle ?? s.vehicleLabel ?? s.vehicleCode ?? '',
+            status: s.status ?? 'programmato',
+          }
+          const status = STATUS_STYLE[normalized.status] ?? STATUS_STYLE.programmato
           return (
             <div
-              key={s.id}
+              key={normalized.id}
               className="flex items-center gap-3 px-3 py-2.5 rounded-[9px] bg-white/40 border border-white/50 hover:bg-white/60 transition-colors"
             >
-              <span className="text-[11px] font-mono text-[#7BA4D0] w-10 shrink-0">{s.time}</span>
+              <span className="text-[11px] font-mono text-[#7BA4D0] w-10 shrink-0">{normalized.time}</span>
               <div className="flex-1 min-w-0">
-                <p className="text-[13px] font-medium text-[#0D2440] truncate">{s.patient}</p>
-                <p className="text-[11px] text-[#7BA4D0]">{s.type}</p>
+                <p className="text-[13px] font-medium text-[#0D2440] truncate">{normalized.patient}</p>
+                <p className="text-[11px] text-[#7BA4D0]">{normalized.type}</p>
               </div>
               {/* Vehicle badge */}
               <span className="shrink-0 px-1.5 py-0.5 rounded-md bg-[#2E5E99]/[0.07] border border-[#2E5E99]/[0.12] text-[10px] font-mono text-[#2E5E99]/80">
-                {s.vehicle}
+                {normalized.vehicle}
               </span>
               {/* Status badge */}
               <span className={cn(

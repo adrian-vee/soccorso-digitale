@@ -1,12 +1,13 @@
 "use client"
 import * as React from "react"
-import { mockServices, type Service, type ServiceStatus, type ServiceType } from "@/lib/mock-services"
+import { type Service, type ServiceStatus, type ServiceType } from "@/lib/mock-services"
 import { ServiceHeader } from "@/components/servizi/service-header"
 import { ServiceKpis } from "@/components/servizi/service-kpis"
 import { ServiceToolbar } from "@/components/servizi/service-toolbar"
 import { ServiceTable } from "@/components/servizi/service-table"
 import { UploadPDFDialog } from "@/components/servizi/upload-pdf-dialog"
 import { NewServiceDialog } from "@/components/servizi/new-service-dialog"
+import { useServices } from "@/hooks/use-services"
 
 interface Filters {
   search: string
@@ -26,8 +27,12 @@ const DEFAULT_FILTERS: Filters = {
 
 export default function ServiziPage() {
   const [date, setDate] = React.useState<Date>(new Date())
-  const [services, setServices] = React.useState<Service[]>(mockServices)
   const [filters, setFilters] = React.useState<Filters>(DEFAULT_FILTERS)
+  const { data: apiServices = [] } = useServices(date)
+  const [overrides, setOverrides] = React.useState<Record<number, Partial<Service>>>({})
+
+  // Merge API data with local overrides
+  const services: Service[] = apiServices.map(s => ({ ...s, ...overrides[s.id] }))
   const [view, setView] = React.useState<"list" | "grid">("list")
   const [uploadOpen, setUploadOpen] = React.useState(false)
   const [newOpen, setNewOpen] = React.useState(false)
@@ -50,7 +55,7 @@ export default function ServiziPage() {
   })
 
   function handleServiceUpdate(id: number, patch: Partial<Service>) {
-    setServices((prev) => prev.map((s) => (s.id === id ? { ...s, ...patch } : s)))
+    setOverrides(prev => ({ ...prev, [id]: { ...prev[id], ...patch } }))
   }
 
   return (

@@ -1,9 +1,11 @@
 "use client"
 import * as React from "react"
 import { FileDown, TableProperties } from "lucide-react"
+import { useAnalytics } from "@/hooks/use-analytics"
 import {
-  analyticsKpis, servicesByDay, kmBreakdown, servicesByType,
-  topRoutes, vehicleKmReport, utifReport, slaData, complianceItems
+  analyticsKpis as mockKpis, servicesByDay as mockSbd, kmBreakdown as mockKmb,
+  servicesByType as mockSbt, topRoutes as mockTr, vehicleKmReport as mockVkr,
+  utifReport as mockUtif, slaData as mockSla, complianceItems as mockCompliance,
 } from "@/lib/mock-analytics"
 import { AnalyticsKpis } from "@/components/analytics/analytics-kpis"
 import { ServicesByDayChart } from "@/components/analytics/services-by-day-chart"
@@ -18,6 +20,7 @@ const PERIODI = ["Marzo 2026", "Febbraio 2026", "Q1 2026", "Anno 2026"]
 
 export default function AnalyticsPage() {
   const [periodo, setPeriodo] = React.useState(PERIODI[0])
+  const { data } = useAnalytics(periodo)
 
   return (
     <div className="space-y-4 animate-fade-in">
@@ -48,32 +51,32 @@ export default function AnalyticsPage() {
       </div>
 
       {/* KPIs */}
-      <AnalyticsKpis data={analyticsKpis} />
+      <AnalyticsKpis data={data?.kpis ?? mockKpis} />
 
       {/* Charts row 1 */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
         <div className="lg:col-span-3">
-          <ServicesByDayChart data={servicesByDay} />
+          <ServicesByDayChart data={data?.servicesByDay ?? mockSbd} />
         </div>
         <div className="lg:col-span-2">
-          <KmBreakdownChart data={kmBreakdown} />
+          <KmBreakdownChart data={data?.kmBreakdown ?? mockKmb} />
         </div>
       </div>
 
       {/* Charts row 2 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <ServicesByTypeChart data={servicesByType} />
-        <TopRoutesTable data={topRoutes} />
+        <ServicesByTypeChart data={data?.servicesByType ?? mockSbt} />
+        <TopRoutesTable data={data?.topRoutes ?? mockTr} />
       </div>
 
       {/* KM detail table */}
-      <KmDetailTable data={vehicleKmReport} />
+      <KmDetailTable data={data?.vehicleKmReport ?? mockVkr} />
 
       {/* UTIF report */}
-      <UtifReportTable data={utifReport} />
+      <UtifReportTable data={data?.utifReport ?? mockUtif} />
 
       {/* SLA + compliance */}
-      <SlaCompliance sla={slaData} compliance={complianceItems} />
+      <SlaCompliance sla={data?.slaData ?? mockSla} compliance={data?.complianceItems ?? mockCompliance} />
     </div>
   )
 }

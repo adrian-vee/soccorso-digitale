@@ -1,7 +1,7 @@
 "use client"
 import * as React from "react"
 import { Plus } from "lucide-react"
-import { mockPersonnel } from "@/lib/mock-personnel"
+import { usePersonnel } from "@/hooks/use-personnel"
 import { PersonnelKpis } from "@/components/personale/personnel-kpis"
 import { PersonnelToolbar, type PersonnelFilters } from "@/components/personale/personnel-toolbar"
 import { PersonnelTable } from "@/components/personale/personnel-table"
@@ -11,6 +11,7 @@ import { NewVolunteerDialog } from "@/components/personale/new-volunteer-dialog"
 
 export default function PersonalePage() {
   const [newOpen, setNewOpen] = React.useState(false)
+  const { data: personnel = [] } = usePersonnel()
   const [filters, setFilters] = React.useState<PersonnelFilters>({
     search: "", role: "Tutti", sede: "Tutte", certStatus: "Tutti",
   })
@@ -34,18 +35,18 @@ export default function PersonalePage() {
       </div>
 
       {/* KPIs */}
-      <PersonnelKpis personnel={mockPersonnel} />
+      <PersonnelKpis personnel={personnel} />
 
       {/* Toolbar */}
       <PersonnelToolbar filters={filters} onChange={setFilters} />
 
       {/* Table */}
-      <PersonnelTable personnel={mockPersonnel} filters={filters} />
+      <PersonnelTable personnel={personnel} filters={filters} />
 
       {/* Bottom row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <CertExpiryAlerts personnel={mockPersonnel} />
-        <HoursChart personnel={mockPersonnel} />
+        <CertExpiryAlerts personnel={personnel} />
+        <HoursChart personnel={personnel} />
       </div>
 
       <NewVolunteerDialog open={newOpen} onOpenChange={setNewOpen} />

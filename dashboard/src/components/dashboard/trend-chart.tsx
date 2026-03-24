@@ -29,7 +29,15 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
   )
 }
 
-export function TrendChart() {
+interface TrendPoint { day?: string; date?: string; servizi?: number; services?: number; completati?: number; km?: number }
+
+export function TrendChart({ data }: { data?: TrendPoint[] }) {
+  const chartData = (data && data.length > 0 ? data : mockData).map((p) => ({
+    day: p.day ?? p.date?.slice(8) ?? '',
+    servizi: p.servizi ?? p.services ?? 0,
+    completati: p.completati ?? Math.round((p.servizi ?? p.services ?? 0) * 0.92),
+  }))
+
   return (
     <div className="relative col-span-2 overflow-hidden rounded-[14px] bg-white/55 backdrop-blur-xl border border-white/60 shadow-[0_2px_12px_rgba(46,94,153,0.06)]">
       {/* Accent line top */}
@@ -42,7 +50,7 @@ export function TrendChart() {
 
       <div className="px-4 pb-4">
         <ResponsiveContainer width="100%" height={168}>
-          <AreaChart data={mockData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
+          <AreaChart data={chartData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
             <defs>
               <linearGradient id="gradServizi" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="#2E5E99" stopOpacity={0.12} />

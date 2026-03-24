@@ -16,7 +16,19 @@ const STATUS_DOT: Record<string, string> = {
   "fuori-servizio": "bg-red-400",
 }
 
-export function FleetStatus() {
+interface FleetItem { id?: string; code?: string; name?: string; status?: string; usage?: number; km?: number; services?: number }
+
+export function FleetStatus({ items }: { items?: FleetItem[] }) {
+  const fleet = (items && items.length > 0
+    ? items.map(v => ({
+        id: v.code ?? v.id ?? '',
+        name: v.name ?? v.code ?? '',
+        status: v.status ?? 'disponibile',
+        fuel: v.usage ?? 50,
+        km: v.km ?? 0,
+      }))
+    : FLEET)
+
   return (
     <div className="relative overflow-hidden rounded-[14px] bg-white/55 backdrop-blur-xl border border-white/60 shadow-[0_2px_12px_rgba(46,94,153,0.06)]">
       {/* Accent line top */}
@@ -24,11 +36,11 @@ export function FleetStatus() {
 
       <div className="px-4 pt-5 pb-2">
         <p className="text-[13px] font-semibold text-[#0D2440]">Stato Flotta</p>
-        <p className="text-[11px] text-[#7BA4D0]/80 mt-0.5">5 veicoli · 2 in servizio</p>
+        <p className="text-[11px] text-[#7BA4D0]/80 mt-0.5">{fleet.length} veicoli</p>
       </div>
 
       <div className="px-4 pb-4 space-y-3 mt-1">
-        {FLEET.map((v) => (
+        {fleet.map((v) => (
           <div key={v.id} className="space-y-1.5">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">

@@ -32,6 +32,21 @@ export default function LoginPage() {
       return
     }
 
+    // Auth bridge: get Express JWT token after Supabase login
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      })
+      if (res.ok) {
+        const { token } = await res.json()
+        if (token) localStorage.setItem('sd_token', token)
+      }
+    } catch {
+      // Non-blocking: dashboard works with Supabase session even without Express JWT
+    }
+
     router.push('/')
     router.refresh()
   }

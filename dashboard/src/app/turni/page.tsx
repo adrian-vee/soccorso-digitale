@@ -1,7 +1,7 @@
 "use client"
 import * as React from "react"
 import { Plus, Send } from "lucide-react"
-import { mockShifts, mockAvailability } from "@/lib/mock-shifts"
+import { useShifts, useAvailability } from "@/hooks/use-shifts"
 import { ShiftKpis } from "@/components/turni/shift-kpis"
 import { WeeklyGrid } from "@/components/turni/weekly-grid"
 import { AvailabilityPanel } from "@/components/turni/availability-panel"
@@ -10,7 +10,9 @@ import { AssignShiftDialog } from "@/components/turni/assign-shift-dialog"
 
 export default function TurniPage() {
   const [assignShiftId, setAssignShiftId] = React.useState<number | null>(null)
-  const assignShift = assignShiftId !== null ? mockShifts.find(s => s.id === assignShiftId) ?? null : null
+  const { data: shifts = [] } = useShifts(0)
+  const { data: availability = [] } = useAvailability()
+  const assignShift = assignShiftId !== null ? shifts.find(s => s.id === assignShiftId) ?? null : null
 
   return (
     <div className="space-y-4 animate-fade-in">
@@ -34,15 +36,15 @@ export default function TurniPage() {
       </div>
 
       {/* KPIs */}
-      <ShiftKpis shifts={mockShifts} />
+      <ShiftKpis shifts={shifts} />
 
       {/* Weekly grid */}
-      <WeeklyGrid shifts={mockShifts} onAssign={id => setAssignShiftId(id)} />
+      <WeeklyGrid shifts={shifts} onAssign={id => setAssignShiftId(id)} />
 
       {/* Bottom row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <AvailabilityPanel availability={mockAvailability} />
-        <UncoveredShifts shifts={mockShifts} />
+        <AvailabilityPanel availability={availability} />
+        <UncoveredShifts shifts={shifts} />
       </div>
 
       <AssignShiftDialog

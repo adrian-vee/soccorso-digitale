@@ -1,16 +1,18 @@
 "use client"
 import * as React from "react"
 import { Plus } from "lucide-react"
-import { mockFleet, mockExpiryAlerts } from "@/lib/mock-fleet"
 import { FleetKpis } from "@/components/flotta/fleet-kpis"
 import { FleetMap } from "@/components/flotta/fleet-map"
 import { FleetStatusList } from "@/components/flotta/fleet-status"
 import { VehicleCards } from "@/components/flotta/vehicle-cards"
 import { ExpiryAlerts } from "@/components/flotta/expiry-alerts"
 import { NewVehicleDialog } from "@/components/flotta/new-vehicle-dialog"
+import { useFleet, useExpiryAlerts } from "@/hooks/use-fleet"
 
 export default function FlottaPage() {
   const [newOpen, setNewOpen] = React.useState(false)
+  const { data: fleet = [] } = useFleet()
+  const { data: alerts = [] } = useExpiryAlerts()
 
   return (
     <div className="space-y-4 animate-fade-in">
@@ -31,26 +33,26 @@ export default function FlottaPage() {
       </div>
 
       {/* KPI bar */}
-      <FleetKpis fleet={mockFleet} />
+      <FleetKpis fleet={fleet} />
 
       {/* Map + Status side by side */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
         <div className="lg:col-span-3">
-          <FleetMap fleet={mockFleet} />
+          <FleetMap fleet={fleet} />
         </div>
         <div className="lg:col-span-2">
-          <FleetStatusList fleet={mockFleet} />
+          <FleetStatusList fleet={fleet} />
         </div>
       </div>
 
       {/* Vehicle cards grid */}
       <div>
         <h2 className="text-[13px] font-bold text-[#0D2440] mb-3">Dettaglio Veicoli</h2>
-        <VehicleCards fleet={mockFleet} />
+        <VehicleCards fleet={fleet} />
       </div>
 
       {/* Expiry alerts */}
-      <ExpiryAlerts alerts={mockExpiryAlerts} />
+      <ExpiryAlerts alerts={alerts} />
 
       {/* Dialog */}
       <NewVehicleDialog open={newOpen} onOpenChange={setNewOpen} />

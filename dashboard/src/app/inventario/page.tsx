@@ -9,6 +9,7 @@ import {
   mockInventory, mockSanifications, inventoryKpis,
   type ItemCategory, type ItemStatus
 } from "@/lib/mock-inventory"
+import { useInventoryItems, useInventoryDashboard } from "@/hooks/use-inventory"
 
 // ─── shared ───────────────────────────────────────────────────────────────────
 
@@ -19,12 +20,15 @@ const inputCls = "h-8 px-2.5 rounded-[8px] border border-[#2E5E99]/15 bg-white/6
 
 // ─── KPI bar ─────────────────────────────────────────────────────────────────
 
-function InventoryKpis() {
+function InventoryKpis({ items = mockInventory }: { items?: typeof mockInventory }) {
+  const lowStock = items.filter(i => i.quantity <= i.minStock).length
+  const expiringSoon = items.filter(i => i.daysToExpiry !== undefined && i.daysToExpiry >= 0 && i.daysToExpiry < 30).length
+  const totalValue = items.reduce((acc, i) => acc + (i.quantity * (i.unitValue ?? 0)), 0)
   const kpis = [
-    { label: "Articoli Totali", value: inventoryKpis.total, icon: Package, color: "#2E5E99" },
-    { label: "Sotto Scorta", value: inventoryKpis.lowStock, icon: AlertTriangle, color: "#EF4444" },
-    { label: "In Scadenza (<30gg)", value: inventoryKpis.expiringSoon, icon: XCircle, color: "#F59E0B" },
-    { label: "Valore Magazzino", value: `€${inventoryKpis.totalValue.toLocaleString("it-IT")}`, icon: Package, color: "#10B981" },
+    { label: "Articoli Totali", value: items.length || inventoryKpis.total, icon: Package, color: "#2E5E99" },
+    { label: "Sotto Scorta", value: lowStock || inventoryKpis.lowStock, icon: AlertTriangle, color: "#EF4444" },
+    { label: "In Scadenza (<30gg)", value: expiringSoon || inventoryKpis.expiringSoon, icon: XCircle, color: "#F59E0B" },
+    { label: "Valore Magazzino", value: `€${(totalValue || inventoryKpis.totalValue).toLocaleString("it-IT")}`, icon: Package, color: "#10B981" },
   ]
   return (
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
@@ -68,21 +72,21 @@ const CAT_COLORS: Record<ItemCategory, string> = {
 
 // ─── Tab 1: Magazzino ─────────────────────────────────────────────────────────
 
-function TabMagazzino() {
+function TabMagazzino({ items = mockInventory }: { items?: typeof mockInventory }) {
   const [search, setSearch] = React.useState("")
   const [catFilter, setCatFilter] = React.useState("Tutti")
 
-  const filtered = mockInventory.filter(item => {
+  const filtered = items.filter(item => {
     const matchSearch = item.name.toLowerCase().includes(search.toLowerCase()) || item.code.toLowerCase().includes(search.toLowerCase())
     const matchCat = catFilter === "Tutti" || CAT_LABELS[item.category] === catFilter
     return matchSearch && matchCat
   })
 
-  const lowItems = mockInventory.filter(i => i.quantity <= i.minStock)
+  const lowItems = items.filter(i => i.quantity <= i.minStock)
 
   return (
     <div className="space-y-3">
-      <InventoryKpis />
+      <InventoryKpis items={items} />
 
       {/* Alerts */}
       {lowItems.length > 0 && (
@@ -181,8 +185,8 @@ function TabMagazzino() {
 
 // ─── Tab 2: Scadenze Materiali ───────────────────────────────────────────────
 
-function TabScadenze() {
-  const items = mockInventory
+function TabScadenze({ items: allItems = mockInventory }: { items?: typeof mockInventory }) {
+  const items = allItems
     .filter(i => i.expiry && i.daysToExpiry !== undefined)
     .sort((a, b) => (a.daysToExpiry ?? 999) - (b.daysToExpiry ?? 999))
 
@@ -316,6 +320,8 @@ function TabSanificazioni() {
 
 export default function InventarioPage() {
   const [activeTab, setActiveTab] = React.useState<Tab>("Magazzino")
+  const { data: apiItems } = useInventoryItems()
+  const items = Array.isArray(apiItems) ? apiItems as typeof mockInventory : mockInventory
 
   return (
     <div className="space-y-4 animate-fade-in">
@@ -342,8 +348,8 @@ export default function InventarioPage() {
         ))}
       </div>
 
-      {activeTab === "Magazzino" && <TabMagazzino />}
-      {activeTab === "Scadenze Materiali" && <TabScadenze />}
+      {activeTab === "Magazzino" && <TabMagazzino items={items} />}
+      {activeTab === "Scadenze Materiali" && <TabScadenze items={items} />}
       {activeTab === "Sanificazioni" && <TabSanificazioni />}
     </div>
   )
