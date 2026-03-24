@@ -20,17 +20,23 @@ function normalize(s: any): Service {
     emergency: 'altro',
   }
 
+  // km: prefer actual odometer diff (kmEnd - kmStart) for completed services,
+  // fall back to estimated km from PDF import (estimatedKm or kmEstimated)
+  const kmActual =
+    s.kmEnd != null && s.kmStart != null ? Math.max(0, s.kmEnd - s.kmStart) : null
+  const kmEstimated = s.estimatedKm ?? s.kmEstimated ?? null
+
   return {
     id: typeof s.id === 'number' ? s.id : parseInt(s.id) || 0,
-    time: s.departureTime ?? s.time ?? '--:--',
+    time: s.scheduledTime ?? s.departureTime ?? s.time ?? '--:--',
     type: (typeMap[s.serviceType] ?? (s.serviceType as ServiceType) ?? 'visita') as ServiceType,
     typeLabel: s.typeLabel ?? s.serviceType ?? '',
     patient: s.patientName ?? s.patient ?? 'N/D',
     patientPhone: s.patientPhone ?? s.phone ?? '',
-    origin: s.originAddress ?? s.origin ?? '',
-    destination: s.destinationAddress ?? s.destination ?? '',
+    origin: s.originName ?? s.originAddress ?? s.origin ?? '',
+    destination: s.destinationName ?? s.destinationAddress ?? s.destination ?? '',
     vehicle: s.vehicleLabel ?? s.vehicleCode ?? s.vehicle ?? null,
-    km: s.km ?? 0,
+    km: kmActual ?? kmEstimated ?? 0,
     status: (statusMap[s.status] ?? (s.status as ServiceStatus) ?? 'programmato') as ServiceStatus,
     priority: (s.priority ?? 'normale') as 'normale' | 'urgente',
     sede: s.locationName ?? s.sede ?? '',
