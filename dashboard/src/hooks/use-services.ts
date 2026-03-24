@@ -17,21 +17,22 @@ function normalize(s: any): Service {
     visit: 'visita',
     discharge: 'dimissione',
     transfer: 'trasferimento',
-    emergency: 'emergenza',
+    emergency: 'altro',
   }
 
   return {
     id: typeof s.id === 'number' ? s.id : parseInt(s.id) || 0,
-    date: s.date ?? s.serviceDate ?? '',
     time: s.departureTime ?? s.time ?? '--:--',
+    type: (typeMap[s.serviceType] ?? (s.serviceType as ServiceType) ?? 'visita') as ServiceType,
+    typeLabel: s.typeLabel ?? s.serviceType ?? '',
     patient: s.patientName ?? s.patient ?? 'N/D',
-    phone: s.patientPhone ?? s.phone ?? '',
+    patientPhone: s.patientPhone ?? s.phone ?? '',
     origin: s.originAddress ?? s.origin ?? '',
     destination: s.destinationAddress ?? s.destination ?? '',
-    vehicle: s.vehicleLabel ?? s.vehicleCode ?? s.vehicle ?? '',
-    status: statusMap[s.status] ?? (s.status as ServiceStatus) ?? 'programmato',
-    type: typeMap[s.serviceType] ?? (s.serviceType as ServiceType) ?? 'visita',
-    priority: s.priority ?? 'normale',
+    vehicle: s.vehicleLabel ?? s.vehicleCode ?? s.vehicle ?? null,
+    km: s.km ?? 0,
+    status: (statusMap[s.status] ?? (s.status as ServiceStatus) ?? 'programmato') as ServiceStatus,
+    priority: (s.priority ?? 'normale') as 'normale' | 'urgente',
     sede: s.locationName ?? s.sede ?? '',
     notes: s.notes ?? '',
   }
@@ -48,7 +49,7 @@ export function useServices(date: Date) {
         const arr = Array.isArray(data) ? data : []
         return arr.map(normalize)
       } catch {
-        return mockServices.filter((s) => s.date === dateStr || s.date === undefined)
+        return mockServices
       }
     },
   })

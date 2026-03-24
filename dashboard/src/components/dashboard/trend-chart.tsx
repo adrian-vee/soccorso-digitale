@@ -2,16 +2,6 @@
 import * as React from "react"
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
 
-const mockData = [
-  { day: "Lun", servizi: 32, completati: 30 },
-  { day: "Mar", servizi: 28, completati: 26 },
-  { day: "Mer", servizi: 41, completati: 38 },
-  { day: "Gio", servizi: 35, completati: 34 },
-  { day: "Ven", servizi: 47, completati: 44 },
-  { day: "Sab", servizi: 22, completati: 21 },
-  { day: "Dom", servizi: 18, completati: 18 },
-]
-
 interface CustomTooltipProps { active?: boolean; payload?: Array<{ value: number; name: string }>; label?: string }
 
 function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
@@ -30,6 +20,16 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
 }
 
 interface TrendPoint { day?: string; date?: string; servizi?: number; services?: number; completati?: number; km?: number }
+
+const mockData: TrendPoint[] = [
+  { day: "Lun", servizi: 32, completati: 30 },
+  { day: "Mar", servizi: 28, completati: 26 },
+  { day: "Mer", servizi: 41, completati: 38 },
+  { day: "Gio", servizi: 35, completati: 34 },
+  { day: "Ven", servizi: 47, completati: 44 },
+  { day: "Sab", servizi: 22, completati: 21 },
+  { day: "Dom", servizi: 18, completati: 18 },
+]
 
 export function TrendChart({ data }: { data?: TrendPoint[] }) {
   const chartData = (data && data.length > 0 ? data : mockData).map((p) => ({

@@ -1,20 +1,27 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import apiClient from '@/lib/api-client'
 import { mockShifts, mockAvailability } from '@/lib/mock-shifts'
-import type { Shift, AvailabilityEntry } from '@/lib/mock-shifts'
+import type { Shift, AvailabilityRow, ShiftSlot } from '@/lib/mock-shifts'
 
 function normalizeShift(s: any): Shift {
+  const slotMap: Record<string, ShiftSlot> = {
+    morning: 'mattina', afternoon: 'pomeriggio', mattina: 'mattina', pomeriggio: 'pomeriggio',
+  }
+  const slot: ShiftSlot = slotMap[s.slot ?? s.shiftSlot ?? ''] ?? 'mattina'
   return {
     id: typeof s.id === 'number' ? s.id : parseInt(s.id) || 0,
-    date: s.date ?? s.shiftDate ?? '',
-    startTime: s.startTime ?? '06:00',
-    endTime: s.endTime ?? '18:00',
-    role: s.role ?? s.shiftType ?? 'soccorritore',
-    sede: s.locationName ?? s.sede ?? '',
-    vehicle: s.vehicleCode ?? s.vehicle ?? '',
-    assignedTo: s.assignments?.map((a: any) => `${a.firstName ?? ''} ${a.lastName ?? ''}`.trim()) ?? [],
-    status: s.status === 'covered' ? 'coperto' : s.status === 'open' ? 'scoperto' : s.status ?? 'scoperto',
-    notes: s.notes ?? '',
+    day: s.date ?? s.shiftDate ?? s.day ?? '',
+    dayLabel: s.dayLabel ?? s.date ?? s.day ?? '',
+    slot,
+    slotLabel: s.slotLabel ?? (slot === 'mattina' ? '06:00–14:00' : '14:00–22:00'),
+    volunteers: (s.assignments ?? s.volunteers ?? []).map((a: any) => ({
+      id: a.id ?? a.staffMemberId ?? 0,
+      name: a.fullName ?? `${a.firstName ?? ''} ${a.lastName ?? ''}`.trim(),
+      initials: a.initials ?? (a.firstName?.[0] ?? '') + (a.lastName?.[0] ?? ''),
+      role: a.role ?? a.assignedRole ?? 'soccorritore',
+    })),
+    required: s.required ?? s.requiredStaff ?? 2,
+    covered: s.covered ?? s.isCovered ?? (s.status === 'covered'),
   }
 }
 
@@ -64,7 +71,7 @@ export function useOpenShifts(weekOffset = 0) {
         const arr = Array.isArray(data) ? data : []
         return arr.map(normalizeShift)
       } catch {
-        return mockShifts.filter(s => s.status === 'scoperto')
+        return mockShifts.filter(s => !s.covered)
       }
     },
   })
@@ -86,7 +93,7 @@ export function useShiftStats() {
 }
 
 export function useAvailability() {
-  return useQuery<AvailabilityEntry[]>({
+  return useQuery<AvailabilityRow[]>({
     queryKey: ['shift-availability'],
     queryFn: async () => {
       // No dedicated availability list endpoint — return mock

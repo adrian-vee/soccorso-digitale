@@ -1,31 +1,45 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import apiClient from '@/lib/api-client'
 import { mockPersonnel } from '@/lib/mock-personnel'
-import type { Personnel } from '@/lib/mock-personnel'
+import type { Volunteer, VolunteerRole, VolunteerStatus, CertStatus } from '@/lib/mock-personnel'
 
-function normalize(s: any): Personnel {
+function normalize(s: any): Volunteer {
+  const certStatus = (v: any): CertStatus =>
+    v?.status === 'expired' ? 'expired' : v?.status === 'expiring' ? 'expiring' : 'valid'
+
   return {
     id: typeof s.id === 'number' ? s.id : parseInt(s.id) || 0,
     firstName: s.firstName ?? '',
     lastName: s.lastName ?? '',
     email: s.email ?? '',
     phone: s.phone ?? s.phoneNumber ?? '',
-    role: s.primaryRole ?? s.role ?? 'soccorritore',
+    role: (s.primaryRole ?? s.role ?? 'soccorritore') as VolunteerRole,
     sede: s.locationName ?? s.sede ?? '',
-    status: s.isActive ? 'attivo' : 'inattivo',
-    joinDate: s.joinDate ?? s.createdAt?.split('T')[0] ?? '',
-    hours: s.totalHours ?? s.hours ?? 0,
-    certifications: (s.certifications ?? []).map((c: any) =>
-      typeof c === 'string' ? { name: c, expiry: '', status: 'valida' as const }
-        : { name: c.name ?? c.certType ?? '', expiry: c.expiryDate ?? c.expiry ?? '', status: c.status ?? 'valida' }
-    ),
-    avatar: s.avatar ?? '',
-    notes: s.notes ?? '',
+    status: (s.isActive === false ? 'inattivo' : s.status ?? 'attivo') as VolunteerStatus,
+    hoursThisMonth: s.hoursThisMonth ?? s.totalHours ?? s.hours ?? 0,
+    certifications: {
+      blsd: {
+        expiry: s.certifications?.blsd?.expiryDate ?? s.certifications?.blsd?.expiry ?? '',
+        daysLeft: s.certifications?.blsd?.daysLeft ?? 0,
+        status: certStatus(s.certifications?.blsd),
+      },
+      license: {
+        type: s.certifications?.license?.type ?? 'B',
+        expiry: s.certifications?.license?.expiryDate ?? s.certifications?.license?.expiry ?? '',
+        daysLeft: s.certifications?.license?.daysLeft ?? 0,
+        status: certStatus(s.certifications?.license),
+      },
+      safety626: {
+        expiry: s.certifications?.safety626?.expiryDate ?? s.certifications?.safety626?.expiry ?? '',
+        daysLeft: s.certifications?.safety626?.daysLeft ?? 0,
+        status: certStatus(s.certifications?.safety626),
+      },
+    },
   }
 }
 
 export function usePersonnel() {
-  return useQuery<Personnel[]>({
+  return useQuery<Volunteer[]>({
     queryKey: ['staff-members'],
     queryFn: async () => {
       try {

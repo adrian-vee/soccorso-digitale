@@ -94,10 +94,8 @@ export function useAnalytics(periodo: string) {
 
       const kpis = {
         ...analyticsKpis,
-        totalServices: metrics.kpis?.totalServices ?? analyticsKpis.totalServices,
-        totalKm: metrics.kpis?.totalKm ?? analyticsKpis.totalKm,
-        activeVehicles: metrics.kpis?.activeVehicles ?? analyticsKpis.activeVehicles,
-        avgKm: metrics.kpis?.avgKmPerService ?? analyticsKpis.avgKm,
+        serviziMese: metrics.kpis?.totalServices ?? analyticsKpis.serviziMese,
+        kmTotali: metrics.kpis?.totalKm ?? analyticsKpis.kmTotali,
       }
 
       const sByDay = (metrics.dailyTrend ?? []).map((p: any) => ({

@@ -1,14 +1,6 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
 
-const MOCK_SERVICES = [
-  { id: "SD-001", time: "07:30", patient: "Rossi Mario", type: "Dialisi", vehicle: "AZ-001", status: "completato" },
-  { id: "SD-002", time: "08:15", patient: "Bianchi Anna", type: "Visita", vehicle: "AZ-003", status: "in-corso" },
-  { id: "SD-003", time: "09:00", patient: "Ferrari Luigi", type: "Dialisi", vehicle: "AZ-002", status: "programmato" },
-  { id: "SD-004", time: "10:30", patient: "Russo Carla", type: "Dimissioni", vehicle: "AZ-005", status: "programmato" },
-  { id: "SD-005", time: "11:00", patient: "Gallo Pietro", type: "Trasferimento", vehicle: "AZ-001", status: "ritardo" },
-]
-
 const STATUS_STYLE: Record<string, { label: string; cls: string }> = {
   completato:  { label: "Completato",  cls: "bg-emerald-50 text-emerald-700 border-emerald-200" },
   "in-corso":  { label: "In Corso",    cls: "bg-[#2E5E99]/[0.08] text-[#2E5E99] border-[#2E5E99]/20" },
@@ -16,7 +8,15 @@ const STATUS_STYLE: Record<string, { label: string; cls: string }> = {
   ritardo:     { label: "Ritardo",     cls: "bg-amber-50 text-amber-700 border-amber-200" },
 }
 
-interface ServiceItem { id: string | number; time?: string; departureTime?: string; patient?: string; patientName?: string; type?: string; serviceType?: string; vehicle?: string; vehicleLabel?: string; vehicleCode?: string; status?: string }
+interface ServiceItem { id: string | number; time?: string; departureTime?: string; patient?: string; patientName?: string; type?: string; serviceType?: string; vehicle?: string | null; vehicleLabel?: string | null; vehicleCode?: string | null; status?: string }
+
+const MOCK_SERVICES: ServiceItem[] = [
+  { id: "SD-001", time: "07:30", patient: "Rossi Mario", type: "Dialisi", vehicle: "AZ-001", status: "completato" },
+  { id: "SD-002", time: "08:15", patient: "Bianchi Anna", type: "Visita", vehicle: "AZ-003", status: "in-corso" },
+  { id: "SD-003", time: "09:00", patient: "Ferrari Luigi", type: "Dialisi", vehicle: "AZ-002", status: "programmato" },
+  { id: "SD-004", time: "10:30", patient: "Russo Carla", type: "Dimissioni", vehicle: "AZ-005", status: "programmato" },
+  { id: "SD-005", time: "11:00", patient: "Gallo Pietro", type: "Trasferimento", vehicle: "AZ-001", status: "ritardo" },
+]
 
 export function ServiceList({ items }: { items?: ServiceItem[] }) {
   const services = (items && items.length > 0 ? items : MOCK_SERVICES).slice(0, 8)
