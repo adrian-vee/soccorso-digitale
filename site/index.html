@@ -1,1439 +1,1001 @@
-<html lang="en" data-scrolling-started="false" data-scrolling-direction="up"><head>
-    <!-- META TAGS  -->
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- Title -->
-    <title>MDX | UI/UX, Web/App Development, 3D & Branding Agency</title>
+  <!-- SEO -->
+  <title>Soccorso Digitale — Piattaforma Cloud per il Trasporto Sanitario</title>
+  <meta name="description" content="Gestionale cloud SaaS per ambulanze e trasporto sanitario programmato. Dispatch, GPS, turni, analytics. Per cooperative, Croce Rossa, ANPAS, Misericordie.">
+  <meta name="keywords" content="gestionale ambulanze, software trasporto sanitario, gestionale EMS Italia, dispatch ambulanze, piattaforma sanitaria cloud, SaaS sanitario">
+  <link rel="canonical" href="https://soccorsodigitale.app">
 
-    <!-- Meta Description -->
-    <meta name="description" content="MDX is a creative agency that blends modern UI/UX design, web and app development, immersive 3D experiences, and strategic branding to help bold brands stand out.">
+  <!-- Open Graph -->
+  <meta property="og:title" content="Soccorso Digitale — Il Futuro del Trasporto Sanitario">
+  <meta property="og:description" content="Piattaforma cloud per gestire ambulanze, servizi, turni e flotta. Per cooperative e associazioni di volontariato.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://soccorsodigitale.app">
+  <meta property="og:locale" content="it_IT">
 
-    <!-- Meta Keywords -->
-    <meta name="keywords" content="creative agency, UI design, UX design, web development, app development, 3D experiences, branding, immersive websites, MDX, modern design, digital agency">
+  <!-- Favicons -->
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/images/apple-touch-icon.png">
 
-    <!-- Open Graph / Facebook -->
-    <meta property="og:title" content="MDX | UI/UX, Web/App Development, 3D & Branding Agency">
-    <meta property="og:description" content="MDX blends cutting-edge UI/UX, web & app development, branding, and immersive 3D to craft standout digital experiences.">
-    <meta property="og:image" content="images/mdx-og.webp">
-    <meta property="og:url" content="https://mdx.so">
-    <link rel="canonical" href="https://mdx.so">
-    <meta property="og:type" content="website">
-    <meta property="og:site_name" content="MDX">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,300;0,400;0,600;1,400&family=Inter+Tight:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- JSON-LD Structured Data -->
-    <script type="application/ld+json">
-      { "@context": "https://schema.org", "@type": "Organization", "name": "MDX", "url": "https://mdx.so", "logo": "https://mdx.so/logo.png", "description": "A creative agency specializing in UI/UX design, web & app development, 3D experiences, and branding for standout digital products.", "sameAs": ["https://www.instagram.com/marcelodesignx", "https://www.tiktok.com/@marcelodesignx", "https://www.linkedin.com/company/marcelo-design-x"], "address": { "@type": "PostalAddress", "addressLocality":
-      "Houston", "addressRegion": "Texas", "postalCode": "77063", "addressCountry": "USA" }, "contactPoint": { "@type": "ContactPoint", "telephone": "+1-868-480-6621", "contactType": "Customer Support", "email": "hello@mdx.so" } }
-    </script>
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="/css/sd-main.css">
 
-    <!-- FAVICON  -->
-    <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
-    <link rel="manifest" href="/site.webmanifest">
-
-    <style id="scroll-fix">
-      html, body {
-        position: static !important;
-        overflow: auto !important;
-        overflow-x: hidden !important;
-        height: auto !important;
-        width: 100% !important;
-      }
-      html.lenis, html.lenis body {
-        position: static !important;
-        overflow: auto !important;
-        height: auto !important;
-      }
-      .lenis.lenis-smooth {
-        scroll-behavior: auto !important;
-      }
-      html.lenis, html.lenis body, html.lenis .wrapper {
-        overflow: auto !important;
-        height: auto !important;
-      }
-    </style>
-
-    <!-- STYLES  -->
-      <link rel="stylesheet" href="css/homepage.min.css">
-      <link rel="stylesheet" href="css/sd-override.css">
-
-  <!-- Import map: redirect CDN modules to local stubs so homepage.min.js loads offline -->
-  <script type="importmap">
+  <!-- Structured Data -->
+  <script type="application/ld+json">
   {
-    "imports": {
-      "https://cdn.skypack.dev/canvas-sketch-util/random": "/js/canvas-sketch-random-stub.js"
-    }
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Soccorso Digitale",
+    "applicationCategory": "HealthApplication",
+    "operatingSystem": "Web, iOS, Android",
+    "description": "Piattaforma cloud SaaS per la gestione del trasporto sanitario programmato.",
+    "url": "https://soccorsodigitale.app",
+    "author": {
+      "@type": "Organization",
+      "name": "Soccorso Digitale S.r.l.",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Verona",
+        "addressRegion": "Veneto",
+        "addressCountry": "IT"
+      }
+    },
+    "offers": [
+      { "@type": "Offer", "name": "Starter", "price": "0", "priceCurrency": "EUR" },
+      { "@type": "Offer", "name": "Professional", "price": "249", "priceCurrency": "EUR" },
+      { "@type": "Offer", "name": "Enterprise", "description": "Prezzo personalizzato" }
+    ]
   }
   </script>
+</head>
+<body>
 
-  <!-- Override: restore scroll when Lenis fails to init (safety fallback) -->
-  <style>
-    html.sd-unlocked,
-    html.sd-unlocked body {
-      position: static !important;
-      overflow-x: hidden !important;
-      overflow-y: auto !important;
-      height: auto !important;
-      top: auto !important;
-      left: auto !important;
-    }
-  </style>
-  </head>
+<!-- ══════════════════════════════════════
+     NAVBAR
+══════════════════════════════════════ -->
+<header class="navbar" role="banner">
+  <div class="navbar__inner">
 
-  <body>
-    <!-- LOADER  -->
-    <div class="loader">
-      <div class="loader__icon-wrapper --is-small">
-        <img loading="lazy" src="images/mdx-logo-white.png" alt="MDX logo">
-      </div>
+    <a href="/" class="navbar__logo" aria-label="Soccorso Digitale — Home">
+      <span class="navbar__logo-icon" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+        </svg>
+      </span>
+      Soccorso Digitale
+    </a>
 
-      <div class="loader__bottom-container">
-        <div class="loader__bottom-counter-wrapper">
-          <span class="loader__bottom-counter-text">Brewing your Experience<span class="dots"></span> </span>
-
-          <div class="loader__bottom-counter" data-loader-counter=""></div>
-        </div>
-
-        <div class="loader__bottom-bar">
-          <div class="loader__bottom-scale" data-loader-bar=""></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- NAVBAR  -->
-    <nav class="navbar">
-      <!-- LEFT WRAPPER  -->
-      <div class="navbar-left" data-loader-fade-element-negative="">
-        <div class="navbar-left__logo-wrapper">
-          <a href="/" aria-label="Return to Homepage">
-            <svg width="93" height="18" viewBox="0 0 93 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M5.2381 0C7.33333 0 8.73016 1.42857 9.42857 4.28571L11 9.49286L12.5714 4.28571C13.2698 1.42857 14.6667 0 16.7619 0C20.254 0 22 1.78571 22 5.35714V15H17.8095V4.82143C17.8095 4.46429 17.6349 4.28571 17.2857 4.28571C16.9365 4.28571 16.5873 5 16.2381 6.42857L14.1429 12.8571C13.7937 14.2857 12.9206 15 11.5238 15H10.4762C9.07937 15 8.20635 14.2857 7.85714 12.8571L5.7619 6.42857C5.4127 5 5.06349 4.28571 4.71429 4.28571C4.36508 4.28571 4.19048 4.46429 4.19048 4.82143V15H0V5.35714C0 1.78571 1.74603 0 5.2381 0Z" fill="#111822"></path>
-              <path d="M36 3.21429V0H48.6667C52.8889 0 55 1.78571 55 5.35714V10.7143C55 13.5714 52.8889 15 48.6667 15H36V6.42857H40.2222V11.7857H48.6667C50.0741 11.7857 50.7778 11.0714 50.7778 9.64286V5.35714C50.7778 3.92857 50.0741 3.21429 48.6667 3.21429H36Z" fill="#111822"></path>
-              <path d="M70 0L77.8964 7.60992L70 15.2198H75.2643L80.5286 10.1429L87.7357 18H93L83.1607 7.60992L91.0571 0H85.7928L80.5286 5.0769L75.2643 0H70Z" fill="#111822"></path>
-            </svg>
-          </a>
-        </div>
-
-        <div class="navbar-left__divider"></div>
-
-        <div id="waveButton" class="navbar-left__wave-wrapper">
-          <svg id="waveSvg" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
-            <polyline id="poly"></polyline>
-          </svg>
-        </div>
-      </div>
-
-      <!-- CENTER WRAPPER  -->
-      <div class="navbar-center" data-loader-fade-element-negative="">
-        <a href="/" class="navbar-center__link --is-active">Home</a>
-        <a href="/projects" class="navbar-center__link">Projects</a>
-        <a href="/services" class="navbar-center__link">Services</a>
-      </div>
-
-      <!-- RIGHT WRAPPER  -->
-      <div class="navbar-right" data-loader-fade-element-negative="">
-        <a href="/contact" aria-label="Let's talk button" class="cta-1 btn-animate-chars">
-          <div class="btn-animate-chars__bg"></div>
-          <span data-button-animate-chars="" class="btn-animate-chars__text" translate="no">Let’s talk</span>
-
-          <span class="cta-1__arrow-wrapper">
-            <svg width="13" height="12" viewBox="0 0 13 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M4.46054 0.646175L4.46053 2.42847L9.06702 2.42847L0.152926 10.1178L1.30269 11.4507L10.2168 3.76136L10.2168 8.55799L12.1526 8.55799L12.1526 0.646163L4.46054 0.646175Z" fill="#FF6711"></path>
-            </svg>
-          </span>
-        </a>
-
-        <div class="navbar-right__divider"></div>
-
-        <div class="navbar-right__menu-button__wrapper" data-menu-toggle="">
-          <span class="navbar__menu-bar --is-top"></span>
-          <span class="navbar__menu-bar --is-bottom"></span>
-        </div>
-      </div>
+    <nav class="navbar__nav" aria-label="Navigazione principale">
+      <a href="/" class="navbar__link">Home</a>
+      <a href="/piattaforma" class="navbar__link">Piattaforma</a>
+      <a href="/clienti" class="navbar__link">Clienti</a>
+      <a href="#prezzi" class="navbar__link">Prezzi</a>
+      <a href="/contatti" class="navbar__link">Contatti</a>
     </nav>
 
-    <!-- MENU  -->
-    <div class="menu">
-      <!-- ellipses  -->
-      <div class="menu__ellipse menu__ellipse-1"></div>
-      <div class="menu__ellipse menu__ellipse-2"></div>
+    <div class="navbar__cta">
+      <a href="/piattaforma" class="btn btn-ghost btn-sm">Accedi</a>
+      <a href="/contatti" class="btn btn-primary btn-sm">Richiedi Demo</a>
+    </div>
 
-      <!-- inner wrapper  -->
-      <div class="menu__wrapper">
-        <!-- close button  -->
-        <div class="menu-close" data-menu-toggle="">
-          <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 34 34" fill="none">
-            <rect id="menu-close-bar-1" x="1.58984" y="0.0998535" width="45.6946" height="2.24728" transform="rotate(45 1.58984 0.0998535)" fill="#111822"></rect>
-            <rect id="menu-close-bar-2" x="0.0898438" y="32.311" width="45.6946" height="2.24728" transform="rotate(-45 0.0898438 32.311)" fill="#111822"></rect>
+    <button class="navbar__hamburger" aria-label="Apri menu" aria-expanded="false" aria-controls="mobile-menu">
+      <span></span><span></span><span></span>
+    </button>
+
+  </div>
+</header>
+
+<!-- Mobile menu overlay -->
+<nav id="mobile-menu" class="mobile-menu" aria-label="Menu mobile" role="dialog" aria-modal="true">
+  <a href="/" class="mobile-menu__link">Home</a>
+  <a href="/piattaforma" class="mobile-menu__link">Piattaforma</a>
+  <a href="/clienti" class="mobile-menu__link">Clienti</a>
+  <a href="#prezzi" class="mobile-menu__link">Prezzi</a>
+  <a href="/contatti" class="mobile-menu__link">Contatti</a>
+  <div class="mobile-menu__cta">
+    <a href="/piattaforma" class="btn btn-ghost">Accedi</a>
+    <a href="/contatti" class="btn btn-primary">Richiedi Demo</a>
+  </div>
+</nav>
+
+
+<!-- ══════════════════════════════════════
+     HERO
+══════════════════════════════════════ -->
+<main>
+<section class="hero" aria-labelledby="hero-title">
+  <div class="container">
+    <div class="hero__grid">
+
+      <!-- Content -->
+      <div class="hero__content">
+        <div class="hero__badge fade-in">
+          <span class="badge"><span class="badge-dot" aria-hidden="true"></span>v2.0.0 BETA — Piattaforma Cloud</span>
+        </div>
+        <h1 class="hero__title fade-in d1" id="hero-title">
+          Gestisci Ogni<br>Missione. <em>Con Intelligenza.</em>
+        </h1>
+        <p class="hero__subtitle fade-in d2">
+          La piattaforma cloud che trasforma il trasporto sanitario programmato.
+          Dialisi, visite, trasferimenti, dimissioni — tutto in un unico sistema integrato.
+        </p>
+        <div class="hero__actions fade-in d3">
+          <a href="/contatti" class="btn btn-primary btn-lg">Richiedi Demo</a>
+          <a href="/piattaforma" class="btn btn-outline btn-lg">Scopri la Piattaforma</a>
+        </div>
+        <div class="hero__social fade-in d4" aria-label="Organizzazioni attive">
+          <div class="hero__avatars" aria-hidden="true">
+            <div class="hero__avatar">CE</div>
+            <div class="hero__avatar">AL</div>
+            <div class="hero__avatar">FV</div>
+            <div class="hero__avatar">+4</div>
+          </div>
+          <p class="hero__social-text"><strong>7+ Organizzazioni Attive</strong><br>usano già la piattaforma</p>
+        </div>
+      </div>
+
+      <!-- Dashboard Mockup -->
+      <div class="hero__mockup fade-in d2" aria-hidden="true">
+        <div class="hero__float-badge hero__float-badge-1">
+          <span>+94%</span> SLA rispettati
+        </div>
+        <div class="hero__float-badge hero__float-badge-2">
+          <span>–40%</span> Tempo di dispatch
+        </div>
+        <div class="hero__device" role="img" aria-label="Screenshot della dashboard Soccorso Digitale">
+          <div class="mock-header">
+            <div class="mock-dot mock-dot-r"></div>
+            <div class="mock-dot mock-dot-y"></div>
+            <div class="mock-dot mock-dot-g"></div>
+            <div class="mock-urlbar"></div>
+          </div>
+          <div class="mock-layout">
+            <div class="mock-sidebar">
+              <div class="mock-sidebar-logo"></div>
+              <div class="mock-nav-item active"></div>
+              <div class="mock-nav-item"></div>
+              <div class="mock-nav-item"></div>
+              <div class="mock-nav-item"></div>
+              <div class="mock-nav-item"></div>
+              <div class="mock-nav-item"></div>
+            </div>
+            <div class="mock-main">
+              <div class="mock-stats-row">
+                <div class="mock-stat-card">
+                  <div class="mock-stat-lbl"></div>
+                  <div class="mock-stat-val"></div>
+                  <div class="mock-stat-sub"></div>
+                </div>
+                <div class="mock-stat-card">
+                  <div class="mock-stat-lbl"></div>
+                  <div class="mock-stat-val"></div>
+                  <div class="mock-stat-sub"></div>
+                </div>
+                <div class="mock-stat-card">
+                  <div class="mock-stat-lbl"></div>
+                  <div class="mock-stat-val"></div>
+                  <div class="mock-stat-sub"></div>
+                </div>
+              </div>
+              <div class="mock-content-row">
+                <div class="mock-chart-card">
+                  <div class="mock-chart-head"></div>
+                  <div class="mock-bars">
+                    <div class="mock-bar-col" style="height:45%"></div>
+                    <div class="mock-bar-col md" style="height:62%"></div>
+                    <div class="mock-bar-col" style="height:38%"></div>
+                    <div class="mock-bar-col hi" style="height:80%"></div>
+                    <div class="mock-bar-col md" style="height:58%"></div>
+                    <div class="mock-bar-col" style="height:70%"></div>
+                    <div class="mock-bar-col hi" style="height:90%"></div>
+                    <div class="mock-bar-col md" style="height:65%"></div>
+                  </div>
+                </div>
+                <div class="mock-list-card">
+                  <div class="mock-list-row">
+                    <div class="mock-list-dot ok"></div>
+                    <div class="mock-cell mc-m"></div>
+                    <div class="mock-cell mc-l"></div>
+                    <div class="mock-pill"></div>
+                  </div>
+                  <div class="mock-list-row">
+                    <div class="mock-list-dot"></div>
+                    <div class="mock-cell mc-m"></div>
+                    <div class="mock-cell mc-s"></div>
+                    <div class="mock-pill"></div>
+                  </div>
+                  <div class="mock-list-row">
+                    <div class="mock-list-dot ok"></div>
+                    <div class="mock-cell mc-m"></div>
+                    <div class="mock-cell mc-l"></div>
+                    <div class="mock-pill"></div>
+                  </div>
+                  <div class="mock-list-row">
+                    <div class="mock-list-dot warn"></div>
+                    <div class="mock-cell mc-m"></div>
+                    <div class="mock-cell mc-s"></div>
+                    <div class="mock-pill"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════
+     PARTNER LOGOS
+══════════════════════════════════════ -->
+<section class="partners" aria-label="Organizzazioni partner">
+  <p class="partners__label">Le Organizzazioni che ci Scelgono</p>
+  <div class="partners__track-wrapper">
+    <div class="partners__track" aria-hidden="true">
+      <!-- Set 1 -->
+      <div class="partner-logo">
+        <div class="partner-logo__icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2E5E99" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+        </div>
+        <span class="partner-logo__name">Croce Europa Legnago</span>
+      </div>
+      <div class="partner-logo">
+        <div class="partner-logo__icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2E5E99" stroke-width="2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+        </div>
+        <span class="partner-logo__name">ALS Soccorso Milano</span>
+      </div>
+      <div class="partner-logo">
+        <div class="partner-logo__icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2E5E99" stroke-width="2" stroke-linecap="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+        </div>
+        <span class="partner-logo__name">FVS Volontari</span>
+      </div>
+      <div class="partner-logo">
+        <div class="partner-logo__icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2E5E99" stroke-width="2" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        </div>
+        <span class="partner-logo__name">Regione Veneto</span>
+      </div>
+      <div class="partner-logo">
+        <div class="partner-logo__icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2E5E99" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <span class="partner-logo__name">Croce Rossa Italiana</span>
+      </div>
+      <div class="partner-logo">
+        <div class="partner-logo__icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2E5E99" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg>
+        </div>
+        <span class="partner-logo__name">Croce Verde</span>
+      </div>
+      <div class="partner-logo">
+        <div class="partner-logo__icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2E5E99" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+        </div>
+        <span class="partner-logo__name">Croce Bianca</span>
+      </div>
+      <!-- Set 2 (duplicate for loop) -->
+      <div class="partner-logo">
+        <div class="partner-logo__icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2E5E99" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+        </div>
+        <span class="partner-logo__name">Croce Europa Legnago</span>
+      </div>
+      <div class="partner-logo">
+        <div class="partner-logo__icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2E5E99" stroke-width="2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+        </div>
+        <span class="partner-logo__name">ALS Soccorso Milano</span>
+      </div>
+      <div class="partner-logo">
+        <div class="partner-logo__icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2E5E99" stroke-width="2" stroke-linecap="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+        </div>
+        <span class="partner-logo__name">FVS Volontari</span>
+      </div>
+      <div class="partner-logo">
+        <div class="partner-logo__icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2E5E99" stroke-width="2" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        </div>
+        <span class="partner-logo__name">Regione Veneto</span>
+      </div>
+      <div class="partner-logo">
+        <div class="partner-logo__icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2E5E99" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <span class="partner-logo__name">Croce Rossa Italiana</span>
+      </div>
+      <div class="partner-logo">
+        <div class="partner-logo__icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2E5E99" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg>
+        </div>
+        <span class="partner-logo__name">Croce Verde</span>
+      </div>
+      <div class="partner-logo">
+        <div class="partner-logo__icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2E5E99" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+        </div>
+        <span class="partner-logo__name">Croce Bianca</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════
+     STATS BAR
+══════════════════════════════════════ -->
+<section class="stats-bar" aria-label="Statistiche piattaforma">
+  <div class="container">
+    <div class="stats-bar__grid">
+      <div class="stat-item fade-in">
+        <div class="stat-item__val">
+          <span data-counter data-target="655" data-suffix="+">655+</span>
+        </div>
+        <div class="stat-item__lbl">Endpoint API</div>
+      </div>
+      <div class="stat-item fade-in d1">
+        <div class="stat-item__val">
+          <span data-counter data-target="44">44</span>
+        </div>
+        <div class="stat-item__lbl">Schermate Mobile</div>
+      </div>
+      <div class="stat-item fade-in d2">
+        <div class="stat-item__val">
+          <span data-counter data-target="140" data-suffix="+">140+</span>
+        </div>
+        <div class="stat-item__lbl">Tabelle Database</div>
+      </div>
+      <div class="stat-item fade-in d3">
+        <div class="stat-item__val">
+          <span data-counter data-target="7">7</span>
+        </div>
+        <div class="stat-item__lbl">Organizzazioni Attive</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════
+     BENEFITS — Sticky Scroll
+══════════════════════════════════════ -->
+<section class="benefits section" id="benefici" aria-labelledby="benefits-title">
+  <div class="container">
+    <div class="benefits__inner">
+
+      <!-- Sticky left column -->
+      <div class="benefits__sticky">
+        <p class="section-eyebrow fade-in">Perché Soccorso Digitale</p>
+        <h2 class="benefits__title fade-in d1" id="benefits-title">
+          Tutto ciò che manca<br>alle organizzazioni<br><em>sanitarie italiane.</em>
+        </h2>
+        <p class="benefits__desc fade-in d2">
+          Progettato con e per chi opera nel trasporto sanitario quotidiano.
+          Ogni funzione nasce da un problema reale, non da una specifica tecnica.
+        </p>
+        <div class="benefits__cta fade-in d3">
+          <a href="/piattaforma" class="btn btn-primary">Vedi la Piattaforma</a>
+        </div>
+      </div>
+
+      <!-- Scrollable cards -->
+      <div class="benefit-cards" role="list">
+
+        <div class="benefit-card fade-in" role="listitem">
+          <div class="benefit-card__icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="11" y2="16"/>
+            </svg>
+          </div>
+          <h3 class="benefit-card__title">Basta Fogli e Telefonate</h3>
+          <p class="benefit-card__desc">Carica il PDF dei servizi, assegnali alle macchine dalla dashboard. L'equipaggio apre l'app e sa già cosa fare — prima ancora di salire in ambulanza. Zero carta, zero chiamate, zero errori.</p>
+        </div>
+
+        <div class="benefit-card fade-in d1" role="listitem">
+          <div class="benefit-card__icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
+          <h3 class="benefit-card__title">Ogni KM è Tracciato</h3>
+          <p class="benefit-card__desc">KM totali, KM a vuoto, KM con paziente — tutto calcolato automaticamente. Report accise UTIF, rimborsi ULSS e analisi costi pronti in un click. Sai quanto costa ogni singolo viaggio.</p>
+        </div>
+
+        <div class="benefit-card fade-in d2" role="listitem">
+          <div class="benefit-card__icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6M9 12h6M9 15h4"/>
+            </svg>
+          </div>
+          <h3 class="benefit-card__title">Appalti Sempre Sotto Controllo</h3>
+          <p class="benefit-card__desc">Tutte le gare d'appalto ULSS e ASL visibili in un cruscotto dedicato. Scadenze, requisiti, documenti necessari — le opportunità arrivano a te, non sei tu a doverle cercare.</p>
+        </div>
+
+        <div class="benefit-card fade-in d3" role="listitem">
+          <div class="benefit-card__icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+            </svg>
+          </div>
+          <h3 class="benefit-card__title">Revenue dai Servizi Privati</h3>
+          <p class="benefit-card__desc">Pagina dedicata per ricevere richieste di trasporto privato. Condividi il link con cliniche e privati, gestisci le prenotazioni, assegna i mezzi disponibili. Un nuovo canale di guadagno.</p>
+        </div>
+
+        <div class="benefit-card fade-in d4" role="listitem">
+          <div class="benefit-card__icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/>
+            </svg>
+          </div>
+          <h3 class="benefit-card__title">Volontari Sempre a Norma</h3>
+          <p class="benefit-card__desc">Registro elettronico completo: ore, certificazioni BLSD, patenti, formazione. Alert automatici per scadenze. Esporta tutto per le ispezioni. Addio registri cartacei.</p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════
+     FEATURES — Grid
+══════════════════════════════════════ -->
+<section class="features section" id="funzioni" aria-labelledby="features-title">
+  <div class="container">
+    <div class="section-header fade-in">
+      <span class="badge">Funzionalità</span>
+      <h2 id="features-title">Tutto Ciò Che Serve.<br><em>Niente di Superfluo.</em></h2>
+      <p>Ogni modulo è progettato per risolvere un problema specifico del trasporto sanitario italiano.</p>
+    </div>
+
+    <div class="features__grid">
+
+      <div class="feature-card fade-in">
+        <div class="feature-card__icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M9 13h6M9 17h4M14 2v6h6"/>
           </svg>
         </div>
+        <h3 class="feature-card__title">Programma Giornaliero Smart</h3>
+        <p class="feature-card__desc">Carica un PDF con i servizi del giorno e assegnali alle macchine con un click. Zero fogli, zero telefonate, zero confusione.</p>
+        <div class="feature-card__stats">
+          <div class="fstat"><span class="fstat__val">Zero</span><span class="fstat__lbl">Carta</span></div>
+          <div class="fstat"><span class="fstat__val">5 min</span><span class="fstat__lbl">Per organizzare la giornata</span></div>
+        </div>
+      </div>
 
-        <!-- connect block  -->
-        <div class="menu__connect">
-          <div class="menu__connect-heading" data-menu-heading="">
-            <span class="menu__connect-heading-icon"></span>
-            <span class="menu__connect-heading-text">Connect with us!</span>
-          </div>
+      <div class="feature-card fade-in d1">
+        <div class="feature-card__icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+          </svg>
+        </div>
+        <h3 class="feature-card__title">Calcolo KM Automatico</h3>
+        <p class="feature-card__desc">KM totali, a vuoto, con paziente. Report automatici per accise, rimborsi ULSS e analisi costi per ogni singolo viaggio.</p>
+        <div class="feature-card__stats">
+          <div class="fstat"><span class="fstat__val">100%</span><span class="fstat__lbl">KM Tracciati</span></div>
+          <div class="fstat"><span class="fstat__val">Auto</span><span class="fstat__lbl">Report Accise UTIF</span></div>
+        </div>
+      </div>
 
-          <div class="menu__connect-text" data-menu-heading="">
-            Turn Your Vision Into an Experience That Lasts
-          </div>
+      <div class="feature-card fade-in d2">
+        <div class="feature-card__icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
+          </svg>
+        </div>
+        <h3 class="feature-card__title">Portale Servizi Privati</h3>
+        <p class="feature-card__desc">Pagina dedicata per prenotazioni private. Condividi con cliniche e privati, ricevi richieste, assegna i veicoli. Nuovo canale di revenue.</p>
+        <div class="feature-card__stats">
+          <div class="fstat"><span class="fstat__val">+30%</span><span class="fstat__lbl">Revenue potenziale</span></div>
+          <div class="fstat"><span class="fstat__val">Link</span><span class="fstat__lbl">Condivisibile</span></div>
+        </div>
+      </div>
 
-          <div class="menu__line"></div>
+      <div class="feature-card fade-in">
+        <div class="feature-card__icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6M9 12h6M9 15h4"/>
+          </svg>
+        </div>
+        <h3 class="feature-card__title">Cruscotto Appalti & Gare</h3>
+        <p class="feature-card__desc">Tutti gli appalti ULSS/ASL in un'unica dashboard. Scadenze, requisiti, documenti — non devi più cercare ovunque. Le opportunità arrivano a te.</p>
+        <div class="feature-card__stats">
+          <div class="fstat"><span class="fstat__val">Tutte</span><span class="fstat__lbl">Le Gare Visibili</span></div>
+          <div class="fstat"><span class="fstat__val">Alert</span><span class="fstat__lbl">Nuove Opportunità</span></div>
+        </div>
+      </div>
 
-          <a href="/cdn-cgi/l/email-protection#f79f929b9b98b79a938fd98498" class="menu__contact-email" data-menu-heading="">
-            <svg width="23" height="25" viewBox="0 0 23 25" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path fill-rule="evenodd" clip-rule="evenodd" d="M15.2885 3.44676C14.5506 3.38525 13.6404 3.38525 12.4824 3.38525H10.8665C9.70859 3.38525 8.7984 3.38525 8.06047 3.44676C7.30727 3.50956 6.67982 3.63951 6.09662 3.93011C5.13308 4.41023 4.31738 5.18223 3.74731 6.15355C3.59848 6.40714 3.47521 6.67453 3.37005 6.96294C3.01226 7.94413 2.84685 9.2392 2.60616 11.1237L2.5858 11.283C2.38081 12.8873 2.22056 14.1414 2.17189 15.1516C2.12247 16.1772 2.18225 17.0319 2.46611 17.8166C2.93006 19.0991 3.7867 20.1685 4.89158 20.8445C5.56757 21.258 6.3382 21.44 7.27963 21.5279C8.20684 21.6144 9.37169 21.6144 10.8618 21.6144H12.4872C13.9773 21.6144 15.1421 21.6144 16.0694 21.5279C17.0108 21.44 17.7814 21.258 18.4574 20.8445C19.5623 20.1685 20.4189 19.0991 20.8829 17.8166C21.1667 17.0319 21.2265 16.1772 21.1771 15.1516C21.1284 14.1414 20.9682 12.8872 20.7632 11.2829L20.7398 11.1C20.4848 9.1032 20.3141 7.76597 19.8981 6.75415C19.8115 6.54359 19.7137 6.34446 19.6017 6.15355C19.0316 5.18223 18.2159 4.41023 17.2524 3.93011C16.6692 3.63951 16.0417 3.50956 15.2885 3.44676ZM6.69566 5.35047C7.06329 5.16728 7.50279 5.06034 8.17039 5.00469C8.84696 4.94829 9.70216 4.94775 10.8962 4.94775H12.4527C13.6468 4.94775 14.502 4.94829 15.1786 5.00469C15.8462 5.06034 16.2857 5.16728 16.6533 5.35047C17.3454 5.69533 17.9343 6.24392 18.3537 6.93347L17.8264 7.50657C16.2148 9.2583 15.0562 10.5154 14.0568 11.3441C13.074 12.1592 12.3303 12.4861 11.5582 12.4861C10.7862 12.4861 10.0424 12.1592 9.0596 11.3441C8.06024 10.5154 6.90159 9.2583 5.29 7.50657L4.90579 7.08896C4.92318 7.05662 4.94098 7.02496 4.95922 6.99388C5.38057 6.27595 5.98348 5.70534 6.69566 5.35047ZM18.9092 8.53936C19.0476 9.23474 19.1676 10.1541 19.3346 11.4609C19.5453 13.1102 19.6965 14.298 19.7416 15.2333C19.7863 16.1609 19.7208 16.7592 19.5451 17.2449C19.2022 18.1928 18.569 18.9832 17.7523 19.4828C17.3339 19.7388 16.7978 19.8916 15.9463 19.9711C15.0878 20.0512 13.9846 20.0519 12.4527 20.0519H10.8962C9.36434 20.0519 8.26114 20.0512 7.40264 19.9711C6.55123 19.8916 6.01504 19.7388 5.59664 19.4828C4.77999 18.9832 4.14683 18.1928 3.80391 17.2449C3.62822 16.7592 3.56272 16.1609 3.60742 15.2333C3.65248 14.298 3.80363 13.1102 4.01437 11.4609C4.16486 10.2832 4.27696 9.41936 4.39983 8.74871C5.92248 10.4037 7.12285 11.7033 8.18763 12.5864C9.29828 13.5074 10.3455 14.0486 11.5582 14.0486C12.7709 14.0486 13.8181 13.5074 14.9288 12.5864C16.0139 11.6865 17.2397 10.354 18.804 8.6537L18.9092 8.53936Z" fill="#5B6871"></path>
-            </svg>
+      <div class="feature-card fade-in d1">
+        <div class="feature-card__icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/>
+          </svg>
+        </div>
+        <h3 class="feature-card__title">Registro Elettronico Volontari</h3>
+        <p class="feature-card__desc">Addio registri cartacei. Profilo digitale per ogni volontario: ore, certificazioni, scadenze BLSD, patenti. Tutto a norma, tutto esportabile.</p>
+        <div class="feature-card__stats">
+          <div class="fstat"><span class="fstat__val">Digitale</span><span class="fstat__lbl">A Norma di Legge</span></div>
+          <div class="fstat"><span class="fstat__val">Alert</span><span class="fstat__lbl">Scadenze Auto</span></div>
+        </div>
+      </div>
 
-            <span><span class="__cf_email__" data-cfemail="a7cfc2cbcbc8e7cac3df89d4c8">[email protected]</span></span>
-          </a>
+      <div class="feature-card fade-in d2">
+        <div class="feature-card__icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/>
+          </svg>
+        </div>
+        <h3 class="feature-card__title">App Mobile per Equipaggi</h3>
+        <p class="feature-card__desc">L'equipaggio vede servizi, percorso, dati paziente e firma digitalmente. Comunicazione in tempo reale con la centrale. Funziona anche offline.</p>
+        <div class="feature-card__stats">
+          <div class="fstat"><span class="fstat__val">44</span><span class="fstat__lbl">Schermate Native</span></div>
+          <div class="fstat"><span class="fstat__val">iOS</span><span class="fstat__lbl">& Android</span></div>
+        </div>
+      </div>
 
-          <a href="/contact" aria-label="Let's talk button" class="cta-1 btn-animate-chars" data-menu-heading="">
-            <div class="btn-animate-chars__bg"></div>
-            <span data-button-animate-chars="" class="btn-animate-chars__text" translate="no">LET’S TALK</span>
+    </div>
+  </div>
+</section>
 
-            <span class="cta-1__arrow-wrapper">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M4.5 19.5L19.5 4.5M19.5 4.5H8.25M19.5 4.5V15.75" stroke="#FF8200" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-              </svg>
+
+<!-- ══════════════════════════════════════
+     PROCESS — 3 Steps
+══════════════════════════════════════ -->
+<section class="process section" id="come-funziona" aria-labelledby="process-title">
+  <div class="container">
+    <div class="section-header fade-in">
+      <span class="badge">Come Funziona</span>
+      <h2 id="process-title">Operativo in<br><em>Meno di 48 Ore.</em></h2>
+      <p>Nessuna installazione. Nessun tecnico in loco. Inizia a lavorare in giornata.</p>
+    </div>
+
+    <div class="process__steps">
+      <div class="process-step fade-in">
+        <div class="process-step__num" aria-hidden="true">1</div>
+        <h3 class="process-step__title">Registra la Tua Organizzazione</h3>
+        <p class="process-step__desc">Crea l'account in 5 minuti. Inserisci i dati dell'associazione, le sedi operative e i contatti. Zero tecnicismi, tutto guidato.</p>
+      </div>
+      <div class="process-step fade-in d2">
+        <div class="process-step__num" aria-hidden="true">2</div>
+        <h3 class="process-step__title">Configura Veicoli e Personale</h3>
+        <p class="process-step__desc">Aggiungi la tua flotta, i volontari e i turni. Importa i dati esistenti con il wizard di migrazione o parti da zero.</p>
+      </div>
+      <div class="process-step fade-in d4">
+        <div class="process-step__num" aria-hidden="true">3</div>
+        <h3 class="process-step__title">Gestisci Ogni Aspetto</h3>
+        <p class="process-step__desc">Da questo momento ogni servizio, turno, veicolo è sotto controllo. Il tuo team su mobile, tu sulla dashboard.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════
+     PRICING
+══════════════════════════════════════ -->
+<section class="pricing section" id="prezzi" aria-labelledby="pricing-title">
+  <div class="container">
+    <div class="section-header fade-in">
+      <span class="badge">Prezzi</span>
+      <h2 id="pricing-title">Scegli il Tuo Piano</h2>
+      <p>Inizia gratis. Scala quando sei pronto. Nessuna sorpresa in fattura.</p>
+    </div>
+
+    <div class="pricing__grid">
+
+      <!-- Starter -->
+      <div class="pricing-card fade-in">
+        <div class="pricing-card__plan">Starter</div>
+        <div class="pricing-card__price">
+          <span class="price-main">Gratis</span>
+        </div>
+        <p class="pricing-card__tagline">30 giorni — poi base limitata</p>
+        <div class="pricing-divider" aria-hidden="true"></div>
+        <ul class="pricing-features" aria-label="Funzionalità incluse nel piano Starter">
+          <li class="pf-item">
+            <span class="pf-check" aria-hidden="true">
+              <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="#2E5E99" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg>
             </span>
-          </a>
+            Fino a 3 veicoli
+          </li>
+          <li class="pf-item">
+            <span class="pf-check" aria-hidden="true">
+              <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="#2E5E99" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg>
+            </span>
+            1 sede operativa
+          </li>
+          <li class="pf-item">
+            <span class="pf-check" aria-hidden="true">
+              <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="#2E5E99" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg>
+            </span>
+            Dashboard base
+          </li>
+          <li class="pf-item">
+            <span class="pf-check" aria-hidden="true">
+              <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="#2E5E99" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg>
+            </span>
+            Supporto email
+          </li>
+        </ul>
+        <a href="/contatti" class="btn btn-outline">Inizia Gratis</a>
+      </div>
+
+      <!-- Professional (featured) -->
+      <div class="pricing-card featured fade-in d1">
+        <div class="pricing-card__popular" aria-label="Piano consigliato">Più Popolare</div>
+        <div class="pricing-card__plan">Professional</div>
+        <div class="pricing-card__price">
+          <span class="price-main">€249</span>
+          <span class="price-sub">/mese</span>
         </div>
+        <p class="pricing-card__tagline">Tutto quello che serve, subito</p>
+        <div class="pricing-divider" aria-hidden="true"></div>
+        <ul class="pricing-features" aria-label="Funzionalità incluse nel piano Professional">
+          <li class="pf-item">
+            <span class="pf-check" aria-hidden="true">
+              <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg>
+            </span>
+            Fino a 15 veicoli
+          </li>
+          <li class="pf-item">
+            <span class="pf-check" aria-hidden="true">
+              <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg>
+            </span>
+            Sedi illimitate
+          </li>
+          <li class="pf-item">
+            <span class="pf-check" aria-hidden="true">
+              <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg>
+            </span>
+            Tutti i moduli attivi
+          </li>
+          <li class="pf-item">
+            <span class="pf-check" aria-hidden="true">
+              <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg>
+            </span>
+            Hub Prenotazioni Privati
+          </li>
+          <li class="pf-item">
+            <span class="pf-check" aria-hidden="true">
+              <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg>
+            </span>
+            Analytics avanzati
+          </li>
+          <li class="pf-item">
+            <span class="pf-check" aria-hidden="true">
+              <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg>
+            </span>
+            Supporto prioritario
+          </li>
+          <li class="pf-item">
+            <span class="pf-check" aria-hidden="true">
+              <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg>
+            </span>
+            API access
+          </li>
+        </ul>
+        <a href="/contatti" class="btn btn-primary">Richiedi Demo</a>
+      </div>
 
-        <!-- navigation block  -->
-        <div class="menu-nav__wrapper" data-lenis-prevent="">
-          <ul class="menu__navigation is--navigation">
-            <div class="menu__navigation--header">
-              <h4>NAVIGATION</h4>
-            </div>
+      <!-- Enterprise -->
+      <div class="pricing-card fade-in d2">
+        <div class="pricing-card__plan">Enterprise</div>
+        <div class="pricing-card__price">
+          <span class="price-main">Custom</span>
+        </div>
+        <p class="pricing-card__tagline">Per grandi organizzazioni e consorzi</p>
+        <div class="pricing-divider" aria-hidden="true"></div>
+        <ul class="pricing-features" aria-label="Funzionalità incluse nel piano Enterprise">
+          <li class="pf-item">
+            <span class="pf-check" aria-hidden="true">
+              <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="#2E5E99" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg>
+            </span>
+            Veicoli illimitati
+          </li>
+          <li class="pf-item">
+            <span class="pf-check" aria-hidden="true">
+              <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="#2E5E99" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg>
+            </span>
+            Multi-organizzazione
+          </li>
+          <li class="pf-item">
+            <span class="pf-check" aria-hidden="true">
+              <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="#2E5E99" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg>
+            </span>
+            SLA garantito
+          </li>
+          <li class="pf-item">
+            <span class="pf-check" aria-hidden="true">
+              <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="#2E5E99" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg>
+            </span>
+            Account manager dedicato
+          </li>
+          <li class="pf-item">
+            <span class="pf-check" aria-hidden="true">
+              <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="#2E5E99" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg>
+            </span>
+            Integrazione ULSS/FSE
+          </li>
+          <li class="pf-item">
+            <span class="pf-check" aria-hidden="true">
+              <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="#2E5E99" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg>
+            </span>
+            SPID / CIE
+          </li>
+        </ul>
+        <a href="/contatti" class="btn btn-outline">Contattaci</a>
+      </div>
 
-            <li>
-              <a class="menu__navigation-item --is-active" href="/">
-                <span class="menu__navigation-icon"></span>
-                <span class="menu__navigation-text">Home</span></a>
-            </li>
+    </div>
+  </div>
+</section>
 
-            <li>
-              <a class="menu__navigation-item" href="/about-us">
-                <span class="menu__navigation-icon"></span>
-                <span class="menu__navigation-text">About Us</span></a>
-            </li>
-            <li>
-              <a class="menu__navigation-item" href="/services">
-                <span class="menu__navigation-icon"></span>
-                <span class="menu__navigation-text">Services</span></a>
-            </li>
-            <li>
-              <a class="menu__navigation-item" href="/projects">
-                <span class="menu__navigation-icon"></span>
-                <span class="menu__navigation-text">Projects</span></a>
-            </li>
 
-            <li>
-              <a class="menu__navigation-item" href="/about-us#awwards">
-                <span class="menu__navigation-icon"></span>
-                <span class="menu__navigation-text">Awwwards</span></a>
-            </li>
-            <li>
-              <a class="menu__navigation-item" href="/recruiting">
-                <span class="menu__navigation-icon"></span>
-                <span class="menu__navigation-text">Recruiting</span></a>
-            </li>
-            <li>
-              <a class="menu__navigation-item" href="/blog">
-                <span class="menu__navigation-icon"></span>
-                <span class="menu__navigation-text">Blog</span></a>
-            </li>
-          </ul>
+<!-- ══════════════════════════════════════
+     TESTIMONIALS
+══════════════════════════════════════ -->
+<section class="testimonials section" id="clienti" aria-labelledby="testimonials-title">
+  <div class="container">
+    <div class="section-header fade-in">
+      <span class="badge">Testimonianze</span>
+      <h2 id="testimonials-title">Cosa Dicono le<br><em>Organizzazioni</em></h2>
+    </div>
 
-          <div class="menu__col">
-            <ul class="menu__navigation is--services">
-              <div class="menu__navigation--header">
-                <h4>SERVICES</h4>
-              </div>
+    <div class="testimonials__grid">
 
-              <li>
-                <a class="menu__navigation-item" href="/ui-ux">
-                  <span class="menu__navigation-icon"></span>
-                  <span class="menu__navigation-text">UI/UX Design</span></a>
-              </li>
-
-              <li>
-                <a class="menu__navigation-item" href="/development">
-                  <span class="menu__navigation-icon"></span>
-                  <span class="menu__navigation-text">Development</span></a>
-              </li>
-              <li>
-                <a class="menu__navigation-item" href="/3d-animation">
-                  <span class="menu__navigation-icon"></span>
-                  <span class="menu__navigation-text">3D Animation</span></a>
-              </li>
-              <li>
-                <a class="menu__navigation-item" href="/branding">
-                  <span class="menu__navigation-icon"></span>
-                  <span class="menu__navigation-text">Branding</span></a>
-              </li>
-            </ul>
-
-            <ul class="menu__navigation is--sponsor">
-              <div class="menu__navigation--header">
-                <h4>SPONSOR</h4>
-              </div>
-
-              <li>
-                <a class="menu__navigation-item" href="/brand-deals">
-                  <span class="menu__navigation-icon"></span>
-                  <span class="menu__navigation-text">Brand Deals</span></a>
-              </li>
-            </ul>
+      <div class="testimonial-card fade-in">
+        <div class="tc-stars" aria-label="5 stelle su 5">
+          <svg class="tc-star" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg class="tc-star" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg class="tc-star" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg class="tc-star" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg class="tc-star" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        </div>
+        <blockquote class="tc-quote">
+          "Soccorso Digitale ha rivoluzionato la nostra gestione dei trasporti. Prima usavamo fogli Excel e telefonate — ora tutto è digitalizzato, tracciato e sotto controllo."
+        </blockquote>
+        <div class="tc-author">
+          <div class="tc-avatar" aria-hidden="true">MB</div>
+          <div>
+            <p class="tc-name">Marco Bianchi</p>
+            <p class="tc-role">Direttore Operativo, Croce Europa Legnago</p>
           </div>
         </div>
+      </div>
 
-        <!-- lets talk block mobile  -->
-        <div class="menu__cta-mobile is--portrait">
-          <a href="/cdn-cgi/l/email-protection#fd9598919192bd909985d38e92" class="menu__contact-email-mobile">
-            <svg width="23" height="25" viewBox="0 0 23 25" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path fill-rule="evenodd" clip-rule="evenodd" d="M15.2885 3.44676C14.5506 3.38525 13.6404 3.38525 12.4824 3.38525H10.8665C9.70859 3.38525 8.7984 3.38525 8.06047 3.44676C7.30727 3.50956 6.67982 3.63951 6.09662 3.93011C5.13308 4.41023 4.31738 5.18223 3.74731 6.15355C3.59848 6.40714 3.47521 6.67453 3.37005 6.96294C3.01226 7.94413 2.84685 9.2392 2.60616 11.1237L2.5858 11.283C2.38081 12.8873 2.22056 14.1414 2.17189 15.1516C2.12247 16.1772 2.18225 17.0319 2.46611 17.8166C2.93006 19.0991 3.7867 20.1685 4.89158 20.8445C5.56757 21.258 6.3382 21.44 7.27963 21.5279C8.20684 21.6144 9.37169 21.6144 10.8618 21.6144H12.4872C13.9773 21.6144 15.1421 21.6144 16.0694 21.5279C17.0108 21.44 17.7814 21.258 18.4574 20.8445C19.5623 20.1685 20.4189 19.0991 20.8829 17.8166C21.1667 17.0319 21.2265 16.1772 21.1771 15.1516C21.1284 14.1414 20.9682 12.8872 20.7632 11.2829L20.7398 11.1C20.4848 9.1032 20.3141 7.76597 19.8981 6.75415C19.8115 6.54359 19.7137 6.34446 19.6017 6.15355C19.0316 5.18223 18.2159 4.41023 17.2524 3.93011C16.6692 3.63951 16.0417 3.50956 15.2885 3.44676ZM6.69566 5.35047C7.06329 5.16728 7.50279 5.06034 8.17039 5.00469C8.84696 4.94829 9.70216 4.94775 10.8962 4.94775H12.4527C13.6468 4.94775 14.502 4.94829 15.1786 5.00469C15.8462 5.06034 16.2857 5.16728 16.6533 5.35047C17.3454 5.69533 17.9343 6.24392 18.3537 6.93347L17.8264 7.50657C16.2148 9.2583 15.0562 10.5154 14.0568 11.3441C13.074 12.1592 12.3303 12.4861 11.5582 12.4861C10.7862 12.4861 10.0424 12.1592 9.0596 11.3441C8.06024 10.5154 6.90159 9.2583 5.29 7.50657L4.90579 7.08896C4.92318 7.05662 4.94098 7.02496 4.95922 6.99388C5.38057 6.27595 5.98348 5.70534 6.69566 5.35047ZM18.9092 8.53936C19.0476 9.23474 19.1676 10.1541 19.3346 11.4609C19.5453 13.1102 19.6965 14.298 19.7416 15.2333C19.7863 16.1609 19.7208 16.7592 19.5451 17.2449C19.2022 18.1928 18.569 18.9832 17.7523 19.4828C17.3339 19.7388 16.7978 19.8916 15.9463 19.9711C15.0878 20.0512 13.9846 20.0519 12.4527 20.0519H10.8962C9.36434 20.0519 8.26114 20.0512 7.40264 19.9711C6.55123 19.8916 6.01504 19.7388 5.59664 19.4828C4.77999 18.9832 4.14683 18.1928 3.80391 17.2449C3.62822 16.7592 3.56272 16.1609 3.60742 15.2333C3.65248 14.298 3.80363 13.1102 4.01437 11.4609C4.16486 10.2832 4.27696 9.41936 4.39983 8.74871C5.92248 10.4037 7.12285 11.7033 8.18763 12.5864C9.29828 13.5074 10.3455 14.0486 11.5582 14.0486C12.7709 14.0486 13.8181 13.5074 14.9288 12.5864C16.0139 11.6865 17.2397 10.354 18.804 8.6537L18.9092 8.53936Z" fill="#5B6871"></path>
-            </svg>
-
-            <span><span class="__cf_email__" data-cfemail="b1d9d4dddddef1dcd5c99fc2de">[email protected]</span></span>
-          </a>
-
-          <a href="/contact" aria-label="Let's talk button" class="cta-1 btn-animate-chars" data-menu-heading="">
-            <div class="btn-animate-chars__bg"></div>
-            <span data-button-animate-chars="" class="btn-animate-chars__text" translate="no">LET’S TALK</span>
-
-            <span class="cta-1__arrow-wrapper">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M4.5 19.5L19.5 4.5M19.5 4.5H8.25M19.5 4.5V15.75" stroke="#FF8200" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-              </svg>
-            </span>
-          </a>
+      <div class="testimonial-card fade-in d2">
+        <div class="tc-stars" aria-label="5 stelle su 5">
+          <svg class="tc-star" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg class="tc-star" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg class="tc-star" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg class="tc-star" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg class="tc-star" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
         </div>
-
-        <!-- socials block  -->
-        <div class="menu__socials">
-          <div class="menu__socials-divider"></div>
-
-          <div class="menu__socials--footer">
-            <span class="menu__socials--copyright">
-              ©
-              <script data-cfasync="false" src="js/email-decode.min.js"></script><script>
-                document.write(new Date().getFullYear());
-              </script>2026
-              MDX. All rights reserved.
-            </span>
-
-            <div class="menu__socials-list">
-              <a class="menu__socials-link" href="https://www.tiktok.com/@marcelodesignx?_t=ZM-8wsLc7iWLSA&_r=1" aria-label="Tiktok" target="_blank">
-                <svg width="11" height="13" viewBox="0 0 11 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M5.5 0V9.1C5.5 9.83454 4.90192 10.4 4.125 10.4C3.34808 10.4 2.75 9.83454 2.75 9.1C2.75 8.36546 3.34808 7.8 4.125 7.8V5.2C1.86317 5.2 0 6.96154 0 9.1C0 11.2385 1.86317 13 4.125 13C6.38683 13 8.25 11.2385 8.25 9.1V4.20215C9.0972 4.77274 9.98129 5.2 11 5.2V2.6C10.9349 2.6 9.98618 2.31522 9.32422 1.76973C8.66226 1.22423 8.25 0.539488 8.25 0H5.5Z" fill="#5B6871"></path>
-                </svg>
-              </a>
-
-              <a class="menu__socials-link" href="https://www.instagram.com/marcelodesignx/" aria-label="Instagram" target="_blank">
-                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 13 13" fill="none">
-                  <path d="M3.61111 0C1.62326 0 0 1.62326 0 3.61111V9.38889C0 11.3767 1.62326 13 3.61111 13H9.38889C11.3767 13 13 11.3767 13 9.38889V3.61111C13 1.62326 11.3767 0 9.38889 0H3.61111ZM3.61111 1.08333H9.38889C10.7911 1.08333 11.9167 2.20885 11.9167 3.61111V9.38889C11.9167 10.7911 10.7911 11.9167 9.38889 11.9167H3.61111C2.20885 11.9167 1.08333 10.7911 1.08333 9.38889V3.61111C1.08333 2.20885 2.20885 1.08333 3.61111 1.08333ZM10.2917 2.16667C10.148 2.16667 10.0102 2.22373 9.90865 2.32532C9.80707 2.4269 9.75 2.56467 9.75 2.70833C9.75 2.85199 9.80707 2.98977 9.90865 3.09135C10.0102 3.19293 10.148 3.25 10.2917 3.25C10.4353 3.25 10.5731 3.19293 10.6747 3.09135C10.7763 2.98977 10.8333 2.85199 10.8333 2.70833C10.8333 2.56467 10.7763 2.4269 10.6747 2.32532C10.5731 2.22373 10.4353 2.16667 10.2917 2.16667ZM6.5 2.88889C5.34144 2.88889 4.40392 3.34285 3.79308 4.03006C3.18223 4.71726 2.88889 5.61227 2.88889 6.5C2.88889 7.38773 3.18223 8.28274 3.79308 8.96994C4.40392 9.65715 5.34144 10.1111 6.5 10.1111C7.65856 10.1111 8.59608 9.65715 9.20692 8.96994C9.81777 8.28274 10.1111 7.38773 10.1111 6.5C10.1111 5.61227 9.81777 4.71726 9.20692 4.03006C8.59608 3.34285 7.65856 2.88889 6.5 2.88889ZM6.5 3.97222C7.38773 3.97222 7.98494 4.28562 8.39724 4.74946C8.80955 5.2133 9.02778 5.85301 9.02778 6.5C9.02778 7.14699 8.80955 7.7867 8.39724 8.25054C7.98494 8.71438 7.38773 9.02778 6.5 9.02778C5.61227 9.02778 5.01506 8.71438 4.60276 8.25054C4.19045 7.7867 3.97222 7.14699 3.97222 6.5C3.97222 5.85301 4.19045 5.2133 4.60276 4.74946C5.01506 4.28562 5.61227 3.97222 6.5 3.97222Z" fill="#5B6871"></path>
-                </svg>
-              </a>
-
-              <a class="menu__socials-link" href="https://x.com/MarceloDesignX" aria-label="X social" target="_blank">
-                <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M0.244436 0L5.27057 7.09067L0 13H1.12344L5.76842 7.79225L9.45982 13H13L7.74048 5.58059L12.7183 0H11.5955L7.24332 4.87901L3.78462 0H0.244436Z" fill="#5B6871"></path>
-                </svg>
-              </a>
-
-              <a class="menu__socials-link" href="https://www.facebook.com/MarceloDesignX" aria-label="Facebook" target="_blank">
-                <svg width="7" height="13" viewBox="0 0 7 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M5.38456 2.54348H6.7307C6.87931 2.54348 6.99993 2.41687 6.99993 2.26087V0.356935C6.99993 0.208848 6.89143 0.0856304 6.75089 0.0751739C6.32255 0.0432391 5.48579 0 4.88407 0C3.23074 0 2.15382 1.04 2.15382 2.93009V4.80435H0.269228C0.120614 4.80435 0 4.93096 0 5.08696V7.06522C0 7.22122 0.120614 7.34783 0.269228 7.34783H2.15382V12.7174C2.15382 12.8734 2.27444 13 2.42305 13H4.30765C4.45626 13 4.57688 12.8734 4.57688 12.7174V7.34783H6.52124C6.65855 7.34783 6.77378 7.23959 6.78885 7.0963L6.99831 5.11804C7.01608 4.95074 6.89116 4.80435 6.7307 4.80435H4.57688V3.3913C4.57688 2.92302 4.93845 2.54348 5.38456 2.54348Z" fill="#5B6871"></path>
-                </svg>
-              </a>
-
-              <a class="menu__socials-link" href="https://www.youtube.com/@marcelodesignx2324" aria-label="Youtube" target="_blank">
-                <svg width="17" height="13" viewBox="0 0 17 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M16.5255 2.23438C16.3683 1.34094 15.6195 0.690308 14.7506 0.487183C13.4502 0.203125 11.0437 0 8.43991 0C5.83768 0 3.39261 0.203125 2.09072 0.487183C1.22331 0.690308 0.472993 1.29968 0.315842 2.23438C0.157151 3.25 0 4.67188 0 6.5C0 8.32812 0.157151 9.75 0.354359 10.7656C0.51305 11.6591 1.26183 12.3097 2.12924 12.5128C3.5097 12.7969 5.8762 13 8.47997 13C11.0837 13 13.4502 12.7969 14.8307 12.5128C15.6981 12.3097 16.4469 11.7003 16.6056 10.7656C16.7627 9.75 16.9599 8.28687 17 6.5C16.9199 4.67188 16.7227 3.25 16.5255 2.23438ZM6.31068 9.34375V3.65625L11.1223 6.5L6.31068 9.34375Z" fill="#5B6871"></path>
-                </svg>
-              </a>
-
-              <a class="menu__socials-link" href="https://www.linkedin.com/company/65831843" aria-label="LinkedIn" target="_blank">
-                <svg width="15" height="13" viewBox="0 0 15 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M2.32609 0C1.27 0 0.502972 0.628815 0.502972 1.49366C0.502972 2.36153 1.28826 3.01804 2.32609 3.01804C3.38217 3.01804 4.1492 2.37708 4.1492 1.47594C4.10051 0.608072 3.3487 0 2.32609 0ZM0.804348 3.62578C0.636957 3.62578 0.5 3.76186 0.5 3.92817V12.6976C0.5 12.8639 0.636957 13 0.804348 13H3.84783C4.01522 13 4.15217 12.8639 4.15217 12.6976V3.92817C4.15217 3.76186 4.01522 3.62578 3.84783 3.62578H0.804348ZM5.36957 3.62578C5.20217 3.62578 5.06522 3.76186 5.06522 3.92817V12.6976C5.06522 12.8639 5.20217 13 5.36957 13H8.1087C8.2767 13 8.41304 12.8645 8.41304 12.6976V8.16169V8.08609V8.0105C8.41304 7.29382 8.96715 6.71006 9.67323 6.65563C9.70975 6.64958 9.74609 6.64972 9.78261 6.64972C9.81913 6.64972 9.85546 6.64958 9.89198 6.65563C10.5981 6.71006 11.1522 7.29382 11.1522 8.0105V12.6976C11.1522 12.8645 11.2885 13 11.4565 13H14.1957C14.363 13 14.5 12.8639 14.5 12.6976V7.5569C14.5 5.60041 13.4436 3.62578 11.088 3.62578C10.0167 3.62578 9.20739 4.03711 8.71739 4.37881V3.92817C8.71739 3.76186 8.58043 3.62578 8.41304 3.62578H5.36957Z" fill="#5B6871"></path>
-                </svg>
-              </a>
-            </div>
-
-            <div class="menu__socials--terms">
-              <a href="privacy-policy">Privacy Policy</a>
-              <a href="terms-&-conditions">Terms Of Use</a>
-            </div>
+        <blockquote class="tc-quote">
+          "La piattaforma ci ha permesso di ridurre i tempi di dispatch del 40% e migliorare la conformità SLA con l'ULSS dal 78% al 94%."
+        </blockquote>
+        <div class="tc-author">
+          <div class="tc-avatar" aria-hidden="true">LR</div>
+          <div>
+            <p class="tc-name">Laura Rossi</p>
+            <p class="tc-role">Coordinatrice, ALS Soccorso Milano</p>
           </div>
         </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════
+     FAQ
+══════════════════════════════════════ -->
+<section class="faq section" id="faq" aria-labelledby="faq-title">
+  <div class="container">
+    <div class="section-header fade-in">
+      <span class="badge">FAQ</span>
+      <h2 id="faq-title">Domande Frequenti</h2>
+    </div>
+
+    <dl class="faq__list" role="list">
+
+      <div class="faq-item" role="listitem">
+        <dt>
+          <button class="faq-trigger" aria-expanded="false" aria-controls="faq-1">
+            Cos'è Soccorso Digitale?
+            <span class="faq-icon-wrap" aria-hidden="true">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#2E5E99" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </span>
+          </button>
+        </dt>
+        <dd id="faq-1" class="faq-body" role="region">
+          <p>Soccorso Digitale è una piattaforma cloud SaaS per la gestione del trasporto sanitario programmato: dialisi, visite specialistiche, trasferimenti e dimissioni. È progettata per associazioni di volontariato, cooperative ambulanze e consorzi sanitari in Italia.</p>
+        </dd>
+      </div>
+
+      <div class="faq-item" role="listitem">
+        <dt>
+          <button class="faq-trigger" aria-expanded="false" aria-controls="faq-2">
+            Quanto tempo serve per attivare la piattaforma?
+            <span class="faq-icon-wrap" aria-hidden="true">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#2E5E99" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </span>
+          </button>
+        </dt>
+        <dd id="faq-2" class="faq-body" role="region">
+          <p>Meno di 48 ore. La registrazione richiede 5 minuti, la configurazione di veicoli e personale circa 1-2 ore. Il nostro team vi affianca per tutta la fase di onboarding.</p>
+        </dd>
+      </div>
+
+      <div class="faq-item" role="listitem">
+        <dt>
+          <button class="faq-trigger" aria-expanded="false" aria-controls="faq-3">
+            È disponibile su mobile?
+            <span class="faq-icon-wrap" aria-hidden="true">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#2E5E99" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </span>
+          </button>
+        </dt>
+        <dd id="faq-3" class="faq-body" role="region">
+          <p>Sì. L'app mobile nativa (iOS e Android) è inclusa in tutti i piani. Gli equipaggi gestiscono i servizi dal telefono, il coordinatore dalla dashboard web.</p>
+        </dd>
+      </div>
+
+      <div class="faq-item" role="listitem">
+        <dt>
+          <button class="faq-trigger" aria-expanded="false" aria-controls="faq-4">
+            I dati sono sicuri?
+            <span class="faq-icon-wrap" aria-hidden="true">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#2E5E99" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </span>
+          </button>
+        </dt>
+        <dd id="faq-4" class="faq-body" role="region">
+          <p>Assolutamente. Server in EU (GDPR compliant), crittografia end-to-end, backup giornalieri, audit log completo, accesso ruolo-basato. La sicurezza è parte integrante dell'architettura.</p>
+        </dd>
+      </div>
+
+      <div class="faq-item" role="listitem">
+        <dt>
+          <button class="faq-trigger" aria-expanded="false" aria-controls="faq-5">
+            Posso integrare Soccorso Digitale con i sistemi ULSS?
+            <span class="faq-icon-wrap" aria-hidden="true">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#2E5E99" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </span>
+          </button>
+        </dt>
+        <dd id="faq-5" class="faq-body" role="region">
+          <p>Sì. Offriamo API RESTful documentate e integrazioni specifiche per ULSS, FSE (Fascicolo Sanitario Elettronico) e sistemi regionali. Il piano Enterprise include supporto dedicato per le integrazioni.</p>
+        </dd>
+      </div>
+
+      <div class="faq-item" role="listitem">
+        <dt>
+          <button class="faq-trigger" aria-expanded="false" aria-controls="faq-6">
+            C'è un periodo di prova?
+            <span class="faq-icon-wrap" aria-hidden="true">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#2E5E99" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </span>
+          </button>
+        </dt>
+        <dd id="faq-6" class="faq-body" role="region">
+          <p>Sì, 30 giorni gratuiti su tutti i piani. Nessuna carta di credito richiesta. Al termine, puoi scegliere il piano che preferisci o continuare con funzionalità limitate.</p>
+        </dd>
+      </div>
+
+    </dl>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════
+     CTA FINALE
+══════════════════════════════════════ -->
+<section class="cta-final section" aria-labelledby="cta-title">
+  <div class="container">
+    <span class="badge fade-in"><span class="badge-dot" aria-hidden="true"></span>Unisciti a 7+ Organizzazioni</span>
+    <h2 class="fade-in d1" id="cta-title">La Tua Organizzazione<br>è la Prossima?</h2>
+    <p class="sub fade-in d2">Unisciti alle organizzazioni sanitarie italiane che hanno già scelto il futuro del trasporto programmato.</p>
+    <div class="cta-final__actions fade-in d3">
+      <a href="/contatti" class="btn btn-primary btn-lg">Richiedi Demo Gratuita</a>
+      <a href="/piattaforma" class="btn btn-outline btn-lg">Scopri la Piattaforma</a>
+    </div>
+    <p class="cta-final__note fade-in d4">Gratuito per 30 giorni. Nessuna carta di credito.</p>
+  </div>
+</section>
+
+</main>
+
+
+<!-- ══════════════════════════════════════
+     FOOTER
+══════════════════════════════════════ -->
+<footer class="footer" role="contentinfo">
+  <div class="container">
+    <div class="footer__grid">
+
+      <!-- Brand -->
+      <div>
+        <div class="footer__brand-logo" aria-label="Soccorso Digitale">
+          <span style="width:28px;height:28px;background:var(--sd-blue-strong);border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0;" aria-hidden="true">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          </span>
+          Soccorso Digitale
+        </div>
+        <p class="footer__brand-desc">Piattaforma SaaS cloud per il trasporto sanitario. Made in Italy — Verona.</p>
+      </div>
+
+      <!-- Prodotto -->
+      <nav aria-label="Prodotto">
+        <p class="footer__col-title">Prodotto</p>
+        <ul class="footer__links">
+          <li><a href="/piattaforma" class="footer__link">Piattaforma</a></li>
+          <li><a href="#prezzi" class="footer__link">Prezzi</a></li>
+          <li><a href="/piattaforma#integrazioni" class="footer__link">Integrazioni</a></li>
+          <li><a href="/piattaforma" class="footer__link">Dashboard</a></li>
+        </ul>
+      </nav>
+
+      <!-- Azienda -->
+      <nav aria-label="Azienda">
+        <p class="footer__col-title">Azienda</p>
+        <ul class="footer__links">
+          <li><a href="/clienti" class="footer__link">Clienti</a></li>
+          <li><a href="/contatti" class="footer__link">Contatti</a></li>
+          <li><a href="/contatti#partnership" class="footer__link">Partnership</a></li>
+          <li><a href="/contatti#stampa" class="footer__link">Stampa</a></li>
+        </ul>
+      </nav>
+
+      <!-- Legale -->
+      <nav aria-label="Legale">
+        <p class="footer__col-title">Legale</p>
+        <ul class="footer__links">
+          <li><a href="/privacy" class="footer__link">Privacy Policy</a></li>
+          <li><a href="/termini" class="footer__link">Termini di Servizio</a></li>
+          <li><a href="/cookie" class="footer__link">Cookie Policy</a></li>
+          <li><a href="/gdpr" class="footer__link">GDPR</a></li>
+        </ul>
+      </nav>
+
+    </div>
+
+    <div class="footer__bottom">
+      <p class="footer__copy">© 2025 Soccorso Digitale S.r.l. — Verona, Italia</p>
+      <div class="footer__social" aria-label="Social media">
+        <a href="#" class="footer__social-a" aria-label="LinkedIn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/>
+          </svg>
+        </a>
+        <a href="#" class="footer__social-a" aria-label="X (Twitter)">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 4l16 16M4 20L20 4"/>
+          </svg>
+        </a>
       </div>
     </div>
 
-    <!-- MAIN WRAPPER -->
-    <div class="scroller-wrapper">
-      <div class="scroller-content">
-
-        <section class="pin-container" data-leave-section="">
-          <!-- HERO  -->
-          <section class="hero">
-            <!-- CANVAS  -->
-            <canvas id="sequence-1__canvas" class="secuence-canvas"></canvas>
-
-            <!-- ELLIPSES  -->
-            <div class="hero__layer-wrapper">
-              <img src="images/hero-layer-mobile.webp" alt="decorative blur layer" class="hero__layer-mobile" loading="lazy">
-
-              <img class="hero__layer-landscape" src="images/hero-layer.webp" alt="decorative blur layer" loading="lazy">
-            </div>
-
-            <div class="hero__ellipse hero__ellipse-center"></div>
-            <div class="hero__ellipse hero__ellipse-white-bottom"></div>
-
-            <!-- FLEX WRAPPER  -->
-            <div class="hero-flex">
-              <div class="hero-flex__left">
-                <div class="hero-flex__left-heading">
-                  <h1 data-loader-fade-element-positive="">Design That Feels.</h1>
-                  <h2 data-loader-fade-element-positive="">Experiences That Resonate.</h2>
-                </div>
-                <p data-loader-fade-element-positive="">We blend creativity, emotion, and innovation to create digital worlds that your audience can connect with.</p>
-
-                <a href="/contact" aria-label="Let's talk button" class="cta-1 btn-animate-chars" data-loader-fade-element-positive="">
-                  <div class="btn-animate-chars__bg"></div>
-                  <span data-button-animate-chars="" class="btn-animate-chars__text" translate="no">LET’S TALK</span>
-
-                  <span class="cta-1__arrow-wrapper">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M4.5 19.5L19.5 4.5M19.5 4.5H8.25M19.5 4.5V15.75" stroke="#FF8200" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                    </svg>
-                  </span>
-                </a>
-              </div>
-
-              <div class="hero-flex__right">
-                <p data-loader-fade-element-positive="">Whether through intuitive interfaces, immersive 3D, or bold visual storytelling, <span>we design moments that people don’t just see — they feel.</span></p>
-
-                <ul class="hero-flex__right__list" data-loader-fade-element-positive="">
-                  <li class="hero-flex__right__list-item">
-                    <a href="/ui-ux" data-theme="light" data-btn-hover="" class="cta-2 btn w-inline-block">
-                      <div class="btn__bg"></div>
-                      <div class="btn__circle-wrap">
-                        <div class="btn__circle">
-                          <div class="before__100"></div>
-                        </div>
-                      </div>
-                      <div class="btn__text">
-                        <p class="btn-text-p" translate="no">
-                          UI/UX
-                        </p>
-                      </div>
-                    </a>
-                  </li>
-
-                  <li class="hero-flex__right__list-item">
-                    <a href="/3d-animation" data-theme="light" data-btn-hover="" class="cta-2 btn w-inline-block">
-                      <div class="btn__bg"></div>
-                      <div class="btn__circle-wrap">
-                        <div class="btn__circle">
-                          <div class="before__100"></div>
-                        </div>
-                      </div>
-                      <div class="btn__text">
-                        <p class="btn-text-p" translate="no">
-                          3D VISUALIZATION
-                        </p>
-                      </div>
-                    </a>
-                  </li>
-
-                  <li class="hero-flex__right__list-item">
-                    <a href="/development" data-theme="light" data-btn-hover="" class="cta-2 btn w-inline-block">
-                      <div class="btn__bg"></div>
-                      <div class="btn__circle-wrap">
-                        <div class="btn__circle">
-                          <div class="before__100"></div>
-                        </div>
-                      </div>
-                      <div class="btn__text">
-                        <p class="btn-text-p" translate="no">
-                          DEVELOPMENT
-                        </p>
-                      </div>
-                    </a>
-                  </li>
-
-                  <li class="hero-flex__right__list-item">
-                    <a href="#" data-theme="light" data-btn-hover="" class="cta-2 btn w-inline-block">
-                      <div class="btn__bg"></div>
-                      <div class="btn__circle-wrap">
-                        <div class="btn__circle">
-                          <div class="before__100"></div>
-                        </div>
-                      </div>
-                      <div class="btn__text">
-                        <p class="btn-text-p" translate="no">
-                          +
-                        </p>
-                      </div>
-                    </a>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </section>
-        </section>
-
-        <!-- ABOUT  -->
-        <section class="about" data-fade-in="" data-leave-section="" data-active-bar="1" data-force-scroll="true" data-force-sroll-to=".about-grid">
-          <!-- ELLIPSES  -->
-          <picture>
-            <source media="(orientation: portrait)" srcset="images/clear-globe-mobile.webp">
-            <img data-fade-element="" data-fade-autoalpha="0" data-fade-scale="0.7" data-fade-delay="0.3" class="about__ellipse-globe" src="images/clear-globe-desktop-1.webp" alt="decorative layer">
-          </picture>
-
-          <div class="about-grid" data-fade-element="">
-            <h2 data-fade-element="" data-fade-y="120" data-fade-delay="0.2" data-fade-autoalpha="0">
-              Every
-              <span>Experience</span>
-              Begins With a Feeling
-            </h2>
-
-            <p data-fade-element="" data-fade-y="110" data-fade-delay="0.05" data-fade-autoalpha="0">
-              We blend creativity, emotion, and innovation to craft digital worlds that invite exploration
-              <span>and inspire connection.</span>
-            </p>
-
-            <a href="/about-us" aria-label="About Us button" class="cta-1 btn-animate-chars" data-fade-element="" data-fade-y="100" data-fade-delay="0.03" data-fade-autoalpha="0">
-              <div class="btn-animate-chars__bg"></div>
-              <span data-button-animate-chars="" class="btn-animate-chars__text" translate="no">ABOUT US</span>
-
-              <span class="cta-1__arrow-wrapper">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M4.5 19.5L19.5 4.5M19.5 4.5H8.25M19.5 4.5V15.75" stroke="#FF8200" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                </svg>
-              </span>
-            </a>
-          </div>
-        </section>
-
-        <!-- IDEAS  -->
-        <section class="ideas" data-fade-in="" data-leave-section="" data-active-bar="2" data-force-scroll="true" data-fade-start="top 90%">
-          <!-- ELLIPSES  -->
-          <div class="ideas__blur-0"></div>
-
-          <img data-fade-element="" data-fade-autoalpha="0" data-fade-delay="0.3" data-fade-y="150" src="images/ideas-blur-2.webp" alt="decorative blur layer" class="ideas__blur-1">
-
-          <picture>
-            <source media="(orientation: portrait)" srcset="images/ideas-blur-3-mobile.webp">
-            <img data-fade-element="" data-fade-autoalpha="0" data-fade-delay="0.2" data-fade-y="140" src="images/ideas-blur-3.webp" alt="decorative blur layer" class="ideas__blur-2" loading="lazy">
-          </picture>
-
-          <!-- GRID WRAPPER  -->
-          <div class="ideas-grid">
-            <h2 data-fade-element="" data-fade-y="80" data-fade-delay="0.2" data-fade-autoalpha="0">
-              From
-              <span>Ideas</span>
-              to Impactful Experiences
-            </h2>
-
-            <p data-fade-element="" data-fade-y="80" data-fade-delay="0.05" data-fade-autoalpha="0">
-              <span>We start every project with a conversation —not about features,</span>
-              but about what people feel.
-            </p>
-          </div>
-        </section>
-
-        <!-- PORTFOLIO  -->
-        <section class="portfolio" data-fade-in="" data-fade-in-offset="0" data-fade-autoalpha="0" data-fade-start-mobile="top 60%" data-fade-end-mobile="top 5%" data-force-scroll="true" data-active-bar="3">
-          <div class="portfolio-wrapper" data-showreel-trigger="" data-showreel-playing="false">
-            <div class="portfolio-image-wrapper" data-fade-element="" data-fade-clip="polygon(40% 0, 60% 0, 60% 100%, 40% 100%)" data-fade-clip-mobile="polygon(10% 0, 90% 0, 90% 100%, 10% 100%)" data-fade-scale="0.7" data-fade-autoalpha="0">
-              <div class="portfolio-image-layer"></div>
-
-              <div data-vimeo-playing="false" class="vimeo-bg" data-vimeo-activated="false" data-vimeo-bg-init="" data-vimeo-paused-by-user="false" data-vimeo-autoplay="true" data-vimeo-loaded="false" data-vimeo-update-size="true" data-vimeo-video-id="1161504205">
-                <div class="vimeo-bg__iframe-wrapper">
-                  <div class="vimeo-bg__before"></div>
-                  <iframe src="" width="640" height="360" frameborder="0" allowfullscreen="true" allow="autoplay; encrypted-media" class="vimeo-bg__iframe"></iframe>
-                </div>
-                <img src="images/mdx-placeholder.png" alt="MDX placeholder" loading="lazy" class="vimeo-bg__placeholder">
-
-              </div>
-
-            </div>
-
-            <div data-fade-element="" data-fade-y="80" data-fade-delay="0.15" aria-label="watch Showreel" class="cta-1 btn-animate-chars --is-showreel" id="showreelBtn" data-vimeo-lightbox-control="open" data-vimeo-lightbox-id="1109046196">
-              <span class="cta-1__arrow-wrapper">
-                <svg width="54" height="56" viewBox="0 0 54 56" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path fill-rule="evenodd" clip-rule="evenodd" d="M33.9541 8.49061C28.9799 5.65445 25.1162 3.45142 21.9783 2.02226C18.8286 0.587738 16.0946 -0.222376 13.4361 0.0535719C9.21679 0.491528 5.37572 2.67773 2.87258 6.08019C1.29149 8.22934 0.633181 10.9877 0.315943 14.4027C-2.56545e-05 17.804 -1.43457e-05 22.2124 2.04007e-07 27.8818V28.1181C-1.4688e-05 33.7876 -2.6275e-05 38.196 0.315942 41.5973C0.63318 45.0123 1.29149 47.7707 2.87258 49.9198C5.37572 53.3223 9.21679 55.5085 13.4361 55.9464C16.0946 56.2224 18.8286 55.4123 21.9783 53.9777C25.1162 52.5486 28.9799 50.3456 33.954 47.5095L34.1559 47.3943C39.1297 44.5584 42.9935 42.3553 45.8161 40.3859C48.6467 38.4109 50.7332 36.4726 51.8273 34.0459C53.562 30.198 53.562 25.802 51.8273 21.9541C50.7332 19.5274 48.6467 17.5891 45.8161 15.6141C42.9935 13.6447 39.1297 11.4416 34.1558 8.60566L33.9541 8.49061ZM13.8808 4.33825C15.3739 4.18328 17.2453 4.60005 20.1928 5.94251C23.1309 7.28068 26.8252 9.38462 31.9211 12.2902C37.0171 15.1958 40.709 17.3033 43.3511 19.1468C46.0043 20.998 47.2964 22.3852 47.9002 23.7246C49.1274 26.4467 49.1274 29.5533 47.9002 32.2754C47.2964 33.6148 46.0043 35.002 43.3511 36.8532C40.709 38.6967 37.0171 40.8042 31.9211 43.7098C26.8252 46.6154 23.1309 48.7193 20.1928 50.0575C17.2453 51.3999 15.3739 51.8167 13.8808 51.6617C10.8578 51.348 8.11968 49.7829 6.34244 47.3671C5.46987 46.181 4.90135 44.3871 4.60518 41.1988C4.30992 38.0205 4.3077 33.8124 4.3077 28C4.3077 22.1876 4.30992 17.9795 4.60518 14.8012C4.90135 11.6129 5.46987 9.81898 6.34244 8.63291C8.11968 6.21714 10.8578 4.65204 13.8808 4.33825Z" fill="#FCFCFD"></path>
-                </svg>
-              </span>
-
-              <div class="cta-1__divider"></div>
-
-              <span data-button-animate-chars="" class="btn-animate-chars__text" translate="no">watch Showreel</span>
-            </div>
-          </div>
-        </section>
-
-        <!-- SERVICES  -->
-        <div class="services-bg-wrapper">
-          <!-- ELLIPSES  -->
-          <div class="services__ellipse services__ellipse-0"></div>
-          <div class="services__ellipse services__ellipse-1"></div>
-          <div class="services-ellipse services-ellipse-2"></div>
-          <div class="services-ellipse services-ellipse-3"></div>
-
-          <!-- SERVICES  -->
-          <div class="services">
-            <!-- FLEX WRAPPER  -->
-            <div class="services-flex">
-              <div class="services-heading">Made with Intention. Meant to Be <span>Felt.</span></div>
-              <p class="services-text"><span>From the way words breathe to how animations flow,</span> every part is made to resonate.</p>
-            </div>
-          </div>
-
-          <!-- SERVICES VIDEO  -->
-          <section class="services-video">
-            <div class="services-container">
-              <!-- BUTTONS  -->
-
-              <a href="/ui-ux">
-
-                <div class="services-button --is-uiux">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12.4219 9.99994C13.0906 10.6687 13.0906 11.753 12.4219 12.4218C11.7531 13.0906 10.6688 13.0906 9.99998 12.4218C9.33119 11.753 9.33119 10.6687 9.99998 9.99994C10.6688 9.33116 11.7531 9.33116 12.4219 9.99994Z" fill="#101820"></path>
-                    <path fill-rule="evenodd" clip-rule="evenodd" d="M12.4913 2.08112C11.7475 1.94212 10.9497 2.00344 9.65039 2.10331L9.3738 2.12452C7.65993 2.25575 6.61076 2.33609 5.73551 2.71052C4.37565 3.29227 3.29226 4.37565 2.71052 5.7355C2.33609 6.61076 2.25575 7.65993 2.12453 9.37379L2.10331 9.65039C2.00344 10.9497 1.94212 11.7475 2.08112 12.4913C2.29684 13.6457 2.86085 14.7063 3.69733 15.5306C4.2363 16.0618 4.93203 16.457 6.06507 17.1006L8.13654 18.2777C9.13248 18.8438 9.74241 19.1905 10.3611 19.3773C11.0363 19.5812 11.735 19.6568 12.4231 19.6088L13.6375 20.8232C15.6218 22.8075 18.8389 22.8075 20.8232 20.8232C22.8075 18.839 22.8075 15.6218 20.8232 13.6375L19.6088 12.4231C19.6568 11.735 19.5812 11.0364 19.3773 10.3611C19.1905 9.74241 18.8438 9.13249 18.2778 8.13655L17.1006 6.06506C16.457 4.93203 16.0618 4.2363 15.5306 3.69733C14.7063 2.86085 13.6457 2.29684 12.4913 2.08112ZM9.64797 3.60791C11.1017 3.49636 11.6899 3.45734 12.2157 3.55559C13.069 3.71504 13.853 4.13192 14.4622 4.75018C14.8377 5.13118 15.1342 5.64067 15.8545 6.90834L16.9216 8.78618C17.5559 9.90241 17.8094 10.3577 17.9413 10.7947C18.1199 11.386 18.1654 12.0015 18.0834 12.5997C18.0022 13.1929 17.7957 13.769 17.4693 14.2873C17.2261 14.6736 16.8609 15.0453 15.9531 15.9531C15.0453 16.8609 14.6736 17.2261 14.2873 17.4693C13.7689 17.7957 13.1929 18.0022 12.5997 18.0834C12.0014 18.1653 11.386 18.1199 10.7947 17.9413C10.3577 17.8094 9.90241 17.5559 8.78618 16.9216L6.90834 15.8545C5.64067 15.1342 5.13118 14.8377 4.75018 14.4622C4.13192 13.853 3.71504 13.069 3.55559 12.2157C3.45734 11.6899 3.49636 11.1017 3.60791 9.64797C3.75561 7.72323 3.82534 6.94326 4.08963 6.32548C4.2041 6.0579 4.34485 5.8048 4.50874 5.56932L9.46965 10.5302C9.76255 10.8231 10.2374 10.8231 10.5303 10.5302C10.8232 10.2373 10.8232 9.76247 10.5303 9.46957L5.56941 4.50867C5.80486 4.34481 6.05793 4.20408 6.32548 4.08962C6.94326 3.82534 7.72323 3.75561 9.64797 3.60791ZM14.6981 19.7626L14.1503 19.2148C14.4738 19.086 14.7872 18.9271 15.0864 18.7387C15.6334 18.3944 16.1294 17.8983 16.9394 17.0881L17.0881 16.9394C17.8983 16.1294 18.3944 15.6334 18.7387 15.0864C18.9271 14.7872 19.086 14.4738 19.2148 14.1504L19.7625 14.6982C21.161 16.0967 21.161 18.3641 19.7625 19.7626C18.364 21.1611 16.0966 21.1611 14.6981 19.7626Z" fill="#101820"></path>
-                  </svg>
-
-                  <span class="services-button__text" translate="no">UI/UX</span>
-                </div>
-              </a>
-
-              <a href="/development">
-                <div class="services-button --is-development" data-floating="">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="21" viewBox="0 0 24 21" fill="none">
-                    <path fill-rule="evenodd" clip-rule="evenodd" d="M3.72581 0C1.6681 0 0 1.6681 0 3.72581C0 5.78351 1.6681 7.45161 3.72581 7.45161C5.78351 7.45161 7.45161 5.78351 7.45161 3.72581C7.45161 1.6681 5.78351 0 3.72581 0ZM2.03226 3.72581C2.03226 2.79049 2.79049 2.03226 3.72581 2.03226C4.66113 2.03226 5.41935 2.79049 5.41935 3.72581C5.41935 4.66113 4.66113 5.41935 3.72581 5.41935C2.79049 5.41935 2.03226 4.66113 2.03226 3.72581Z" fill="#2D264B"></path>
-                    <path d="M11.8548 2.70968C11.2936 2.70968 10.8387 3.16461 10.8387 3.72581C10.8387 4.287 11.2936 4.74194 11.8548 4.74194L22.6935 4.74194C23.2547 4.74194 23.7097 4.287 23.7097 3.72581C23.7097 3.16462 23.2547 2.70968 22.6935 2.70968L11.8548 2.70968Z" fill="#2D264B"></path>
-                    <path fill-rule="evenodd" clip-rule="evenodd" d="M19.9839 13.5484C17.9262 13.5484 16.2581 15.2165 16.2581 17.2742C16.2581 19.3319 17.9262 21 19.9839 21C22.0416 21 23.7097 19.3319 23.7097 17.2742C23.7097 15.2165 22.0416 13.5484 19.9839 13.5484ZM18.2903 17.2742C18.2903 16.3389 19.0485 15.5806 19.9839 15.5806C20.9192 15.5806 21.6774 16.3389 21.6774 17.2742C21.6774 18.2095 20.9192 18.9677 19.9839 18.9677C19.0485 18.9677 18.2903 18.2095 18.2903 17.2742Z" fill="#2D264B"></path>
-                    <path d="M1.01613 16.2581C0.454937 16.2581 0 16.713 0 17.2742C0 17.8354 0.454936 18.2903 1.01613 18.2903L11.8548 18.2903C12.416 18.2903 12.871 17.8354 12.871 17.2742C12.871 16.713 12.416 16.2581 11.8548 16.2581H1.01613Z" fill="#2D264B"></path>
-                  </svg>
-
-                  <span class="services-button__text" translate="no">Development</span>
-                </div>
-              </a>
-
-              <a href="/branding">
-                <div class="services-button --is-branding" data-floating="">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                    <path fill-rule="evenodd" clip-rule="evenodd" d="M11 6.25C9.48122 6.25 8.25 7.48122 8.25 9C8.25 10.5188 9.48122 11.75 11 11.75C12.5188 11.75 13.75 10.5188 13.75 9C13.75 7.48122 12.5188 6.25 11 6.25ZM9.75 9C9.75 8.30964 10.3096 7.75 11 7.75C11.6904 7.75 12.25 8.30964 12.25 9C12.25 9.69036 11.6904 10.25 11 10.25C10.3096 10.25 9.75 9.69036 9.75 9Z" fill="#101820"></path>
-                    <path fill-rule="evenodd" clip-rule="evenodd" d="M16.4635 2.37373C15.3214 2.24999 13.8818 2.24999 12.0452 2.25H11.9548C10.1182 2.24999 8.67861 2.24999 7.53648 2.37373C6.37094 2.50001 5.42656 2.76232 4.62024 3.34815C4.13209 3.70281 3.70281 4.13209 3.34815 4.62024C2.76232 5.42656 2.50001 6.37094 2.37373 7.53648C2.24999 8.67861 2.24999 10.1182 2.25 11.9548V12.0452C2.24999 13.8818 2.24999 15.3214 2.37373 16.4635C2.50001 17.6291 2.76232 18.5734 3.34815 19.3798C3.36102 19.3975 3.37399 19.4151 3.38706 19.4327C3.73405 19.899 4.14981 20.3101 4.62024 20.6518C5.42656 21.2377 6.37094 21.5 7.53648 21.6263C8.67859 21.75 10.1182 21.75 11.9547 21.75H12.0453C13.8818 21.75 15.3214 21.75 16.4635 21.6263C17.6291 21.5 18.5734 21.2377 19.3798 20.6518C19.8679 20.2972 20.2972 19.8679 20.6518 19.3798C21.5217 18.1825 21.6903 16.6546 21.7348 14.5005C21.75 13.7682 21.75 12.9403 21.75 12.006V11.9547C21.75 10.1182 21.75 8.67859 21.6263 7.53648C21.5 6.37094 21.2377 5.42656 20.6518 4.62024C20.2972 4.13209 19.8679 3.70281 19.3798 3.34815C18.5734 2.76232 17.6291 2.50001 16.4635 2.37373ZM5.50191 4.56168C6.00992 4.19259 6.66013 3.97745 7.69804 3.865C8.74999 3.75103 10.1084 3.75 12 3.75C13.8916 3.75 15.25 3.75103 16.302 3.865C17.3399 3.97745 17.9901 4.19259 18.4981 4.56168C18.8589 4.82382 19.1762 5.14111 19.4383 5.50191C19.8074 6.00992 20.0225 6.66013 20.135 7.69804C20.249 8.74999 20.25 10.1084 20.25 12C20.25 12.255 20.25 12.5006 20.2497 12.7373C20.1438 12.6476 20.0435 12.5687 19.9448 12.4986C17.4737 10.7441 14.0651 11.2087 12.1537 13.5606C11.9951 13.7558 11.8432 13.9843 11.6711 14.2694L11.5462 14.2444C10.4471 14.0244 9.77404 13.8897 9.14216 13.9032C7.45369 13.939 5.86636 14.7154 4.80143 16.0261C4.53101 16.359 4.30278 16.7487 4.02741 17.2781C3.95858 16.9948 3.90522 16.6732 3.865 16.302C3.75103 15.25 3.75 13.8916 3.75 12C3.75 10.1084 3.75103 8.74999 3.865 7.69804C3.97745 6.66013 4.19259 6.00992 4.56168 5.50191C4.82382 5.14111 5.14111 4.82382 5.50191 4.56168ZM19.0764 13.7217C19.3239 13.8974 19.6104 14.1728 20.2273 14.7882C20.1701 16.7589 19.972 17.7636 19.4383 18.4981C19.1762 18.8589 18.8589 19.1762 18.4981 19.4383C17.9901 19.8074 17.3399 20.0225 16.302 20.135C15.25 20.249 13.8916 20.25 12 20.25C11.2582 20.25 10.5984 20.2498 10.0069 20.2428L12.3256 16.1404C12.4556 15.9105 12.5685 15.7108 12.6693 15.5345C12.9887 14.9758 13.1615 14.699 13.3178 14.5066C14.7305 12.7683 17.25 12.4249 19.0764 13.7217ZM8.34708 20.131C8.33655 20.1496 8.3269 20.1685 8.31812 20.1876C8.09986 20.1735 7.89365 20.1562 7.69804 20.135C6.66013 20.0225 6.00992 19.8074 5.50191 19.4383C5.28075 19.2776 5.07593 19.0962 4.89014 18.8968C5.45192 17.7732 5.68417 17.3184 5.96564 16.972C6.75276 16.0031 7.92601 15.4293 9.17401 15.4028C9.55888 15.3947 9.98434 15.4647 10.8842 15.6422L8.34708 20.131Z" fill="#101820"></path>
-                  </svg>
-
-                  <span class="services-button__text" translate="no">Branding</span>
-                </div>
-              </a>
-
-              <a href="/3d-animation">
-
-                <div class="services-button --is-animation">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="15" height="10" viewBox="0 0 15 10" fill="none">
-                    <path d="M4.80098 3.09492C4.80098 2.83186 4.58774 2.61862 4.32469 2.61862C4.06164 2.61862 3.84839 2.83186 3.84839 3.09492V3.88874H3.05456C2.79151 3.88874 2.57827 4.10199 2.57827 4.36504C2.57827 4.62809 2.79151 4.84134 3.05456 4.84134H3.84839V5.63517C3.84839 5.89822 4.06164 6.11146 4.32469 6.11146C4.58774 6.11146 4.80098 5.89822 4.80098 5.63517V4.84134H5.59481C5.85786 4.84134 6.07111 4.62809 6.07111 4.36504C6.07111 4.10199 5.85786 3.88874 5.59481 3.88874H4.80098V3.09492Z" fill="#2D264B"></path>
-                    <path fill-rule="evenodd" clip-rule="evenodd" d="M4.00056 0.0783691C1.8707 0.0783691 0.234625 1.96478 0.535833 4.07324L0.682467 5.09967L1.60729 8.33656C1.87539 9.27491 2.73305 9.92184 3.70894 9.92184C4.45267 9.92184 5.14537 9.54366 5.54755 8.91805L5.78529 8.54822C6.5877 7.30003 8.4123 7.30003 9.21471 8.54822L9.36014 8.77445C9.81985 9.48956 10.6116 9.92184 11.4618 9.92184C12.7051 9.92184 13.7593 9.00759 13.9351 7.77674L14.4642 4.07324C14.7654 1.96478 13.1293 0.0783691 10.9994 0.0783691C10.5097 0.0783691 10.0255 0.181135 9.57799 0.380021L9.24078 0.529891C8.58964 0.819288 8.32603 0.933799 8.06047 0.990173C7.69094 1.06862 7.30906 1.06862 6.93953 0.990173C6.67397 0.933799 6.41036 0.819288 5.75922 0.529891L5.42201 0.380021C4.97452 0.181134 4.49027 0.0783691 4.00056 0.0783691ZM1.47885 3.93852C1.25963 2.40393 2.4504 1.03096 4.00056 1.03096C4.35698 1.03096 4.70943 1.10576 5.03513 1.25051L5.42373 1.42323C6.00736 1.68269 6.36648 1.84234 6.74172 1.922C7.24167 2.02813 7.75833 2.02813 8.25828 1.922C8.63352 1.84234 8.99264 1.68269 9.57627 1.42323L9.96487 1.25051C10.2906 1.10576 10.643 1.03096 10.9994 1.03096C12.5496 1.03096 13.7404 2.40393 13.5211 3.93852L12.9921 7.64202C12.8833 8.40357 12.2311 8.96924 11.4618 8.96924C10.9358 8.96924 10.4459 8.70178 10.1614 8.25933L10.016 8.0331C8.83862 6.20161 6.16138 6.20161 4.98399 8.0331L4.74624 8.40293C4.51934 8.75588 4.12854 8.96924 3.70894 8.96924C3.15836 8.96924 2.67449 8.60426 2.52323 8.07486L1.61628 4.90054L1.47885 3.93852Z" fill="#2D264B"></path>
-                    <path d="M11.3104 3.09492C11.3104 3.44565 11.0261 3.72998 10.6754 3.72998C10.3246 3.72998 10.0403 3.44565 10.0403 3.09492C10.0403 2.74418 10.3246 2.45985 10.6754 2.45985C11.0261 2.45985 11.3104 2.74418 11.3104 3.09492Z" fill="#2D264B"></path>
-                    <path d="M10.0403 4.36504C10.0403 4.71578 9.75596 5.0001 9.40523 5.0001C9.05449 5.0001 8.77017 4.71578 8.77017 4.36504C8.77017 4.01431 9.05449 3.72998 9.40523 3.72998C9.75596 3.72998 10.0403 4.01431 10.0403 4.36504Z" fill="#2D264B"></path>
-                    <path d="M12.5805 4.36504C12.5805 4.71578 12.2962 5.0001 11.9455 5.0001C11.5947 5.0001 11.3104 4.71578 11.3104 4.36504C11.3104 4.01431 11.5947 3.72998 11.9455 3.72998C12.2962 3.72998 12.5805 4.01431 12.5805 4.36504Z" fill="#2D264B"></path>
-                    <path d="M11.3104 5.63517C11.3104 5.9859 11.0261 6.27023 10.6754 6.27023C10.3246 6.27023 10.0403 5.9859 10.0403 5.63517C10.0403 5.28443 10.3246 5.0001 10.6754 5.0001C11.0261 5.0001 11.3104 5.28443 11.3104 5.63517Z" fill="#2D264B"></path>
-                  </svg>
-
-                  <span class="services-button__text" translate="no">3D Animation</span>
-                </div>
-
-              </a>
-            </div>
-
-            <!-- VIDEO  LOOP -->
-            <div data-vimeo-playing="false" class="vimeo-bg is--loop" data-vimeo-activated="false" data-vimeo-bg-init="" data-vimeo-paused-by-user="false" data-vimeo-autoplay="true" data-vimeo-loaded="false" data-vimeo-update-size="true" data-vimeo-video-id="1161504005">
-              <div class="vimeo-bg__iframe-wrapper">
-                <div class="vimeo-bg__before"></div>
-                <iframe src="" width="640" height="360" frameborder="0" allowfullscreen="true" allow="autoplay; encrypted-media" class="vimeo-bg__iframe"></iframe>
-              </div>
-            </div>
-
-            <!-- COPY  -->
-            <div class="services-container__copy">
-              <h3>We Build <span>Experiences</span> That Breathe</h3>
-              <p>Because lasting experiences aren’t made by chance — <span>they’re shaped with purpose.</span></p>
-            </div>
-          </section>
-        </div>
-
-        <!-- PROJECTS  -->
-        <section class="projects" role="group" data-filter-group="" data-nav-clear="">
-          <div class="projects-heading">
-            <h3 class="projects-heading__title">Our Craft, Your Expression.</h3>
-
-            <!-- view all button  -->
-            <div class="cta-3 btn-group">
-              <a href="/projects" class="btn-bubble-arrow w-inline-block">
-                <div class="btn-bubble-arrow__arrow">
-                  <svg class="btn-bubble-arrow__arrow-svg" width="9" height="9" viewBox="0 0 9 9" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M3.3779 0.826483C3.12389 0.806254 2.93621 0.995929 2.9587 1.25014C2.9812 1.50434 3.20536 1.72681 3.45937 1.74704L4.98155 1.86827C5.59932 1.91747 6.02384 1.95197 6.35027 2.01448C6.45635 2.0348 6.54544 2.05698 6.62155 2.08113L0.649337 8.05334C0.484758 8.21792 0.50925 8.50925 0.704041 8.70404C0.898833 8.89883 1.19016 8.92332 1.35474 8.75875L7.32695 2.78653C7.3511 2.86264 7.37328 2.95173 7.3936 3.05782C7.45611 3.38424 7.49061 3.80876 7.53981 4.42653L7.66104 5.94871C7.68127 6.20272 7.90374 6.42688 8.15795 6.44938C8.41215 6.47187 8.60183 6.28419 8.5816 6.03018L8.45819 4.48057C8.41172 3.89693 8.37374 3.41993 8.29998 3.03482C8.22329 2.63436 8.09831 2.27502 7.83894 1.95303C7.78207 1.88244 7.7214 1.8149 7.65729 1.75079C7.59318 1.68668 7.52564 1.62601 7.45505 1.56914C7.13306 1.30977 6.77372 1.18479 6.37326 1.1081C5.98815 1.03434 5.51114 0.996361 4.9275 0.949891L3.3779 0.826483Z" fill="#101820"></path>
-                  </svg>
-                </div>
-                <div class="btn-bubble-arrow__content">
-                  <span class="btn-bubble-arrow__content-text" translate="no">VIEW ALL</span>
-                </div>
-                <div class="btn-bubble-arrow__arrow is--duplicate">
-                  <svg class="btn-bubble-arrow__arrow-svg" width="9" height="9" viewBox="0 0 9 9" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M3.3779 0.826483C3.12389 0.806254 2.93621 0.995929 2.9587 1.25014C2.9812 1.50434 3.20536 1.72681 3.45937 1.74704L4.98155 1.86827C5.59932 1.91747 6.02384 1.95197 6.35027 2.01448C6.45635 2.0348 6.54544 2.05698 6.62155 2.08113L0.649337 8.05334C0.484758 8.21792 0.50925 8.50925 0.704041 8.70404C0.898833 8.89883 1.19016 8.92332 1.35474 8.75875L7.32695 2.78653C7.3511 2.86264 7.37328 2.95173 7.3936 3.05782C7.45611 3.38424 7.49061 3.80876 7.53981 4.42653L7.66104 5.94871C7.68127 6.20272 7.90374 6.42688 8.15795 6.44938C8.41215 6.47187 8.60183 6.28419 8.5816 6.03018L8.45819 4.48057C8.41172 3.89693 8.37374 3.41993 8.29998 3.03482C8.22329 2.63436 8.09831 2.27502 7.83894 1.95303C7.78207 1.88244 7.7214 1.8149 7.65729 1.75079C7.59318 1.68668 7.52564 1.62601 7.45505 1.56914C7.13306 1.30977 6.77372 1.18479 6.37326 1.1081C5.98815 1.03434 5.51114 0.996361 4.9275 0.949891L3.3779 0.826483Z" fill="#101820"></path>
-                  </svg>
-                </div>
-              </a>
-            </div>
-          </div>
-
-          <!-- selectors  -->
-          <div class="projects-selectors">
-            <button data-theme="dark" data-btn-hover="" class="cta-2 btn w-inline-block --is-active" data-filter-target="all" data-filter-status="active" aria-pressed="false" aria-controls="filter-list">
-              <div class="btn__bg"></div>
-              <div class="btn__circle-wrap">
-                <div class="btn__circle">
-                  <div class="before__100"></div>
-                </div>
-              </div>
-              <div class="btn__text">
-                <p class="btn-text-p" translate="no">
-                  ALL
-                </p>
-              </div>
-            </button>
-
-            <button data-theme="dark" data-btn-hover="" class="cta-2 btn w-inline-block" data-filter-target="ui/ux" data-filter-status="not-active" aria-pressed="false" aria-controls="filter-list">
-              <div class="btn__bg"></div>
-              <div class="btn__circle-wrap">
-                <div class="btn__circle">
-                  <div class="before__100"></div>
-                </div>
-              </div>
-              <div class="btn__text">
-                <p class="btn-text-p" translate="no">
-                  UI/UX
-                </p>
-              </div>
-            </button>
-
-            <button data-theme="dark" data-btn-hover="" class="cta-2 btn w-inline-block" data-filter-target="development" data-filter-status="not-active" aria-pressed="false" aria-controls="filter-list">
-              <div class="btn__bg"></div>
-              <div class="btn__circle-wrap">
-                <div class="btn__circle">
-                  <div class="before__100"></div>
-                </div>
-              </div>
-              <div class="btn__text">
-                <p class="btn-text-p" translate="no">
-                  DEVELOPMENT
-                </p>
-              </div>
-            </button>
-
-            <button data-theme="dark" data-btn-hover="" class="cta-2 btn w-inline-block" data-filter-target="branding" data-filter-status="not-active" aria-pressed="false" aria-controls="filter-list">
-              <div class="btn__bg"></div>
-              <div class="btn__circle-wrap">
-                <div class="btn__circle">
-                  <div class="before__100"></div>
-                </div>
-              </div>
-              <div class="btn__text">
-                <p class="btn-text-p" translate="no">
-                  BRANDING
-                </p>
-              </div>
-            </button>
-
-            <button data-theme="dark" data-btn-hover="" class="cta-2 btn w-inline-block" data-filter-target="3d" data-filter-status="not-active" aria-pressed="false" aria-controls="filter-list">
-              <div class="btn__bg"></div>
-              <div class="btn__circle-wrap">
-                <div class="btn__circle">
-                  <div class="before__100"></div>
-                </div>
-              </div>
-              <div class="btn__text">
-                <p class="btn-text-p" translate="no">
-                  3D ANIMATION
-                </p>
-              </div>
-            </button>
-          </div>
-
-          <!-- projects grid  -->
-          <div class="projects-grid" aria-live="polite" role="list">
-
-            <!-- Card 1: UI/UX -->
-            <a href="/projects" target="_blank" role="listitem"
-               class="project-grid__item"
-               data-filter-services="UI/UX"
-               data-filter-status="active">
-              <div class="project-grid__image-wrapper">
-                <img src="images/clear-globe-desktop-1.webp" data-shader-image loading="lazy" alt="ClarityHealth project" />
-              </div>
-              <h4 class="project-grid__service">UI/UX</h4>
-              <div class="project-grid__link">
-                <div class="project-grid__link-arrow-wrapper">
-                  <svg width="9" height="9" viewBox="0 0 9 9" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M0.75 8.25L8.25 0.75M8.25 0.75H2.25M8.25 0.75V6.75" stroke="#FCFCFD" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                </div>
-                <p class="project-grid__link-text">ClarityHealth</p>
-              </div>
-            </a>
-
-            <!-- Card 2: Development -->
-            <a href="/projects" target="_blank" role="listitem"
-               class="project-grid__item"
-               data-filter-services="Development"
-               data-filter-status="active">
-              <div class="project-grid__image-wrapper">
-                <img src="images/hero-layer.webp" data-shader-image loading="lazy" alt="Neon Circuit project" />
-              </div>
-              <h4 class="project-grid__service">Development</h4>
-              <div class="project-grid__link">
-                <div class="project-grid__link-arrow-wrapper">
-                  <svg width="9" height="9" viewBox="0 0 9 9" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M0.75 8.25L8.25 0.75M8.25 0.75H2.25M8.25 0.75V6.75" stroke="#FCFCFD" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                </div>
-                <p class="project-grid__link-text">Neon Circuit</p>
-              </div>
-            </a>
-
-            <!-- Card 3: Branding -->
-            <a href="/projects" target="_blank" role="listitem"
-               class="project-grid__item"
-               data-filter-services="Branding"
-               data-filter-status="active">
-              <div class="project-grid__image-wrapper">
-                <img src="images/ideas-blur-2.webp" data-shader-image loading="lazy" alt="Aero Studio project" />
-              </div>
-              <h4 class="project-grid__service">Branding</h4>
-              <div class="project-grid__link">
-                <div class="project-grid__link-arrow-wrapper">
-                  <svg width="9" height="9" viewBox="0 0 9 9" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M0.75 8.25L8.25 0.75M8.25 0.75H2.25M8.25 0.75V6.75" stroke="#FCFCFD" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                </div>
-                <p class="project-grid__link-text">Aero Studio</p>
-              </div>
-            </a>
-
-            <!-- Card 4: UI/UX -->
-            <a href="/projects" target="_blank" role="listitem"
-               class="project-grid__item"
-               data-filter-services="UI/UX"
-               data-filter-status="active">
-              <div class="project-grid__image-wrapper">
-                <img src="images/ideas-blur-3.webp" data-shader-image loading="lazy" alt="VaultX project" />
-              </div>
-              <h4 class="project-grid__service">UI/UX</h4>
-              <div class="project-grid__link">
-                <div class="project-grid__link-arrow-wrapper">
-                  <svg width="9" height="9" viewBox="0 0 9 9" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M0.75 8.25L8.25 0.75M8.25 0.75H2.25M8.25 0.75V6.75" stroke="#FCFCFD" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                </div>
-                <p class="project-grid__link-text">VaultX</p>
-              </div>
-            </a>
-
-            <!-- Card 5: 3D -->
-            <a href="/projects" target="_blank" role="listitem"
-               class="project-grid__item"
-               data-filter-services="3D Animation"
-               data-filter-status="active">
-              <div class="project-grid__image-wrapper">
-                <img src="images/loop-layer.webp" data-shader-image loading="lazy" alt="Orbit 3D project" />
-              </div>
-              <h4 class="project-grid__service">3D Animation</h4>
-              <div class="project-grid__link">
-                <div class="project-grid__link-arrow-wrapper">
-                  <svg width="9" height="9" viewBox="0 0 9 9" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M0.75 8.25L8.25 0.75M8.25 0.75H2.25M8.25 0.75V6.75" stroke="#FCFCFD" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                </div>
-                <p class="project-grid__link-text">Orbit</p>
-              </div>
-            </a>
-
-            <!-- Card 6: Development -->
-            <a href="/projects" target="_blank" role="listitem"
-               class="project-grid__item"
-               data-filter-services="Development"
-               data-filter-status="active">
-              <div class="project-grid__image-wrapper">
-                <img src="images/clear-globe-mobile.webp" data-shader-image loading="lazy" alt="Pulse Dev project" />
-              </div>
-              <h4 class="project-grid__service">Development</h4>
-              <div class="project-grid__link">
-                <div class="project-grid__link-arrow-wrapper">
-                  <svg width="9" height="9" viewBox="0 0 9 9" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M0.75 8.25L8.25 0.75M8.25 0.75H2.25M8.25 0.75V6.75" stroke="#FCFCFD" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                </div>
-                <p class="project-grid__link-text">Pulse</p>
-              </div>
-            </a>
-
-          </div>
-
-          <!-- view all  -->
-          <div class="cta-3 btn-group --is-large">
-            <a href="/projects" class="btn-bubble-arrow w-inline-block">
-              <div class="btn-bubble-arrow__arrow">
-                <svg class="btn-bubble-arrow__arrow-svg" width="9" height="9" viewBox="0 0 9 9" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M3.3779 0.826483C3.12389 0.806254 2.93621 0.995929 2.9587 1.25014C2.9812 1.50434 3.20536 1.72681 3.45937 1.74704L4.98155 1.86827C5.59932 1.91747 6.02384 1.95197 6.35027 2.01448C6.45635 2.0348 6.54544 2.05698 6.62155 2.08113L0.649337 8.05334C0.484758 8.21792 0.50925 8.50925 0.704041 8.70404C0.898833 8.89883 1.19016 8.92332 1.35474 8.75875L7.32695 2.78653C7.3511 2.86264 7.37328 2.95173 7.3936 3.05782C7.45611 3.38424 7.49061 3.80876 7.53981 4.42653L7.66104 5.94871C7.68127 6.20272 7.90374 6.42688 8.15795 6.44938C8.41215 6.47187 8.60183 6.28419 8.5816 6.03018L8.45819 4.48057C8.41172 3.89693 8.37374 3.41993 8.29998 3.03482C8.22329 2.63436 8.09831 2.27502 7.83894 1.95303C7.78207 1.88244 7.7214 1.8149 7.65729 1.75079C7.59318 1.68668 7.52564 1.62601 7.45505 1.56914C7.13306 1.30977 6.77372 1.18479 6.37326 1.1081C5.98815 1.03434 5.51114 0.996361 4.9275 0.949891L3.3779 0.826483Z" fill="#101820"></path>
-                </svg>
-              </div>
-              <div class="btn-bubble-arrow__content">
-                <span class="btn-bubble-arrow__content-text" translate="no">VIEW ALL PROJECTS</span>
-              </div>
-              <div class="btn-bubble-arrow__arrow is--duplicate">
-                <svg class="btn-bubble-arrow__arrow-svg" width="9" height="9" viewBox="0 0 9 9" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M3.3779 0.826483C3.12389 0.806254 2.93621 0.995929 2.9587 1.25014C2.9812 1.50434 3.20536 1.72681 3.45937 1.74704L4.98155 1.86827C5.59932 1.91747 6.02384 1.95197 6.35027 2.01448C6.45635 2.0348 6.54544 2.05698 6.62155 2.08113L0.649337 8.05334C0.484758 8.21792 0.50925 8.50925 0.704041 8.70404C0.898833 8.89883 1.19016 8.92332 1.35474 8.75875L7.32695 2.78653C7.3511 2.86264 7.37328 2.95173 7.3936 3.05782C7.45611 3.38424 7.49061 3.80876 7.53981 4.42653L7.66104 5.94871C7.68127 6.20272 7.90374 6.42688 8.15795 6.44938C8.41215 6.47187 8.60183 6.28419 8.5816 6.03018L8.45819 4.48057C8.41172 3.89693 8.37374 3.41993 8.29998 3.03482C8.22329 2.63436 8.09831 2.27502 7.83894 1.95303C7.78207 1.88244 7.7214 1.8149 7.65729 1.75079C7.59318 1.68668 7.52564 1.62601 7.45505 1.56914C7.13306 1.30977 6.77372 1.18479 6.37326 1.1081C5.98815 1.03434 5.51114 0.996361 4.9275 0.949891L3.3779 0.826483Z" fill="#101820"></path>
-                </svg>
-              </div>
-            </a>
-          </div>
-        </section>
-
-        <!-- LETS TALK  -->
-        <section class="lets-talk">
-          <!-- ELLIPSES  -->
-          <div class="lets-talk__ellipse lets-talk__ellipse-0"></div>
-          <div class="lets-talk__ellipse lets-talk__ellipse-1"></div>
-
-          <!-- FLEX WRAPPER  -->
-          <div class="lets-talk-flex">
-            <!-- LEFT WRAPPER INFO  -->
-            <div class="lets-talk__info">
-              <div class="lets-talk__info-connect">
-                <span class="lets-talk__info-connect-icon"></span>
-                <span class="lets-talk__info-connect-text">Connect with us!</span>
-              </div>
-
-              <p class="lets-talk__info-heading">Turn Your Vision Into an Experience That Lasts</p>
-
-              <div class="lets-talk__info-divider"></div>
-
-              <a href="/cdn-cgi/l/email-protection#8ee6ebe2e2e1cee3eaf6a0fde1" class="lets-talk__contact-Email">
-                <svg width="23" height="25" viewBox="0 0 23 25" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path fill-rule="evenodd" clip-rule="evenodd" d="M15.2885 3.44676C14.5506 3.38525 13.6404 3.38525 12.4824 3.38525H10.8665C9.70859 3.38525 8.7984 3.38525 8.06047 3.44676C7.30727 3.50956 6.67982 3.63951 6.09662 3.93011C5.13308 4.41023 4.31738 5.18223 3.74731 6.15355C3.59848 6.40714 3.47521 6.67453 3.37005 6.96294C3.01226 7.94413 2.84685 9.2392 2.60616 11.1237L2.5858 11.283C2.38081 12.8873 2.22056 14.1414 2.17189 15.1516C2.12247 16.1772 2.18225 17.0319 2.46611 17.8166C2.93006 19.0991 3.7867 20.1685 4.89158 20.8445C5.56757 21.258 6.3382 21.44 7.27963 21.5279C8.20684 21.6144 9.37169 21.6144 10.8618 21.6144H12.4872C13.9773 21.6144 15.1421 21.6144 16.0694 21.5279C17.0108 21.44 17.7814 21.258 18.4574 20.8445C19.5623 20.1685 20.4189 19.0991 20.8829 17.8166C21.1667 17.0319 21.2265 16.1772 21.1771 15.1516C21.1284 14.1414 20.9682 12.8872 20.7632 11.2829L20.7398 11.1C20.4848 9.1032 20.3141 7.76597 19.8981 6.75415C19.8115 6.54359 19.7137 6.34446 19.6017 6.15355C19.0316 5.18223 18.2159 4.41023 17.2524 3.93011C16.6692 3.63951 16.0417 3.50956 15.2885 3.44676ZM6.69566 5.35047C7.06329 5.16728 7.50279 5.06034 8.17039 5.00469C8.84696 4.94829 9.70216 4.94775 10.8962 4.94775H12.4527C13.6468 4.94775 14.502 4.94829 15.1786 5.00469C15.8462 5.06034 16.2857 5.16728 16.6533 5.35047C17.3454 5.69533 17.9343 6.24392 18.3537 6.93347L17.8264 7.50657C16.2148 9.2583 15.0562 10.5154 14.0568 11.3441C13.074 12.1592 12.3303 12.4861 11.5582 12.4861C10.7862 12.4861 10.0424 12.1592 9.0596 11.3441C8.06024 10.5154 6.90159 9.2583 5.29 7.50657L4.90579 7.08896C4.92318 7.05662 4.94098 7.02496 4.95922 6.99388C5.38057 6.27595 5.98348 5.70534 6.69566 5.35047ZM18.9092 8.53936C19.0476 9.23474 19.1676 10.1541 19.3346 11.4609C19.5453 13.1102 19.6965 14.298 19.7416 15.2333C19.7863 16.1609 19.7208 16.7592 19.5451 17.2449C19.2022 18.1928 18.569 18.9832 17.7523 19.4828C17.3339 19.7388 16.7978 19.8916 15.9463 19.9711C15.0878 20.0512 13.9846 20.0519 12.4527 20.0519H10.8962C9.36434 20.0519 8.26114 20.0512 7.40264 19.9711C6.55123 19.8916 6.01504 19.7388 5.59664 19.4828C4.77999 18.9832 4.14683 18.1928 3.80391 17.2449C3.62822 16.7592 3.56272 16.1609 3.60742 15.2333C3.65248 14.298 3.80363 13.1102 4.01437 11.4609C4.16486 10.2832 4.27696 9.41936 4.39983 8.74871C5.92248 10.4037 7.12285 11.7033 8.18763 12.5864C9.29828 13.5074 10.3455 14.0486 11.5582 14.0486C12.7709 14.0486 13.8181 13.5074 14.9288 12.5864C16.0139 11.6865 17.2397 10.354 18.804 8.6537L18.9092 8.53936Z" fill="#5B6871"></path>
-                </svg>
-
-                <span><span class="__cf_email__" data-cfemail="4f272a2323200f222b37613c20">[email protected]</span></span>
-              </a>
-
-              <div class="lets-talk__socials --is-desktop">
-                <a class="lets-talk__socials-link" href="https://www.tiktok.com/@marcelodesignx?_t=ZM-8wsLc7iWLSA&_r=1" aria-label="Tiktok" target="_blank">
-                  <svg width="11" height="13" viewBox="0 0 11 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M5.5 0V9.1C5.5 9.83454 4.90192 10.4 4.125 10.4C3.34808 10.4 2.75 9.83454 2.75 9.1C2.75 8.36546 3.34808 7.8 4.125 7.8V5.2C1.86317 5.2 0 6.96154 0 9.1C0 11.2385 1.86317 13 4.125 13C6.38683 13 8.25 11.2385 8.25 9.1V4.20215C9.0972 4.77274 9.98129 5.2 11 5.2V2.6C10.9349 2.6 9.98618 2.31522 9.32422 1.76973C8.66226 1.22423 8.25 0.539488 8.25 0H5.5Z" fill="#5B6871"></path>
-                  </svg>
-                </a>
-
-                <a class="lets-talk__socials-link" href="https://www.instagram.com/marcelodesignx/" aria-label="Instagram" target="_blank">
-                  <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M3.61111 0C1.62326 0 0 1.62326 0 3.61111V9.38889C0 11.3767 1.62326 13 3.61111 13H9.38889C11.3767 13 13 11.3767 13 9.38889V3.61111C13 1.62326 11.3767 0 9.38889 0H3.61111ZM3.61111 1.08333H9.38889C10.7911 1.08333 11.9167 2.20885 11.9167 3.61111V9.38889C11.9167 10.7911 10.7911 11.9167 9.38889 11.9167H3.61111C2.20885 11.9167 1.08333 10.7911 1.08333 9.38889V3.61111C1.08333 2.20885 2.20885 1.08333 3.61111 1.08333ZM10.2917 2.16667C10.148 2.16667 10.0102 2.22373 9.90865 2.32532C9.80707 2.4269 9.75 2.56467 9.75 2.70833C9.75 2.85199 9.80707 2.98977 9.90865 3.09135C10.0102 3.19293 10.148 3.25 10.2917 3.25C10.4353 3.25 10.5731 3.19293 10.6747 3.09135C10.7763 2.98977 10.8333 2.85199 10.8333 2.70833C10.8333 2.56467 10.7763 2.4269 10.6747 2.32532C10.5731 2.22373 10.4353 2.16667 10.2917 2.16667ZM6.5 2.88889C5.34144 2.88889 4.40392 3.34285 3.79308 4.03006C3.18223 4.71726 2.88889 5.61227 2.88889 6.5C2.88889 7.38773 3.18223 8.28274 3.79308 8.96994C4.40392 9.65715 5.34144 10.1111 6.5 10.1111C7.65856 10.1111 8.59608 9.65715 9.20692 8.96994C9.81777 8.28274 10.1111 7.38773 10.1111 6.5C10.1111 5.61227 9.81777 4.71726 9.20692 4.03006C8.59608 3.34285 7.65856 2.88889 6.5 2.88889ZM6.5 3.97222C7.38773 3.97222 7.98494 4.28562 8.39724 4.74946C8.80955 5.2133 9.02778 5.85301 9.02778 6.5C9.02778 7.14699 8.80955 7.7867 8.39724 8.25054C7.98494 8.71438 7.38773 9.02778 6.5 9.02778C5.61227 9.02778 5.01506 8.71438 4.60276 8.25054C4.19045 7.7867 3.97222 7.14699 3.97222 6.5C3.97222 5.85301 4.19045 5.2133 4.60276 4.74946C5.01506 4.28562 5.61227 3.97222 6.5 3.97222Z" fill="#5B6871"></path>
-                  </svg>
-                </a>
-
-                <a class="lets-talk__socials-link" href="https://x.com/MarceloDesignX" aria-label="X social" target="_blank">
-                  <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M0.244436 0L5.27057 7.09067L0 13H1.12344L5.76842 7.79225L9.45982 13H13L7.74048 5.58059L12.7183 0H11.5955L7.24332 4.87901L3.78462 0H0.244436Z" fill="#5B6871"></path>
-                  </svg>
-                </a>
-
-                <a class="lets-talk__socials-link" href="https://www.facebook.com/MarceloDesignX" aria-label="Facebook" target="_blank">
-                  <svg width="7" height="13" viewBox="0 0 7 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M5.38456 2.54348H6.7307C6.87931 2.54348 6.99993 2.41687 6.99993 2.26087V0.356935C6.99993 0.208848 6.89143 0.0856304 6.75089 0.0751739C6.32255 0.0432391 5.48579 0 4.88407 0C3.23074 0 2.15382 1.04 2.15382 2.93009V4.80435H0.269228C0.120614 4.80435 0 4.93096 0 5.08696V7.06522C0 7.22122 0.120614 7.34783 0.269228 7.34783H2.15382V12.7174C2.15382 12.8734 2.27444 13 2.42305 13H4.30765C4.45626 13 4.57688 12.8734 4.57688 12.7174V7.34783H6.52124C6.65855 7.34783 6.77378 7.23959 6.78885 7.0963L6.99831 5.11804C7.01608 4.95074 6.89116 4.80435 6.7307 4.80435H4.57688V3.3913C4.57688 2.92302 4.93845 2.54348 5.38456 2.54348Z" fill="#5B6871"></path>
-                  </svg>
-                </a>
-
-                <a class="lets-talk__socials-link" href="https://www.youtube.com/@marcelodesignx2324" aria-label="Youtube" target="_blank">
-                  <svg width="17" height="13" viewBox="0 0 17 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M16.5255 2.23438C16.3683 1.34094 15.6195 0.690308 14.7506 0.487183C13.4502 0.203125 11.0437 0 8.43991 0C5.83768 0 3.39261 0.203125 2.09072 0.487183C1.22331 0.690308 0.472993 1.29968 0.315842 2.23438C0.157151 3.25 0 4.67188 0 6.5C0 8.32812 0.157151 9.75 0.354359 10.7656C0.51305 11.6591 1.26183 12.3097 2.12924 12.5128C3.5097 12.7969 5.8762 13 8.47997 13C11.0837 13 13.4502 12.7969 14.8307 12.5128C15.6981 12.3097 16.4469 11.7003 16.6056 10.7656C16.7627 9.75 16.9599 8.28687 17 6.5C16.9199 4.67188 16.7227 3.25 16.5255 2.23438ZM6.31068 9.34375V3.65625L11.1223 6.5L6.31068 9.34375Z" fill="#5B6871"></path>
-                  </svg>
-                </a>
-
-                <a class="lets-talk__socials-link" href="https://www.linkedin.com/company/65831843" aria-label="LinkedIn" target="_blank">
-                  <svg width="15" height="13" viewBox="0 0 15 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M2.32609 0C1.27 0 0.502972 0.628815 0.502972 1.49366C0.502972 2.36153 1.28826 3.01804 2.32609 3.01804C3.38217 3.01804 4.1492 2.37708 4.1492 1.47594C4.10051 0.608072 3.3487 0 2.32609 0ZM0.804348 3.62578C0.636957 3.62578 0.5 3.76186 0.5 3.92817V12.6976C0.5 12.8639 0.636957 13 0.804348 13H3.84783C4.01522 13 4.15217 12.8639 4.15217 12.6976V3.92817C4.15217 3.76186 4.01522 3.62578 3.84783 3.62578H0.804348ZM5.36957 3.62578C5.20217 3.62578 5.06522 3.76186 5.06522 3.92817V12.6976C5.06522 12.8639 5.20217 13 5.36957 13H8.1087C8.2767 13 8.41304 12.8645 8.41304 12.6976V8.16169V8.08609V8.0105C8.41304 7.29382 8.96715 6.71006 9.67323 6.65563C9.70975 6.64958 9.74609 6.64972 9.78261 6.64972C9.81913 6.64972 9.85546 6.64958 9.89198 6.65563C10.5981 6.71006 11.1522 7.29382 11.1522 8.0105V12.6976C11.1522 12.8645 11.2885 13 11.4565 13H14.1957C14.363 13 14.5 12.8639 14.5 12.6976V7.5569C14.5 5.60041 13.4436 3.62578 11.088 3.62578C10.0167 3.62578 9.20739 4.03711 8.71739 4.37881V3.92817C8.71739 3.76186 8.58043 3.62578 8.41304 3.62578H5.36957Z" fill="#5B6871"></path>
-                  </svg>
-                </a>
-              </div>
-            </div>
-
-            <!-- RIGHT WRAPPER FORM  -->
-            <div class="lets-talk__form-wrapper">
-              <h3>Let's talk</h3>
-
-              <form class="lets-talk__form" data-form-validate="" novalidate="">
-                <div class="form-group">
-                  <div class="form-group-field" data-validate="">
-                    <label data-label="" for="text" class="form-label">Fullname
-                    </label>
-
-                    <input data-name="Fullname" type="text" id="fullname" name="fullname" class="form-input" max="256" required="" placeholder="Full name">
-
-                    <div class="form-error" data-error-message=""></div>
-                  </div>
-
-                  <div class="form-group-field" data-validate="">
-                    <label data-label="" for="text" class="form-label">Company
-                    </label>
-
-                    <input data-name="company" type="text" id="company" name="company" class="form-input" max="256" required="" placeholder="Company">
-
-                    <div class="form-error" data-error-message=""></div>
-                  </div>
-                </div>
-
-                <div class="form-group">
-                  <div class="form-group-field" data-validate="">
-                    <label data-label="" for="email" class="form-label">Email
-                    </label>
-
-                    <input data-name="Email" type="email" id="email" name="email" class="form-input" max="256" required="" placeholder="Email">
-
-                    <div class="form-error" data-error-message=""></div>
-                  </div>
-
-                  <div class="form-group-field" data-validate="">
-                    <label data-label="" for="phone" class="form-label">Phone
-                    </label>
-
-                    <input data-name="phone" type="tel" id="phone" name="phone" class="form-input" max="256" required="" placeholder="Phone">
-
-                    <div class="form-error" data-error-message=""></div>
-                  </div>
-                </div>
-
-                <div class="form-group">
-                  <div class="form-group-field --is-checkbox" data-validate="">
-                    <label class="form-label">I'm Interested on</label>
-
-                    <div class="interest-options">
-                      <div class="interest-option">
-                        <input type="checkbox" name="interests[]" hidden="" value="UI/UX" id="uiux" checked="">
-
-                        <label for="uiux" translate="no">UI/UX</label>
-                      </div>
-                      <div class="interest-option">
-                        <input type="checkbox" name="interests[]" value="Development" hidden="" id="development">
-
-                        <label for="development" translate="no">Development</label>
-                      </div>
-
-                      <div class="interest-option">
-                        <input type="checkbox" name="interests[]" value="Branding" hidden="" id="branding">
-
-                        <label for="branding" translate="no">Branding</label>
-                      </div>
-
-                      <div class="interest-option">
-                        <input type="checkbox" name="interests[]" value="3D Animation" hidden="" id="animation">
-
-                        <label for="animation" translate="no">3D Animation</label>
-                      </div>
-                    </div>
-
-                    <div class="form-error" data-error-message=""></div>
-                  </div>
-                </div>
-
-                <div class="form-group">
-                  <div class="form-group-field --is-textarea" data-validate="">
-                    <label data-label="" for="message" class="form-label">Message
-                    </label>
-
-                    <textarea class="form-input is--textarea" max="5000" name="message" data-name="Message" min="10" id="message" required="" placeholder="Tell us more about your project!"></textarea>
-
-                    <div class="form-error" data-error-message=""></div>
-                  </div>
-                </div>
-
-                <div class="form-group --is-submit">
-                  <button type="submit" aria-label="Submit button" class="cta-1 btn-animate-chars">
-                    <div class="btn-animate-chars__bg"></div>
-
-                    <span data-button-animate-chars="" class="btn-animate-chars__text" translate="no">SEND</span>
-
-                    <span class="cta-1__arrow-wrapper">
-                      <svg width="19" height="12" viewBox="0 0 19 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M14.028 0.467309C13.7338 0.175726 13.2589 0.177844 12.9673 0.472041C12.6757 0.766238 12.6778 1.24111 12.972 1.53269L14.735 3.28C15.4505 3.98914 15.9413 4.47718 16.2734 4.89071C16.3813 5.02509 16.4655 5.1434 16.5309 5.25L1.5 5.25C1.08579 5.25 0.75 5.58579 0.75 6C0.75 6.41422 1.08579 6.75 1.5 6.75L16.5309 6.75C16.4655 6.8566 16.3813 6.97491 16.2734 7.10929C15.9413 7.52282 15.4505 8.01086 14.735 8.72L12.972 10.4673C12.6778 10.7589 12.6757 11.2338 12.9673 11.528C13.2589 11.8222 13.7338 11.8243 14.028 11.5327L15.8227 9.7539C16.4987 9.08395 17.0511 8.53641 17.4429 8.04854C17.8504 7.54121 18.1453 7.02628 18.2241 6.40816C18.2414 6.27265 18.25 6.13632 18.25 6C18.25 5.86368 18.2414 5.72735 18.2241 5.59184C18.1453 4.97372 17.8504 4.45878 17.4429 3.95146C17.0511 3.46358 16.4987 2.91604 15.8227 2.24609L14.028 0.467309Z" fill="#FF8200"></path>
-                      </svg>
-                    </span>
-                  </button>
-
-                  <div class="form-status">
-                    <div class="form-status-message --is-success" data-form-status-message="success"></div>
-                    <div class="form-status-message --is-error" data-form-status-message="error"></div>
-                  </div>
-                </div>
-              </form>
-            </div>
-
-            <!-- SOCIALS MOBILE  -->
-            <div class="lets-talk__socials --is-mobile">
-              <a href="https://www.tiktok.com/@marcelodesignx?_t=ZM-8wsLc7iWLSA&_r=1" aria-label="Tiktok" target="_blank" class="lets-talk__socials-link">
-                <svg width="11" height="13" viewBox="0 0 11 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M5.5 0V9.1C5.5 9.83454 4.90192 10.4 4.125 10.4C3.34808 10.4 2.75 9.83454 2.75 9.1C2.75 8.36546 3.34808 7.8 4.125 7.8V5.2C1.86317 5.2 0 6.96154 0 9.1C0 11.2385 1.86317 13 4.125 13C6.38683 13 8.25 11.2385 8.25 9.1V4.20215C9.0972 4.77274 9.98129 5.2 11 5.2V2.6C10.9349 2.6 9.98618 2.31522 9.32422 1.76973C8.66226 1.22423 8.25 0.539488 8.25 0H5.5Z" fill="#5B6871"></path>
-                </svg>
-              </a>
-
-              <a href="https://www.instagram.com/marcelodesignx/" aria-label="Instagram" target="_blank" class="lets-talk__socials-link">
-                <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M3.61111 0C1.62326 0 0 1.62326 0 3.61111V9.38889C0 11.3767 1.62326 13 3.61111 13H9.38889C11.3767 13 13 11.3767 13 9.38889V3.61111C13 1.62326 11.3767 0 9.38889 0H3.61111ZM3.61111 1.08333H9.38889C10.7911 1.08333 11.9167 2.20885 11.9167 3.61111V9.38889C11.9167 10.7911 10.7911 11.9167 9.38889 11.9167H3.61111C2.20885 11.9167 1.08333 10.7911 1.08333 9.38889V3.61111C1.08333 2.20885 2.20885 1.08333 3.61111 1.08333ZM10.2917 2.16667C10.148 2.16667 10.0102 2.22373 9.90865 2.32532C9.80707 2.4269 9.75 2.56467 9.75 2.70833C9.75 2.85199 9.80707 2.98977 9.90865 3.09135C10.0102 3.19293 10.148 3.25 10.2917 3.25C10.4353 3.25 10.5731 3.19293 10.6747 3.09135C10.7763 2.98977 10.8333 2.85199 10.8333 2.70833C10.8333 2.56467 10.7763 2.4269 10.6747 2.32532C10.5731 2.22373 10.4353 2.16667 10.2917 2.16667ZM6.5 2.88889C5.34144 2.88889 4.40392 3.34285 3.79308 4.03006C3.18223 4.71726 2.88889 5.61227 2.88889 6.5C2.88889 7.38773 3.18223 8.28274 3.79308 8.96994C4.40392 9.65715 5.34144 10.1111 6.5 10.1111C7.65856 10.1111 8.59608 9.65715 9.20692 8.96994C9.81777 8.28274 10.1111 7.38773 10.1111 6.5C10.1111 5.61227 9.81777 4.71726 9.20692 4.03006C8.59608 3.34285 7.65856 2.88889 6.5 2.88889ZM6.5 3.97222C7.38773 3.97222 7.98494 4.28562 8.39724 4.74946C8.80955 5.2133 9.02778 5.85301 9.02778 6.5C9.02778 7.14699 8.80955 7.7867 8.39724 8.25054C7.98494 8.71438 7.38773 9.02778 6.5 9.02778C5.61227 9.02778 5.01506 8.71438 4.60276 8.25054C4.19045 7.7867 3.97222 7.14699 3.97222 6.5C3.97222 5.85301 4.19045 5.2133 4.60276 4.74946C5.01506 4.28562 5.61227 3.97222 6.5 3.97222Z" fill="#5B6871"></path>
-                </svg>
-              </a>
-
-              <a href="https://x.com/MarceloDesignX" aria-label="X social" target="_blank" class="lets-talk__socials-link">
-                <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M0.244436 0L5.27057 7.09067L0 13H1.12344L5.76842 7.79225L9.45982 13H13L7.74048 5.58059L12.7183 0H11.5955L7.24332 4.87901L3.78462 0H0.244436Z" fill="#5B6871"></path>
-                </svg>
-              </a>
-
-              <a href="https://www.facebook.com/MarceloDesignX" aria-label="Facebook" target="_blank" class="lets-talk__socials-link">
-                <svg width="7" height="13" viewBox="0 0 7 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M5.38456 2.54348H6.7307C6.87931 2.54348 6.99993 2.41687 6.99993 2.26087V0.356935C6.99993 0.208848 6.89143 0.0856304 6.75089 0.0751739C6.32255 0.0432391 5.48579 0 4.88407 0C3.23074 0 2.15382 1.04 2.15382 2.93009V4.80435H0.269228C0.120614 4.80435 0 4.93096 0 5.08696V7.06522C0 7.22122 0.120614 7.34783 0.269228 7.34783H2.15382V12.7174C2.15382 12.8734 2.27444 13 2.42305 13H4.30765C4.45626 13 4.57688 12.8734 4.57688 12.7174V7.34783H6.52124C6.65855 7.34783 6.77378 7.23959 6.78885 7.0963L6.99831 5.11804C7.01608 4.95074 6.89116 4.80435 6.7307 4.80435H4.57688V3.3913C4.57688 2.92302 4.93845 2.54348 5.38456 2.54348Z" fill="#5B6871"></path>
-                </svg>
-              </a>
-
-              <a href="https://www.youtube.com/@marcelodesignx2324" aria-label="Youtube" target="_blank" class="lets-talk__socials-link">
-                <svg width="17" height="13" viewBox="0 0 17 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M16.5255 2.23438C16.3683 1.34094 15.6195 0.690308 14.7506 0.487183C13.4502 0.203125 11.0437 0 8.43991 0C5.83768 0 3.39261 0.203125 2.09072 0.487183C1.22331 0.690308 0.472993 1.29968 0.315842 2.23438C0.157151 3.25 0 4.67188 0 6.5C0 8.32812 0.157151 9.75 0.354359 10.7656C0.51305 11.6591 1.26183 12.3097 2.12924 12.5128C3.5097 12.7969 5.8762 13 8.47997 13C11.0837 13 13.4502 12.7969 14.8307 12.5128C15.6981 12.3097 16.4469 11.7003 16.6056 10.7656C16.7627 9.75 16.9599 8.28687 17 6.5C16.9199 4.67188 16.7227 3.25 16.5255 2.23438ZM6.31068 9.34375V3.65625L11.1223 6.5L6.31068 9.34375Z" fill="#5B6871"></path>
-                </svg>
-              </a>
-
-              <a href="https://www.linkedin.com/company/65831843" aria-label="LinkedIn" target="_blank" class="lets-talk__socials-link">
-                <svg width="15" height="13" viewBox="0 0 15 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M2.32609 0C1.27 0 0.502972 0.628815 0.502972 1.49366C0.502972 2.36153 1.28826 3.01804 2.32609 3.01804C3.38217 3.01804 4.1492 2.37708 4.1492 1.47594C4.10051 0.608072 3.3487 0 2.32609 0ZM0.804348 3.62578C0.636957 3.62578 0.5 3.76186 0.5 3.92817V12.6976C0.5 12.8639 0.636957 13 0.804348 13H3.84783C4.01522 13 4.15217 12.8639 4.15217 12.6976V3.92817C4.15217 3.76186 4.01522 3.62578 3.84783 3.62578H0.804348ZM5.36957 3.62578C5.20217 3.62578 5.06522 3.76186 5.06522 3.92817V12.6976C5.06522 12.8639 5.20217 13 5.36957 13H8.1087C8.2767 13 8.41304 12.8645 8.41304 12.6976V8.16169V8.08609V8.0105C8.41304 7.29382 8.96715 6.71006 9.67323 6.65563C9.70975 6.64958 9.74609 6.64972 9.78261 6.64972C9.81913 6.64972 9.85546 6.64958 9.89198 6.65563C10.5981 6.71006 11.1522 7.29382 11.1522 8.0105V12.6976C11.1522 12.8645 11.2885 13 11.4565 13H14.1957C14.363 13 14.5 12.8639 14.5 12.6976V7.5569C14.5 5.60041 13.4436 3.62578 11.088 3.62578C10.0167 3.62578 9.20739 4.03711 8.71739 4.37881V3.92817C8.71739 3.76186 8.58043 3.62578 8.41304 3.62578H5.36957Z" fill="#5B6871"></path>
-                </svg>
-              </a>
-            </div>
-          </div>
-        </section>
-
-        <!-- FOOTER  -->
-        <footer class="footer" data-nav-clear="">
-          <div class="footer-grid">
-            <p class="footer-text">Is there a fascinating project <span>brewing in your mind?</span></p>
-
-            <div class="footer-center">
-              <a href="/cdn-cgi/l/email-protection#026a676e6e6d426f667a2c716d" class="footer-center__left-link">
-                <span class="footer-center__left-link-icon">
-                  <svg width="43" height="44" viewBox="0 0 43 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M40.6738 2.90426C34.7073 -3.09065 15.4974 3.91379 13.3281 4.73095C7.3689 6.97904 0.22047 10.4272 0.00574225 14.1062C-0.23835 19.1722 7.34504 24.2456 14.0585 26.2243C14.3815 26.3196 14.7302 26.2243 14.9688 25.9861L27.0303 13.945C27.7479 13.2286 28.9078 13.2286 29.6254 13.945C30.343 14.6614 30.343 15.8193 29.6254 16.5357L17.5327 28.608C17.2941 28.8462 17.1987 29.1943 17.2923 29.5168C19.3001 36.3984 24.5361 43.5 29.3868 43.5C29.4253 43.5 29.4657 43.5 29.5043 43.5C33.3969 43.1922 37.062 34.7971 38.8991 29.8227C39.6956 27.6754 46.4751 8.70129 40.6738 2.90426Z" fill="#FCFCFD"></path>
-                  </svg>
-                </span>
-
-                <span class="footer-center__left-link-text"><span class="__cf_email__" data-cfemail="c6aea3aaaaa986aba2bee8b5a9">[email protected]</span></span>
-              </a>
-
-              <div class="footer-center__navigation">
-                <a href="/about-us" class="footer-center__navigation-link">
-                  About Us</a>
-
-                <a href="/services" class="footer-center__navigation-link">
-                  Services</a>
-
-                <a href="/contact" class="footer-center__navigation-link">
-                  Contact Us</a>
-
-                <a href="/blog" class="footer-center__navigation-link">
-                  Blog post</a>
-              </div>
-            </div>
-
-            <div class="footer-divider"></div>
-
-            <div class="footer__logo-wrapper">
-              <div class="footer__logo-inner">
-                <svg width="430" height="293" viewBox="0 0 430 293" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M102.381 0C143.333 0 170.635 27.9048 184.286 83.7143L215 185.427L245.714 83.7143C259.365 27.9048 286.667 0 327.619 0C395.873 0 430 34.881 430 104.643V293H348.095V94.1786C348.095 87.2024 344.683 83.7143 337.857 83.7143C331.032 83.7143 324.206 97.6667 317.381 125.571L276.429 251.143C269.603 279.048 252.54 293 225.238 293H204.762C177.46 293 160.397 279.048 153.571 251.143L112.619 125.571C105.794 97.6667 98.9683 83.7143 92.1429 83.7143C85.3175 83.7143 81.9048 87.2024 81.9048 94.1786V293H0V104.643C0 34.881 34.127 0 102.381 0Z" fill="#FCFCFD"></path>
-                </svg>
-              </div>
-
-              <div class="footer__logo-inner">
-                <svg width="372" height="293" viewBox="0 0 372 293" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M0 62.7857V0H248C330.667 0 372 34.881 372 104.643V209.286C372 265.095 330.667 293 248 293H0V125.571H82.6667V230.214H248C275.556 230.214 289.333 216.262 289.333 188.357V104.643C289.333 76.7381 275.556 62.7857 248 62.7857H0Z" fill="#FCFCFD"></path>
-                </svg>
-              </div>
-
-              <div class="footer__logo-inner">
-                <svg width="450" height="352" viewBox="0 0 450 352" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M0 0L154.495 148.816L0 297.632H102.997L205.994 198.351L347.003 352H450L257.492 148.816L411.987 0H308.99L205.994 99.2817L102.997 0H0Z" fill="#FCFCFD"></path>
-                </svg>
-              </div>
-            </div>
-
-            <div class="footer-bottom">
-              <div class="footer-bottom__socials">
-                <a href="https://www.facebook.com/MarceloDesignX" aria-label="Facebook" target="_blank" rel="noopener noreferrer" class="footer-bottom__socials-link">
-                  <svg width="11" height="20" viewBox="0 0 11 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M8.46145 3.91304H10.5768C10.8104 3.91304 10.9999 3.71826 10.9999 3.47826V0.54913C10.9999 0.321304 10.8294 0.131739 10.6085 0.115652C9.93544 0.0665217 8.62053 0 7.67496 0C5.07687 0 3.38458 1.6 3.38458 4.50783V7.3913H0.423073C0.189537 7.3913 0 7.58609 0 7.82609V10.8696C0 11.1096 0.189537 11.3043 0.423073 11.3043H3.38458V19.5652C3.38458 19.8052 3.57412 20 3.80765 20H6.76916C7.0027 20 7.19223 19.8052 7.19223 19.5652V11.3043H10.2477C10.4634 11.3043 10.6445 11.1378 10.6682 10.9174L10.9973 7.87391C11.0253 7.61652 10.829 7.3913 10.5768 7.3913H7.19223V5.21739C7.19223 4.49696 7.76042 3.91304 8.46145 3.91304Z" fill="#8A8F8D"></path>
-                  </svg>
-                </a>
-
-                <a href="https://www.youtube.com/@marcelodesignx2324" aria-label="Youtube" target="_blank" rel="noopener noreferrer" class="footer-bottom__socials-link">
-                  <svg width="27" height="20" viewBox="0 0 27 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M26.2463 3.4375C25.9967 2.06299 24.8075 1.06201 23.4274 0.749512C21.3622 0.3125 17.54 0 13.4046 0C9.27161 0 5.38826 0.3125 3.32055 0.749512C1.9429 1.06201 0.751224 1.99951 0.501631 3.4375C0.249592 5 0 7.1875 0 10C0 12.8125 0.249592 15 0.562806 16.5625C0.814845 17.937 2.00408 18.938 3.38173 19.2505C5.57423 19.6875 9.33279 20 13.4682 20C17.6036 20 21.3622 19.6875 23.5546 19.2505C24.9323 18.938 26.1215 18.0005 26.3736 16.5625C26.6232 15 26.9364 12.749 27 10C26.8728 7.1875 26.5595 5 26.2463 3.4375ZM10.0228 14.375V5.625L17.6648 10L10.0228 14.375Z" fill="#8A8F8D"></path>
-                  </svg>
-                </a>
-
-                <a href="https://www.linkedin.com/company/65831843" aria-label="LinkedIn" target="_blank" rel="noopener noreferrer" class="footer-bottom__socials-link">
-                  <svg width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M2.73913 0C1.155 0 0.00445822 0.967407 0.00445822 2.29794C0.00445822 3.63313 1.18239 4.64313 2.73913 4.64313C4.32326 4.64313 5.4738 3.65704 5.4738 2.27068C5.40076 0.935496 4.27304 0 2.73913 0ZM0.456522 5.57812C0.205435 5.57812 0 5.78747 0 6.04334V19.5348C0 19.7907 0.205435 20 0.456522 20H5.02174C5.27283 20 5.47826 19.7907 5.47826 19.5348V6.04334C5.47826 5.78747 5.27283 5.57812 5.02174 5.57812H0.456522ZM7.30435 5.57812C7.05326 5.57812 6.84783 5.78747 6.84783 6.04334V19.5348C6.84783 19.7907 7.05326 20 7.30435 20H11.413C11.665 20 11.8696 19.7916 11.8696 19.5348V12.5564V12.4401V12.3238C11.8696 11.2213 12.7007 10.3232 13.7599 10.2394C13.8146 10.2301 13.8691 10.2303 13.9239 10.2303C13.9787 10.2303 14.0332 10.2301 14.088 10.2394C15.1471 10.3232 15.9783 11.2213 15.9783 12.3238V19.5348C15.9783 19.7916 16.1828 20 16.4348 20H20.5435C20.7946 20 21 19.7907 21 19.5348V11.626C21 8.61602 19.4154 5.57812 15.882 5.57812C14.275 5.57812 13.0611 6.21093 12.3261 6.73663V6.04334C12.3261 5.78747 12.1207 5.57812 11.8696 5.57812H7.30435Z" fill="#8A8F8D"></path>
-                  </svg>
-                </a>
-
-                <a href="https://x.com/MarceloDesignX" aria-label="X social" target="_blank" rel="noopener noreferrer" class="footer-bottom__socials-link">
-                  <svg width="19" height="20" viewBox="0 0 19 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M0.357253 0L7.70314 10.9087L0 20H1.64195L8.43076 11.9881L13.8259 20H19L11.313 8.58553L18.5883 0H16.9473L10.5864 7.50617L5.53136 0H0.357253Z" fill="#8A8F8D"></path>
-                  </svg>
-                </a>
-
-                <a href="https://www.tiktok.com/@marcelodesignx?_t=ZM-8wsLc7iWLSA&_r=1" aria-label="Tiktok" target="_blank" rel="noopener noreferrer" class="footer-bottom__socials-link">
-                  <svg width="16" height="20" viewBox="0 0 16 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M8 0V14C8 15.1301 7.13006 16 6 16C4.86994 16 4 15.1301 4 14C4 12.8699 4.86994 12 6 12V8C2.71006 8 0 10.7101 0 14C0 17.2899 2.71006 20 6 20C9.28994 20 12 17.2899 12 14V6.46484C13.2323 7.34268 14.5182 8 16 8V4C15.9053 4 14.5253 3.56188 13.5625 2.72266C12.5997 1.88344 12 0.829982 12 0H8Z" fill="#8A8F8D"></path>
-                  </svg>
-                </a>
-              </div>
-
-              <div class="footer-bottom__copyright">
-                <span class="footer-bottom__copyright-text">©2025 MDX. All rights reserved</span>
-
-                <a href="/privacy-policy" class="footer-bottom__copyright-link">Privacy Policy</a>
-                <a href="/terms-&-conditions" class="footer-bottom__copyright-link">Terms & Conditions</a>
-              </div>
-
-              <div class="footer-bottom__scroll-top" data-scroll-top-home="0">
-                <span class="footer-bottom__scroll-top-text" translate="no">SCROLL TOP</span>
-
-                <span class="footer-bottom__scroll-top-icon">
-                  <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="11" cy="11" r="10.5" stroke="white"></circle>
-                    <path d="M15.7491 13.5515C15.8424 13.4601 15.8889 13.3406 15.8889 13.2209C15.8889 13.1012 15.8424 12.9817 15.7491 12.8903L11.2152 8.44766C11.0288 8.26504 10.7267 8.26504 10.5404 8.44766L6.00647 12.8903C5.82011 13.0729 5.82011 13.3689 6.00647 13.5515C6.19284 13.7341 6.49494 13.7341 6.68131 13.5515L10.8778 9.43953L15.0743 13.5515C15.2606 13.7341 15.5627 13.7341 15.7491 13.5515Z" fill="#FCFCFD"></path>
-                  </svg>
-                </span>
-              </div>
-            </div>
-          </div>
-        </footer>
-
-        <!-- BARS INDICATOR  -->
-        <div class="bars-indicator">
-          <div class="bar bar-1"></div>
-          <div class="bar bar-2"></div>
-          <div class="bar bar-3"></div>
-          <div class="bar bar-4"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- VIMEO LIGHTBOX  -->
-    <div class="vimeo-lightbox" data-vimeo-lightbox-init="" data-vimeo-activated="false" data-vimeo-playing="false" data-vimeo-fullscreen="false" data-vimeo-hover="false" data-vimeo-loaded="false" data-vimeo-update-size="cover" data-vimeo-muted="false">
-
-      <div data-vimeo-lightbox-control="close" class="vimeo-lightbox__bg">
-        <svg class="vimeo-lightbox__loading-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="L9" x="0px" y="0px" viewBox="0 0 100 100" enable-background="new 0 0 0 0" xml:space="preserve" width="100%">
-          <path fill="currentColor" d="M73,50c0-12.7-10.3-23-23-23S27,37.3,27,50 M30.9,50c0-10.5,8.5-19.1,19.1-19.1S69.1,39.5,69.1,50"></path>
-
-        </svg>
-      </div>
-
-      <div class="vimeo-lightbox__calc">
-        <div class="vimeo-lightbox__calc-wrap">
-
-          <div data-vimeo-lightbox-player="" class="vimeo-lightbox__player">
-            <div class="vimeo-lightbox__before"></div>
-
-            <iframe src="" width="640" height="360" frameborder="0" allowfullscreen="true" allow="autoplay; encrypted-media" class="vimeo-lightbox__iframe"></iframe>
-
-            <img src="images/loop-layer.webp" alt="MDX showrrel" class="vimeo-lightbox__placeholder" loading="lazy">
-
-            <div class="vimeo-lightbox__dark"></div>
-
-            <div data-vimeo-control="play" class="vimeo-lightbox__play">
-              <div class="vimeo-lightbox__btn">
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path fill-rule="evenodd" clip-rule="evenodd" d="M10.9138 2.72912C9.31497 1.8175 8.07306 1.10939 7.06445 0.650012C6.05205 0.188916 5.17325 -0.0714779 4.31874 0.0172195C2.96254 0.157991 1.72791 0.860698 0.923331 1.95435C0.415123 2.64515 0.203523 3.53177 0.101553 4.62944C-8.24609e-06 5.72271 -4.61112e-06 7.13969 6.55738e-08 8.96202V9.03797C-4.72116e-06 10.8603 -8.44554e-06 12.2773 0.101553 13.3706C0.203522 14.4682 0.415123 15.3549 0.92333 16.0456C1.72791 17.1393 2.96254 17.842 4.31874 17.9828C5.17325 18.0715 6.05205 17.8111 7.06445 17.35C8.07305 16.8906 9.31496 16.1825 10.9138 15.2709L10.9787 15.2339C12.5774 14.3223 13.8193 13.6142 14.7266 12.9812C15.6364 12.3464 16.3071 11.7233 16.6588 10.9433C17.2164 9.7065 17.2164 8.2935 16.6588 7.05669C16.3071 6.27665 15.6364 5.65364 14.7266 5.01881C13.8193 4.38579 12.5774 3.67765 10.9787 2.7661L10.9138 2.72912ZM4.46169 1.39444C4.9416 1.34462 5.54312 1.47859 6.49054 1.91009C7.43494 2.34022 8.62239 3.01649 10.2603 3.95041C11.8984 4.88438 13.085 5.56178 13.9343 6.15434C14.7871 6.74937 15.2024 7.19524 15.3965 7.62576C15.791 8.50072 15.791 9.49927 15.3965 10.3742C15.2024 10.8048 14.7871 11.2506 13.9343 11.8457C13.085 12.4382 11.8984 13.1156 10.2603 14.0496C8.62239 14.9835 7.43494 15.6598 6.49054 16.0899C5.54312 16.5214 4.9416 16.6554 4.46169 16.6056C3.49001 16.5047 2.6099 16.0016 2.03864 15.2251C1.75817 14.8439 1.57543 14.2673 1.48023 13.2425C1.38533 12.2209 1.38462 10.8683 1.38462 9C1.38462 7.13173 1.38533 5.77912 1.48024 4.75751C1.57544 3.73272 1.75817 3.1561 2.03864 2.77486C2.6099 1.99837 3.49001 1.4953 4.46169 1.39444Z" fill="#FCFCFD"></path>
-                </svg>
-              </div>
-            </div>
-
-            <div data-vimeo-control="pause" class="vimeo-lightbox__pause">
-              <div class="vimeo-lightbox__btn">
-                <svg width="10" height="18" viewBox="0 0 10 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M2.72727 1.42105C2.72727 0.636227 2.11675 0 1.36364 0C0.61052 0 0 0.636227 0 1.42105V16.5789C0 17.3638 0.610521 18 1.36364 18C2.11675 18 2.72727 17.3638 2.72727 16.5789L2.72727 1.42105Z" fill="#FCFCFD"></path>
-                  <path d="M10 1.42105C10 0.636227 9.38948 0 8.63636 0C7.88325 0 7.27273 0.636227 7.27273 1.42105V16.5789C7.27273 17.3638 7.88325 18 8.63636 18C9.38948 18 10 17.3638 10 16.5789V1.42105Z" fill="#FCFCFD"></path>
-                </svg>
-              </div>
-            </div>
-
-            <div class="vimeo-lightbox__interface">
-              <div class="vimeo-lightbox__interface-bottom">
-
-                <div class="vimeo-lightbox__buttons">
-                  <div class="vimeo-lightbox__buttons-play" data-vimeo-control="play">
-                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path fill-rule="evenodd" clip-rule="evenodd" d="M10.9138 2.72912C9.31497 1.8175 8.07306 1.10939 7.06445 0.650012C6.05205 0.188916 5.17325 -0.0714779 4.31874 0.0172195C2.96254 0.157991 1.72791 0.860698 0.923331 1.95435C0.415123 2.64515 0.203523 3.53177 0.101553 4.62944C-8.24609e-06 5.72271 -4.61112e-06 7.13969 6.55738e-08 8.96202V9.03797C-4.72116e-06 10.8603 -8.44554e-06 12.2773 0.101553 13.3706C0.203522 14.4682 0.415123 15.3549 0.92333 16.0456C1.72791 17.1393 2.96254 17.842 4.31874 17.9828C5.17325 18.0715 6.05205 17.8111 7.06445 17.35C8.07305 16.8906 9.31496 16.1825 10.9138 15.2709L10.9787 15.2339C12.5774 14.3223 13.8193 13.6142 14.7266 12.9812C15.6364 12.3464 16.3071 11.7233 16.6588 10.9433C17.2164 9.7065 17.2164 8.2935 16.6588 7.05669C16.3071 6.27665 15.6364 5.65364 14.7266 5.01881C13.8193 4.38579 12.5774 3.67765 10.9787 2.7661L10.9138 2.72912ZM4.46169 1.39444C4.9416 1.34462 5.54312 1.47859 6.49054 1.91009C7.43494 2.34022 8.62239 3.01649 10.2603 3.95041C11.8984 4.88438 13.085 5.56178 13.9343 6.15434C14.7871 6.74937 15.2024 7.19524 15.3965 7.62576C15.791 8.50072 15.791 9.49927 15.3965 10.3742C15.2024 10.8048 14.7871 11.2506 13.9343 11.8457C13.085 12.4382 11.8984 13.1156 10.2603 14.0496C8.62239 14.9835 7.43494 15.6598 6.49054 16.0899C5.54312 16.5214 4.9416 16.6554 4.46169 16.6056C3.49001 16.5047 2.6099 16.0016 2.03864 15.2251C1.75817 14.8439 1.57543 14.2673 1.48023 13.2425C1.38533 12.2209 1.38462 10.8683 1.38462 9C1.38462 7.13173 1.38533 5.77912 1.48024 4.75751C1.57544 3.73272 1.75817 3.1561 2.03864 2.77486C2.6099 1.99837 3.49001 1.4953 4.46169 1.39444Z" fill="#FCFCFD"></path>
-                    </svg>
-                  </div>
-
-                  <div class="vimeo-lightbox__buttons-pause" data-vimeo-control="pause">
-                    <svg width="10" height="18" viewBox="0 0 10 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M2.72727 1.42105C2.72727 0.636227 2.11675 0 1.36364 0C0.61052 0 0 0.636227 0 1.42105V16.5789C0 17.3638 0.610521 18 1.36364 18C2.11675 18 2.72727 17.3638 2.72727 16.5789L2.72727 1.42105Z" fill="#FCFCFD"></path>
-                      <path d="M10 1.42105C10 0.636227 9.38948 0 8.63636 0C7.88325 0 7.27273 0.636227 7.27273 1.42105V16.5789C7.27273 17.3638 7.88325 18 8.63636 18C9.38948 18 10 17.3638 10 16.5789V1.42105Z" fill="#FCFCFD"></path>
-                    </svg>
-                  </div>
-
-                </div>
-
-                <div class="vimeo-lightbox__timeline">
-                  <progress min="0" max="100" value="0" class="vimeo-lightbox__timeline-progress"></progress>
-                  <input type="range" min="0" max="100" step="0.01" data-vimeo-control="timeline" class="vimeo-lightbox__timeline-input" value="0">
-                </div>
-
-                <div data-vimeo-control="mute" class="vimeo-lightbox__mute">
-                  <div class="vimeo-lightbox__volume-up-svg">
-                    MUTE
-                  </div>
-
-                  <div class="vimeo-lightbox__volume-mute-svg">
-                    UNMUTE
-                  </div>
-
-                </div>
-
-              </div>
-            </div>
-
-            <div class="vimeo-lightbox__loading">
-              <svg class="vimeo-lightbox__loading-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="L9" x="0px" y="0px" viewBox="0 0 100 100" enable-background="new 0 0 0 0" xml:space="preserve" width="100%">
-                <path fill="currentColor" d="M73,50c0-12.7-10.3-23-23-23S27,37.3,27,50 M30.9,50c0-10.5,8.5-19.1,19.1-19.1S69.1,39.5,69.1,50"></path>
-              </svg>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <button data-vimeo-lightbox-control="close" class="vimeo-lightbox__close">
-        <svg width="18" height="13" viewBox="0 0 18 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-          class="vimeo-lightbox__close-icon"
-          <path d="M5.52796 2.03269C5.82216 1.74111 5.82428 1.26624 5.53269 0.972041C5.24111 0.677844 4.76624 0.675726 4.47204 0.967309L2.67731 2.7461C2.00134 3.41604 1.44886 3.96359 1.05706 4.45146C0.649628 4.95878 0.354695 5.47372 0.275909 6.09184C0.241364 6.36286 0.241364 6.63714 0.275909 6.90816C0.354695 7.52628 0.649627 8.04122 1.05706 8.54854C1.44886 9.03642 2.00134 9.58396 2.67732 10.2539L4.47204 12.0327C4.76624 12.3243 5.24111 12.3222 5.53269 12.028C5.82427 11.7338 5.82216 11.2589 5.52796 10.9673L3.76499 9.22C3.0495 8.51086 2.55869 8.02282 2.22659 7.60929C2.11867 7.47491 2.03446 7.3566 1.96908 7.25H17C17.4142 7.25 17.75 6.91421 17.75 6.5C17.75 6.08579 17.4142 5.75 17 5.75H1.96908C2.03446 5.6434 2.11867 5.52509 2.22659 5.39071C2.55869 4.97718 3.0495 4.48914 3.76499 3.78L5.52796 2.03269Z" fill="#FCFCFD"></path>
-        </svg>
-
-        <span class="vimeo-lightbox__close-text">Return</span>
-      </button>
-    </div>
-
-    <!-- CLIP PATHS  -->
-    <svg class="clippy">
-      <defs>
-        <clipPath id="menu-bg-clip" clipPathUnits="objectBoundingBox">
-          <path d="M0 0.114885C0 0.0983331 0.00737992 0.0849151 0.0164835 0.0849151H0.927473C0.936576 0.0849151 0.943956 0.071497 0.943956 0.0549451V0.02997C0.943956 0.013418 0.951336 0 0.96044 0H0.983517C0.99262 0 1 0.013418 1 0.02997V0.97003C1 0.986582 0.99262 1 0.983517 1H0.0164835C0.00737995 1 0 0.986582 0 0.97003V0.114885Z"></path>
-        </clipPath>
-      </defs>
-    </svg>
-
-    <!-- CDN SCRIPTS  -->
-    <script data-cfasync="false" src="js/email-decode.min.js"></script><script src="js/gsap.min.js"></script>
-    <script src="js/Draggable.min.js"></script>
-    <script src="js/Flip.min.js"></script>
-    <script src="js/InertiaPlugin.min.js"></script>
-    <script src="js/ScrollTrigger.min.js"></script>
-    <script src="js/SplitText.min.js"></script>
-    <script src="js/TextPlugin.min.js"></script>
-    <script src="js/CustomEase.min.js"></script>
-    <!-- lenis.min.js replaced by inline no-op stub — zero loops, zero event listeners -->
-    <script>
-    window.Lenis = class Lenis {
-      constructor() {}
-      raf() {}
-      on() {}
-      off() {}
-      scrollTo() {}
-      destroy() {}
-      get scroll() { return window.scrollY; }
-      get progress() { return 0; }
-      get velocity() { return 0; }
-      get isScrolling() { return false; }
-      get isStopped() { return false; }
-    };
-    </script>
-    <script src="js/player.js"></script>
-
-    <!-- Fetch interceptor: stub out mdx.so API calls and missing local assets -->
-    <script>
-    (function() {
-      var _f = window.fetch;
-      window.fetch = function(url, opts) {
-        var u = typeof url === 'string' ? url : (url && url.url) || '';
-        if (u.indexOf('admin.mdx.so') !== -1 || u.indexOf('wp-json') !== -1)
-          return Promise.reject(new TypeError('Failed to fetch'));
-        if (u.indexOf('api.mdx.so') !== -1)
-          return Promise.resolve(new Response('{"ok":true}', { status: 200, headers: { 'Content-Type': 'application/json' } }));
-        if (u.indexOf('.mp3') !== -1 || u.indexOf('soundtrack') !== -1)
-          return Promise.resolve(new Response(new ArrayBuffer(0), { status: 200, headers: { 'Content-Type': 'audio/mpeg' } }));
-        return _f.apply(this, arguments);
-      };
-    })();
-    </script>
-
-    <!-- SCRIPTS  -->
-    <script type="module" src="js/homepage.min.js"></script>
-
-    <!-- Safety: hide loader after 4s if still stuck -->
-    <script>
-    setTimeout(function() {
-      var loader = document.querySelector('.loader');
-      if (loader) {
-        loader.style.transition = 'opacity 0.6s ease';
-        loader.style.opacity = '0';
-        setTimeout(function() { loader.style.display = 'none'; }, 600);
-      }
-    }, 4000);
-    </script>
-
-    <!-- Fallback: inject project cards if grid is empty after JS runs -->
-    <script>
-    setTimeout(function() {
-      var grid = document.querySelector('.projects-grid');
-      if (!grid) return;
-      var items = grid.querySelectorAll('.project-grid__item');
-      if (items.length > 0) return; // JS already populated it
-
-      var arrow = '<svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M0.75 8.25L8.25 0.75M8.25 0.75H2.25M8.25 0.75V6.75" stroke="#FCFCFD" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-      var projects = [
-        { href: '/piattaforma', service: 'UI/UX', name: 'ClarityHealth',   img: 'images/clear-globe-desktop-1.webp', filter: 'UI/UX'        },
-        { href: '/piattaforma', service: 'Dev',   name: 'Neon Circuit',    img: 'images/clear-globe-desktop-1.webp', filter: 'Development'   },
-        { href: '/piattaforma', service: 'Brand', name: 'Aero Studio',     img: 'images/clear-globe-desktop-1.webp', filter: 'Branding'      },
-        { href: '/piattaforma', service: 'UI/UX', name: 'VaultX',          img: 'images/clear-globe-desktop-1.webp', filter: 'UI/UX'         },
-        { href: '/piattaforma', service: 'Anim',  name: 'Orbit',           img: 'images/clear-globe-desktop-1.webp', filter: '3D Animation'  },
-        { href: '/piattaforma', service: 'Dev',   name: 'Pulse',           img: 'images/clear-globe-desktop-1.webp', filter: 'Development'   }
-      ];
-
-      var html = projects.map(function(p) {
-        return '<a href="' + p.href + '" role="listitem" class="project-grid__item" data-filter-services="' + p.filter + '" data-filter-status="active">'
-          + '<div class="project-grid__image-wrapper"><img src="' + p.img + '" loading="lazy" alt="' + p.name + '" /></div>'
-          + '<h4 class="project-grid__service">' + p.service + '</h4>'
-          + '<div class="project-grid__link"><div class="project-grid__link-arrow-wrapper">' + arrow + '</div>'
-          + '<p class="project-grid__link-text">' + p.name + '</p></div>'
-          + '</a>';
-      }).join('');
-      grid.innerHTML = html;
-    }, 5000);
-    </script>
-
-</body></html>
+  </div>
+</footer>
+
+<script src="/js/sd-main.js" defer></script>
+</body>
+</html>
