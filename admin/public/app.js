@@ -1196,6 +1196,21 @@ async function handleLogin(e) {
   e.preventDefault();
   const email = document.getElementById('email').value;
   const password = document.getElementById('password').value;
+  const btn = document.getElementById('lp-btn');
+  const btnText = document.getElementById('lp-btn-text');
+  const errorDiv = document.getElementById('lp-error');
+  const errorText = document.getElementById('lp-error-text');
+
+  if (btn) { btn.disabled = true; }
+  if (btnText) { btnText.textContent = 'Accesso in corso…'; }
+  if (errorDiv) { errorDiv.style.display = 'none'; }
+
+  const showLoginError = (msg) => {
+    if (errorText) errorText.textContent = msg;
+    if (errorDiv) errorDiv.style.display = 'flex';
+    if (btn) btn.disabled = false;
+    if (btnText) btnText.textContent = 'Accedi';
+  };
 
   try {
     const res = await fetch(`${API_BASE}/api/auth/login`, {
@@ -1207,7 +1222,7 @@ async function handleLogin(e) {
 
     if (!res.ok) {
       const error = await res.json();
-      alert(error.error || 'Credenziali non valide');
+      showLoginError(error.error || 'Credenziali non valide');
       return;
     }
 
@@ -1215,7 +1230,7 @@ async function handleLogin(e) {
     const allowedRoles = ['super_admin', 'admin', 'director', 'branch_manager', 'org_admin'];
     if (!allowedRoles.includes(data.user.role)) {
       await fetch(`${API_BASE}/api/auth/logout`, { method: 'POST', credentials: 'include' });
-      alert('Accesso riservato agli amministratori e responsabili sede');
+      showLoginError('Accesso riservato agli amministratori e responsabili sede');
       return;
     }
 
@@ -1229,7 +1244,7 @@ async function handleLogin(e) {
     showDashboard();
   } catch (error) {
     console.error('Login error:', error);
-    alert('Errore di connessione');
+    showLoginError('Errore di connessione. Riprova.');
   }
 }
 
