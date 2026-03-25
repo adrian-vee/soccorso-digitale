@@ -1,5 +1,5 @@
 'use client';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 type ColorKey =
   | 'color1'
   | 'color2'
