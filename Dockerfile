@@ -53,11 +53,15 @@ COPY --from=builder /app/site ./site
 # Copy Next.js static export → served at /dashboard by Express
 COPY --from=dashboard-builder /app/dashboard/out ./dashboard-static
 
-# Create upload directories (preserved by .gitkeep but need to exist in container)
-RUN mkdir -p uploads/apk uploads/logos uploads/signatures
+# Create upload directories with full subtree needed by APK chunked upload
+RUN mkdir -p uploads/apk/temp/chunks uploads/logos uploads/signatures
 
 # Non-root user for security
 RUN addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001
+
+# Give the nodejs user write access to uploads before switching
+RUN chown -R nodejs:nodejs uploads
+
 USER nodejs
 
 ENV NODE_ENV=production

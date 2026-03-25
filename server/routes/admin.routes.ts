@@ -166,47 +166,33 @@ export function registerAdminRoutes(app: Express) {
   
   // ============================================================================
   // APK MANAGEMENT - Upload (super_admin only) and public download
-  // Uses Replit Object Storage for persistence across deployments
+  // Uses local filesystem (uploads/apk/) for storage on Railway
   // ============================================================================
 
-  const apkBucketId = process.env.DEFAULT_OBJECT_STORAGE_BUCKET_ID || "";
-  const APK_OBJECT_KEY = "apk/current.apk";
-  const APK_META_OBJECT_KEY = "apk/meta.json";
+  const APK_DIR = path.join(process.cwd(), "uploads", "apk");
+  const APK_FINAL_PATH = path.join(APK_DIR, "current.apk");
+  const APK_META_PATH = path.join(APK_DIR, "meta.json");
 
-  function getApkBucket() {
-    if (!apkBucketId) throw new Error("DEFAULT_OBJECT_STORAGE_BUCKET_ID not set");
-    const { objectStorageClient } = require("../objectStorage");
-    return objectStorageClient.bucket(apkBucketId);
-  }
-
-  async function getApkMetaFromStorage(): Promise<{ version: string; filename: string; size: number; uploadDate: string; accessCode?: string } | null> {
+  function getApkMetaFromStorage(): { version: string; filename: string; size: number; uploadDate: string; accessCode?: string } | null {
     try {
-      const bucket = getApkBucket();
-      const file = bucket.file(APK_META_OBJECT_KEY);
-      const [exists] = await file.exists();
-      if (!exists) return null;
-      const [contents] = await file.download();
-      return JSON.parse(contents.toString("utf-8"));
+      if (!fs.existsSync(APK_META_PATH)) return null;
+      return JSON.parse(fs.readFileSync(APK_META_PATH, "utf-8"));
     } catch (err) {
-      console.error("Error reading APK meta from storage:", err);
+      console.error("Error reading APK meta:", err);
       return null;
     }
   }
 
-  async function saveApkMetaToStorage(meta: any): Promise<void> {
-    const bucket = getApkBucket();
-    const file = bucket.file(APK_META_OBJECT_KEY);
-    await file.save(JSON.stringify(meta, null, 2), { contentType: "application/json" });
+  function saveApkMetaToStorage(meta: any): void {
+    if (!fs.existsSync(APK_DIR)) fs.mkdirSync(APK_DIR, { recursive: true });
+    fs.writeFileSync(APK_META_PATH, JSON.stringify(meta, null, 2));
   }
 
   app.get("/api/public/apk-info", async (_req, res) => {
     try {
       const meta = await getApkMetaFromStorage();
       if (meta && meta.filename && meta.version) {
-        const bucket = getApkBucket();
-        const apkFile = bucket.file(APK_OBJECT_KEY);
-        const [exists] = await apkFile.exists();
-        if (exists) {
+        if (fs.existsSync(APK_FINAL_PATH)) {
           res.json({ available: true, version: meta.version, size: meta.size, uploadDate: meta.uploadDate });
         } else {
           res.json({ available: false });
@@ -220,12 +206,12 @@ export function registerAdminRoutes(app: Express) {
     }
   });
 
-  app.get("/api/admin/apk-access-code", requireSuperAdmin, async (_req, res) => {
-    const meta = await getApkMetaFromStorage();
+  app.get("/api/admin/apk-access-code", requireSuperAdmin, (_req, res) => {
+    const meta = getApkMetaFromStorage();
     res.json({ accessCode: meta?.accessCode || "SD2026APP" });
   });
 
-  app.put("/api/admin/apk-access-code", requireSuperAdmin, async (req, res) => {
+  app.put("/api/admin/apk-access-code", requireSuperAdmin, (req, res) => {
     const { accessCode } = req.body;
     if (!accessCode || typeof accessCode !== "string" || accessCode.trim().length < 4) {
       return res.status(400).json({ error: "Il codice deve avere almeno 4 caratteri" });
@@ -234,31 +220,23 @@ export function registerAdminRoutes(app: Express) {
     if (cleanCode.length < 4) {
       return res.status(400).json({ error: "Il codice puo contenere solo lettere, numeri, trattini e underscore" });
     }
-    const meta = await getApkMetaFromStorage();
+    const meta = getApkMetaFromStorage();
     if (meta) {
       meta.accessCode = cleanCode;
-      await saveApkMetaToStorage(meta);
+      saveApkMetaToStorage(meta);
     } else {
-      await saveApkMetaToStorage({ accessCode: cleanCode });
+      saveApkMetaToStorage({ accessCode: cleanCode });
     }
     res.json({ success: true, accessCode: cleanCode });
   });
 
-  app.get("/api/public/download-apk", async (req, res) => {
+  app.get("/api/public/download-apk", (req, res) => {
     try {
-      const meta = await getApkMetaFromStorage();
-      if (!meta || !meta.filename) {
+      const meta = getApkMetaFromStorage();
+      if (!meta || !fs.existsSync(APK_FINAL_PATH)) {
         return res.status(404).json({ error: "APK non disponibile" });
       }
-      const bucket = getApkBucket();
-      const apkFile = bucket.file(APK_OBJECT_KEY);
-      const [exists] = await apkFile.exists();
-      if (!exists) {
-        return res.status(404).json({ error: "File APK non trovato" });
-      }
-      const [metadata] = await apkFile.getMetadata();
-      const fileSize = parseInt(metadata.size as string, 10) || meta.size;
-
+      const fileSize = fs.statSync(APK_FINAL_PATH).size;
       const CHUNK_SIZE = 5 * 1024 * 1024;
       const totalChunks = Math.ceil(fileSize / CHUNK_SIZE);
       const chunkParam = req.query.chunk;
@@ -279,9 +257,9 @@ export function registerAdminRoutes(app: Express) {
         res.setHeader("X-Chunk-Index", String(chunkIndex));
         res.setHeader("Access-Control-Expose-Headers", "X-Total-Size, X-Total-Chunks, X-Chunk-Index");
 
-        const stream = apkFile.createReadStream({ start, end });
+        const stream = fs.createReadStream(APK_FINAL_PATH, { start, end });
         stream.on("error", (err: any) => {
-          console.error("APK chunk download stream error:", err);
+          console.error("APK chunk download error:", err);
           if (!res.headersSent) res.status(500).json({ error: "Errore download chunk" });
         });
         stream.pipe(res);
@@ -289,9 +267,9 @@ export function registerAdminRoutes(app: Express) {
         res.setHeader("Content-Type", "application/vnd.android.package-archive");
         res.setHeader("Content-Disposition", `attachment; filename="SoccorsoDigitale-${meta.version || 'latest'}.apk"`);
         res.setHeader("Content-Length", String(fileSize));
-        const stream = apkFile.createReadStream();
+        const stream = fs.createReadStream(APK_FINAL_PATH);
         stream.on("error", (err: any) => {
-          console.error("APK download stream error:", err);
+          console.error("APK download error:", err);
           if (!res.headersSent) res.status(500).json({ error: "Errore download" });
         });
         stream.pipe(res);
@@ -304,7 +282,7 @@ export function registerAdminRoutes(app: Express) {
 
   const uploadsApkTempDir = path.join(process.cwd(), "uploads", "apk", "temp");
   if (!fs.existsSync(uploadsApkTempDir)) {
-    fs.mkdirSync(uploadsApkTempDir, { recursive: true });
+    try { fs.mkdirSync(uploadsApkTempDir, { recursive: true }); } catch (e) { console.warn("Cannot create APK temp dir:", e); }
   }
 
   const apkChunkUpload = multer({
@@ -381,27 +359,23 @@ export function registerAdminRoutes(app: Express) {
       }
       writeStream.end();
 
-      writeStream.on('finish', async () => {
+      writeStream.on('finish', () => {
         try {
           const fileSize = fs.statSync(tempDestPath).size;
-          const bucket = getApkBucket();
-          const apkFile = bucket.file(APK_OBJECT_KEY);
-          await apkFile.save(fs.readFileSync(tempDestPath), {
-            contentType: "application/vnd.android.package-archive",
-            resumable: false,
-          });
-          const oldMeta = await getApkMetaFromStorage();
+          // Move assembled file to final APK path
+          if (fs.existsSync(APK_FINAL_PATH)) fs.unlinkSync(APK_FINAL_PATH);
+          fs.renameSync(tempDestPath, APK_FINAL_PATH);
+          const oldMeta = getApkMetaFromStorage();
           const accessCode = oldMeta?.accessCode || "SD2026APP";
           const meta = { version, filename, size: fileSize, uploadDate: new Date().toISOString(), accessCode };
-          await saveApkMetaToStorage(meta);
+          saveApkMetaToStorage(meta);
           fs.rmSync(chunksDir, { recursive: true, force: true });
-          if (fs.existsSync(tempDestPath)) fs.unlinkSync(tempDestPath);
-          console.log(`APK uploaded to object storage: ${filename} (${(fileSize / 1024 / 1024).toFixed(1)} MB)`);
+          console.log(`APK saved locally: ${filename} (${(fileSize / 1024 / 1024).toFixed(1)} MB)`);
           res.json({ success: true, ...meta });
         } catch (uploadErr) {
-          console.error("APK object storage upload error:", uploadErr);
+          console.error("APK save error:", uploadErr);
           if (fs.existsSync(tempDestPath)) fs.unlinkSync(tempDestPath);
-          if (!res.headersSent) res.status(500).json({ error: "Errore caricamento su cloud storage" });
+          if (!res.headersSent) res.status(500).json({ error: "Errore salvataggio APK" });
         }
       });
 
@@ -415,15 +389,10 @@ export function registerAdminRoutes(app: Express) {
     }
   });
 
-  app.delete("/api/admin/delete-apk", requireSuperAdmin, async (_req, res) => {
+  app.delete("/api/admin/delete-apk", requireSuperAdmin, (_req, res) => {
     try {
-      const bucket = getApkBucket();
-      const apkFile = bucket.file(APK_OBJECT_KEY);
-      const [exists] = await apkFile.exists();
-      if (exists) await apkFile.delete();
-      const metaFile = bucket.file(APK_META_OBJECT_KEY);
-      const [metaExists] = await metaFile.exists();
-      if (metaExists) await metaFile.delete();
+      if (fs.existsSync(APK_FINAL_PATH)) fs.unlinkSync(APK_FINAL_PATH);
+      if (fs.existsSync(APK_META_PATH)) fs.unlinkSync(APK_META_PATH);
       res.json({ success: true });
     } catch (err) {
       console.error("APK delete error:", err);
