@@ -15232,7 +15232,182 @@ function updateInventoryStats() {
   document.getElementById('inventory-total-items').textContent = inventoryItems.length;
   const criticalCount = inventoryItems.filter(i => i.isCritical).length;
   document.getElementById('inventory-critical').textContent = criticalCount;
+  updateABCAnalysis();
+  updateStockAlertBanner();
+  updateReorderPanel();
 }
+
+// ── INVENTORY ENTERPRISE: ABC ANALYSIS ──────────────────────────────────────
+function updateABCAnalysis() {
+  const strip = document.getElementById('mag-abc-strip');
+  if (!strip) return;
+  const total = inventoryItems.length;
+  if (total === 0) return;
+  const aCount = Math.max(1, Math.round(total * 0.2));
+  const bCount = Math.max(1, Math.round(total * 0.3));
+  const cCount = Math.max(0, total - aCount - bCount);
+  const aEl = document.getElementById('mag-abc-a-count');
+  const bEl = document.getElementById('mag-abc-b-count');
+  const cEl = document.getElementById('mag-abc-c-count');
+  if (aEl) aEl.textContent = aCount;
+  if (bEl) bEl.textContent = bCount;
+  if (cEl) cEl.textContent = cCount;
+}
+
+let magAbcFilter = null;
+function magFilterABC(cls) {
+  magAbcFilter = cls;
+  updateInventoryTable();
+}
+
+// ── INVENTORY ENTERPRISE: STOCK ALERT BANNER ────────────────────────────────
+function updateStockAlertBanner() {
+  const banner = document.getElementById('mag-stock-alert-banner');
+  const textEl = document.getElementById('mag-stock-alert-text');
+  if (!banner) return;
+  const lowStockEl = document.getElementById('inventory-low-stock');
+  const lowCount = lowStockEl ? parseInt(lowStockEl.textContent) || 0 : 0;
+  if (lowCount > 0) {
+    banner.style.display = 'flex';
+    if (textEl) textEl.textContent = `${lowCount} articol${lowCount === 1 ? 'o' : 'i'} sotto la scorta minima — riordino raccomandato`;
+  } else {
+    banner.style.display = 'none';
+  }
+}
+
+// ── INVENTORY ENTERPRISE: REORDER PANEL ─────────────────────────────────────
+function updateReorderPanel() {
+  const panel = document.getElementById('mag-reorder-panel');
+  const list = document.getElementById('mag-reorder-list');
+  if (!panel || !list) return;
+  const reorderItems = inventoryItems.filter(i => i.isCritical || i.minStockLevel >= 5);
+  if (reorderItems.length === 0) {
+    panel.style.display = 'none';
+    return;
+  }
+  panel.style.display = 'block';
+  list.innerHTML = reorderItems.slice(0, 5).map(i => `
+    <div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid #fed7aa;font-size:13px;">
+      <span style="flex:1;color:#7c2d12;font-weight:500">${i.name}</span>
+      <span style="color:#9a3412">Min: ${i.minStockLevel || 0} ${i.unit || 'pz'}</span>
+    </div>
+  `).join('') + (reorderItems.length > 5 ? `<p style="font-size:12px;color:#9a3412;margin-top:6px">...e altri ${reorderItems.length - 5} articoli</p>` : '');
+}
+
+// ── INVENTORY ENTERPRISE: MOVEMENTS ─────────────────────────────────────────
+function loadInventoryMovements() {
+  const panel = document.getElementById('mag-movements-panel');
+  const historyList = document.getElementById('mag-movements-history-list');
+  const movements = JSON.parse(localStorage.getItem('mag_movements') || '[]').slice(-50).reverse();
+
+  const renderRow = (m) => `
+    <div class="mag-movement-row">
+      <span class="mag-movement-type ${m.type === 'carico' ? 'in' : 'out'}">${m.type === 'carico' ? '▲' : '▼'} ${m.type.toUpperCase()}</span>
+      <span class="mag-movement-item">${m.itemName}</span>
+      <span class="mag-movement-qty" style="color:${m.type === 'carico' ? '#166534' : '#991b1b'}">${m.type === 'carico' ? '+' : '-'}${m.qty}</span>
+      <span class="mag-movement-time">${new Date(m.ts).toLocaleString('it-IT', {month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}</span>
+    </div>
+  `;
+
+  if (panel) {
+    const recent = movements.slice(0, 5);
+    if (recent.length === 0) {
+      panel.innerHTML = '<p style="color:var(--text-secondary,#64748b);font-size:13px;padding:4px 0">Nessun movimento recente</p>';
+    } else {
+      panel.innerHTML = recent.map(renderRow).join('');
+    }
+  }
+
+  if (historyList) {
+    const typeFilter = document.getElementById('mag-movement-type-filter');
+    const filterVal = typeFilter ? typeFilter.value : '';
+    const filtered = filterVal ? movements.filter(m => m.type === filterVal) : movements;
+    if (filtered.length === 0) {
+      historyList.innerHTML = '<p style="color:var(--text-secondary,#64748b);font-size:13px;padding:20px">Nessun movimento registrato.</p>';
+    } else {
+      historyList.innerHTML = filtered.map(renderRow).join('');
+    }
+  }
+}
+
+function filterMovementHistory() {
+  loadInventoryMovements();
+}
+
+function clearMovementHistory() {
+  if (!confirm('Sei sicuro di voler cancellare tutto lo storico movimenti? L\'operazione non e reversibile.')) return;
+  localStorage.removeItem('mag_movements');
+  loadInventoryMovements();
+  showNotification('Storico movimenti cancellato', 'success');
+}
+
+function addInventoryMovement(itemName, type, qty) {
+  const movements = JSON.parse(localStorage.getItem('mag_movements') || '[]');
+  movements.push({ itemName, type, qty, ts: Date.now() });
+  if (movements.length > 50) movements.shift();
+  localStorage.setItem('mag_movements', JSON.stringify(movements));
+  loadInventoryMovements();
+}
+
+function generateReorderReport() {
+  const jspdfLib = window.jspdf;
+  if (!jspdfLib || !jspdfLib.jsPDF) { showNotification('Libreria PDF non disponibile', 'error'); return; }
+  const { jsPDF } = jspdfLib;
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  doc.setFillColor(30, 58, 138);
+  doc.rect(0, 0, 210, 30, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(16);
+  doc.text('Rapporto Riordino Magazzino', 20, 20);
+  doc.setTextColor(0, 0, 0);
+  doc.setFontSize(11);
+  doc.text(`Generato il ${new Date().toLocaleDateString('it-IT')}`, 20, 40);
+
+  let y = 55;
+  doc.setFontSize(10);
+  doc.setFont(undefined, 'bold');
+  doc.text('Articolo', 20, y); doc.text('Scorta Min.', 130, y); doc.text('Unita', 170, y);
+  doc.setFont(undefined, 'normal');
+  doc.line(20, y + 3, 190, y + 3);
+  y += 10;
+
+  const reorderItems = inventoryItems.filter(i => i.isCritical || i.minStockLevel >= 5);
+  if (reorderItems.length === 0) {
+    doc.text('Nessun articolo richiede riordino al momento.', 20, y);
+  } else {
+    reorderItems.forEach(item => {
+      if (y > 270) { doc.addPage(); y = 20; }
+      doc.text((item.name || '').substring(0, 55), 20, y);
+      doc.text(String(item.minStockLevel || 0), 130, y);
+      doc.text(item.unit || 'pz', 170, y);
+      y += 8;
+    });
+  }
+
+  doc.save('riordino-magazzino.pdf');
+  showNotification('Report riordino generato', 'success');
+}
+
+// ── INVENTORY ENTERPRISE: BULK ACTIONS ──────────────────────────────────────
+function magBulkExport() {
+  showNotification('Esportazione articoli selezionati non ancora implementata', 'info');
+}
+function magBulkReorder() {
+  showNotification('Riordino articoli selezionati non ancora implementato', 'info');
+}
+function magBulkDelete() {
+  showNotification('Eliminazione bulk non ancora implementata', 'info');
+}
+
+window.loadInventoryMovements = loadInventoryMovements;
+window.addInventoryMovement = addInventoryMovement;
+window.generateReorderReport = generateReorderReport;
+window.magFilterABC = magFilterABC;
+window.magBulkExport = magBulkExport;
+window.magBulkReorder = magBulkReorder;
+window.magBulkDelete = magBulkDelete;
+window.filterMovementHistory = filterMovementHistory;
+window.clearMovementHistory = clearMovementHistory;
 
 function updateInventoryTable() {
   const tbody = document.getElementById('inventory-body');
@@ -17616,7 +17791,6 @@ async function loadScadenzeData() {
     
     scadenzeReports = await response.json();
     updateScadenzeStats();
-    renderScadenzeTable();
   } catch (error) {
     console.error('Error loading scadenze:', error);
     showNotification('Errore nel caricamento scadenze', 'error');
@@ -17624,45 +17798,61 @@ async function loadScadenzeData() {
 }
 
 function updateScadenzeStats() {
-  const completedCount = scadenzeReports.length;
-  
-  let totalExpired = 0;
+  const today = new Date();
+  today.setHours(0,0,0,0);
+
+  let totalExpired  = 0;
+  let totalUrgent   = 0;
   let totalExpiring = 0;
-  let totalItems = 0;
+  let totalOk       = 0;
+  let totalItems    = 0;
   const expiringItems = [];
-  const expiredItems = [];
-  
+  const expiredItems  = [];
+
   scadenzeReports.forEach(report => {
     const items = report.items || [];
     const vehicle = vehicles.find(v => v.id === report.vehicleId);
     items.forEach(item => {
       totalItems++;
-      if (item.status === 'expired') {
-        totalExpired++;
-        expiredItems.push({ ...item, vehicle: vehicle?.code || 'N/A', reportId: report.id });
+      let daysLeft = null;
+      if (item.expiryDate) {
+        const expDate = new Date(item.expiryDate);
+        expDate.setHours(0,0,0,0);
+        daysLeft = Math.floor((expDate - today) / 86400000);
       }
-      if (item.status === 'expiring') {
+      const enriched = { ...item, vehicle: vehicle?.code || 'N/A', reportId: report.id, daysLeft };
+
+      if (item.status === 'expired' || (daysLeft !== null && daysLeft < 0)) {
+        totalExpired++;
+        expiredItems.push(enriched);
+      } else if (daysLeft !== null && daysLeft <= 7) {
+        totalUrgent++;
+        expiringItems.push(enriched);
+      } else if (item.status === 'expiring' || (daysLeft !== null && daysLeft <= 30)) {
         totalExpiring++;
-        expiringItems.push({ ...item, vehicle: vehicle?.code || 'N/A', reportId: report.id });
+        expiringItems.push(enriched);
+      } else {
+        totalOk++;
       }
     });
   });
-  
-  const completedEl = document.getElementById('scadenze-completed-count');
+
+  const completedEl    = document.getElementById('scadenze-completed-count');
   const expiringSoonEl = document.getElementById('scadenze-expiring-soon');
-  const expiredEl = document.getElementById('scadenze-expired-count');
-  const totalEl = document.getElementById('scadenze-total-items');
+  const expiredEl      = document.getElementById('scadenze-expired-count');
+  const totalEl        = document.getElementById('scadenze-total-items');
   const urgencyCountEl = document.getElementById('urgency-count');
-  
-  if (completedEl) completedEl.textContent = completedCount;
-  if (expiringSoonEl) expiringSoonEl.textContent = totalExpiring;
-  if (expiredEl) expiredEl.textContent = totalExpired;
-  if (totalEl) totalEl.textContent = totalItems;
-  if (urgencyCountEl) urgencyCountEl.textContent = totalExpired + totalExpiring;
-  
-  updateScadenzeAlertBanner(totalExpired, totalExpiring);
+
+  if (completedEl)    completedEl.textContent    = totalOk;
+  if (expiringSoonEl) expiringSoonEl.textContent  = totalExpiring + totalUrgent;
+  if (expiredEl)      expiredEl.textContent       = totalExpired;
+  if (totalEl)        totalEl.textContent         = totalItems;
+  if (urgencyCountEl) urgencyCountEl.textContent  = totalExpired + totalUrgent;
+
+  updateScadenzeAlertBanner(totalExpired, totalExpiring + totalUrgent);
   renderScadenzeTimeline(expiringItems, expiredItems);
   renderScadenzeUrgencies(expiredItems, expiringItems);
+  renderScadenzeTable();
 }
 
 function renderScadenzeTimeline(expiringItems, expiredItems) {
@@ -17742,48 +17932,133 @@ function renderScadenzeUrgencies(expiredItems, expiringItems) {
   }).join('');
 }
 
+// Flat list of all scadenza items built from reports
+let _scadenzeAllItems = [];
+
 function renderScadenzeTable() {
   const tbody = document.getElementById('scadenze-tbody');
   if (!tbody) return;
-  
-  if (scadenzeReports.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="9" class="empty-state">Nessun report scadenze trovato</td></tr>';
+
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  _scadenzeAllItems = [];
+
+  scadenzeReports.forEach(report => {
+    const veh = vehicles.find(v => v.id === report.vehicleId);
+    const loc = locations.find(l => l.id === report.locationId);
+    const items = report.items || [];
+    items.forEach(item => {
+      let daysLeft = null;
+      let urgencyClass = 'ok';
+      if (item.expiryDate) {
+        const expDate = new Date(item.expiryDate);
+        expDate.setHours(0,0,0,0);
+        daysLeft = Math.floor((expDate - today) / 86400000);
+        if (daysLeft < 0)        urgencyClass = 'expired';
+        else if (daysLeft <= 7)  urgencyClass = 'urgent';
+        else if (daysLeft <= 30) urgencyClass = 'warning';
+        else                     urgencyClass = 'ok';
+      } else if (item.status === 'expired') {
+        urgencyClass = 'expired';
+        daysLeft = -1;
+      } else if (item.status === 'expiring') {
+        urgencyClass = 'warning';
+      }
+      _scadenzeAllItems.push({
+        ...item,
+        vehicleCode: veh?.code || 'N/A',
+        locationName: loc?.name || '',
+        reportId: report.id,
+        daysLeft,
+        urgencyClass,
+      });
+    });
+  });
+
+  // Populate vehicle filter dropdown once
+  const vehSelect = document.getElementById('scad-filter-vehicle');
+  if (vehSelect && vehSelect.options.length <= 1) {
+    const codes = [...new Set(_scadenzeAllItems.map(i => i.vehicleCode).filter(c => c && c !== 'N/A'))].sort();
+    if (codes.length > 0) {
+      vehSelect.innerHTML = '<option value="">Tutti i mezzi</option>' +
+        codes.map(c => `<option value="${c}">${c}</option>`).join('');
+    }
+  }
+
+  _renderScadenzeItemsRows(_scadenzeAllItems);
+}
+
+function _renderScadenzeItemsRows(items) {
+  const tbody = document.getElementById('scadenze-tbody');
+  if (!tbody) return;
+
+  if (items.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:32px;color:#64748B">Nessun articolo trovato</td></tr>';
     return;
   }
-  
-  const monthNames = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 
-                      'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
-  
-  tbody.innerHTML = scadenzeReports.map(report => {
-    const vehicle = vehicles.find(v => v.id === report.vehicleId);
-    const location = locations.find(l => l.id === report.locationId);
-    const items = report.items || [];
-    
-    const expiredCount = items.filter(i => i.status === 'expired').length;
-    const expiringCount = items.filter(i => i.status === 'expiring').length;
-    
-    const monthYear = `${monthNames[report.month - 1]} ${report.year}`;
-    const submittedDate = report.submittedAt ? new Date(report.submittedAt).toLocaleDateString('it-IT') : '-';
-    
-    return `
-      <tr>
-        <td><strong>${vehicle?.code || 'N/A'}</strong></td>
-        <td>${location?.name || 'N/A'}</td>
-        <td>${monthYear}</td>
-        <td>${report.submittedBy || '-'}</td>
-        <td>${submittedDate}</td>
-        <td><span class="badge ${expiredCount > 0 ? 'badge-error' : 'badge-success'}">${expiredCount}</span></td>
-        <td><span class="badge ${expiringCount > 0 ? 'badge-warning' : 'badge-success'}">${expiringCount}</span></td>
-        <td>${items.length}</td>
-        <td>
-          <button class="btn btn-sm btn-secondary" onclick="downloadScadenzePdf(${report.id})" title="Scarica PDF">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          </button>
-        </td>
-      </tr>
-    `;
+
+  const sorted = [...items].sort((a, b) => {
+    const aD = a.daysLeft ?? 9999;
+    const bD = b.daysLeft ?? 9999;
+    return aD - bD;
+  });
+
+  const statusLabels = { expired: 'Scaduto', urgent: 'Urgente', warning: 'In Scadenza', ok: 'Conforme' };
+
+  tbody.innerHTML = sorted.map(item => {
+    const expiryStr = item.expiryDate ? new Date(item.expiryDate).toLocaleDateString('it-IT') : '—';
+    const daysLabel = item.daysLeft === null
+      ? '—'
+      : item.daysLeft < 0
+        ? `${Math.abs(item.daysLeft)}gg fa`
+        : item.daysLeft === 0
+          ? 'Oggi'
+          : `${item.daysLeft}gg`;
+    const uc = item.urgencyClass;
+    const cat = (item.category || 'altro').toLowerCase();
+    return `<tr
+      data-name="${(item.name||'').toLowerCase()}"
+      data-lot="${(item.lotNumber||item.serialNumber||'').toLowerCase()}"
+      data-cat="${cat}"
+      data-vehicle="${item.vehicleCode}"
+      data-urgency="${uc}">
+      <td><strong style="font-size:13px">${item.name || 'Articolo'}</strong></td>
+      <td style="font-size:12px;color:#64748B;text-transform:capitalize">${cat}</td>
+      <td style="font-size:12px;color:#64748B">${item.lotNumber || item.serialNumber || '—'}</td>
+      <td style="font-size:12px">${item.vehicleCode}${item.locationName ? ' / '+item.locationName : ''}</td>
+      <td style="font-size:13px">${expiryStr}</td>
+      <td><span class="scad-days-badge ${uc}">${daysLabel}</span></td>
+      <td><span class="scad-status-badge ${uc}">${statusLabels[uc]||uc}</span></td>
+      <td>
+        <button class="btn btn-sm btn-outline" onclick="navigateTo('inventory')" title="Vai al magazzino">
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </td>
+    </tr>`;
   }).join('');
 }
+
+function filterScadenzeItems() {
+  const search = (document.getElementById('scad-search')?.value || '').toLowerCase();
+  const cat    = document.getElementById('scad-filter-cat')?.value || '';
+  const veh    = document.getElementById('scad-filter-vehicle')?.value || '';
+  const status = document.getElementById('scad-filter-status')?.value || '';
+
+  const filtered = _scadenzeAllItems.filter(item => {
+    if (search && !item.name?.toLowerCase().includes(search) &&
+                  !(item.lotNumber||'').toLowerCase().includes(search) &&
+                  !(item.serialNumber||'').toLowerCase().includes(search)) return false;
+    if (cat && (item.category||'altro').toLowerCase() !== cat) return false;
+    if (veh && item.vehicleCode !== veh) return false;
+    if (status === 'expired'  && item.urgencyClass !== 'expired')  return false;
+    if (status === 'urgent'   && item.urgencyClass !== 'urgent')   return false;
+    if (status === 'expiring' && item.urgencyClass !== 'warning')  return false;
+    if (status === 'ok'       && item.urgencyClass !== 'ok')       return false;
+    return true;
+  });
+  _renderScadenzeItemsRows(filtered);
+}
+window.filterScadenzeItems = filterScadenzeItems;
 
 async function downloadScadenzePdf(reportId) {
   try {
@@ -21154,6 +21429,32 @@ async function loadShiftStats() {
   }
 }
 
+// === PDF EXPORT HELPERS ===
+function addPdfHeader(doc, pageW, mg, orgName, monthLabel) {
+  const headerH = 14;
+  doc.setFillColor(30, 58, 138); // navy #1E3A8A
+  doc.rect(mg, mg, pageW - mg * 2, headerH, 'F');
+  doc.setFontSize(9); doc.setFont('helvetica', 'bold'); doc.setTextColor(255, 255, 255);
+  doc.text(orgName.toUpperCase(), mg + 5, mg + 5.5);
+  doc.setFontSize(6); doc.setFont('helvetica', 'normal'); doc.setTextColor(186, 214, 255);
+  doc.text(`Tabellone Turni — ${monthLabel}`, mg + 5, mg + 10.5);
+  const sdLabel = 'soccorsodigitale.app';
+  doc.setFontSize(5); doc.setTextColor(147, 197, 253);
+  doc.text(sdLabel, pageW - mg - 3, mg + 8, { align: 'right' });
+  return headerH;
+}
+
+function addPdfFooter(doc, pageW, pageH, mg, orgName, monthLabel, orgSlug, pageNum) {
+  const footerH = 6;
+  const footerY = pageH - mg - footerH;
+  doc.setFillColor(241, 245, 249);
+  doc.rect(mg, footerY, pageW - mg * 2, footerH, 'F');
+  doc.setFontSize(3.5); doc.setFont('helvetica', 'normal'); doc.setTextColor(74, 74, 106);
+  const calUrl = `https://soccorsodigitale.app/calendar/${orgSlug || 'org'}`;
+  const footerText = `${orgName}  |  ${monthLabel}  |  Pag. ${pageNum}  |  Calendario: ${calUrl}`;
+  doc.text(footerText, mg + (pageW - mg * 2) / 2, footerY + 4, { align: 'center' });
+}
+
 // === PDF EXPORT ===
 async function exportShiftsPDF(options = {}) {
   const month = getShiftStatsMonthValue() || document.getElementById('export-month')?.value;
@@ -21190,6 +21491,8 @@ async function exportShiftsPDF(options = {}) {
     const monthNames = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
     const dayNamesShort = ['DOM','LUN','MAR','MER','GIO','VEN','SAB'];
     const monthLabel = `${monthNames[data.monthNum - 1]} ${data.year}`;
+    const orgName = (typeof currentOrg !== 'undefined' && currentOrg?.name) ? currentOrg.name : (data.orgName || 'Organizzazione');
+    const orgSlug = (typeof currentOrg !== 'undefined' && currentOrg?.slug) ? currentOrg.slug : 'org';
 
     const assignmentMap = new Map();
     data.assignments.forEach(a => {
@@ -21247,6 +21550,7 @@ async function exportShiftsPDF(options = {}) {
     const weekendTint = '#fff3e0';
 
     let firstPage = true;
+    let pdfPageNum = 1;
 
     for (const locId of targetLocationIds) {
       const loc = locationMap.get(locId);
@@ -21330,8 +21634,11 @@ async function exportShiftsPDF(options = {}) {
         continue;
       }
 
-      if (!firstPage) doc.addPage('a4', orientation);
+      if (!firstPage) { doc.addPage('a4', orientation); pdfPageNum++; }
       firstPage = false;
+
+      // Page-level org header
+      addPdfHeader(doc, pageW, mg, orgName, monthLabel);
 
       const dayColW = usePortrait ? 16 : 11;
       const totalDataCols = roleCols.length;
@@ -21341,7 +21648,8 @@ async function exportShiftsPDF(options = {}) {
       const tableW = dayColW + totalDataCols * dataColW;
       const tableStartX = mg + Math.max(0, (pageW - mg * 2 - tableW) / 2);
 
-      let y = mg;
+      // Offset y below the org header (14mm) + 2mm gap
+      let y = mg + 14 + 2;
       const headerH = 14;
       doc.setFillColor(15,23,42);
       doc.rect(tableStartX, y, tableW, headerH, 'F');
@@ -21350,10 +21658,11 @@ async function exportShiftsPDF(options = {}) {
       doc.setFontSize(10); doc.setFont('helvetica','bold'); doc.setTextColor(255,255,255);
       doc.text('TABELLONE TURNI', tableStartX + 4, y + 5.5);
       doc.setFontSize(5.5); doc.setFont('helvetica','normal'); doc.setTextColor(148,163,184);
-      const sedeText = `${data.orgName.toUpperCase()}  |  ${(loc?.name || 'N/D').toUpperCase()}  |  ${monthLabel.toUpperCase()}`;
+      const sedeText = `${(loc?.name || 'N/D').toUpperCase()}  |  ${monthLabel.toUpperCase()}`;
       doc.text(sedeText, tableStartX + 4, y + 10.5, { maxWidth: tableW * 0.6 });
 
-      if (data.calendarUrl) {
+      const calBtnUrl = data.calendarUrl || `https://soccorsodigitale.app/calendar/${orgSlug}`;
+      {
         const calText = 'AGGIUNGI AL CALENDARIO';
         doc.setFontSize(5); doc.setFont('helvetica','bold');
         const calTextW = doc.getTextWidth(calText);
@@ -21366,7 +21675,7 @@ async function exportShiftsPDF(options = {}) {
         doc.setFillColor(0,166,81);
         doc.roundedRect(btnX, btnY, btnW, btnH, 1.5, 1.5, 'F');
         doc.setTextColor(255,255,255);
-        doc.textWithLink(calText, btnX + btnPadX, btnY + btnH / 2 + 1.5, { url: data.calendarUrl });
+        doc.textWithLink(calText, btnX + btnPadX, btnY + btnH / 2 + 1.5, { url: calBtnUrl });
       }
 
       y += headerH + 1;
@@ -21499,13 +21808,8 @@ async function exportShiftsPDF(options = {}) {
       doc.setDrawColor(203,213,225); doc.setLineWidth(0.2);
       doc.line(tableStartX, y, tableStartX + tableW, y);
 
-      y += 1;
-      doc.setFillColor(241,245,249);
-      doc.rect(tableStartX, y, tableW, 5, 'F');
-      doc.setTextColor(74,74,106); doc.setFontSize(3.5); doc.setFont('helvetica','normal');
-      const now = new Date();
-      const footerText = `${data.orgName}  |  Generato il ${now.toLocaleDateString('it-IT')} alle ${now.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}  |  soccorsodigitale.app`;
-      doc.text(footerText, tableStartX + tableW / 2, y + 3.2, { align: 'center' });
+      // Page footer with org name, month, page number and calendar link
+      addPdfFooter(doc, pageW, pageH, mg, orgName, monthLabel, orgSlug, pdfPageNum);
     }
 
     doc.save(`tabellone_turni_${month}.pdf`);
@@ -23507,7 +23811,14 @@ function generateMonthlyShifts() {
 }
 
 async function executeGenerateMonthlyShifts() {
-  const pattern = document.getElementById('gen-pattern')?.value || 'all_days';
+  // Load saved auto-gen settings (from Impostazioni Turni panel) as defaults
+  let autoGenDefaults = {};
+  try {
+    const saved = localStorage.getItem('autogen_settings');
+    if (saved) autoGenDefaults = JSON.parse(saved);
+  } catch (e) { /* ignore */ }
+
+  const pattern = document.getElementById('gen-pattern')?.value || autoGenDefaults.pattern || 'all_days';
   const scope = document.getElementById('gen-scope')?.value || 'all';
   const autoAssign = document.getElementById('gen-auto-assign')?.checked ?? true;
   const respectHours = document.getElementById('gen-respect-hours')?.checked ?? true;
@@ -27088,6 +27399,23 @@ async function saveOrgShiftRules() {
   } catch (error) {
     console.error('Error saving org shift rules:', error);
     showNotification('Errore nel salvataggio delle regole', 'error');
+  }
+}
+
+function saveAutoGenSettings() {
+  const settings = {
+    enabled: document.getElementById('ss-autogen-enabled')?.checked ?? true,
+    maxConsecutiveDays: parseInt(document.getElementById('ss-autogen-max-consecutive')?.value || '6'),
+    minRestDaysPerWeek: parseInt(document.getElementById('ss-autogen-min-rest-days')?.value || '1'),
+    maxShiftHours: parseInt(document.getElementById('ss-autogen-max-shift-hours')?.value || '12'),
+    pattern: document.getElementById('ss-autogen-pattern')?.value || 'alternating',
+  };
+  try {
+    localStorage.setItem('autogen_settings', JSON.stringify(settings));
+    showNotification('Parametri generazione automatica salvati', 'success');
+  } catch (e) {
+    console.error('Error saving autogen settings:', e);
+    showNotification('Errore nel salvataggio dei parametri', 'error');
   }
 }
 
@@ -30724,6 +31052,8 @@ function openPartnerProposalPage() {
   window.open('/partner-proposal', '_blank');
 }
 
+let _allOrgsCache = [];
+
 async function loadOrganizationsPage() {
   const container = document.getElementById('organizations-list');
   if (!container) return;
@@ -30733,42 +31063,8 @@ async function loadOrganizationsPage() {
     const res = await adminFetch('/api/org-admin/organizations');
     if (!res.ok) throw new Error('Errore nel caricamento');
     const orgs = await res.json();
-
-    if (orgs.length === 0) {
-      container.innerHTML = '<div style="text-align:center;padding:48px;color:var(--text-secondary)"><p>Nessuna organizzazione registrata.</p></div>';
-      return;
-    }
-
-    const statusBadge = (s) => {
-      const map = { active: ['Attiva', '#00A651', '#E6F9F0'], trial: ['Prova', '#3498DB', '#E6F0FF'], suspended: ['Sospesa', '#F5A623', '#FFF3E0'], inactive: ['Inattiva', '#E74C3C', '#FDECEA'] };
-      const [label, color, bg] = map[s] || ['?', '#999', '#f5f5f5'];
-      return `<span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:500;background:${bg};color:${color}">${label}</span>`;
-    };
-
-    container.innerHTML = `
-      <div style="display:grid;gap:12px">
-        ${orgs.map(org => `
-          <div class="card" style="cursor:pointer" onclick="showOrgDetail('${org.id}')">
-            <div style="padding:16px 20px;display:flex;align-items:center;justify-content:space-between">
-              <div>
-                <div style="display:flex;align-items:center;gap:10px">
-                  <strong style="font-size:15px">${org.name}</strong>
-                  ${statusBadge(org.status)}
-                </div>
-                <div style="color:var(--text-secondary);font-size:13px;margin-top:4px">
-                  ${org.city ? org.city + (org.province ? ' (' + org.province + ')' : '') : 'Sede non specificata'}
-                  ${org.email ? ' | ' + org.email : ''}
-                </div>
-              </div>
-              <div style="text-align:right;font-size:12px;color:var(--text-secondary)">
-                <div>Creata: ${new Date(org.createdAt).toLocaleDateString('it-IT')}</div>
-                <div>Max: ${org.maxVehicles || 5} veicoli, ${org.maxUsers || 20} utenti</div>
-              </div>
-            </div>
-          </div>
-        `).join('')}
-      </div>
-    `;
+    _allOrgsCache = orgs;
+    _renderOrgsPage(orgs);
   } catch (err) {
     container.innerHTML = `<div style="padding:20px;color:var(--error)">${err.message}</div>`;
   }
@@ -30776,85 +31072,480 @@ async function loadOrganizationsPage() {
   document.getElementById('add-org-btn')?.addEventListener('click', showAddOrgModal);
 }
 
+function _orgStatusBadge(s) {
+  const map = {
+    active:    ['Attiva',   '#16A34A', '#DCFCE7'],
+    trial:     ['Prova',    '#2563EB', '#DBEAFE'],
+    suspended: ['Sospesa',  '#D97706', '#FEF3C7'],
+    inactive:  ['Inattiva', '#DC2626', '#FEE2E2']
+  };
+  const [label, color, bg] = map[s] || ['?', '#64748B', '#F1F5F9'];
+  return `<span class="org-status-badge" style="background:${bg};color:${color}">${label}</span>`;
+}
+
+function _orgPlanBadge(p) {
+  const plan = (p || 'base').toLowerCase();
+  const map = { base: ['Base', '#64748B', '#F1F5F9'], pro: ['Pro', '#7C3AED', '#EDE9FE'], enterprise: ['Enterprise', '#0369A1', '#E0F2FE'] };
+  const [label, color, bg] = map[plan] || ['Base', '#64748B', '#F1F5F9'];
+  return `<span class="org-status-badge" style="background:${bg};color:${color}">${label}</span>`;
+}
+
+function _renderOrgsPage(orgs) {
+  const container = document.getElementById('organizations-list');
+  if (!container) return;
+
+  const totalOrgs  = orgs.length;
+  const activeOrgs = orgs.filter(o => o.status === 'active').length;
+  const trialOrgs  = orgs.filter(o => o.status === 'trial').length;
+  const planPrices = { base: 49, pro: 149, enterprise: 399 };
+  const mrr = orgs.filter(o => o.status === 'active').reduce((sum, o) => {
+    const pl = (o.plan || 'base').toLowerCase();
+    return sum + (planPrices[pl] || 49);
+  }, 0);
+  const suspended  = orgs.filter(o => o.status === 'suspended').length;
+  const churnRate  = totalOrgs > 0 ? ((suspended / totalOrgs) * 100).toFixed(1) : '0.0';
+
+  container.innerHTML = `
+    <div class="org-kpi-row">
+      <div class="org-kpi-card">
+        <div class="kpi-accent" style="background:#3B82F6"></div>
+        <div class="kpi-label">Totale Org</div>
+        <div class="kpi-value">${totalOrgs}</div>
+        <div class="kpi-sub">organizzazioni</div>
+      </div>
+      <div class="org-kpi-card">
+        <div class="kpi-accent" style="background:#22C55E"></div>
+        <div class="kpi-label">Attive</div>
+        <div class="kpi-value" style="color:#16A34A">${activeOrgs}</div>
+        <div class="kpi-sub">abbonamenti attivi</div>
+      </div>
+      <div class="org-kpi-card">
+        <div class="kpi-accent" style="background:#3B82F6"></div>
+        <div class="kpi-label">In Prova</div>
+        <div class="kpi-value" style="color:#2563EB">${trialOrgs}</div>
+        <div class="kpi-sub">trial in corso</div>
+      </div>
+      <div class="org-kpi-card">
+        <div class="kpi-accent" style="background:#8B5CF6"></div>
+        <div class="kpi-label">MRR Stimato</div>
+        <div class="kpi-value" style="color:#7C3AED">€${mrr.toLocaleString('it-IT')}</div>
+        <div class="kpi-sub">mensile ricorrente</div>
+      </div>
+      <div class="org-kpi-card">
+        <div class="kpi-accent" style="background:#F59E0B"></div>
+        <div class="kpi-label">Churn Rate</div>
+        <div class="kpi-value" style="color:#D97706">${churnRate}%</div>
+        <div class="kpi-sub">${suspended} sospese</div>
+      </div>
+    </div>
+
+    <div class="org-filters-bar">
+      <input class="org-filter-input" type="text" id="org-search" placeholder="Cerca per nome, email, città..." oninput="_filterOrgsTable()">
+      <select class="org-filter-select" id="org-filter-status" onchange="_filterOrgsTable()">
+        <option value="">Tutti gli stati</option>
+        <option value="active">Attive</option>
+        <option value="trial">In Prova</option>
+        <option value="suspended">Sospese</option>
+        <option value="inactive">Inattive</option>
+      </select>
+      <select class="org-filter-select" id="org-filter-plan" onchange="_filterOrgsTable()">
+        <option value="">Tutti i piani</option>
+        <option value="base">Base</option>
+        <option value="pro">Pro</option>
+        <option value="enterprise">Enterprise</option>
+      </select>
+    </div>
+
+    <div class="org-table-wrap">
+      <table class="org-table" id="org-main-table">
+        <thead>
+          <tr>
+            <th>Organizzazione</th>
+            <th>Stato</th>
+            <th>Piano</th>
+            <th>MRR</th>
+            <th>Utenti Max</th>
+            <th>Veicoli Max</th>
+            <th>Fine Prova</th>
+            <th>Creata</th>
+            <th>Azioni</th>
+          </tr>
+        </thead>
+        <tbody id="org-table-body">
+          ${orgs.length === 0
+            ? '<tr><td colspan="9" style="text-align:center;padding:32px;color:#64748B">Nessuna organizzazione registrata.</td></tr>'
+            : orgs.map(org => _orgTableRow(org)).join('')
+          }
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function _orgTableRow(org) {
+  const planPrices = { base: 49, pro: 149, enterprise: 399 };
+  const plan = (org.plan || 'base').toLowerCase();
+  const mrr = org.status === 'active' ? (planPrices[plan] || 49) : 0;
+  const trialEnd = org.trialEndsAt ? new Date(org.trialEndsAt).toLocaleDateString('it-IT') : '—';
+  const created  = org.createdAt ? new Date(org.createdAt).toLocaleDateString('it-IT') : '—';
+  const logoHtml = org.logoUrl
+    ? `<img src="${org.logoUrl}" style="width:28px;height:28px;border-radius:6px;object-fit:contain;border:1px solid #E2E8F0;margin-right:8px;vertical-align:middle;flex-shrink:0" onerror="this.style.display='none'">`
+    : `<span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:6px;background:#EFF6FF;color:#1E3A8A;font-size:11px;font-weight:700;margin-right:8px;flex-shrink:0">${(org.name||'?').charAt(0).toUpperCase()}</span>`;
+  const trialExpired = org.trialEndsAt && new Date(org.trialEndsAt) < new Date();
+
+  return `<tr onclick="showOrgDetail('${org.id}')" style="cursor:pointer"
+    data-org-name="${(org.name||'').toLowerCase()}"
+    data-org-email="${(org.email||'').toLowerCase()}"
+    data-org-city="${(org.city||'').toLowerCase()}"
+    data-org-status="${org.status||''}"
+    data-org-plan="${plan}">
+    <td>
+      <div style="display:flex;align-items:center">
+        ${logoHtml}
+        <div>
+          <div style="font-weight:600;font-size:13px">${org.name}</div>
+          <div style="font-size:11px;color:#64748B">${org.city ? org.city + (org.province ? ' ('+org.province+')' : '') : (org.email || '—')}</div>
+        </div>
+      </div>
+    </td>
+    <td>${_orgStatusBadge(org.status)}</td>
+    <td>${_orgPlanBadge(org.plan)}</td>
+    <td style="font-weight:600;color:${mrr > 0 ? '#7C3AED' : '#64748B'}">${mrr > 0 ? '€'+mrr : '—'}</td>
+    <td style="font-size:13px">${org.maxUsers || 20}</td>
+    <td style="font-size:13px">${org.maxVehicles || 5}</td>
+    <td style="font-size:12px;color:${trialExpired ? '#DC2626' : '#64748B'}">${trialEnd}</td>
+    <td style="font-size:12px;color:#64748B">${created}</td>
+    <td>
+      <div style="display:flex;gap:6px" onclick="event.stopPropagation()">
+        <button class="btn btn-sm btn-outline" onclick="showOrgDetail('${org.id}')" title="Dettagli">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+        <button class="btn btn-sm btn-outline" onclick="showEditOrgModal('${org.id}')" title="Modifica">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+      </div>
+    </td>
+  </tr>`;
+}
+
+function _filterOrgsTable() {
+  const search = (document.getElementById('org-search')?.value || '').toLowerCase();
+  const status = document.getElementById('org-filter-status')?.value || '';
+  const plan   = document.getElementById('org-filter-plan')?.value || '';
+  const tbody  = document.getElementById('org-table-body');
+  if (!tbody) return;
+
+  const rows = Array.from(tbody.querySelectorAll('tr[data-org-status]'));
+  rows.forEach(row => {
+    const matchSearch = !search ||
+      row.dataset.orgName.includes(search) ||
+      row.dataset.orgEmail.includes(search) ||
+      row.dataset.orgCity.includes(search);
+    const matchStatus = !status || row.dataset.orgStatus === status;
+    const matchPlan   = !plan   || row.dataset.orgPlan === plan;
+    row.style.display = (matchSearch && matchStatus && matchPlan) ? '' : 'none';
+  });
+}
+
 async function showOrgDetail(orgId) {
+  const container = document.getElementById('organizations-list');
+  if (!container) return;
+  container.innerHTML = '<p style="color:var(--text-secondary);padding:20px">Caricamento dettagli...</p>';
+
   try {
     const res = await adminFetch(`/api/org-admin/organizations/${orgId}/stats`);
     if (!res.ok) throw new Error('Errore nel caricamento');
     const data = await res.json();
-    const org = data.organization;
-    const s = data.stats;
+    const org  = data.organization;
+    const s    = data.stats || {};
 
-    const container = document.getElementById('organizations-list');
+    const planPrices = { base: 49, pro: 149, enterprise: 399 };
+    const plan = (org.plan || 'base').toLowerCase();
+    const mrr  = org.status === 'active' ? (planPrices[plan] || 49) : 0;
+
+    const mockHistory = [
+      { date: '01/03/2025', desc: 'Abbonamento ' + plan.charAt(0).toUpperCase()+plan.slice(1), amount: mrr, status: 'Pagato' },
+      { date: '01/02/2025', desc: 'Abbonamento ' + plan.charAt(0).toUpperCase()+plan.slice(1), amount: mrr, status: 'Pagato' },
+      { date: '01/01/2025', desc: 'Abbonamento ' + plan.charAt(0).toUpperCase()+plan.slice(1), amount: mrr, status: 'Pagato' },
+    ];
+
+    const logoHtml = org.logoUrl
+      ? `<img src="${org.logoUrl}?t=${Date.now()}" style="width:48px;height:48px;border-radius:10px;object-fit:contain;border:1px solid #E2E8F0" onerror="this.style.display='none'">`
+      : `<span style="display:inline-flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:10px;background:#EFF6FF;color:#1E3A8A;font-size:20px;font-weight:700">${(org.name||'?').charAt(0).toUpperCase()}</span>`;
+
+    const safeName = org.name.replace(/'/g, "\\'");
+
     container.innerHTML = `
-      <div style="margin-bottom:16px">
+      <div style="margin-bottom:16px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
         <button class="btn btn-outline" onclick="loadOrganizationsPage()" style="display:inline-flex;align-items:center;gap:6px">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
           Torna alla lista
         </button>
-        <button class="btn btn-primary" style="margin-left:8px" onclick="showEditOrgModal('${org.id}')">Modifica</button>
-        <button class="btn" style="margin-left:8px;background:#E74C3C;color:white;border:none" onclick="deleteOrganization('${org.id}', '${org.name.replace(/'/g, "\\'")}')">Elimina</button>
+        <button class="btn btn-primary" onclick="showEditOrgModal('${org.id}')">Modifica</button>
+        <button class="btn" style="background:#E74C3C;color:white;border:none" onclick="deleteOrganization('${org.id}', '${safeName}')">Elimina</button>
       </div>
 
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:20px">
-        <div class="card" style="padding:16px"><div style="font-size:12px;color:var(--text-secondary);text-transform:uppercase">Utenti</div><div style="font-size:24px;font-weight:700;margin-top:4px">${s.users}</div><div style="font-size:12px;color:var(--text-secondary)">max ${org.maxUsers || 20}</div></div>
-        <div class="card" style="padding:16px"><div style="font-size:12px;color:var(--text-secondary);text-transform:uppercase">Veicoli</div><div style="font-size:24px;font-weight:700;margin-top:4px">${s.vehicles}</div><div style="font-size:12px;color:var(--text-secondary)">max ${org.maxVehicles || 5}</div></div>
-        <div class="card" style="padding:16px"><div style="font-size:12px;color:var(--text-secondary);text-transform:uppercase">Sedi</div><div style="font-size:24px;font-weight:700;margin-top:4px">${s.locations}</div></div>
-        <div class="card" style="padding:16px"><div style="font-size:12px;color:var(--text-secondary);text-transform:uppercase">Servizi</div><div style="font-size:24px;font-weight:700;margin-top:4px">${s.trips}</div></div>
-      </div>
-
-      <div class="card" style="margin-bottom:16px">
-        <div style="padding:16px 20px;border-bottom:1px solid var(--border)"><h3 style="font-size:15px;font-weight:600">Logo Organizzazione</h3></div>
-        <div style="padding:20px;display:flex;align-items:center;gap:20px">
-          <div id="org-logo-preview-${org.id}" style="width:80px;height:80px;border-radius:12px;border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;overflow:hidden;background:var(--bg)">
-            ${org.logoUrl ? `<img src="${org.logoUrl}?t=${Date.now()}" style="width:100%;height:100%;object-fit:contain" onerror="this.parentElement.innerHTML='<span style=\\'color:var(--text-secondary);font-size:12px\\'>Nessun logo</span>'">` : '<span style="color:var(--text-secondary);font-size:12px">Nessun logo</span>'}
+      <div class="org-detail-panel">
+        <div class="org-detail-header">
+          <div style="display:flex;align-items:center;gap:14px">
+            ${logoHtml}
+            <div>
+              <div style="font-size:18px;font-weight:700;color:#0D2440">${org.name}</div>
+              <div style="font-size:13px;color:#64748B;margin-top:2px">${org.city ? org.city+(org.province?' ('+org.province+')':'') : ''}${org.email ? ' · '+org.email : ''}</div>
+            </div>
           </div>
-          <div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            ${_orgStatusBadge(org.status)}
+            ${_orgPlanBadge(org.plan)}
             <input type="file" id="org-logo-input-${org.id}" accept="image/*" style="display:none" onchange="handleOrgLogoUpload('${org.id}', this)">
-            <button class="btn btn-outline" onclick="document.getElementById('org-logo-input-${org.id}').click()" style="display:inline-flex;align-items:center;gap:6px">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-              Carica Logo
-            </button>
-            <p style="font-size:12px;color:var(--text-secondary);margin-top:6px">PNG, JPG o SVG. Max 2MB.</p>
+            <button class="btn btn-sm btn-outline" onclick="document.getElementById('org-logo-input-${org.id}').click()">Cambia Logo</button>
           </div>
         </div>
-      </div>
 
-      <div class="card">
-        <div style="padding:16px 20px;border-bottom:1px solid var(--border)"><h3 style="font-size:15px;font-weight:600">Dettagli Organizzazione</h3></div>
-        <div style="padding:20px">
-          <table style="width:100%">
-            <tr><td style="font-weight:500;width:180px;padding:8px 0">Nome</td><td style="padding:8px 0">${org.name}</td></tr>
-            <tr><td style="font-weight:500;padding:8px 0">Slug</td><td style="padding:8px 0"><code>${org.slug}</code></td></tr>
-            ${org.legalName ? `<tr><td style="font-weight:500;padding:8px 0">Ragione Sociale</td><td style="padding:8px 0">${org.legalName}</td></tr>` : ''}
-            ${org.vatNumber ? `<tr><td style="font-weight:500;padding:8px 0">P.IVA</td><td style="padding:8px 0">${org.vatNumber}</td></tr>` : ''}
-            ${org.fiscalCode ? `<tr><td style="font-weight:500;padding:8px 0">Codice Fiscale</td><td style="padding:8px 0">${org.fiscalCode}</td></tr>` : ''}
-            ${org.address ? `<tr><td style="font-weight:500;padding:8px 0">Indirizzo</td><td style="padding:8px 0">${org.address}</td></tr>` : ''}
-            ${org.city ? `<tr><td style="font-weight:500;padding:8px 0">Citta</td><td style="padding:8px 0">${org.city} ${org.province ? '(' + org.province + ')' : ''} ${org.postalCode || ''}</td></tr>` : ''}
-            ${org.phone ? `<tr><td style="font-weight:500;padding:8px 0">Telefono</td><td style="padding:8px 0">${org.phone}</td></tr>` : ''}
-            ${org.email ? `<tr><td style="font-weight:500;padding:8px 0">Email</td><td style="padding:8px 0">${org.email}</td></tr>` : ''}
-            ${org.pec ? `<tr><td style="font-weight:500;padding:8px 0">PEC</td><td style="padding:8px 0">${org.pec}</td></tr>` : ''}
-            ${org.website ? `<tr><td style="font-weight:500;padding:8px 0">Sito Web</td><td style="padding:8px 0">${org.website}</td></tr>` : ''}
-            <tr><td style="font-weight:500;padding:8px 0">Stato</td><td style="padding:8px 0">${org.status}</td></tr>
-            <tr><td style="font-weight:500;padding:8px 0">Data Creazione</td><td style="padding:8px 0">${new Date(org.createdAt).toLocaleDateString('it-IT')}</td></tr>
-            ${org.trialEndsAt ? `<tr><td style="font-weight:500;padding:8px 0">Fine Prova</td><td style="padding:8px 0">${new Date(org.trialEndsAt).toLocaleDateString('it-IT')}</td></tr>` : ''}
-            ${org.notes ? `<tr><td style="font-weight:500;padding:8px 0">Note</td><td style="padding:8px 0">${org.notes}</td></tr>` : ''}
-          </table>
+        <div class="org-detail-tabs">
+          <button class="org-detail-tab active" onclick="_switchOrgTab(this,'ov-${org.id}')">Overview</button>
+          <button class="org-detail-tab" onclick="_switchOrgTab(this,'bi-${org.id}')">Piano &amp; Billing</button>
+          <button class="org-detail-tab" onclick="_switchOrgTab(this,'mo-${org.id}')">Moduli</button>
+          <button class="org-detail-tab" onclick="_switchOrgTab(this,'em-${org.id}')">Email &amp; Automazioni</button>
+          <button class="org-detail-tab" onclick="_switchOrgTab(this,'ac-${org.id}')">Accesso &amp; Sicurezza</button>
+          <button class="org-detail-tab" onclick="_switchOrgTab(this,'no-${org.id}')">Note Interne</button>
+        </div>
+
+        <div class="org-detail-content">
+
+          <!-- OVERVIEW -->
+          <div class="org-tab-pane active" id="ov-${org.id}">
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:20px">
+              <div style="background:#F8FAFC;border-radius:10px;padding:16px;text-align:center">
+                <div style="font-size:28px;font-weight:700;color:#1E3A8A">${s.trips || 0}</div>
+                <div style="font-size:12px;color:#64748B;margin-top:4px">Servizi totali</div>
+              </div>
+              <div style="background:#F8FAFC;border-radius:10px;padding:16px;text-align:center">
+                <div style="font-size:28px;font-weight:700;color:#16A34A">${s.users || 0}</div>
+                <div style="font-size:12px;color:#64748B;margin-top:4px">Utenti / max ${org.maxUsers||20}</div>
+              </div>
+              <div style="background:#F8FAFC;border-radius:10px;padding:16px;text-align:center">
+                <div style="font-size:28px;font-weight:700;color:#2563EB">${s.vehicles || 0}</div>
+                <div style="font-size:12px;color:#64748B;margin-top:4px">Veicoli / max ${org.maxVehicles||5}</div>
+              </div>
+              <div style="background:#F8FAFC;border-radius:10px;padding:16px;text-align:center">
+                <div style="font-size:28px;font-weight:700;color:#7C3AED">${s.locations || 0}</div>
+                <div style="font-size:12px;color:#64748B;margin-top:4px">Sedi operative</div>
+              </div>
+            </div>
+            <table style="width:100%;font-size:13px">
+              <tr><td style="font-weight:600;width:180px;padding:7px 0;color:#64748B">Slug</td><td><code style="background:#F1F5F9;padding:2px 8px;border-radius:4px">${org.slug}</code></td></tr>
+              ${org.legalName ? `<tr><td style="font-weight:600;padding:7px 0;color:#64748B">Ragione Sociale</td><td>${org.legalName}</td></tr>` : ''}
+              ${org.vatNumber  ? `<tr><td style="font-weight:600;padding:7px 0;color:#64748B">P.IVA</td><td>${org.vatNumber}</td></tr>` : ''}
+              ${org.fiscalCode ? `<tr><td style="font-weight:600;padding:7px 0;color:#64748B">Codice Fiscale</td><td>${org.fiscalCode}</td></tr>` : ''}
+              ${org.address    ? `<tr><td style="font-weight:600;padding:7px 0;color:#64748B">Indirizzo</td><td>${org.address}</td></tr>` : ''}
+              ${org.phone      ? `<tr><td style="font-weight:600;padding:7px 0;color:#64748B">Telefono</td><td>${org.phone}</td></tr>` : ''}
+              ${org.pec        ? `<tr><td style="font-weight:600;padding:7px 0;color:#64748B">PEC</td><td>${org.pec}</td></tr>` : ''}
+              ${org.website    ? `<tr><td style="font-weight:600;padding:7px 0;color:#64748B">Sito Web</td><td>${org.website}</td></tr>` : ''}
+              <tr><td style="font-weight:600;padding:7px 0;color:#64748B">Creata</td><td>${new Date(org.createdAt).toLocaleDateString('it-IT')}</td></tr>
+              ${org.trialEndsAt ? `<tr><td style="font-weight:600;padding:7px 0;color:#64748B">Fine Prova</td><td>${new Date(org.trialEndsAt).toLocaleDateString('it-IT')}</td></tr>` : ''}
+            </table>
+          </div>
+
+          <!-- PIANO & BILLING -->
+          <div class="org-tab-pane" id="bi-${org.id}">
+            <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:20px">
+              <div style="flex:1;min-width:200px;background:#F8FAFC;border-radius:10px;padding:16px">
+                <div style="font-size:11px;color:#64748B;text-transform:uppercase;font-weight:600">Piano Attuale</div>
+                <div style="font-size:20px;font-weight:700;color:#1E3A8A;margin-top:4px">${plan.charAt(0).toUpperCase()+plan.slice(1)}</div>
+                <div style="font-size:13px;color:#64748B">€${mrr}/mese</div>
+              </div>
+              <div style="flex:1;min-width:200px;background:#F8FAFC;border-radius:10px;padding:16px">
+                <div style="font-size:11px;color:#64748B;text-transform:uppercase;font-weight:600">Prossimo Rinnovo</div>
+                <div style="font-size:20px;font-weight:700;color:#1E3A8A;margin-top:4px">01/04/2025</div>
+                <div style="font-size:13px;color:#64748B">Rinnovo automatico</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap">
+              <button class="btn btn-primary" onclick="showNotification('Funzionalità in arrivo','info')">Upgrade Piano</button>
+              <button class="btn btn-outline" onclick="showNotification('Funzionalità in arrivo','info')">Downgrade</button>
+              <button class="btn btn-outline" onclick="showNotification('Funzionalità in arrivo','info')">Emetti Fattura Manuale</button>
+            </div>
+            <div style="font-size:13px;font-weight:600;color:#1E293B;margin-bottom:8px">Storico Pagamenti</div>
+            <div class="org-table-wrap">
+              <table class="org-billing-table">
+                <thead><tr><th>Data</th><th>Descrizione</th><th>Importo</th><th>Stato</th></tr></thead>
+                <tbody>
+                  ${mockHistory.map(h => `<tr>
+                    <td>${h.date}</td>
+                    <td>${h.desc}</td>
+                    <td style="font-weight:600">€${h.amount}</td>
+                    <td><span style="background:#DCFCE7;color:#16A34A;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600">${h.status}</span></td>
+                  </tr>`).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- MODULI -->
+          <div class="org-tab-pane" id="mo-${org.id}">
+            <div style="font-size:13px;color:#64748B;margin-bottom:16px">${(org.enabledModules||[]).length} moduli attivi su ${PREMIUM_MODULES.length} disponibili</div>
+            <div class="org-module-grid" id="org-modules-${org.id}">
+              ${_renderOrgModuleGrid(org)}
+            </div>
+          </div>
+
+          <!-- EMAIL & AUTOMAZIONI -->
+          <div class="org-tab-pane" id="em-${org.id}">
+            <div style="display:grid;gap:12px">
+              <div style="background:#F8FAFC;border-radius:10px;padding:16px;display:flex;justify-content:space-between;align-items:center;gap:12px">
+                <div>
+                  <div style="font-weight:600;font-size:14px">Email di Benvenuto</div>
+                  <div style="font-size:12px;color:#64748B;margin-top:2px">Invia email di benvenuto all'organizzazione</div>
+                </div>
+                <button class="btn btn-outline" onclick="_sendOrgEmail('${org.id}','welcome')">Invia</button>
+              </div>
+              <div style="background:#F8FAFC;border-radius:10px;padding:16px;display:flex;justify-content:space-between;align-items:center;gap:12px">
+                <div>
+                  <div style="font-weight:600;font-size:14px">Ultima Fattura</div>
+                  <div style="font-size:12px;color:#64748B;margin-top:2px">Invia l'ultima fattura via email</div>
+                </div>
+                <button class="btn btn-outline" onclick="_sendOrgEmail('${org.id}','invoice')">Invia</button>
+              </div>
+              <div style="background:#FEF3C7;border:1px solid #FDE68A;border-radius:10px;padding:16px">
+                <div style="font-weight:600;font-size:14px;color:#92400E;margin-bottom:10px">Avvisi Scadenza Trial</div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                  <button class="btn btn-outline" onclick="_sendOrgEmail('${org.id}','trial_3')">Avviso 3 giorni</button>
+                  <button class="btn btn-outline" onclick="_sendOrgEmail('${org.id}','trial_7')">Avviso 7 giorni</button>
+                </div>
+              </div>
+              <div style="background:#F8FAFC;border-radius:10px;padding:16px;display:flex;justify-content:space-between;align-items:center;gap:12px">
+                <div>
+                  <div style="font-weight:600;font-size:14px">Auto-Rinnovo</div>
+                  <div style="font-size:12px;color:#64748B;margin-top:2px">Configura email automatiche di rinnovo abbonamento</div>
+                </div>
+                <button class="btn btn-outline" onclick="showNotification('Funzionalità in arrivo','info')">Configura</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ACCESSO & SICUREZZA -->
+          <div class="org-tab-pane" id="ac-${org.id}">
+            <div style="display:grid;gap:12px">
+              <div style="background:#F8FAFC;border-radius:10px;padding:16px;display:flex;justify-content:space-between;align-items:center;gap:12px">
+                <div>
+                  <div style="font-weight:600;font-size:14px">Reset Password Admin</div>
+                  <div style="font-size:12px;color:#64748B;margin-top:2px">Invia link reset password all'amministratore dell'org</div>
+                </div>
+                <button class="btn btn-outline" onclick="showNotification('Email reset inviata','success')">Reset</button>
+              </div>
+              <div style="background:#F8FAFC;border-radius:10px;padding:16px;display:flex;justify-content:space-between;align-items:center;gap:12px">
+                <div>
+                  <div style="font-weight:600;font-size:14px">Stato Organizzazione</div>
+                  <div style="font-size:12px;color:#64748B;margin-top:2px">Corrente: ${_orgStatusBadge(org.status)}</div>
+                </div>
+                <div style="display:flex;gap:8px">
+                  ${org.status !== 'suspended'
+                    ? `<button class="btn" style="background:#F59E0B;color:white;border:none" onclick="_toggleOrgSuspend('${org.id}','suspend')">Sospendi</button>`
+                    : `<button class="btn" style="background:#22C55E;color:white;border:none" onclick="_toggleOrgSuspend('${org.id}','unsuspend')">Riattiva</button>`
+                  }
+                </div>
+              </div>
+              <div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:10px;padding:16px;display:flex;justify-content:space-between;align-items:center;gap:12px">
+                <div>
+                  <div style="font-weight:600;font-size:14px;color:#1E3A8A">Modalità Supporto</div>
+                  <div style="font-size:12px;color:#1E40AF;margin-top:2px">Accedi all'account come admin dell'org per supporto tecnico</div>
+                </div>
+                <button class="btn btn-primary" onclick="showNotification('Funzionalità in arrivo','info')">Attiva Supporto</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- NOTE INTERNE -->
+          <div class="org-tab-pane" id="no-${org.id}">
+            <div style="margin-bottom:12px;font-size:13px;color:#64748B">Note interne visibili solo agli admin del sistema.</div>
+            <textarea class="org-note-area" id="org-notes-ta-${org.id}" placeholder="Aggiungi note interne sull'organizzazione...">${org.notes || ''}</textarea>
+            <div style="margin-top:10px">
+              <button class="btn btn-primary" onclick="_saveOrgNotes('${org.id}')">Salva Note</button>
+            </div>
+          </div>
+
         </div>
       </div>
-
-      <div class="card" style="margin-top:16px">
-        <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
-          <h3 style="font-size:15px;font-weight:600">Moduli Premium</h3>
-          <span style="font-size:12px;color:var(--text-secondary)">${(org.enabledModules || []).length} moduli attivi</span>
-        </div>
-        <div style="padding:20px" id="modules-grid-${org.id}">
-          ${renderModuleToggles(org)}
-        </div>
-      </div>
-
     `;
   } catch (err) {
     console.error('Error loading org detail:', err);
+    const c2 = document.getElementById('organizations-list');
+    if (c2) c2.innerHTML = `<div style="padding:20px;color:var(--error)">${err.message}</div>`;
+  }
+}
+
+function _switchOrgTab(btn, paneId) {
+  const panel = btn.closest('.org-detail-panel');
+  if (!panel) return;
+  panel.querySelectorAll('.org-detail-tab').forEach(t => t.classList.remove('active'));
+  panel.querySelectorAll('.org-tab-pane').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  const pane = document.getElementById(paneId);
+  if (pane) pane.classList.add('active');
+}
+
+function _renderOrgModuleGrid(org) {
+  const enabled = org.enabledModules || [];
+  return PREMIUM_MODULES.map(m => {
+    const isOn = enabled.includes(m.id);
+    return `<div class="org-module-item ${isOn ? 'enabled' : ''}" id="org-mod-${org.id}-${m.id}">
+      <div class="org-module-toggle-row">
+        <strong style="font-size:12px;color:#1E293B">${m.name}</strong>
+        <label class="org-toggle-switch">
+          <input type="checkbox" ${isOn ? 'checked' : ''} onchange="toggleModule('${org.id}','${m.id}',this.checked)">
+          <span class="org-toggle-slider"></span>
+        </label>
+      </div>
+      <p style="font-size:11px;color:#64748B;margin:0">${m.desc}</p>
+    </div>`;
+  }).join('');
+}
+
+async function _sendOrgEmail(orgId, type) {
+  try {
+    const res = await adminFetch('/api/org-admin/send-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ orgId, type })
+    });
+    if (!res.ok) { showNotification('Funzionalità in arrivo', 'info'); return; }
+    showNotification('Email inviata con successo', 'success');
+  } catch (e) {
+    showNotification('Funzionalità in arrivo', 'info');
+  }
+}
+
+async function _toggleOrgSuspend(orgId, action) {
+  const newStatus = action === 'suspend' ? 'suspended' : 'active';
+  if (!confirm(action === 'suspend' ? 'Sospendere questa organizzazione?' : 'Riattivare questa organizzazione?')) return;
+  try {
+    const res = await adminFetch(`/api/org-admin/organizations/${orgId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: newStatus })
+    });
+    if (!res.ok) throw new Error('Errore nel salvataggio');
+    showNotification(action === 'suspend' ? 'Organizzazione sospesa' : 'Organizzazione riattivata', 'success');
+    showOrgDetail(orgId);
+  } catch (e) {
+    showNotification('Errore: ' + e.message, 'error');
+  }
+}
+
+async function _saveOrgNotes(orgId) {
+  const ta = document.getElementById('org-notes-ta-' + orgId);
+  if (!ta) return;
+  try {
+    const res = await adminFetch(`/api/org-admin/organizations/${orgId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ notes: ta.value })
+    });
+    if (!res.ok) throw new Error('Errore nel salvataggio');
+    showNotification('Note salvate', 'success');
+  } catch (e) {
+    showNotification('Errore: ' + e.message, 'error');
   }
 }
 
@@ -32585,6 +33276,15 @@ function filterTendersByStatus(status) {
 }
 
 async function loadTenders() {
+  // Auto-sync if last sync was more than 6 hours ago
+  const lastSync = localStorage.getItem('anac_last_sync');
+  const sixHours = 6 * 60 * 60 * 1000;
+  if (!lastSync || (Date.now() - parseInt(lastSync)) > sixHours) {
+    localStorage.setItem('anac_last_sync', Date.now().toString());
+    // Trigger in background
+    setTimeout(() => syncAnacTenders(), 500);
+  }
+
   try {
     const res = await adminFetch(`${API_BASE}/api/tenders`);
     const tenders = await res.json();

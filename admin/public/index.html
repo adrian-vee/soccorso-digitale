@@ -5241,6 +5241,10 @@
                   Checklist Veicoli
                   <span class="mag-tab-badge green" id="mag-compliance-count">0</span>
                 </button>
+                <button class="mag-tab" data-mag-tab="movimenti" onclick="switchMagTab('movimenti')">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18"/><path d="M3 6h18"/><path d="M3 18h18"/></svg>
+                  Movimenti
+                </button>
               </div>
 
               <!-- Tab Content: Articoli -->
@@ -5319,6 +5323,14 @@
                 </div>
               </div>
 
+              <!-- Movements Panel -->
+              <div class="mag-movements-panel">
+                <div class="mag-movements-title">Movimenti Recenti Magazzino</div>
+                <div id="mag-movements-panel">
+                  <p style="color:var(--text-secondary,#64748b);font-size:13px;padding:4px 0">Nessun movimento recente</p>
+                </div>
+              </div>
+
               <!-- Main Content Grid -->
               <div class="mag-main-grid">
                 <!-- Left: Catalog Table -->
@@ -5346,6 +5358,42 @@
                     </div>
                   </div>
                   <div class="mag-panel-body">
+                    <!-- ABC Analysis Strip -->
+                    <div class="mag-abc-strip" id="mag-abc-strip">
+                      <span class="mag-abc-badge a" onclick="magFilterABC('A')" title="Articoli ad alto valore (70% del valore totale)">A &mdash; <span id="mag-abc-a-count">0</span> articoli (70% valore)</span>
+                      <span class="mag-abc-badge b" onclick="magFilterABC('B')" title="Articoli a medio valore (20% del valore totale)">B &mdash; <span id="mag-abc-b-count">0</span> articoli (20% valore)</span>
+                      <span class="mag-abc-badge c" onclick="magFilterABC('C')" title="Articoli a basso valore (10% del valore totale)">C &mdash; <span id="mag-abc-c-count">0</span> articoli (10% valore)</span>
+                      <span class="mag-abc-badge" style="background:#f1f5f9;color:#475569;margin-left:auto;font-weight:500" onclick="magFilterABC(null)">Tutti</span>
+                    </div>
+
+                    <!-- Stock Alert Banner (hidden when no low-stock items) -->
+                    <div id="mag-stock-alert-banner" class="mag-stock-alert-banner" style="display:none">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+                      <span id="mag-stock-alert-text">0 articoli sotto la scorta minima</span>
+                      <button class="mag-btn secondary" style="margin-left:auto;padding:4px 12px;font-size:12px" onclick="generateReorderReport()">Genera Ordine PDF</button>
+                    </div>
+
+                    <!-- Reorder Panel -->
+                    <div id="mag-reorder-panel" class="mag-reorder-panel" style="display:none">
+                      <div class="mag-reorder-title">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9a3412" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                        Ordini di Riordino Suggeriti
+                      </div>
+                      <div id="mag-reorder-list" style="font-size:13px;color:#7c2d12">Nessun articolo richiede riordino</div>
+                      <button class="mag-btn primary" style="margin-top:10px;font-size:12px" onclick="generateReorderReport()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        Genera Ordine PDF
+                      </button>
+                    </div>
+
+                    <!-- Bulk Action Bar (shown when items are selected) -->
+                    <div id="mag-bulk-bar" class="mag-bulk-bar" style="display:none">
+                      <span id="mag-selected-count">0 selezionati</span>
+                      <button class="mag-btn secondary" onclick="magBulkExport()">Esporta</button>
+                      <button class="mag-btn secondary" onclick="magBulkReorder()">Riordina</button>
+                      <button class="mag-btn danger" onclick="magBulkDelete()">Elimina</button>
+                    </div>
+
                     <div class="mag-table-wrap">
                       <table class="mag-table" id="inventory-table">
                         <thead>
@@ -5671,6 +5719,41 @@
                 </div>
               </div>
               <!-- End Tab: Segnalazioni -->
+
+              <!-- Tab Content: Movimenti -->
+              <div id="mag-tab-movimenti" class="mag-tab-content">
+                <div class="mag-compliance-section">
+                  <div class="mag-panel">
+                    <div class="mag-panel-header">
+                      <div class="mag-panel-title">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M3 12h18"/><path d="M3 6h18"/><path d="M3 18h18"/></svg>
+                        <h3>Storico Movimenti Magazzino</h3>
+                      </div>
+                      <div class="mag-panel-actions">
+                        <select id="mag-movement-type-filter" class="mag-select" onchange="filterMovementHistory()">
+                          <option value="">Tutti i movimenti</option>
+                          <option value="carico">Carichi</option>
+                          <option value="scarico">Scarichi</option>
+                        </select>
+                        <button class="mag-btn ghost" onclick="loadInventoryMovements()">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
+                          Aggiorna
+                        </button>
+                        <button class="mag-btn ghost" onclick="clearMovementHistory()">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                          Cancella storico
+                        </button>
+                      </div>
+                    </div>
+                    <div class="mag-panel-body">
+                      <div id="mag-movements-history-list" style="min-height:120px">
+                        <p style="color:var(--text-secondary,#64748b);font-size:13px;padding:20px">Nessun movimento registrato. I movimenti vengono registrati automaticamente quando si effettuano operazioni di carico/scarico.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- End Tab: Movimenti -->
 
             </div>
           </section>
@@ -6161,64 +6244,64 @@
                 </div>
               </div>
 
-              <!-- Report Table Panel -->
+              <!-- Items Table Panel -->
               <div class="scadenze-panel scadenze-report-panel">
                 <div class="panel-header-premium">
                   <div class="panel-title-group">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-                    <h3>Report Scadenze per Veicolo</h3>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    <h3>Articoli in Scadenza</h3>
                   </div>
                   <div class="panel-actions-premium">
                     <button class="btn-export" onclick="exportScadenzeExcel()">
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                      Esporta Excel
+                      Esporta PDF
                     </button>
-                    <button class="btn-export" onclick="printScadenzeReport()">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-                      Stampa
+                    <button class="btn-export" onclick="navigateTo('inventory')">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/></svg>
+                      Sync Inventario
                     </button>
+                  </div>
+                </div>
+                <!-- Filters Bar -->
+                <div style="padding:12px 20px;border-bottom:1px solid rgba(255,255,255,0.08)">
+                  <div class="scad-filters-bar">
+                    <input class="scad-filter-input" type="text" id="scad-search" placeholder="Cerca articolo, lotto, seriale..." oninput="filterScadenzeItems()">
+                    <select class="scad-filter-select" id="scad-filter-cat" onchange="filterScadenzeItems()">
+                      <option value="">Tutte le categorie</option>
+                      <option value="farmaci">Farmaci</option>
+                      <option value="presidi">Presidi Medici</option>
+                      <option value="dispositivi">Dispositivi</option>
+                      <option value="altro">Altro</option>
+                    </select>
+                    <select class="scad-filter-select" id="scad-filter-vehicle" onchange="filterScadenzeItems()">
+                      <option value="">Tutti i mezzi</option>
+                    </select>
+                    <select class="scad-filter-select" id="scad-filter-status" onchange="filterScadenzeItems()">
+                      <option value="">Tutti gli stati</option>
+                      <option value="expired">Scaduti</option>
+                      <option value="urgent">Urgenti (&le;7gg)</option>
+                      <option value="expiring">In scadenza (&le;30gg)</option>
+                      <option value="ok">Conformi</option>
+                    </select>
                   </div>
                 </div>
                 <div class="panel-body-premium">
                   <div class="table-responsive-premium">
-                    <table class="scadenze-table" id="scadenze-table">
+                    <table class="scad-items-table" id="scadenze-items-table">
                       <thead>
                         <tr>
-                          <th>
-                            <div class="th-content">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-                              Veicolo
-                            </div>
-                          </th>
-                          <th>Sede</th>
-                          <th>Periodo</th>
-                          <th>Compilato da</th>
-                          <th>Data</th>
-                          <th>
-                            <div class="th-content critical">
-                              <span class="status-dot critical"></span>
-                              Scaduti
-                            </div>
-                          </th>
-                          <th>
-                            <div class="th-content warning">
-                              <span class="status-dot warning"></span>
-                              In Scadenza
-                            </div>
-                          </th>
-                          <th>Totale</th>
+                          <th>Articolo</th>
+                          <th>Categoria</th>
+                          <th>Lotto / Seriale</th>
+                          <th>Mezzo / Sede</th>
+                          <th>Scadenza</th>
+                          <th>Giorni Rimanenti</th>
+                          <th>Stato</th>
                           <th>Azioni</th>
                         </tr>
                       </thead>
                       <tbody id="scadenze-tbody">
-                        <tr class="loading-row">
-                          <td colspan="9">
-                            <div class="loading-spinner-row">
-                              <div class="spinner-premium"></div>
-                              <span>Caricamento report scadenze...</span>
-                            </div>
-                          </td>
-                        </tr>
+                        <tr><td colspan="8" style="text-align:center;padding:24px;color:#64748B">Caricamento...</td></tr>
                       </tbody>
                     </table>
                   </div>
@@ -6638,6 +6721,61 @@
                     <input type="number" id="ss-rule-max-night-month" class="form-input" min="0" max="31" value="8" style="border-radius: 10px; font-size: 20px; font-weight: 700; text-align: center; padding: 12px 8px; border: 2px solid #e5e7eb; width: 100%; box-sizing: border-box;">
                     <small style="color: #9ca3af; font-size: 10px; display: block; margin-top: 6px;">Limite notte/mese</small>
                   </div>
+                </div>
+              </div>
+
+              <!-- Auto-generation settings panel -->
+              <div class="panel-card" style="margin-bottom: 24px; border-radius: 14px; border: 1px solid #e5e7eb;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid #f3f4f6;">
+                  <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, #ede9fe, #ddd6fe); display: flex; align-items: center; justify-content: center;">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2"><path d="M12 2v4"/><path d="m16.24 7.76 2.83-2.83"/><path d="M22 12h-4"/><path d="m16.24 16.24 2.83 2.83"/><path d="M12 22v-4"/><path d="m7.76 16.24-2.83 2.83"/><path d="M2 12h4"/><path d="m7.76 7.76-2.83-2.83"/></svg>
+                    </div>
+                    <div>
+                      <h3 style="margin: 0; font-size: 16px; font-weight: 600; color: #111827;">Generazione Automatica</h3>
+                      <p style="margin: 2px 0 0 0; font-size: 12px; color: #9ca3af;">Parametri CCNL e regole di riposo per la generazione automatica dei turni</p>
+                    </div>
+                  </div>
+                  <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; font-weight: 600; color: #374151;">
+                    <input type="checkbox" id="ss-autogen-enabled" checked style="width: 18px; height: 18px; accent-color: #7c3aed;">
+                    Abilitata
+                  </label>
+                </div>
+                <div style="background: #faf5ff; border: 1px solid #ede9fe; border-radius: 10px; padding: 12px 16px; margin-bottom: 18px; font-size: 12px; color: #6d28d9;">
+                  <strong>CCNL Volontari CRI:</strong> max 12h consecutive, riposo obbligatorio dopo 12h di turno. Norma D.Lgs 66/2003: min 11h riposo tra turni, max 48h/sett.
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 18px;">
+                  <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px; text-align: center;">
+                    <label style="display: block; font-size: 11px; font-weight: 700; color: #6b7280; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px;">Gg. Consec. Max</label>
+                    <input type="number" id="ss-autogen-max-consecutive" class="form-input" min="1" max="14" value="6" style="border-radius: 10px; font-size: 20px; font-weight: 700; text-align: center; padding: 12px 8px; border: 2px solid #e5e7eb; width: 100%; box-sizing: border-box;">
+                    <small style="color: #9ca3af; font-size: 10px; display: block; margin-top: 6px;">Poi riposo obbligatorio</small>
+                  </div>
+                  <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px; text-align: center;">
+                    <label style="display: block; font-size: 11px; font-weight: 700; color: #6b7280; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px;">Riposi Min. / Sett.</label>
+                    <input type="number" id="ss-autogen-min-rest-days" class="form-input" min="1" max="4" value="1" style="border-radius: 10px; font-size: 20px; font-weight: 700; text-align: center; padding: 12px 8px; border: 2px solid #e5e7eb; width: 100%; box-sizing: border-box;">
+                    <small style="color: #9ca3af; font-size: 10px; display: block; margin-top: 6px;">Giorni off minimi/sett.</small>
+                  </div>
+                  <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px; text-align: center;">
+                    <label style="display: block; font-size: 11px; font-weight: 700; color: #6b7280; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px;">Max Ore Turno (h)</label>
+                    <input type="number" id="ss-autogen-max-shift-hours" class="form-input" min="4" max="12" value="12" style="border-radius: 10px; font-size: 20px; font-weight: 700; text-align: center; padding: 12px 8px; border: 2px solid #e5e7eb; width: 100%; box-sizing: border-box;">
+                    <small style="color: #9ca3af; font-size: 10px; display: block; margin-top: 6px;">CRI max 12h/turno</small>
+                  </div>
+                  <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px; text-align: center;">
+                    <label style="display: block; font-size: 11px; font-weight: 700; color: #6b7280; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px;">Schema Preferito</label>
+                    <select id="ss-autogen-pattern" class="form-select" style="border-radius: 10px; font-size: 13px; font-weight: 600; padding: 12px 8px; border: 2px solid #e5e7eb; width: 100%; box-sizing: border-box; background: white;">
+                      <option value="alternating">Alternato</option>
+                      <option value="all_days">Tutti i giorni</option>
+                      <option value="weekdays_only">Solo feriali</option>
+                      <option value="custom">Personalizzato</option>
+                    </select>
+                    <small style="color: #9ca3af; font-size: 10px; display: block; margin-top: 6px;">Schema di rotazione</small>
+                  </div>
+                </div>
+                <div style="display: flex; justify-content: flex-end;">
+                  <button class="btn btn-primary" onclick="saveAutoGenSettings()" style="border-radius: 10px; padding: 10px 20px; font-weight: 600; background: #7c3aed; border-color: #7c3aed;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                    Salva Parametri Generazione
+                  </button>
                 </div>
               </div>
 

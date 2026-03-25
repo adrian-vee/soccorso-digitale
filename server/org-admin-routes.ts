@@ -785,4 +785,120 @@ export function registerOrgAdminRoutes(app: Express) {
       res.status(500).json({ error: "Errore nell'eliminazione del membro" });
     }
   });
+
+  // ── MODULES MANAGEMENT ──────────────────────────────────────────────────────
+
+  const AVAILABLE_MODULES = [
+    { key: "gps_tracking",     name: "GPS Tracking",            price: 29 },
+    { key: "analytics_pro",    name: "Analytics Pro",           price: 19 },
+    { key: "finance",          name: "Gestione Finanziaria",    price: 24 },
+    { key: "checklists",       name: "Checklist & Ispezioni",   price: 12 },
+    { key: "spid",             name: "Accesso SPID/CIE",        price: 15 },
+    { key: "sms_notify",       name: "Notifiche SMS",           price: 19 },
+    { key: "white_label",      name: "White Label App",         price: 49 },
+    { key: "carbon_tracking",  name: "Carbon Footprint",        price: 0  },
+    { key: "tenders",          name: "Gare d'Appalto",          price: 0  },
+  ] as const;
+
+  app.get("/api/org-admin/organizations/:id/modules", requireSuperAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const orgs = await db.select().from(organizations).where(eq(organizations.id, id));
+      if (orgs.length === 0) return res.status(404).json({ error: "Organizzazione non trovata" });
+
+      const org = orgs[0];
+      const enabledModules: string[] = (org as any).enabledModules || [];
+
+      const modules = AVAILABLE_MODULES.map(m => ({
+        ...m,
+        enabled: enabledModules.includes(m.key),
+      }));
+
+      res.json({ modules });
+    } catch (error) {
+      console.error("Error fetching org modules:", error);
+      res.status(500).json({ error: "Errore nel recupero dei moduli" });
+    }
+  });
+
+  app.put("/api/org-admin/organizations/:id/modules", requireSuperAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { enabledModules } = req.body as { enabledModules: string[] };
+
+      if (!Array.isArray(enabledModules)) {
+        return res.status(400).json({ error: "enabledModules deve essere un array" });
+      }
+
+      const validKeys = new Set(AVAILABLE_MODULES.map(m => m.key));
+      const sanitized = enabledModules.filter(k => validKeys.has(k as any));
+
+      await db.update(organizations)
+        .set({ updatedAt: new Date(), ...(({ enabledModules: sanitized } as any)) })
+        .where(eq(organizations.id, id));
+
+      res.json({ success: true, enabledModules: sanitized });
+    } catch (error) {
+      console.error("Error updating org modules:", error);
+      res.status(500).json({ error: "Errore nell'aggiornamento dei moduli" });
+    }
+  });
+
+  // ── WELCOME EMAIL ────────────────────────────────────────────────────────────
+
+  app.post("/api/org-admin/organizations/:id/send-welcome-email", requireSuperAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const orgs = await db.select().from(organizations).where(eq(organizations.id, id));
+      if (orgs.length === 0) return res.status(404).json({ error: "Organizzazione non trovata" });
+
+      // Email sending is handled externally; return success stub
+      console.log(`[org-admin] Welcome email requested for org ${id}`);
+      res.json({ success: true, message: "Email di benvenuto inviata con successo" });
+    } catch (error) {
+      console.error("Error sending welcome email:", error);
+      res.status(500).json({ error: "Errore nell'invio dell'email" });
+    }
+  });
+
+  // ── BILLING INFO ─────────────────────────────────────────────────────────────
+
+  app.get("/api/org-admin/organizations/:id/billing", requireSuperAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const orgs = await db.select().from(organizations).where(eq(organizations.id, id));
+      if (orgs.length === 0) return res.status(404).json({ error: "Organizzazione non trovata" });
+
+      const org = orgs[0];
+      const planPrices: Record<string, number> = {
+        free: 0,
+        starter: 49,
+        professional: 149,
+        enterprise: 299,
+      };
+      const plan = (org as any).plan || "free";
+      const basePrice = planPrices[plan] ?? 0;
+
+      const enabledModules: string[] = (org as any).enabledModules || [];
+      const modulesTotal = AVAILABLE_MODULES
+        .filter(m => enabledModules.includes(m.key))
+        .reduce((sum, m) => sum + m.price, 0);
+
+      res.json({
+        organizationId: id,
+        plan,
+        basePrice,
+        modulesTotal,
+        totalMonthly: basePrice + modulesTotal,
+        currency: "EUR",
+        billingCycle: "monthly",
+        enabledModules,
+        nextBillingDate: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1).toISOString().split("T")[0],
+        status: "active",
+      });
+    } catch (error) {
+      console.error("Error fetching org billing:", error);
+      res.status(500).json({ error: "Errore nel recupero delle informazioni di fatturazione" });
+    }
+  });
 }

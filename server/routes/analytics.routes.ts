@@ -13,6 +13,8 @@ import { requireAuth, requireAdmin, requireSuperAdmin, getEffectiveOrgId } from 
 import * as dataQuality from "../data-quality-engine";
 import { generateAnalyticsReportPDF } from "../pdf-generator";
 
+let lastAnacSync = new Date(0);
+
 export function registerAnalyticsRoutes(app: Express) {
 
   // ========================================
@@ -435,6 +437,7 @@ export function registerAnalyticsRoutes(app: Express) {
       }
 
       const source = fromAnac ? 'ANAC Open Data' : 'Monitoraggio Portali Veneto';
+      lastAnacSync = new Date();
       res.json({
         imported,
         source,
@@ -446,6 +449,14 @@ export function registerAnalyticsRoutes(app: Express) {
       console.error("Error syncing ANAC:", error);
       res.status(500).json({ error: "Errore nella sincronizzazione ANAC" });
     }
+  });
+
+  app.get("/api/tenders/last-sync", requireAuth, (req, res) => {
+    const nextSync = new Date(lastAnacSync.getTime() + 6 * 60 * 60 * 1000);
+    res.json({
+      lastSync: lastAnacSync.toISOString(),
+      nextSync: nextSync.toISOString(),
+    });
   });
 
   app.get("/api/tenders", requireAuth, async (req, res) => {
