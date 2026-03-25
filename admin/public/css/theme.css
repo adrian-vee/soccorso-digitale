@@ -381,30 +381,35 @@ body, html {
 /* ── SEARCH BOX ──────────────────────────────────────── */
 .sidebar-search-box {
   margin: 10px 12px 6px !important;
-  padding: 8px 12px !important;
+  padding: 9px 12px !important;
   background: var(--nr-snow) !important;
-  border: 0.5px solid var(--nr-sky) !important;
-  border-radius: 8px !important;
+  border: 1px solid var(--nr-sky) !important;
+  border-radius: 10px !important;
   display: flex !important;
   align-items: center !important;
   gap: 8px !important;
-  cursor: pointer !important;
+  cursor: text !important;
+  transition: border-color 0.15s, box-shadow 0.15s !important;
 }
-.sidebar-search-box:hover { border-color: var(--nr-navy) !important; }
+.sidebar-search-box:hover { border-color: #93C5FD !important; }
+.sidebar-search-box:focus-within {
+  border-color: var(--nr-navy) !important;
+  box-shadow: 0 0 0 3px rgba(30,58,138,0.08) !important;
+}
 .sidebar-search-box input {
   background: transparent !important;
   border: none !important;
   outline: none !important;
-  font-size: 11px !important;
-  color: var(--nr-slate) !important;
+  font-size: 12px !important;
+  color: var(--nr-dark) !important;
   font-family: 'DM Sans', system-ui, sans-serif !important;
   flex: 1 !important;
   min-width: 0 !important;
   padding: 0 !important;
   box-shadow: none !important;
 }
-.sidebar-search-box input::placeholder { color: var(--nr-slate) !important; }
-.sidebar-search-box svg { stroke: var(--nr-slate) !important; flex-shrink: 0; }
+.sidebar-search-box input::placeholder { color: #94A3B8 !important; opacity: 1 !important; }
+.sidebar-search-box svg { stroke: #94A3B8 !important; flex-shrink: 0; width: 14px !important; height: 14px !important; }
 .sidebar-search-kbd,
 .sidebar-search-box kbd {
   font-family: 'JetBrains Mono', monospace !important;
@@ -486,9 +491,7 @@ body, html {
   transition: max-height 0.3s ease, opacity 0.2s ease !important;
   padding-left: 0 !important;
 }
-.nav-section-body.open,
-.nav-section-body[style*="display:block"],
-.nav-section-body[style*="display: block"] {
+.nav-section-body.open {
   max-height: 1000px !important;
   opacity: 1 !important;
   overflow: visible !important;
@@ -939,6 +942,36 @@ input:focus, select:focus, textarea:focus {
   animation: shimmer 1.5s infinite !important;
   border-radius: 6px !important;
   color: transparent !important;
+}
+
+/* ── GLOBAL SEARCH / FILTER INPUTS ──────────────────── */
+.form-input[type="text"],
+.form-control[type="text"],
+input[type="text"].form-input,
+input[type="text"].form-control,
+#trips-search, #fleet-search, #staff-search-input,
+#structure-search, #conf-search-input, #avail-search-input,
+#vr-search, #co-search, #mag-search-input {
+  padding: 8px 12px 8px 36px !important;
+  border: 1px solid #E2E8F0 !important;
+  border-radius: 10px !important;
+  font-size: 13px !important;
+  font-family: 'DM Sans', system-ui, sans-serif !important;
+  background: #FAFCFF url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E") no-repeat 11px center !important;
+  color: #1E293B !important;
+  outline: none !important;
+  box-shadow: none !important;
+  transition: border-color 0.15s, box-shadow 0.15s !important;
+}
+.form-input[type="text"]:focus,
+.form-control[type="text"]:focus,
+input[type="text"].form-input:focus,
+input[type="text"].form-control:focus,
+#trips-search:focus, #fleet-search:focus, #staff-search-input:focus,
+#structure-search:focus, #conf-search-input:focus, #avail-search-input:focus,
+#vr-search:focus, #co-search:focus, #mag-search-input:focus {
+  border-color: #1E3A8A !important;
+  box-shadow: 0 0 0 3px rgba(30,58,138,0.08) !important;
 }
 
 /* ── COLLAPSED SIDEBAR (mobile) ──────────────────────── */

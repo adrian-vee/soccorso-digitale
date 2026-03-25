@@ -1330,14 +1330,17 @@ async function loadCurrentUserInfo() {
 function updateSidebarFooter(user) {
   if (!user) return;
   const org = user.organization;
-  const orgDisplayName = org?.name
-    ? org.name.replace(/\s*\(Demo\s+\d+\)$/i, '')
-    : (user.email?.split('@')[0] || 'Organizzazione');
+  const isSuperAdmin = user.role === 'super_admin';
+  const displayName = isSuperAdmin
+    ? (user.name || user.email?.split('@')[0] || 'Super Admin')
+    : (org?.name
+        ? org.name.replace(/\s*\(Demo\s+\d+\)$/i, '')
+        : (user.email?.split('@')[0] || 'Organizzazione'));
 
   // Avatar initials (up to 2 words)
   const avatarEl = document.getElementById('sidebar-user-avatar');
   if (avatarEl) {
-    const initials = orgDisplayName
+    const initials = displayName
       .split(' ')
       .filter(Boolean)
       .map(w => w[0])
@@ -1347,10 +1350,10 @@ function updateSidebarFooter(user) {
     avatarEl.textContent = initials || 'SD';
   }
 
-  // Org name
+  // Name
   const nameEl = document.getElementById('user-name');
   if (nameEl) {
-    nameEl.textContent = orgDisplayName;
+    nameEl.textContent = displayName;
     nameEl.style.cssText = '';
   }
 
@@ -2263,7 +2266,18 @@ function navigateTo(page) {
     'credentials': 'Credenziali Accesso',
     'role-management': 'Ruoli e Accessi',
     'apk-management': 'Gestione App APK',
-    'programma-giornaliero': 'Programma Giornaliero'
+    'programma-giornaliero': 'Programma Giornaliero',
+    'saas-dashboard': 'Dashboard SaaS',
+    'client-overview': 'Panoramica Clienti',
+    'onboarding-pipeline': 'Onboarding Clienti',
+    'plans-billing': 'Piani & Billing',
+    'adoption-usage': 'Adoption & Usage',
+    'api-providers': 'Gestione API & Provider',
+    'spid-config': 'SPID / CIE Config',
+    'security-center': 'Centro Sicurezza',
+    'notif-config': 'Configurazione Notifiche',
+    'coverage-map': 'Mappa Copertura',
+    'emergency-alerts': 'Allerte Emergenza'
   };
   const titleEl = document.getElementById('page-title');
   if (titleEl) titleEl.textContent = pageTitles[page] || page;
