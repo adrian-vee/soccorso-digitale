@@ -353,6 +353,7 @@ function configureExpoAndLanding(app: express.Application) {
     app.get("/piattaforma", (_req, res) => res.sendFile(path.join(sitePath, "piattaforma.html")));
     app.get("/clienti",     (_req, res) => res.sendFile(path.join(sitePath, "clienti.html")));
     app.get("/contatti",    (_req, res) => res.sendFile(path.join(sitePath, "contatti.html")));
+    app.get("/demo",        (_req, res) => res.sendFile(path.join(sitePath, "demo.html")));
     // Test route — mdx.so clone (same as / but explicit for QA)
     app.get("/new", (_req, res) => res.sendFile(path.join(sitePath, "index.html")));
     // mdx.so page routes — redirect to home (these are mdx.so internal pages)
@@ -419,7 +420,7 @@ function configureExpoAndLanding(app: express.Application) {
       return next();
     }
     
-    if (req.path === "/demo" || req.path === "/impatto" || req.path === "/partner-proposal" || req.path === "/partner-assicurazioni" || req.path === "/platform" || req.path === "/impegno-riservatezza" || req.path === "/inizia" || req.path === "/cancella-trial") {
+    if (req.path === "/demo" || req.path === "/piattaforma" || req.path === "/clienti" || req.path === "/contatti" || req.path === "/impatto" || req.path === "/partner-proposal" || req.path === "/partner-assicurazioni" || req.path === "/platform" || req.path === "/impegno-riservatezza" || req.path === "/inizia" || req.path === "/cancella-trial") {
       return next();
     }
 

@@ -714,6 +714,58 @@ export function registerSaasOnboardingRoutes(app: Express): void {
     });
   });
 
+  // ── Demo request ──────────────────────────────────────────────────────────
+  app.post("/api/public/demo-request", async (req: Request, res: Response) => {
+    const { nome, email, organizzazione, veicoli, ruolo, messaggio } = req.body;
+    if (!nome || !email || !organizzazione) {
+      return res.status(400).json({ error: "Campi obbligatori mancanti" });
+    }
+    // Send notification to internal team
+    try {
+      const { client } = await getResendClient();
+      await client.emails.send({
+        from: FROM_EMAIL,
+        to: "info@soccorsodigitale.app",
+        subject: `Nuova richiesta demo — ${organizzazione}`,
+        html: `<p><strong>Nome:</strong> ${nome}<br><strong>Email:</strong> ${email}<br><strong>Organizzazione:</strong> ${organizzazione}<br><strong>Veicoli:</strong> ${veicoli || "n/d"}<br><strong>Ruolo:</strong> ${ruolo || "n/d"}<br><strong>Messaggio:</strong> ${messaggio || "—"}</p>`,
+      });
+      // Send confirmation to requester
+      await sendEmail(email, "Richiesta demo ricevuta — Soccorso Digitale", `
+<h2 style="color:#0D2440;font-size:20px;margin:0 0 12px;">Ciao ${nome}!</h2>
+<p style="color:#4a4a68;font-size:15px;line-height:1.7;margin:0 0 16px;">
+  Abbiamo ricevuto la tua richiesta di demo per <strong>${organizzazione}</strong>.<br>
+  Ti contatteremo entro <strong>24 ore lavorative</strong> per fissare un appuntamento.
+</p>
+<p style="text-align:center;">
+<a href="${APP_URL}/admin" style="display:inline-block;background:#2E5E99;color:#fff;text-decoration:none;padding:12px 36px;border-radius:8px;font-size:15px;font-weight:700;">Visita la Piattaforma</a>
+</p>
+`);
+    } catch (err) {
+      console.error("Demo request email error (non-fatal):", err);
+    }
+    res.json({ success: true });
+  });
+
+  // ── General contact ────────────────────────────────────────────────────────
+  app.post("/api/public/contact", async (req: Request, res: Response) => {
+    const { nome, email, tipo, messaggio } = req.body;
+    if (!nome || !email || !messaggio) {
+      return res.status(400).json({ error: "Campi obbligatori mancanti" });
+    }
+    try {
+      const { client } = await getResendClient();
+      await client.emails.send({
+        from: FROM_EMAIL,
+        to: "info@soccorsodigitale.app",
+        subject: `[${tipo || "Contatto"}] da ${nome}`,
+        html: `<p><strong>Nome:</strong> ${nome}<br><strong>Email:</strong> ${email}<br><strong>Tipo:</strong> ${tipo || "—"}<br><strong>Messaggio:</strong><br>${messaggio}</p>`,
+      });
+    } catch (err) {
+      console.error("Contact email error (non-fatal):", err);
+    }
+    res.json({ success: true });
+  });
+
   // ── Cancel trial ───────────────────────────────────────────────────────────
   app.post("/api/public/cancel-trial", async (req: Request, res: Response) => {
     const { email } = req.body;

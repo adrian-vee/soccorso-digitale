@@ -1,398 +1,621 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Clienti — Soccorso Digitale</title>
-  <meta name="description" content="Le organizzazioni sanitarie italiane che scelgono Soccorso Digitale: Croce Europa, ALS Soccorso, FVS, Regione Veneto, CRI e altri."/>
-  <link rel="canonical" href="https://soccorsodigitale.app/clienti"/>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link rel="stylesheet" href="/site/css/global.css"/>
-  <script src="/site/js/gsap.min.js"></script>
-  <script src="/site/js/ScrollTrigger.min.js"></script>
-  <script src="/site/js/CustomEase.min.js"></script>
-  <script src="/site/js/SplitText.min.js"></script>
-  <script src="/site/js/lenis.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- SEO -->
+  <title>Clienti &amp; Case Study — Soccorso Digitale</title>
+  <meta name="description" content="Scopri come cooperative, Croce Rossa, ANPAS e associazioni usano Soccorso Digitale per migliorare le operazioni di trasporto sanitario.">
+  <link rel="canonical" href="https://soccorsodigitale.app/clienti">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Clienti & Case Study — Soccorso Digitale">
+  <meta property="og:description" content="Scopri come cooperative, Croce Rossa, ANPAS e associazioni usano Soccorso Digitale per migliorare le operazioni di trasporto sanitario.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://soccorsodigitale.app/clienti">
+  <meta property="og:locale" content="it_IT">
+
+  <!-- Favicons -->
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/images/apple-touch-icon.png">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,300;0,400;0,600;1,400&family=Inter+Tight:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="/css/sd-main.css">
+
+  <style>
+    /* ── Hero ── */
+    .clienti-hero {
+      padding-top: calc(var(--nav-h, 72px) + 80px);
+      padding-bottom: 80px;
+    }
+    .clienti-hero__badge { margin-bottom: 20px; }
+    .clienti-hero__title {
+      font-family: 'IBM Plex Serif', Georgia, serif;
+      font-size: clamp(2.4rem, 5vw, 3.8rem);
+      font-weight: 600;
+      color: var(--sd-navy, #0D2440);
+      line-height: 1.15;
+      margin-bottom: 24px;
+    }
+    .clienti-hero__title em {
+      font-style: italic;
+      color: var(--sd-blue-strong, #2E5E99);
+    }
+    .clienti-hero__sub {
+      font-size: 1.0625rem;
+      line-height: 1.7;
+      color: #4a5568;
+      max-width: 580px;
+      margin-bottom: 48px;
+    }
+
+    /* ── Stats row ── */
+    .stats-row {
+      display: flex;
+      gap: 48px;
+      flex-wrap: wrap;
+    }
+    .stat-item__value {
+      font-family: 'IBM Plex Serif', Georgia, serif;
+      font-size: 2.5rem;
+      font-weight: 600;
+      color: var(--sd-blue-strong, #2E5E99);
+      line-height: 1;
+    }
+    .stat-item__label {
+      font-size: 0.8125rem;
+      color: #5a6878;
+      margin-top: 6px;
+    }
+
+    /* ── Case Studies ── */
+    .case-studies-section {
+      background: var(--sd-bg, #E7F0FA);
+      padding: 80px 0;
+    }
+    .case-studies-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-top: 48px;
+    }
+    @media (max-width: 900px) {
+      .case-studies-grid { grid-template-columns: 1fr; }
+    }
+    .case-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 28px 32px;
+      border: 1px solid rgba(46, 94, 153, .12);
+      transition: box-shadow .2s ease;
+    }
+    .case-card:hover {
+      box-shadow: 0 6px 28px rgba(13, 36, 64, .1);
+    }
+    .case-card__header {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .case-card__avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.9375rem;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .case-card__avatar--blue   { background: var(--sd-blue-strong, #2E5E99); }
+    .case-card__avatar--navy   { background: var(--sd-navy, #0D2440); }
+    .case-card__avatar--light  { background: var(--sd-blue-light, #7BA4D0); }
+    .case-card__org {
+      font-weight: 600;
+      font-size: 1rem;
+      color: var(--sd-navy, #0D2440);
+      margin-bottom: 4px;
+    }
+    .case-card__location {
+      font-size: 0.8125rem;
+      color: #5a6878;
+      margin-bottom: 6px;
+    }
+    .case-card__plan-badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 999px;
+      background: rgba(46, 94, 153, .1);
+      color: var(--sd-blue-strong, #2E5E99);
+      font-size: 0.6875rem;
+      font-weight: 600;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+    .case-card__quote {
+      font-size: 0.875rem;
+      line-height: 1.7;
+      color: #4a5568;
+      font-style: italic;
+      border-left: 3px solid rgba(46, 94, 153, .2);
+      padding-left: 14px;
+      margin-bottom: 20px;
+    }
+    .case-card__metrics {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .case-metric__value {
+      font-family: 'IBM Plex Serif', Georgia, serif;
+      font-size: 1.375rem;
+      font-weight: 600;
+      color: var(--sd-blue-strong, #2E5E99);
+    }
+    .case-metric__label {
+      font-size: 0.75rem;
+      color: #5a6878;
+      margin-top: 2px;
+    }
+
+    /* ── Who We Serve ── */
+    .who-section {
+      padding: 80px 0;
+    }
+    .who-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-top: 48px;
+    }
+    @media (max-width: 900px) { .who-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 560px) { .who-grid { grid-template-columns: 1fr; } }
+    .who-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 28px 24px;
+      border: 1px solid rgba(46, 94, 153, .12);
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      transition: box-shadow .2s ease;
+    }
+    .who-card:hover {
+      box-shadow: 0 4px 20px rgba(13, 36, 64, .1);
+    }
+    .who-card__icon {
+      width: 44px;
+      height: 44px;
+      background: rgba(46, 94, 153, .08);
+      border-radius: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .who-card__name {
+      font-weight: 600;
+      font-size: 0.9375rem;
+      color: var(--sd-navy, #0D2440);
+      margin-bottom: 4px;
+    }
+    .who-card__desc {
+      font-size: 0.8125rem;
+      line-height: 1.6;
+      color: #5a6878;
+    }
+
+    /* ── CTA ── */
+    .clienti-cta {
+      background: var(--sd-blue-strong, #2E5E99);
+      padding: 80px 0;
+      text-align: center;
+    }
+    .clienti-cta__title {
+      font-family: 'IBM Plex Serif', Georgia, serif;
+      font-size: clamp(1.8rem, 3.5vw, 2.75rem);
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 32px;
+      line-height: 1.2;
+    }
+    .clienti-cta__actions {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+  </style>
 </head>
 <body>
 
-<!-- ─── Navbar ───────────────────────────────────────────────── -->
-<header>
-  <nav class="nav scrolled" aria-label="Navigazione principale">
-    <div class="nav-inner">
-      <a href="/" class="nav-logo">
-        <img src="/logo.svg" alt="" width="34" height="34"/>
-        <span class="nav-logo-text">Soccorso Digitale</span>
-      </a>
-      <div class="nav-links">
-        <a href="/">Home</a>
-        <a href="/piattaforma">Piattaforma</a>
-        <a href="/clienti">Clienti</a>
-        <a href="/contatti">Contatti</a>
-      </div>
-      <div class="nav-right">
-        <a href="/admin" class="btn btn-outline btn-sm">Accedi</a>
-        <a href="/contatti" class="btn btn-primary btn-sm btn-animate">
-          <span class="btn-lbl">Inizia Ora</span>
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
-        </a>
-        <button class="nav-ham" aria-label="Menu"><span></span><span></span><span></span></button>
-      </div>
+<!-- ══════════════════════════════════════
+     NAVBAR
+══════════════════════════════════════ -->
+<header class="navbar" role="banner">
+  <div class="navbar__inner">
+
+    <a href="/" class="navbar__logo" aria-label="Soccorso Digitale — Home">
+      <span class="navbar__logo-icon" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+        </svg>
+      </span>
+      Soccorso Digitale
+    </a>
+
+    <nav class="navbar__nav" aria-label="Navigazione principale">
+      <a href="/" class="navbar__link">Home</a>
+      <a href="/piattaforma" class="navbar__link">Piattaforma</a>
+      <a href="/clienti" class="navbar__link navbar__link--active" aria-current="page">Clienti</a>
+      <a href="/#prezzi" class="navbar__link">Prezzi</a>
+      <a href="/contatti" class="navbar__link">Contatti</a>
+      <a href="/demo" class="navbar__link navbar__link--demo">Demo</a>
+    </nav>
+
+    <div class="navbar__cta">
+      <a href="/admin" class="btn btn-ghost btn-sm">Accedi</a>
+      <a href="/demo" class="btn btn-primary btn-sm">Richiedi Demo</a>
     </div>
-  </nav>
+
+    <button class="navbar__hamburger" aria-label="Apri menu" aria-expanded="false" aria-controls="mobile-menu">
+      <span></span><span></span><span></span>
+    </button>
+
+  </div>
 </header>
 
-<div class="menu-overlay">
-  <div class="menu-ellipse" aria-hidden="true"></div>
-  <nav class="menu-overlay-links">
-    <a href="/">Home</a><a href="/piattaforma">Piattaforma</a>
-    <a href="/clienti">Clienti</a><a href="/contatti">Contatti</a>
-  </nav>
-  <div class="menu-overlay-footer">
-    <a href="/admin" class="btn btn-outline">Accedi</a>
-    <a href="/contatti" class="btn btn-primary">Richiedi Demo</a>
+<!-- Mobile menu overlay -->
+<nav id="mobile-menu" class="mobile-menu" aria-label="Menu mobile" role="dialog" aria-modal="true">
+  <a href="/" class="mobile-menu__link">Home</a>
+  <a href="/piattaforma" class="mobile-menu__link">Piattaforma</a>
+  <a href="/clienti" class="mobile-menu__link" aria-current="page">Clienti</a>
+  <a href="/#prezzi" class="mobile-menu__link">Prezzi</a>
+  <a href="/contatti" class="mobile-menu__link">Contatti</a>
+  <div class="mobile-menu__cta">
+    <a href="/admin" class="btn btn-ghost">Accedi</a>
+    <a href="/demo" class="btn btn-primary">Richiedi Demo</a>
   </div>
-</div>
+</nav>
+
 
 <main>
-<!-- ─── Hero ─────────────────────────────────────────────────── -->
-<section class="section" style="padding-top:calc(var(--nav-h) + 40px)" aria-labelledby="cli-title">
-  <div class="hero-bg-grid" aria-hidden="true" style="position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.4"></div>
-  <div class="wrap" style="position:relative;z-index:1">
-    <div class="sec-label t-label" data-anim>Clienti</div>
-    <h1 id="cli-title" class="t-display" data-split style="max-width:840px;margin-top:12px">
-      Le organizzazioni<br>che ci scelgono.
+
+<!-- ══════════════════════════════════════
+     HERO
+══════════════════════════════════════ -->
+<section class="section clienti-hero" aria-labelledby="clienti-title">
+  <div class="container">
+    <div class="clienti-hero__badge fade-in">
+      <span class="badge"><span class="badge-dot" aria-hidden="true"></span>I Nostri Clienti</span>
+    </div>
+    <h1 class="clienti-hero__title fade-in d1" id="clienti-title">
+      7+ Organizzazioni<br><em>Già Operative</em>
     </h1>
-    <p class="t-body" data-anim style="max-width:520px;margin-top:28px">
-      Da Verona a Milano, le principali organizzazioni sanitarie italiane si affidano a Soccorso Digitale per il trasporto programmato dei loro pazienti.
+    <p class="clienti-hero__sub fade-in d2">
+      Da piccole associazioni di volontariato a grandi cooperative sanitarie. Scopri come Soccorso Digitale ha trasformato le loro operazioni.
     </p>
-    <!-- Quick stats -->
-    <div style="display:flex;gap:40px;margin-top:48px;flex-wrap:wrap" data-anim>
-      <div>
-        <div style="font-family:var(--font-mono);font-size:36px;font-weight:700;color:var(--sd-accent)">7+</div>
-        <div style="font-size:13px;color:var(--sd-neutral);margin-top:4px">Organizzazioni attive</div>
+
+    <!-- Stats row -->
+    <div class="stats-row fade-in d3" aria-label="Statistiche chiave">
+      <div class="stat-item">
+        <div class="stat-item__value">7+</div>
+        <div class="stat-item__label">Organizzazioni attive</div>
       </div>
-      <div>
-        <div style="font-family:var(--font-mono);font-size:36px;font-weight:700;color:var(--sd-white)">5</div>
-        <div style="font-size:13px;color:var(--sd-neutral);margin-top:4px">Regioni coperte</div>
+      <div class="stat-item">
+        <div class="stat-item__value">94%</div>
+        <div class="stat-item__label">SLA rispettati</div>
       </div>
-      <div>
-        <div style="font-family:var(--font-mono);font-size:36px;font-weight:700;color:var(--sd-white)">2.400+</div>
-        <div style="font-size:13px;color:var(--sd-neutral);margin-top:4px">Servizi mensili gestiti</div>
+      <div class="stat-item">
+        <div class="stat-item__value">−40%</div>
+        <div class="stat-item__label">Tempo dispatch</div>
       </div>
-      <div>
-        <div style="font-family:var(--font-mono);font-size:36px;font-weight:700;color:var(--sd-white)">98.7%</div>
-        <div style="font-size:13px;color:var(--sd-neutral);margin-top:4px">Soddisfazione media</div>
+      <div class="stat-item">
+        <div class="stat-item__value">3</div>
+        <div class="stat-item__label">Regioni coperte</div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ─── Client Cards ──────────────────────────────────────────── -->
-<section class="section section-soft" aria-labelledby="cards-title">
-  <div class="wrap">
-    <div class="sec-header">
-      <div class="sec-label t-label" data-anim>Organizzazioni</div>
-      <h2 id="cards-title" class="t-h2" data-split>Chi usa<br>Soccorso Digitale.</h2>
+
+<!-- ══════════════════════════════════════
+     CASE STUDIES
+══════════════════════════════════════ -->
+<section class="case-studies-section" aria-labelledby="cases-title">
+  <div class="container">
+    <div class="section-header fade-in">
+      <span class="badge">Case Study</span>
+      <h2 id="cases-title">Storie di Successo</h2>
     </div>
-    <div class="clients-grid" data-stagger-group>
 
-      <div class="client-card" data-stagger-item>
-        <div class="client-logo-area">CE</div>
-        <div class="client-type">Associazione di Volontariato</div>
-        <div class="client-name">Croce Europa Legnago</div>
-        <div class="client-location">📍 Legnago, Verona — Veneto</div>
-        <p style="font-size:13.5px;line-height:1.65;color:rgba(252,252,253,.52)">
-          Prima organizzazione a adottare Soccorso Digitale in versione BETA. Gestiscono trasporti dialisi quotidiani e visite specialistiche nell'area del Basso Veronese.
-        </p>
-        <div class="client-stats">
-          <div class="cs"><div class="cs-val">8</div><div class="cs-key">Veicoli</div></div>
-          <div class="cs"><div class="cs-val">45</div><div class="cs-key">Volontari</div></div>
-          <div class="cs"><div class="cs-val">380</div><div class="cs-key">Servizi/mese</div></div>
-        </div>
-      </div>
+    <div class="case-studies-grid">
 
-      <div class="client-card" data-stagger-item>
-        <div class="client-logo-area">ALS</div>
-        <div class="client-type">Cooperativa Ambulanze</div>
-        <div class="client-name">ALS Soccorso</div>
-        <div class="client-location">📍 Milano, Lombardia</div>
-        <p style="font-size:13.5px;line-height:1.65;color:rgba(252,252,253,.52)">
-          Cooperativa lombarda specializzata in trasporti sanitari programmati. Utilizza il modulo Fleet per il tracciamento GPS e l'Hub Prenotazioni per i pazienti oncologici.
-        </p>
-        <div class="client-stats">
-          <div class="cs"><div class="cs-val">12</div><div class="cs-key">Veicoli</div></div>
-          <div class="cs"><div class="cs-val">68</div><div class="cs-key">Operatori</div></div>
-          <div class="cs"><div class="cs-val">620</div><div class="cs-key">Servizi/mese</div></div>
-        </div>
-      </div>
-
-      <div class="client-card" data-stagger-item>
-        <div class="client-logo-area">FVS</div>
-        <div class="client-type">Federazione Nazionale</div>
-        <div class="client-name">Federazione Volontari del Soccorso</div>
-        <div class="client-location">📍 Nazionale — Multi-sede</div>
-        <p style="font-size:13.5px;line-height:1.65;color:rgba(252,252,253,.52)">
-          Rete federata di organizzazioni del soccorso. Utilizza Soccorso Digitale per coordinare le attività di più associazioni aderenti con un'unica piattaforma centrali.
-        </p>
-        <div class="client-stats">
-          <div class="cs"><div class="cs-val">6</div><div class="cs-key">Sedi</div></div>
-          <div class="cs"><div class="cs-val">120+</div><div class="cs-key">Volontari</div></div>
-          <div class="cs"><div class="cs-val">850</div><div class="cs-key">Servizi/mese</div></div>
-        </div>
-      </div>
-
-      <div class="client-card" data-stagger-item>
-        <div class="client-logo-area" style="font-size:9px">ULSS9</div>
-        <div class="client-type">Azienda Sanitaria Pubblica</div>
-        <div class="client-name">ULSS9 Scaligera — Regione Veneto</div>
-        <div class="client-location">📍 Verona, Veneto</div>
-        <p style="font-size:13.5px;line-height:1.65;color:rgba(252,252,253,.52)">
-          Azienda sanitaria locale del veronese. Partner per il progetto pilota di digitalizzazione del trasporto dialisi e dimissioni ospedaliere convenzionate.
-        </p>
-        <div class="client-stats">
-          <div class="cs"><div class="cs-val">4</div><div class="cs-key">Ospedali</div></div>
-          <div class="cs"><div class="cs-val">22</div><div class="cs-key">Veicoli conv.</div></div>
-          <div class="cs"><div class="cs-val">200+</div><div class="cs-key">Pazienti</div></div>
-        </div>
-      </div>
-
-      <div class="client-card" data-stagger-item>
-        <div class="client-logo-area">CRI</div>
-        <div class="client-type">Associazione di Volontariato</div>
-        <div class="client-name">Croce Rossa Italiana</div>
-        <div class="client-location">📍 Padova, Veneto</div>
-        <p style="font-size:13.5px;line-height:1.65;color:rgba(252,252,253,.52)">
-          Comitato locale della CRI padovana. Usa Soccorso Digitale per coordinare il trasporto pazienti anziani e fragili, integrando i dati con il sistema nazionale CRI.
-        </p>
-        <div class="client-stats">
-          <div class="cs"><div class="cs-val">5</div><div class="cs-key">Veicoli</div></div>
-          <div class="cs"><div class="cs-val">38</div><div class="cs-key">Volontari</div></div>
-          <div class="cs"><div class="cs-val">290</div><div class="cs-key">Servizi/mese</div></div>
-        </div>
-      </div>
-
-      <div class="client-card" data-stagger-item>
-        <div class="client-logo-area">CV</div>
-        <div class="client-type">Associazione di Volontariato</div>
-        <div class="client-name">Croce Verde Venezia</div>
-        <div class="client-location">📍 Venezia, Veneto</div>
-        <p style="font-size:13.5px;line-height:1.65;color:rgba(252,252,253,.52)">
-          Realtà storica del volontariato veneziano. Affronta le sfide logistiche uniche di una città sull'acqua con il modulo Intelligence Territoriale e il dispatch avanzato.
-        </p>
-        <div class="client-stats">
-          <div class="cs"><div class="cs-val">6</div><div class="cs-key">Veicoli</div></div>
-          <div class="cs"><div class="cs-val">52</div><div class="cs-key">Volontari</div></div>
-          <div class="cs"><div class="cs-val">310</div><div class="cs-key">Servizi/mese</div></div>
-        </div>
-      </div>
-
-      <div class="client-card" data-stagger-item>
-        <div class="client-logo-area">CB</div>
-        <div class="client-type">Cooperativa Ambulanze</div>
-        <div class="client-name">Croce Bianca Milano</div>
-        <div class="client-location">📍 Milano, Lombardia</div>
-        <p style="font-size:13.5px;line-height:1.65;color:rgba(252,252,253,.52)">
-          Storica cooperativa milanese del trasporto sanitario. Gestisce un volume elevato di trasporti oncologici e utilizza il modulo Analytics per i report di conformità regionale.
-        </p>
-        <div class="client-stats">
-          <div class="cs"><div class="cs-val">15</div><div class="cs-key">Veicoli</div></div>
-          <div class="cs"><div class="cs-val">85</div><div class="cs-key">Operatori</div></div>
-          <div class="cs"><div class="cs-val">740</div><div class="cs-key">Servizi/mese</div></div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<!-- ─── Testimonials ──────────────────────────────────────────── -->
-<section class="section" aria-labelledby="testi-title">
-  <div class="wrap">
-    <div class="sec-header">
-      <div class="sec-label t-label" data-anim>Testimonianze</div>
-      <h2 id="testi-title" class="t-h2" data-split>Cosa dicono<br>di noi.</h2>
-    </div>
-    <div class="testimonial-grid" data-stagger-group>
-      <div class="testi-card" data-stagger-item>
-        <div class="testi-quote">"</div>
-        <p class="testi-text">
-          Soccorso Digitale ha trasformato il nostro modo di operare. Prima avevamo tutto su fogli Excel, adesso abbiamo visibilità in tempo reale su ogni servizio. Il risparmio di tempo è stato immediato e tangibile.
-        </p>
-        <div class="testi-author">
-          <div class="testi-avatar">MR</div>
+      <!-- Case 1: Croce Europa Legnago -->
+      <article class="case-card fade-in">
+        <div class="case-card__header">
+          <div class="case-card__avatar case-card__avatar--blue" aria-label="Croce Europa Legnago">CE</div>
           <div>
-            <div class="testi-name">Marco Rossi</div>
-            <div class="testi-role">Direttore Operativo — Croce Europa Legnago</div>
+            <p class="case-card__org">Croce Europa Legnago</p>
+            <p class="case-card__location">Legnago, VR — Veneto</p>
+            <span class="case-card__plan-badge">Professional</span>
           </div>
         </div>
-      </div>
-      <div class="testi-card" data-stagger-item>
-        <div class="testi-quote">"</div>
-        <p class="testi-text">
-          La funzione di tracciamento GPS e il modulo turni ci hanno permesso di ridurre le sovrapposizioni di orario del 40%. I volontari adorano l'app mobile — finalmente uno strumento moderno per il volontariato.
-        </p>
-        <div class="testi-author">
-          <div class="testi-avatar">LF</div>
+        <blockquote class="case-card__quote">
+          "Abbiamo ridotto i tempi di dispatch del 38% nel primo mese. La dashboard è intuitiva e l'app mobile ha semplificato tutto."
+        </blockquote>
+        <div class="case-card__metrics" aria-label="Metriche chiave">
           <div>
-            <div class="testi-name">Laura Ferrari</div>
-            <div class="testi-role">Coordinatrice Volontari — Croce Verde Venezia</div>
+            <div class="case-metric__value">12</div>
+            <div class="case-metric__label">Veicoli gestiti</div>
+          </div>
+          <div>
+            <div class="case-metric__value">94%</div>
+            <div class="case-metric__label">SLA rispettati</div>
+          </div>
+          <div>
+            <div class="case-metric__value">−38%</div>
+            <div class="case-metric__label">Dispatch time</div>
           </div>
         </div>
-      </div>
-      <div class="testi-card" data-stagger-item>
-        <div class="testi-quote">"</div>
-        <p class="testi-text">
-          Il modulo Analytics ci ha permesso di dimostrare agli stakeholder istituzionali il valore del nostro lavoro con dati precisi. I report SLA per ULSS sono ora automatici: quello che facevamo in una giornata ora ci vuole 5 minuti.
-        </p>
-        <div class="testi-author">
-          <div class="testi-avatar">AB</div>
+      </article>
+
+      <!-- Case 2: ALS Soccorso -->
+      <article class="case-card fade-in d1">
+        <div class="case-card__header">
+          <div class="case-card__avatar case-card__avatar--navy" aria-label="ALS Soccorso">ALS</div>
           <div>
-            <div class="testi-name">Andrea Bianchi</div>
-            <div class="testi-role">Presidente — ALS Soccorso Milano</div>
+            <p class="case-card__org">ALS Soccorso</p>
+            <p class="case-card__location">Milano, MI — Lombardia</p>
+            <span class="case-card__plan-badge">Business</span>
           </div>
         </div>
+        <blockquote class="case-card__quote">
+          "L'integrazione con il SUEM 118 ha eliminato le chiamate doppie. Ora gestiamo tutto da un'unica piattaforma."
+        </blockquote>
+        <div class="case-card__metrics" aria-label="Metriche chiave">
+          <div>
+            <div class="case-metric__value">23</div>
+            <div class="case-metric__label">Veicoli</div>
+          </div>
+          <div>
+            <div class="case-metric__value">8</div>
+            <div class="case-metric__label">Sedi operative</div>
+          </div>
+          <div>
+            <div class="case-metric__value">99.1%</div>
+            <div class="case-metric__label">Uptime</div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Case 3: FVS Volontari -->
+      <article class="case-card fade-in d2">
+        <div class="case-card__header">
+          <div class="case-card__avatar case-card__avatar--light" aria-label="FVS Volontari">FVS</div>
+          <div>
+            <p class="case-card__org">FVS Volontari</p>
+            <p class="case-card__location">Firenze, FI — Toscana</p>
+            <span class="case-card__plan-badge">Starter</span>
+          </div>
+        </div>
+        <blockquote class="case-card__quote">
+          "Per una piccola associazione come la nostra era fondamentale la semplicità. Operativi in meno di 48 ore."
+        </blockquote>
+        <div class="case-card__metrics" aria-label="Metriche chiave">
+          <div>
+            <div class="case-metric__value">4</div>
+            <div class="case-metric__label">Veicoli</div>
+          </div>
+          <div>
+            <div class="case-metric__value">2</div>
+            <div class="case-metric__label">Sedi</div>
+          </div>
+          <div>
+            <div class="case-metric__value">48h</div>
+            <div class="case-metric__label">Setup completo</div>
+          </div>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════
+     WHO WE SERVE
+══════════════════════════════════════ -->
+<section class="who-section section" aria-labelledby="who-title">
+  <div class="container">
+    <div class="section-header fade-in">
+      <span class="badge">Chi Serviamo</span>
+      <h2 id="who-title">Progettato per il<br><em>Volontariato Italiano</em></h2>
+    </div>
+
+    <div class="who-grid">
+
+      <div class="who-card fade-in">
+        <div class="who-card__icon" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2E5E99" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+            <polyline points="9 22 9 12 15 12 15 22"/>
+          </svg>
+        </div>
+        <div>
+          <p class="who-card__name">Cooperative Sanitarie</p>
+          <p class="who-card__desc">Gestione multi-veicolo, report ULSS automatici e fatturazione integrata.</p>
+        </div>
       </div>
-    </div>
-  </div>
-</section>
 
-<!-- ─── Map ───────────────────────────────────────────────────── -->
-<section class="section section-soft" aria-labelledby="map-title">
-  <div class="wrap">
-    <div class="sec-header" style="text-align:center">
-      <div class="sec-label t-label" data-anim style="justify-content:center">Presenza</div>
-      <h2 id="map-title" class="t-h2" data-split style="text-align:center">Da nord a sud,<br>il volontariato cambia.</h2>
-    </div>
-    <div class="map-wrap" data-anim>
-      <!-- SVG simplified Italy outline -->
-      <svg viewBox="0 0 340 540" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:420px;margin:0 auto;display:block" aria-label="Mappa Italia con organizzazioni clienti">
-        <defs>
-          <linearGradient id="italy-grad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="rgba(252,252,253,.06)"/>
-            <stop offset="100%" stop-color="rgba(252,252,253,.03)"/>
-          </linearGradient>
-        </defs>
-        <!-- Italy outline (simplified) -->
-        <path d="M 130 30 L 150 20 L 175 18 L 200 22 L 220 30 L 235 45 L 245 58 L 248 72 L 242 88 L 252 98 L 262 110 L 270 122 L 268 138 L 258 148 L 252 162 L 248 178 L 252 192 L 260 205 L 264 218 L 262 232 L 255 244 L 248 255 L 240 268 L 238 282 L 242 296 L 250 308 L 258 320 L 260 334 L 255 348 L 248 358 L 235 365 L 225 375 L 218 388 L 220 402 L 226 415 L 228 428 L 222 438 L 212 445 L 205 458 L 200 470 L 192 480 L 182 488 L 172 492 L 162 485 L 155 472 L 148 460 L 142 448 L 138 435 L 135 422 L 130 410 L 125 398 L 120 385 L 118 370 L 122 355 L 128 340 L 132 326 L 130 312 L 125 300 L 118 288 L 112 275 L 108 262 L 105 248 L 103 235 L 100 222 L 98 208 L 95 194 L 92 180 L 90 166 L 88 152 L 90 138 L 95 124 L 100 110 L 105 96 L 108 82 L 110 68 L 115 54 L 122 42 Z"
-          fill="url(#italy-grad)" stroke="rgba(252,252,253,.1)" stroke-width="1.5"/>
-        <!-- Sicily -->
-        <path d="M 110 485 L 128 478 L 145 480 L 158 488 L 162 500 L 155 510 L 142 515 L 128 512 L 115 505 Z"
-          fill="url(#italy-grad)" stroke="rgba(252,252,253,.08)" stroke-width="1.2"/>
-        <!-- Sardinia -->
-        <path d="M 48 280 L 60 272 L 72 270 L 82 275 L 88 288 L 88 302 L 82 315 L 70 322 L 58 318 L 50 308 L 46 295 Z"
-          fill="url(#italy-grad)" stroke="rgba(252,252,253,.08)" stroke-width="1.2"/>
-
-        <!-- Pins: Verona ~(188, 110), Milano ~(148, 98), Venezia ~(210, 105), Padova ~(202, 112) -->
-        <circle class="map-pin" cx="188" cy="112" r="5" data-city="Verona"/>
-        <circle class="map-pin" cx="148" cy="100" r="5" data-city="Milano"/>
-        <circle class="map-pin" cx="212" cy="106" r="5" data-city="Venezia"/>
-        <circle class="map-pin" cx="205" cy="115" r="5" data-city="Padova"/>
-      </svg>
-
-      <!-- Legend -->
-      <div style="display:flex;flex-wrap:wrap;gap:16px;justify-content:center;margin-top:32px">
-        <div style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:rgba(252,252,253,.55)">
-          <span style="width:8px;height:8px;border-radius:50%;background:var(--sd-accent);display:inline-block"></span>
-          Verona — Croce Europa, ULSS9
+      <div class="who-card fade-in d1">
+        <div class="who-card__icon" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2E5E99" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
         </div>
-        <div style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:rgba(252,252,253,.55)">
-          <span style="width:8px;height:8px;border-radius:50%;background:var(--sd-accent);display:inline-block"></span>
-          Milano — ALS Soccorso, Croce Bianca
-        </div>
-        <div style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:rgba(252,252,253,.55)">
-          <span style="width:8px;height:8px;border-radius:50%;background:var(--sd-accent);display:inline-block"></span>
-          Venezia — Croce Verde
-        </div>
-        <div style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:rgba(252,252,253,.55)">
-          <span style="width:8px;height:8px;border-radius:50%;background:var(--sd-accent);display:inline-block"></span>
-          Padova — CRI
+        <div>
+          <p class="who-card__name">Croce Rossa / CRI</p>
+          <p class="who-card__desc">Integrazione con i sistemi nazionali CRI e coordinamento multi-sede.</p>
         </div>
       </div>
+
+      <div class="who-card fade-in d2">
+        <div class="who-card__icon" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2E5E99" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+          </svg>
+        </div>
+        <div>
+          <p class="who-card__name">ANPAS</p>
+          <p class="who-card__desc">Strumenti pensati per le associazioni aderenti ANPAS su tutto il territorio.</p>
+        </div>
+      </div>
+
+      <div class="who-card fade-in d1">
+        <div class="who-card__icon" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2E5E99" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M12 8v4l3 3"/>
+          </svg>
+        </div>
+        <div>
+          <p class="who-card__name">Misericordie</p>
+          <p class="who-card__desc">Dispatch e turni adattati ai modelli organizzativi delle Misericordie d'Italia.</p>
+        </div>
+      </div>
+
+      <div class="who-card fade-in d2">
+        <div class="who-card__icon" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2E5E99" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
+          </svg>
+        </div>
+        <div>
+          <p class="who-card__name">Associazioni di Volontariato</p>
+          <p class="who-card__desc">Piano Starter gratuito per le piccole realtà con un solo veicolo. Cresci senza costi.</p>
+        </div>
+      </div>
+
+      <div class="who-card fade-in d3">
+        <div class="who-card__icon" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2E5E99" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="3" width="20" height="14" rx="2"/>
+            <path d="M8 21h8M12 17v4"/>
+          </svg>
+        </div>
+        <div>
+          <p class="who-card__name">Enti Pubblici / ULSS</p>
+          <p class="who-card__desc">API e report conformi agli standard ULSS/ASL per convenzioni e rendicontazione istituzionale.</p>
+        </div>
+      </div>
+
     </div>
   </div>
 </section>
 
-<!-- ─── CTA ───────────────────────────────────────────────────── -->
-<section class="cta-section" aria-labelledby="cta-c-title">
-  <div class="cta-ellipse-1" aria-hidden="true"></div>
-  <div class="cta-ellipse-2" aria-hidden="true"></div>
-  <div class="wrap cta-inner">
-    <h2 id="cta-c-title" class="cta-title" data-split>La tua organizzazione<br>è la prossima?</h2>
-    <p class="cta-sub t-body" data-anim style="color:rgba(11,18,21,.62)">
-      Unisciti alle organizzazioni che hanno già trasformato il loro trasporto sanitario. Demo gratuita, senza impegno.
-    </p>
-    <a href="/contatti" class="btn btn-dark btn-lg btn-animate" data-anim>
-      <span class="btn-lbl">Richiedi Demo Gratuita</span>
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
-    </a>
+
+<!-- ══════════════════════════════════════
+     CTA
+══════════════════════════════════════ -->
+<section class="clienti-cta" aria-labelledby="clienti-cta-title">
+  <div class="container">
+    <h2 class="clienti-cta__title fade-in" id="clienti-cta-title">
+      La Tua Organizzazione<br>è la Prossima?
+    </h2>
+    <div class="clienti-cta__actions fade-in d1">
+      <a href="/demo" class="btn btn-primary btn-lg" style="background:#fff;color:var(--sd-blue-strong,#2E5E99);">Richiedi Demo</a>
+      <a href="/#prezzi" class="btn btn-outline btn-lg" style="border-color:rgba(255,255,255,.5);color:#fff;">Vedi i Prezzi</a>
+    </div>
   </div>
 </section>
+
 </main>
 
-<!-- ─── Footer ────────────────────────────────────────────────── -->
-<footer>
-  <div class="footer-cta-strip">
-    <div class="wrap footer-cta-inner">
-      <div class="footer-tagline t-h2" data-split>
-        Porta la tua organizzazione<br>nel <span class="accent">futuro.</span>
-      </div>
-      <div class="footer-contact">
-        <a href="mailto:info@soccorsodigitale.app" class="footer-email">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-          info@soccorsodigitale.app
-        </a>
-      </div>
-    </div>
-  </div>
-  <div class="footer-main">
-    <div class="wrap footer-main-inner">
-      <div class="f-brand">
-        <div class="f-brand-logo">
-          <img src="/logo.svg" alt="" width="30" height="30"/>
-          <span class="f-brand-name">Soccorso Digitale</span>
+
+<!-- ══════════════════════════════════════
+     FOOTER
+══════════════════════════════════════ -->
+<footer class="footer" role="contentinfo">
+  <div class="container">
+    <div class="footer__grid">
+
+      <!-- Brand -->
+      <div>
+        <div class="footer__brand-logo" aria-label="Soccorso Digitale">
+          <span style="width:28px;height:28px;background:var(--sd-blue-strong);border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0;" aria-hidden="true">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          </span>
+          Soccorso Digitale
         </div>
-        <p class="f-brand-desc">La piattaforma cloud per il trasporto sanitario programmato. Made in Italy.</p>
+        <p class="footer__brand-desc">Piattaforma SaaS cloud per il trasporto sanitario. Made in Italy — Verona.</p>
       </div>
-      <div class="f-col">
-        <span class="f-col-title">Prodotto</span>
-        <a href="/piattaforma">Piattaforma</a>
-        <a href="/piattaforma#pricing">Prezzi</a>
-      </div>
-      <div class="f-col">
-        <span class="f-col-title">Azienda</span>
-        <a href="/clienti">Clienti</a>
-        <a href="/contatti">Contatti</a>
-      </div>
-      <div class="f-col">
-        <span class="f-col-title">Accesso</span>
-        <a href="/admin">Dashboard</a>
-        <a href="/contatti">Demo</a>
+
+      <!-- Prodotto -->
+      <nav aria-label="Prodotto">
+        <p class="footer__col-title">Prodotto</p>
+        <ul class="footer__links">
+          <li><a href="/piattaforma" class="footer__link">Piattaforma</a></li>
+          <li><a href="/clienti" class="footer__link">Clienti</a></li>
+          <li><a href="/demo" class="footer__link">Demo</a></li>
+          <li><a href="/#prezzi" class="footer__link">Prezzi</a></li>
+        </ul>
+      </nav>
+
+      <!-- Azienda -->
+      <nav aria-label="Azienda">
+        <p class="footer__col-title">Azienda</p>
+        <ul class="footer__links">
+          <li><a href="/clienti" class="footer__link">Clienti</a></li>
+          <li><a href="/contatti" class="footer__link">Contatti</a></li>
+          <li><a href="/demo" class="footer__link">Demo</a></li>
+        </ul>
+      </nav>
+
+      <!-- Legale -->
+      <nav aria-label="Legale">
+        <p class="footer__col-title">Legale</p>
+        <ul class="footer__links">
+          <li><a href="/privacy" class="footer__link">Privacy Policy</a></li>
+          <li><a href="/termini" class="footer__link">Termini di Servizio</a></li>
+          <li><a href="/cookie" class="footer__link">Cookie Policy</a></li>
+          <li><a href="/gdpr" class="footer__link">GDPR</a></li>
+        </ul>
+      </nav>
+
+    </div>
+
+    <div class="footer__bottom">
+      <p class="footer__copy">© 2025 Soccorso Digitale S.r.l. — Verona, Italia</p>
+      <div class="footer__social" aria-label="Social media">
+        <a href="#" class="footer__social-a" aria-label="LinkedIn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/>
+          </svg>
+        </a>
+        <a href="#" class="footer__social-a" aria-label="X (Twitter)">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 4l16 16M4 20L20 4"/>
+          </svg>
+        </a>
       </div>
     </div>
+
   </div>
-  <div class="footer-giant" aria-hidden="true">
-    <div class="wrap"><div class="footer-giant-letters">SOCCORSO DIGITALE</div></div>
-  </div>
-  <div class="footer-bottom">
-    <div class="wrap footer-bottom-inner">
-      <span class="f-copy">© 2025 Soccorso Digitale S.r.l. — Verona, Italia</span>
-      <div class="f-social">
-        <a href="https://linkedin.com" target="_blank" rel="noopener" aria-label="LinkedIn">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="15" height="15"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
-        </a>
-        <a href="https://twitter.com" target="_blank" rel="noopener" aria-label="Twitter">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="15" height="15"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.742l7.726-8.84L2.25 2.25H8.08l4.262 5.634 5.902-5.634zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-        </a>
-      </div>
-    </div>
-  </div>
-  <button class="footer-scroll-top" aria-label="Torna in cima">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="17" height="17"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
-  </button>
 </footer>
 
-<script src="/site/js/global.js"></script>
+<script src="/js/sd-main.js" defer></script>
 </body>
 </html>

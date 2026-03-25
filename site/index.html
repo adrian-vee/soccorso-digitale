@@ -30,6 +30,12 @@
   <!-- Stylesheet -->
   <link rel="stylesheet" href="/css/sd-main.css">
 
+  <style>
+.pricing__grid--4 { grid-template-columns: repeat(4,1fr); }
+@media (max-width:1100px) { .pricing__grid--4 { grid-template-columns: repeat(2,1fr); } }
+@media (max-width:600px)  { .pricing__grid--4 { grid-template-columns: 1fr; } }
+</style>
+
   <!-- Structured Data -->
   <script type="application/ld+json">
   {
@@ -51,8 +57,9 @@
       }
     },
     "offers": [
-      { "@type": "Offer", "name": "Starter", "price": "0", "priceCurrency": "EUR" },
+      { "@type": "Offer", "name": "Starter", "price": "119", "priceCurrency": "EUR" },
       { "@type": "Offer", "name": "Professional", "price": "249", "priceCurrency": "EUR" },
+      { "@type": "Offer", "name": "Business", "price": "449", "priceCurrency": "EUR" },
       { "@type": "Offer", "name": "Enterprise", "description": "Prezzo personalizzato" }
     ]
   }
@@ -81,11 +88,12 @@
       <a href="/clienti" class="navbar__link">Clienti</a>
       <a href="#prezzi" class="navbar__link">Prezzi</a>
       <a href="/contatti" class="navbar__link">Contatti</a>
+      <a href="/demo" class="navbar__link navbar__link--demo">Demo</a>
     </nav>
 
     <div class="navbar__cta">
-      <a href="/piattaforma" class="btn btn-ghost btn-sm">Accedi</a>
-      <a href="/contatti" class="btn btn-primary btn-sm">Richiedi Demo</a>
+      <a href="/admin" class="btn btn-ghost btn-sm">Accedi</a>
+      <a href="/demo" class="btn btn-primary btn-sm">Richiedi Demo</a>
     </div>
 
     <button class="navbar__hamburger" aria-label="Apri menu" aria-expanded="false" aria-controls="mobile-menu">
@@ -102,9 +110,10 @@
   <a href="/clienti" class="mobile-menu__link">Clienti</a>
   <a href="#prezzi" class="mobile-menu__link">Prezzi</a>
   <a href="/contatti" class="mobile-menu__link">Contatti</a>
+  <a href="/demo" class="mobile-menu__link">Demo</a>
   <div class="mobile-menu__cta">
-    <a href="/piattaforma" class="btn btn-ghost">Accedi</a>
-    <a href="/contatti" class="btn btn-primary">Richiedi Demo</a>
+    <a href="/admin" class="btn btn-ghost">Accedi</a>
+    <a href="/demo" class="btn btn-primary">Richiedi Demo</a>
   </div>
 </nav>
 
@@ -130,7 +139,7 @@
           Dialisi, visite, trasferimenti, dimissioni — tutto in un unico sistema integrato.
         </p>
         <div class="hero__actions fade-in d3">
-          <a href="/contatti" class="btn btn-primary btn-lg">Richiedi Demo</a>
+          <a href="/demo" class="btn btn-primary btn-lg">Richiedi Demo</a>
           <a href="/piattaforma" class="btn btn-outline btn-lg">Scopri la Piattaforma</a>
         </div>
         <div class="hero__social fade-in d4" aria-label="Organizzazioni attive">
@@ -594,46 +603,28 @@
     <div class="section-header fade-in">
       <span class="badge">Prezzi</span>
       <h2 id="pricing-title">Scegli il Tuo Piano</h2>
-      <p>Inizia gratis. Scala quando sei pronto. Nessuna sorpresa in fattura.</p>
+      <p>14 giorni di prova gratuita su tutti i piani. Nessuna carta di credito.</p>
     </div>
 
-    <div class="pricing__grid">
+    <div class="pricing__grid pricing__grid--4">
 
       <!-- Starter -->
       <div class="pricing-card fade-in">
         <div class="pricing-card__plan">Starter</div>
         <div class="pricing-card__price">
-          <span class="price-main">Gratis</span>
+          <span class="price-main">€119</span>
+          <span class="price-sub">/mese</span>
         </div>
-        <p class="pricing-card__tagline">30 giorni — poi base limitata</p>
+        <p class="pricing-card__tagline">Per piccole associazioni</p>
         <div class="pricing-divider" aria-hidden="true"></div>
         <ul class="pricing-features" aria-label="Funzionalità incluse nel piano Starter">
-          <li class="pf-item">
-            <span class="pf-check" aria-hidden="true">
-              <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="#2E5E99" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg>
-            </span>
-            Fino a 3 veicoli
-          </li>
-          <li class="pf-item">
-            <span class="pf-check" aria-hidden="true">
-              <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="#2E5E99" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg>
-            </span>
-            1 sede operativa
-          </li>
-          <li class="pf-item">
-            <span class="pf-check" aria-hidden="true">
-              <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="#2E5E99" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg>
-            </span>
-            Dashboard base
-          </li>
-          <li class="pf-item">
-            <span class="pf-check" aria-hidden="true">
-              <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="#2E5E99" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg>
-            </span>
-            Supporto email
-          </li>
+          <li class="pf-item"><span class="pf-check" aria-hidden="true"><svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="#2E5E99" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg></span>Fino a 5 veicoli</li>
+          <li class="pf-item"><span class="pf-check" aria-hidden="true"><svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="#2E5E99" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg></span>1 sede operativa</li>
+          <li class="pf-item"><span class="pf-check" aria-hidden="true"><svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="#2E5E99" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg></span>Gestione turni base</li>
+          <li class="pf-item"><span class="pf-check" aria-hidden="true"><svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="#2E5E99" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg></span>App mobile inclusa</li>
+          <li class="pf-item"><span class="pf-check" aria-hidden="true"><svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="#2E5E99" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg></span>Supporto email</li>
         </ul>
-        <a href="/contatti" class="btn btn-outline">Inizia Gratis</a>
+        <a href="/demo" class="btn btn-outline">Inizia il Trial</a>
       </div>
 
       <!-- Professional (featured) -->
@@ -644,102 +635,59 @@
           <span class="price-main">€249</span>
           <span class="price-sub">/mese</span>
         </div>
-        <p class="pricing-card__tagline">Tutto quello che serve, subito</p>
+        <p class="pricing-card__tagline">Per organizzazioni in crescita</p>
         <div class="pricing-divider" aria-hidden="true"></div>
         <ul class="pricing-features" aria-label="Funzionalità incluse nel piano Professional">
-          <li class="pf-item">
-            <span class="pf-check" aria-hidden="true">
-              <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg>
-            </span>
-            Fino a 15 veicoli
-          </li>
-          <li class="pf-item">
-            <span class="pf-check" aria-hidden="true">
-              <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg>
-            </span>
-            Sedi illimitate
-          </li>
-          <li class="pf-item">
-            <span class="pf-check" aria-hidden="true">
-              <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg>
-            </span>
-            Tutti i moduli attivi
-          </li>
-          <li class="pf-item">
-            <span class="pf-check" aria-hidden="true">
-              <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg>
-            </span>
-            Hub Prenotazioni Privati
-          </li>
-          <li class="pf-item">
-            <span class="pf-check" aria-hidden="true">
-              <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg>
-            </span>
-            Analytics avanzati
-          </li>
-          <li class="pf-item">
-            <span class="pf-check" aria-hidden="true">
-              <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg>
-            </span>
-            Supporto prioritario
-          </li>
-          <li class="pf-item">
-            <span class="pf-check" aria-hidden="true">
-              <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg>
-            </span>
-            API access
-          </li>
+          <li class="pf-item"><span class="pf-check" aria-hidden="true"><svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg></span>Fino a 15 veicoli</li>
+          <li class="pf-item"><span class="pf-check" aria-hidden="true"><svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg></span>Sedi illimitate</li>
+          <li class="pf-item"><span class="pf-check" aria-hidden="true"><svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg></span>Tutti i moduli attivi</li>
+          <li class="pf-item"><span class="pf-check" aria-hidden="true"><svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg></span>Hub Prenotazioni Privati</li>
+          <li class="pf-item"><span class="pf-check" aria-hidden="true"><svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg></span>Analytics avanzati</li>
+          <li class="pf-item"><span class="pf-check" aria-hidden="true"><svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg></span>Supporto prioritario</li>
+          <li class="pf-item"><span class="pf-check" aria-hidden="true"><svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg></span>API access</li>
         </ul>
-        <a href="/contatti" class="btn btn-primary">Richiedi Demo</a>
+        <a href="/demo" class="btn btn-primary">Richiedi Demo</a>
+      </div>
+
+      <!-- Business -->
+      <div class="pricing-card fade-in d2">
+        <div class="pricing-card__plan">Business</div>
+        <div class="pricing-card__price">
+          <span class="price-main">€449</span>
+          <span class="price-sub">/mese</span>
+        </div>
+        <p class="pricing-card__tagline">Per grandi organizzazioni</p>
+        <div class="pricing-divider" aria-hidden="true"></div>
+        <ul class="pricing-features" aria-label="Funzionalità incluse nel piano Business">
+          <li class="pf-item"><span class="pf-check" aria-hidden="true"><svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="#2E5E99" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg></span>Fino a 30 veicoli</li>
+          <li class="pf-item"><span class="pf-check" aria-hidden="true"><svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="#2E5E99" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg></span>Multi-sede avanzata</li>
+          <li class="pf-item"><span class="pf-check" aria-hidden="true"><svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="#2E5E99" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg></span>GPS tracking live</li>
+          <li class="pf-item"><span class="pf-check" aria-hidden="true"><svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="#2E5E99" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg></span>Fatturazione integrata</li>
+          <li class="pf-item"><span class="pf-check" aria-hidden="true"><svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="#2E5E99" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg></span>Report ULSS automatici</li>
+          <li class="pf-item"><span class="pf-check" aria-hidden="true"><svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="#2E5E99" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg></span>SLA garantito 99.5%</li>
+          <li class="pf-item"><span class="pf-check" aria-hidden="true"><svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="#2E5E99" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg></span>Integrazione SUEM 118</li>
+        </ul>
+        <a href="/demo" class="btn btn-outline">Richiedi Demo</a>
       </div>
 
       <!-- Enterprise -->
-      <div class="pricing-card fade-in d2">
+      <div class="pricing-card fade-in d3">
         <div class="pricing-card__plan">Enterprise</div>
         <div class="pricing-card__price">
           <span class="price-main">Custom</span>
         </div>
-        <p class="pricing-card__tagline">Per grandi organizzazioni e consorzi</p>
+        <p class="pricing-card__tagline">Per consorzi e reti regionali</p>
         <div class="pricing-divider" aria-hidden="true"></div>
         <ul class="pricing-features" aria-label="Funzionalità incluse nel piano Enterprise">
-          <li class="pf-item">
-            <span class="pf-check" aria-hidden="true">
-              <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="#2E5E99" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg>
-            </span>
-            Veicoli illimitati
-          </li>
-          <li class="pf-item">
-            <span class="pf-check" aria-hidden="true">
-              <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="#2E5E99" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg>
-            </span>
-            Multi-organizzazione
-          </li>
-          <li class="pf-item">
-            <span class="pf-check" aria-hidden="true">
-              <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="#2E5E99" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg>
-            </span>
-            SLA garantito
-          </li>
-          <li class="pf-item">
-            <span class="pf-check" aria-hidden="true">
-              <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="#2E5E99" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg>
-            </span>
-            Account manager dedicato
-          </li>
-          <li class="pf-item">
-            <span class="pf-check" aria-hidden="true">
-              <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="#2E5E99" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg>
-            </span>
-            Integrazione ULSS/FSE
-          </li>
-          <li class="pf-item">
-            <span class="pf-check" aria-hidden="true">
-              <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="#2E5E99" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg>
-            </span>
-            SPID / CIE
-          </li>
+          <li class="pf-item"><span class="pf-check" aria-hidden="true"><svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="#2E5E99" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg></span>Veicoli illimitati</li>
+          <li class="pf-item"><span class="pf-check" aria-hidden="true"><svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="#2E5E99" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg></span>Multi-organizzazione</li>
+          <li class="pf-item"><span class="pf-check" aria-hidden="true"><svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="#2E5E99" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg></span>SLA 99.9% garantito</li>
+          <li class="pf-item"><span class="pf-check" aria-hidden="true"><svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="#2E5E99" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg></span>Account manager dedicato</li>
+          <li class="pf-item"><span class="pf-check" aria-hidden="true"><svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="#2E5E99" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg></span>Integrazione ULSS/FSE</li>
+          <li class="pf-item"><span class="pf-check" aria-hidden="true"><svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="#2E5E99" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg></span>SPID / CIE</li>
+          <li class="pf-item"><span class="pf-check" aria-hidden="true"><svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="#2E5E99" stroke-width="2" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg></span>Onboarding dedicato</li>
         </ul>
-        <a href="/contatti" class="btn btn-outline">Contattaci</a>
+        <a href="/demo" class="btn btn-outline">Contattaci</a>
       </div>
 
     </div>
@@ -914,7 +862,7 @@
     <h2 class="fade-in d1" id="cta-title">La Tua Organizzazione<br>è la Prossima?</h2>
     <p class="sub fade-in d2">Unisciti alle organizzazioni sanitarie italiane che hanno già scelto il futuro del trasporto programmato.</p>
     <div class="cta-final__actions fade-in d3">
-      <a href="/contatti" class="btn btn-primary btn-lg">Richiedi Demo Gratuita</a>
+      <a href="/demo" class="btn btn-primary btn-lg">Richiedi Demo Gratuita</a>
       <a href="/piattaforma" class="btn btn-outline btn-lg">Scopri la Piattaforma</a>
     </div>
     <p class="cta-final__note fade-in d4">Gratuito per 30 giorni. Nessuna carta di credito.</p>
@@ -958,6 +906,7 @@
         <p class="footer__col-title">Azienda</p>
         <ul class="footer__links">
           <li><a href="/clienti" class="footer__link">Clienti</a></li>
+          <li><a href="/demo" class="footer__link">Richiedi Demo</a></li>
           <li><a href="/contatti" class="footer__link">Contatti</a></li>
           <li><a href="/contatti#partnership" class="footer__link">Partnership</a></li>
           <li><a href="/contatti#stampa" class="footer__link">Stampa</a></li>
