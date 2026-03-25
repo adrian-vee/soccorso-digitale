@@ -17480,17 +17480,15 @@ La violazione degli obblighi di riservatezza può comportare sanzioni disciplina
         return res.status(403).json({ error: "Accesso non autorizzato" });
       }
 
-      const bucket = getApkBucket();
-      const gcsFile = bucket.file(att.storagePath);
-      const [exists] = await gcsFile.exists();
-      if (!exists) return res.status(404).json({ error: "File non trovato" });
+      const attFullPath = path.join(process.cwd(), "uploads", att.storagePath);
+      if (!fs.existsSync(attFullPath)) return res.status(404).json({ error: "File non trovato" });
 
       res.set({
         "Content-Type": att.mimetype || "application/octet-stream",
         "Content-Disposition": `inline; filename="${att.filename}"`,
         "Cache-Control": "private, max-age=3600",
       });
-      const stream = gcsFile.createReadStream();
+      const stream = fs.createReadStream(attFullPath);
       stream.pipe(res);
     } catch (error) {
       console.error("Error downloading signature attachment:", error);
@@ -17944,9 +17942,8 @@ La violazione degli obblighi di riservatezza può comportare sanzioni disciplina
       if (template && Array.isArray(template.attachments)) {
         for (const att of template.attachments as any[]) {
           try {
-            const bucket = getApkBucket();
-            const file = bucket.file(att.storagePath);
-            await file.delete({ ignoreNotFound: true });
+            const attPath = path.join(process.cwd(), "uploads", att.storagePath);
+            if (fs.existsSync(attPath)) fs.unlinkSync(attPath);
           } catch (e) { /* ignore cleanup errors */ }
         }
       }
@@ -17983,9 +17980,9 @@ La violazione degli obblighi di riservatezza può comportare sanzioni disciplina
       const ext = req.file.originalname.split('.').pop() || 'bin';
       const storagePath = `document-attachments/${orgId}/${req.params.id}/${fileId}.${ext}`;
 
-      const bucket = getApkBucket();
-      const gcsFile = bucket.file(storagePath);
-      await gcsFile.save(req.file.buffer, { contentType: req.file.mimetype, resumable: false });
+      const attSavePath = path.join(process.cwd(), "uploads", storagePath);
+      fs.mkdirSync(path.dirname(attSavePath), { recursive: true });
+      fs.writeFileSync(attSavePath, req.file.buffer);
 
       const attachment = {
         id: fileId,
@@ -18024,9 +18021,8 @@ La violazione degli obblighi di riservatezza può comportare sanzioni disciplina
       if (!att) return res.status(404).json({ error: "Allegato non trovato" });
 
       try {
-        const bucket = getApkBucket();
-        const gcsFile = bucket.file(att.storagePath);
-        await gcsFile.delete({ ignoreNotFound: true });
+        const attDelPath = path.join(process.cwd(), "uploads", att.storagePath);
+        if (fs.existsSync(attDelPath)) fs.unlinkSync(attDelPath);
       } catch (e) { /* ignore */ }
 
       const updatedAttachments = attachments.filter((a: any) => a.id !== req.params.attachmentId);
@@ -18105,15 +18101,15 @@ La violazione degli obblighi di riservatezza può comportare sanzioni disciplina
           const templateAttachments = Array.isArray(template.attachments) ? (template.attachments as any[]) : [];
           const signatureAttachments: any[] = [];
           if (templateAttachments.length > 0) {
-            const bucket = getApkBucket();
             for (const att of templateAttachments) {
               try {
                 const sigFileId = crypto.randomBytes(16).toString("hex");
                 const ext = att.filename?.split('.').pop() || 'bin';
                 const sigStoragePath = `document-attachments/${orgId}/signatures/${token}/${sigFileId}.${ext}`;
-                const srcFile = bucket.file(att.storagePath);
-                const destFile = bucket.file(sigStoragePath);
-                await srcFile.copy(destFile);
+                const srcPath = path.join(process.cwd(), "uploads", att.storagePath);
+                const destPath = path.join(process.cwd(), "uploads", sigStoragePath);
+                fs.mkdirSync(path.dirname(destPath), { recursive: true });
+                fs.copyFileSync(srcPath, destPath);
                 signatureAttachments.push({ ...att, id: sigFileId, storagePath: sigStoragePath });
               } catch (copyErr) {
                 signatureAttachments.push(att);

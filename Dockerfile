@@ -54,7 +54,7 @@ COPY --from=builder /app/site ./site
 COPY --from=dashboard-builder /app/dashboard/out ./dashboard-static
 
 # Create upload directories with full subtree needed by APK chunked upload
-RUN mkdir -p uploads/apk/temp/chunks uploads/logos uploads/signatures
+RUN mkdir -p uploads/apk/temp/chunks uploads/logos uploads/signatures uploads/document-attachments
 
 # Non-root user for security
 RUN addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001
