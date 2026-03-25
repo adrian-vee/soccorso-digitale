@@ -3,6 +3,7 @@ import crypto from "node:crypto";
 import path from "node:path";
 import fs from "node:fs";
 import multer from "multer";
+import bcrypt from "bcrypt";
 import { UPLOADS_DIR } from "../uploads-dir";
 // @ts-ignore
 import { WebSocket } from "ws";
@@ -5127,24 +5128,25 @@ export function registerAdminRoutes(app: Express) {
       for (const vehicle of vehiclesData) {
         const code = vehicle.code.replace(/\s+/g, '').toUpperCase();
         const email = `${code.toLowerCase()}@croceeuropa.com`;
-        const password = `Croce${code}!`;
-        
+        const plainPassword = `Croce${code}!`;
+        const hashedPassword = await bcrypt.hash(plainPassword, 10);
+
         try {
           const existingUser = await storage.getUserByEmail(email);
           if (existingUser) {
             await db.update(users).set({
               vehicleId: vehicle.id,
               locationId: vehicle.locationId,
-              password: password,
+              password: hashedPassword,
               isActive: true
             }).where(eq(users.id, existingUser.id));
             results.usersExisting.push(code);
             continue;
           }
-          
+
           await storage.createUser({
             email,
-            password,
+            password: hashedPassword,
             name: `Ambulanza ${vehicle.code}`,
             role: "crew",
             locationId: vehicle.locationId,
@@ -5164,6 +5166,44 @@ export function registerAdminRoutes(app: Express) {
     } catch (error) {
       console.error("Error seeding vehicle users:", error);
       res.status(500).json({ error: "Errore nella creazione utenti" });
+    }
+  });
+
+  // One-time fix: re-hash plain-text passwords for all vehicle users
+  // Protected with TRIP_INTEGRITY_SECRET. Safe to call multiple times (idempotent).
+  app.post("/api/admin/fix-vehicle-passwords", async (req, res) => {
+    try {
+      const { secret } = req.body;
+      const expectedSecret = process.env.TRIP_INTEGRITY_SECRET;
+      if (!expectedSecret || secret !== expectedSecret) {
+        return res.status(401).json({ error: "Non autorizzato" });
+      }
+
+      // Find all users whose password is NOT a bcrypt hash (doesn't start with $2b$ or $2a$)
+      const allUsers = await db.select({ id: users.id, email: users.email, password: users.password })
+        .from(users);
+
+      const needsFix = allUsers.filter(u =>
+        u.password && !u.password.startsWith("$2b$") && !u.password.startsWith("$2a$")
+      );
+
+      const fixed: string[] = [];
+      const errors: string[] = [];
+
+      for (const u of needsFix) {
+        try {
+          const hashed = await bcrypt.hash(u.password!, 10);
+          await db.update(users).set({ password: hashed }).where(eq(users.id, u.id));
+          fixed.push(u.email);
+        } catch (e) {
+          errors.push(`${u.email}: ${e}`);
+        }
+      }
+
+      res.json({ success: true, fixed: fixed.length, errors, fixedEmails: fixed });
+    } catch (error) {
+      console.error("Error fixing passwords:", error);
+      res.status(500).json({ error: "Errore nel fix delle password" });
     }
   });
 
