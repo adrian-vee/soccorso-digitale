@@ -377,6 +377,9 @@ export default function HomeScreen() {
               <ThemedText type="small" style={{ color: theme.primary, marginLeft: 4, fontWeight: "500", flexShrink: 1 }} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>
                 {locationName}
               </ThemedText>
+              {userCoords && (
+                <WeatherBadge lat={userCoords.lat} lon={userCoords.lon} compact />
+              )}
             </View>
           </View>
           
@@ -426,12 +429,9 @@ export default function HomeScreen() {
               </View>
               <Feather name="chevron-right" size={20} color={theme.textSecondary} />
             </View>
-            {/* Meteo + Festivo row */}
+            {/* Festivo row */}
             <View style={{ flexDirection: "row", alignItems: "center", gap: 8, marginTop: 8, marginLeft: 48, flexWrap: "wrap" }}>
               <HolidayChip date={new Date()} />
-              {userCoords && (
-                <WeatherBadge lat={userCoords.lat} lon={userCoords.lon} compact />
-              )}
             </View>
           </Pressable>
         </Animated.View>
@@ -1016,6 +1016,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 4,
     flexShrink: 1,
+    gap: 6,
   },
   vehicleRow: {
     flexDirection: "row",

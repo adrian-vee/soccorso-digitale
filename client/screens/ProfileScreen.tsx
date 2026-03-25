@@ -75,24 +75,6 @@ export default function ProfileScreen() {
     enabled: !!selectedVehicle?.id,
   });
 
-  interface CrewMember {
-    id: string;
-    name: string;
-    role: string;
-    status: string;
-  }
-
-  interface TodayCrewData {
-    crew: CrewMember[];
-    shiftInfo: { startTime: string; endTime: string; status: string } | null;
-  }
-
-  const { data: todayCrew } = useQuery<TodayCrewData>({
-    queryKey: [`/api/vehicles/${selectedVehicle?.id}/today-crew`],
-    enabled: !!selectedVehicle?.id,
-    refetchInterval: 60000,
-  });
-
   const scadenzePending = isScadenzePeriod && !scadenzeStatus?.completed;
 
   const pulseAnim = useSharedValue(1);
@@ -260,7 +242,7 @@ export default function ProfileScreen() {
       <View style={styles.profileHeader}>
         {user?.organization?.logoUrl ? (
           <Image
-            source={{ uri: `${getApiUrl()}${user.organization.logoUrl}` }}
+            source={{ uri: `${getApiUrl().replace(/\/$/, '')}${user.organization.logoUrl.startsWith('/') ? '' : '/'}${user.organization.logoUrl}` }}
             style={styles.orgLogoImage}
             contentFit="contain"
             transition={200}
@@ -277,14 +259,6 @@ export default function ProfileScreen() {
         <ThemedText type="body" style={[styles.userEmail, { color: theme.textSecondary }]}>
           {user?.organization?.name || selectedLocation?.name || "Sede non assegnata"}
         </ThemedText>
-        {todayCrew && todayCrew.crew.length > 0 ? (
-          <View style={[styles.crewContainer, { backgroundColor: theme.successLight }]}>
-            <Feather name="users" size={14} color={theme.success} />
-            <ThemedText type="small" style={[styles.crewText, { color: theme.success }]}>
-              {todayCrew.crew.map(c => c.name).join(", ")}
-            </ThemedText>
-          </View>
-        ) : null}
         <View style={[styles.rolePill, { backgroundColor: user?.customRoleName ? theme.primaryLight : roleColors.bg }]}>
           {user?.customRoleName ? (
             <Feather name="briefcase" size={12} color={user?.customRoleName ? theme.primary : roleColors.text} />
