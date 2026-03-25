@@ -2391,7 +2391,7 @@ function filterFleetTree() {
 }
 
 // Dashboard state
-let dashboardPeriod = 7;
+let dashboardPeriod = 90;
 let dashboardLocationId = '';
 let dashboardCustomDateFrom = '';
 let dashboardCustomDateTo = '';
