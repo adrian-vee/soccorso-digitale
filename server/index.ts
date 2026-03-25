@@ -37,20 +37,26 @@ function setupCors(app: express.Application) {
       });
     }
 
+    // Allow production domain
+    origins.add("https://soccorsodigitale.app");
+    origins.add("https://www.soccorsodigitale.app");
+
     // Allow local development origins for Expo web
     origins.add("http://localhost:8081");
     origins.add("http://127.0.0.1:8081");
     origins.add("http://0.0.0.0:8081");
 
+    // Allow extra origins from env (comma-separated)
+    if (process.env.CORS_ORIGINS) {
+      process.env.CORS_ORIGINS.split(",").forEach((d) => origins.add(d.trim()));
+    }
+
     const origin = req.header("origin");
 
     if (origin && origins.has(origin)) {
       res.header("Access-Control-Allow-Origin", origin);
-      res.header(
-        "Access-Control-Allow-Methods",
-        "GET, POST, PUT, DELETE, OPTIONS",
-      );
-      res.header("Access-Control-Allow-Headers", "Content-Type");
+      res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+      res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
       res.header("Access-Control-Allow-Credentials", "true");
     }
 
