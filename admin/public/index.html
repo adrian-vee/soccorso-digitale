@@ -18,8 +18,19 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
+  <!-- Auth loading overlay: shown while session check runs, hides instantly after -->
+  <div id="auth-loading-overlay" style="position:fixed;inset:0;background:#f8fafc;display:flex;align-items:center;justify-content:center;z-index:9999;">
+    <div style="text-align:center;">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="48" height="48" style="margin-bottom:12px;">
+        <rect x="35" y="15" width="30" height="70" rx="4" fill="#0066CC"/>
+        <rect x="15" y="35" width="70" height="30" rx="4" fill="#0066CC"/>
+        <path d="M 20 75 Q 50 55 80 75" stroke="#00A651" stroke-width="8" fill="none" stroke-linecap="round"/>
+      </svg>
+      <div style="font-size:13px;color:#94a3b8;font-family:system-ui,sans-serif;">Caricamento...</div>
+    </div>
+  </div>
   <div id="app">
-    <div id="login-page" class="page">
+    <div id="login-page" class="page hidden">
       <div class="lp-wrap">
         <div class="lp-card">
 
@@ -535,7 +546,7 @@
                   <span class="nav-section-header-label">Organizzazioni</span>
                   <svg class="nav-section-chevron" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
                 </button>
-                <div class="nav-section-body" style="display:block;">
+                <div class="nav-section-body open">
                   <button class="nav-item" data-page="client-overview">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                     <span>Panoramica Clienti</span>
@@ -560,7 +571,7 @@
                   <span class="nav-section-header-label">Analytics Piattaforma</span>
                   <svg class="nav-section-chevron" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
                 </button>
-                <div class="nav-section-body" style="display:block;">
+                <div class="nav-section-body open">
                   <button class="nav-item" data-page="saas-metrics">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>
                     <span>Metriche SaaS</span>
@@ -593,7 +604,7 @@
                   <span class="nav-section-header-label">Intelligence</span>
                   <svg class="nav-section-chevron" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
                 </button>
-                <div class="nav-section-body" style="display:block;">
+                <div class="nav-section-body open">
                   <button class="nav-item" data-page="predictive-alerts">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
                     <span>Intelligence Predittiva</span>
@@ -614,7 +625,7 @@
                   <span class="nav-section-header-label">Governance &amp; Compliance</span>
                   <svg class="nav-section-chevron" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
                 </button>
-                <div class="nav-section-body" style="display:block;">
+                <div class="nav-section-body open">
                   <button class="nav-item nav-item-compliance" data-page="compliance">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
                     <span>Compliance e Audit</span>
@@ -643,7 +654,7 @@
                   <span class="nav-section-header-label">Sistema Piattaforma</span>
                   <svg class="nav-section-chevron" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
                 </button>
-                <div class="nav-section-body" style="display:block;">
+                <div class="nav-section-body open">
                   <button class="nav-item" data-page="settings">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4z"/></svg>
                     <span>Impostazioni Piattaforma</span>

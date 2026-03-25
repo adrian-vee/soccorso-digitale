@@ -1782,37 +1782,55 @@ function applyRoleBasedAccess() {
     if (userRoleText) {
       userRoleText.style.display = 'none';
     }
-    // Initialize super admin platform mode
-    setTimeout(() => applySuperAdminMode(selectedOrgFilter, availableOrganizations.find(o => o.id === selectedOrgFilter)), 0);
+    // Apply support mode banner/state immediately (after orgs are loaded in showDashboard)
+    applySuperAdminMode(selectedOrgFilter, availableOrganizations.find(o => o.id === selectedOrgFilter));
   }
 }
 
 function showLogin() {
+  document.getElementById('auth-loading-overlay')?.remove();
   document.getElementById('login-page').classList.remove('hidden');
   document.getElementById('dashboard-page').classList.add('hidden');
 }
 
+// Pages only visible to super_admin without a selected org (SaaS platform view)
+const SUPER_ADMIN_PLATFORM_PAGES = new Set([
+  'saas-dashboard', 'client-overview', 'onboarding-pipeline',
+  'plans-billing', 'adoption-usage', 'api-providers',
+]);
+
 async function showDashboard() {
+  document.getElementById('auth-loading-overlay')?.remove();
   document.getElementById('login-page').classList.add('hidden');
   document.getElementById('dashboard-page').classList.remove('hidden');
   // User name and role are set by applyRoleBasedAccess()
-  
+
   const hashPage = window.location.hash.slice(1);
   let candidatePage = hashPage || localStorage.getItem('adminCurrentPage') || 'dashboard';
-  
+
   const targetSection = document.getElementById(`${candidatePage}-section`);
   if (!targetSection) candidatePage = 'dashboard';
-  
+
   if (window._customRoleAllowedPages && !currentUserInfo?.isFullAdmin) {
     if (!window._customRoleAllowedPages.has(candidatePage)) {
       candidatePage = 'dashboard';
     }
   }
+
+  // Support mode: if an org is selected, don't restore platform-only SA pages
+  if (selectedOrgFilter && currentUserInfo?.isFullAdmin && SUPER_ADMIN_PLATFORM_PAGES.has(candidatePage)) {
+    candidatePage = 'dashboard';
+  }
+  // No org selected for SA: always go to saas-dashboard (platform view)
+  if (!selectedOrgFilter && currentUserInfo?.isFullAdmin && candidatePage === 'dashboard') {
+    candidatePage = 'saas-dashboard';
+  }
+
   const savedPage = candidatePage;
-  
+
   document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
   document.getElementById(`${savedPage}-section`)?.classList.remove('hidden');
-  
+
   document.querySelectorAll('.nav-item').forEach(t => t.classList.remove('active'));
   document.querySelector(`.nav-item[data-page="${savedPage}"]`)?.classList.add('active');
   
@@ -1827,13 +1845,17 @@ async function showDashboard() {
       if (subtitle && selectedOrg) {
         subtitle.textContent = selectedOrg.name;
       }
+      // Re-apply support mode banner now that orgs are loaded
+      applySuperAdminMode(selectedOrgFilter, selectedOrg);
+    } else {
+      applySuperAdminMode('', null);
     }
   } else {
     if (orgFilterContainer) orgFilterContainer.classList.add('hidden');
   }
-  
+
   await loadInitialData();
-  
+
   navigateTo(savedPage);
   
   setTimeout(() => {
