@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils"
 import {
   LayoutDashboard, ClipboardList, CalendarClock, MapPin,
   Truck, FileText, Users, Calendar, BarChart3, Package,
-  Settings, ChevronLeft, ChevronRight, LogOut
+  Settings, ChevronLeft, ChevronRight, LogOut, ShoppingBag
 } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
 import { useAuth } from "@/hooks/use-auth"
@@ -57,6 +57,13 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       { href: "/analytics", icon: BarChart3, label: "Analytics" },
       { href: "/inventario", icon: Package, label: "Inventario" },
+    ],
+  },
+  {
+    label: "MARKETPLACE",
+    bg: "bg-[#2E5E99]/[0.05] border border-[#2E5E99]/[0.08]",
+    items: [
+      { href: "/marketplace", icon: ShoppingBag, label: "Marketplace" },
     ],
   },
 ]

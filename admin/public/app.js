@@ -38467,7 +38467,11 @@ function initProgrammaGiornaliero() {
   
   const uploadBtn = document.getElementById('pg-upload-btn');
   uploadBtn?.removeEventListener('click', openPgUploadModal);
-  uploadBtn?.addEventListener('click', openPgUploadModal);
+  uploadBtn?.addEventListener('click', () => {
+    uploadBtn.classList.add('aub-loading');
+    setTimeout(() => uploadBtn.classList.remove('aub-loading'), 700);
+    openPgUploadModal();
+  });
   
   document.getElementById('pg-new-service-btn')?.addEventListener('click', openPgNewServiceModal);
   document.getElementById('pg-copy-day-btn')?.addEventListener('click', openPgCopyModal);
