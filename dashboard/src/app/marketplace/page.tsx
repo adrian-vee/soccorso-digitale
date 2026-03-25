@@ -1,11 +1,12 @@
 'use client';
 import React from 'react';
-import { PricingSection, Plan } from '@/components/ui/pricing';
+import { PricingModule, PricingModulePlan } from '@/components/ui/pricing-module';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import {
   Package, Puzzle, Wrench, Lock, Zap,
   ShoppingBag, Star, CheckCircle2, ArrowRight,
+  Car, TrendingUp, Building2, Crown,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -22,48 +23,76 @@ const CATEGORIES = [
 type CategoryKey = (typeof CATEGORIES)[number]['key'];
 
 /* ── Piani per i Pacchetti ────────────────────────── */
-const PIANI_PACCHETTI: Plan[] = [
+const PIANI_PACCHETTI: PricingModulePlan[] = [
   {
-    name: 'Base',
-    info: 'Per associazioni di piccole dimensioni',
-    price: { monthly: 49, yearly: Math.round(49 * 12 * 0.88) },
+    id: 'starter',
+    name: 'Starter',
+    description: 'Per associazioni di piccole dimensioni che vogliono digitalizzare i servizi.',
+    price: { monthly: 119, yearly: Math.round(119 * 0.88) },
+    icon: <Car size={20} />,
     features: [
       { text: 'Fino a 5 mezzi' },
       { text: 'Gestione turni base' },
-      { text: 'Programma giornaliero', tooltip: 'Visualizzazione e export del programma servizi' },
-      { text: 'App mobile Android' },
+      { text: 'Programma giornaliero' },
+      { text: 'App mobile Android/iOS' },
       { text: 'Supporto community' },
     ],
-    btn: { text: 'Inizia Prova Gratuita' },
+    cta: 'Inizia Prova Gratuita',
+    ctaHref: '/inizia?piano=starter',
   },
   {
+    id: 'professional',
+    name: 'Professional',
+    description: "Per organizzazioni operative in crescita con esigenze avanzate.",
+    price: { monthly: 249, yearly: Math.round(249 * 0.88) },
+    icon: <TrendingUp size={20} />,
+    badge: 'Più scelto',
     highlighted: true,
-    name: 'Pro',
-    info: 'Per organizzazioni in crescita',
-    price: { monthly: 99, yearly: Math.round(99 * 12 * 0.88) },
     features: [
-      { text: 'Fino a 20 mezzi' },
+      { text: 'Fino a 20 mezzi', highlighted: true },
       { text: 'Turni avanzati + reperibilità' },
-      { text: 'Analytics operative complete', tooltip: 'KPI, SLA, report ULSS' },
+      { text: 'Analytics operative complete' },
       { text: 'GPS tracking in tempo reale' },
       { text: 'Fatturazione & finance' },
-      { text: 'Supporto prioritario', tooltip: 'Risposta entro 4 ore lavorative' },
+      { text: 'Supporto prioritario 4h' },
     ],
-    btn: { text: 'Scegli Pro' },
+    cta: 'Attiva Professional',
+    ctaHref: '/inizia?piano=professional',
   },
   {
-    name: 'Enterprise',
-    info: 'Per grandi organizzazioni',
-    price: { monthly: 199, yearly: Math.round(199 * 12 * 0.88) },
+    id: 'business',
+    name: 'Business',
+    description: 'Per organizzazioni strutturate con più sedi e integrazioni istituzionali.',
+    price: { monthly: 449, yearly: Math.round(449 * 0.88) },
+    icon: <Building2 size={20} />,
     features: [
-      { text: 'Mezzi illimitati' },
-      { text: 'Multi-sede illimitata' },
-      { text: 'API personalizzate', tooltip: 'Integrazione con gestionali e sistemi esterni' },
-      { text: 'SLA garantito 99.9%' },
-      { text: 'Onboarding dedicato' },
-      { text: 'Account manager dedicato' },
+      { text: 'Fino a 30 mezzi' },
+      { text: 'Multi-sede (3 incluse)' },
+      { text: 'Integrazione SUEM 118' },
+      { text: 'SPID/CIE login operatori' },
+      { text: 'SLA 99.5% garantito' },
+      { text: 'Onboarding assistito' },
     ],
-    btn: { text: 'Contatta il Team' },
+    cta: 'Attiva Business',
+    ctaHref: '/inizia?piano=business',
+  },
+  {
+    id: 'enterprise',
+    name: 'Enterprise',
+    description: 'Soluzione su misura per grandi organizzazioni regionali e consorzi.',
+    price: { monthly: null, yearly: null },
+    priceLabel: 'Su misura',
+    icon: <Crown size={20} />,
+    features: [
+      { text: 'Mezzi e sedi illimitati' },
+      { text: 'API personalizzate' },
+      { text: 'Integrazioni FSE / ULSS' },
+      { text: 'SLA 99.9% con penali' },
+      { text: 'Account manager dedicato' },
+      { text: 'Formazione on-site' },
+    ],
+    cta: 'Contatta il Team',
+    ctaHref: '/demo',
   },
 ];
 
@@ -328,14 +357,10 @@ export default function MarketplacePage() {
               <h2 className="text-lg font-bold text-[#0D2440]">Pacchetti</h2>
               <Badge variant="secondary" className="text-xs">{PIANI_PACCHETTI.length}</Badge>
             </div>
-            <p className="text-muted-foreground text-sm mb-4">
-              Piani tutto incluso con fatturazione mensile o annuale.
+            <p className="text-muted-foreground text-sm mb-6">
+              Piani tutto incluso con fatturazione mensile o annuale. 14 giorni di prova gratuita.
             </p>
-            <PricingSection
-              plans={PIANI_PACCHETTI}
-              heading=""
-              className="p-0 items-start"
-            />
+            <PricingModule plans={PIANI_PACCHETTI} />
           </div>
         )}
 
