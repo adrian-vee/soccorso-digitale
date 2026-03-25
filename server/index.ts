@@ -340,6 +340,11 @@ function configureExpoAndLanding(app: express.Application) {
   const sitePath = path.resolve(process.cwd(), "site");
   if (fs.existsSync(sitePath)) {
     const adminPath0 = path.resolve(process.cwd(), "admin", "public");
+    // Serve Conicorn template assets (CSS, JS, images, fonts, media)
+    const conicornPath = path.resolve(process.cwd(), "conicorn");
+    if (fs.existsSync(conicornPath)) {
+      app.use("/conicorn", express.static(conicornPath, { etag: false, maxAge: 0 }));
+    }
     // Serve site CSS/JS/images under /site/ prefix (legacy)
     app.use("/site", express.static(sitePath, { etag: false, maxAge: 0 }));
     // Serve site assets at root-level paths (mdx.so clone uses relative paths resolving to /)
