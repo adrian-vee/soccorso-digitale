@@ -1298,6 +1298,7 @@ async function loadCurrentUserInfo() {
       localStorage.setItem('userInfo', JSON.stringify(currentUserInfo));
       applyRoleBasedAccess();
       showDemoBannerIfNeeded();
+      updateSidebarFooter(currentUserInfo);
     }
   } catch (error) {
     console.error('Error loading user info:', error);
@@ -1306,7 +1307,49 @@ async function loadCurrentUserInfo() {
       currentUserInfo = JSON.parse(stored);
       applyRoleBasedAccess();
       showDemoBannerIfNeeded();
+      updateSidebarFooter(currentUserInfo);
     }
+  }
+}
+
+function updateSidebarFooter(user) {
+  if (!user) return;
+  const org = user.organization;
+  const orgDisplayName = org?.name
+    ? org.name.replace(/\s*\(Demo\s+\d+\)$/i, '')
+    : (user.email?.split('@')[0] || 'Organizzazione');
+
+  // Avatar initials (up to 2 words)
+  const avatarEl = document.getElementById('sidebar-user-avatar');
+  if (avatarEl) {
+    const initials = orgDisplayName
+      .split(' ')
+      .filter(Boolean)
+      .map(w => w[0])
+      .slice(0, 2)
+      .join('')
+      .toUpperCase();
+    avatarEl.textContent = initials || 'SD';
+  }
+
+  // Org name
+  const nameEl = document.getElementById('user-name');
+  if (nameEl) {
+    nameEl.textContent = orgDisplayName;
+    nameEl.style.cssText = '';
+  }
+
+  // Role
+  const roleEl = document.getElementById('user-role-text');
+  if (roleEl) {
+    const roleMap = {
+      admin: 'Amministratore', super_admin: 'Super Admin',
+      director: 'Direttore', branch_manager: 'Resp. Sede', org_admin: 'Org Admin'
+    };
+    const userName = user.name || user.email?.split('@')[0] || '';
+    const roleName = roleMap[user.role] || user.role || 'Utente';
+    roleEl.textContent = userName ? `${userName} · ${roleName}` : roleName;
+    roleEl.style.cssText = '';
   }
 }
 

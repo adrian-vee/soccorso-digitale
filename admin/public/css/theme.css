@@ -134,7 +134,10 @@ body, html {
 /* ── SECTION HEADERS ─────────────────────────────────── */
 .nav-section { padding: 10px 0 0 !important; }
 
+/* FIX 1 — Toggle arrow */
 .nav-section-header {
+  cursor: pointer !important;
+  user-select: none !important;
   width: 100% !important;
   padding: 4px 16px !important;
   background: transparent !important;
@@ -167,14 +170,16 @@ body, html {
 
 /* Section icon */
 .nav-section-header-icon { display: flex !important; align-items: center !important; }
-.nav-section-header-icon svg { display: none !important; } /* hide section icon — keep label only */
+.nav-section-header-icon svg { display: none !important; }
 
-/* Chevron rotation */
+/* FIX 1 — Chevron arrow */
 .nav-section-chevron {
   stroke: var(--nr-slate) !important;
   transition: transform 0.2s ease !important;
   flex-shrink: 0 !important;
+  display: inline-block !important;
 }
+/* Rotates down when open (aria-expanded=true) */
 .nav-section-header[aria-expanded="true"] .nav-section-chevron {
   transform: rotate(180deg) !important;
 }
@@ -182,18 +187,18 @@ body, html {
   transform: rotate(0deg) !important;
 }
 
-/* ── SECTION BODY — open/closed ──────────────────────── */
+/* FIX 1 — Section body animation */
 .nav-section-body {
-  max-height: 0 !important;
   overflow: hidden !important;
+  max-height: 0 !important;
   opacity: 0 !important;
-  transition: max-height 0.28s cubic-bezier(0.4,0,0.2,1), opacity 0.2s ease !important;
+  transition: max-height 0.3s ease, opacity 0.2s ease !important;
   padding-left: 0 !important;
 }
 .nav-section-body.open,
 .nav-section-body[style*="display:block"],
 .nav-section-body[style*="display: block"] {
-  max-height: 2000px !important;
+  max-height: 1000px !important;
   opacity: 1 !important;
   overflow: visible !important;
 }
@@ -296,13 +301,37 @@ body, html {
   margin-top: auto !important;
   padding: 12px 14px !important;
   border-top: 0.5px solid var(--nr-border) !important;
-  background: transparent !important;
+  background: var(--nr-white) !important;
   flex-shrink: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+}
+.fleet-summary {
+  display: flex !important;
+  gap: 12px !important;
+  font-size: 10px !important;
+  color: var(--nr-slate) !important;
+}
+.fleet-dot {
+  width: 6px !important; height: 6px !important;
+  border-radius: 50% !important;
+  display: inline-block !important;
+  margin-right: 3px !important;
+}
+.fleet-dot.active { background: var(--nr-green) !important; }
+.fleet-dot.inactive { background: var(--nr-slate) !important; }
+.fleet-summary-item { display: flex !important; align-items: center !important; gap: 3px !important; }
+.fleet-summary-item strong { font-weight: 600 !important; color: var(--nr-ink) !important; }
+
+.sidebar-user {
   display: flex !important;
   align-items: center !important;
   gap: 10px !important;
+  width: 100% !important;
 }
-.user-avatar, .sidebar-avatar {
+#sidebar-user-avatar,
+.user-avatar, .user-avatar-sm {
   width: 32px !important; height: 32px !important;
   border-radius: 8px !important;
   background: var(--nr-navy) !important;
@@ -310,8 +339,13 @@ body, html {
   display: flex !important; align-items: center !important; justify-content: center !important;
   font-size: 11px !important; font-weight: 700 !important;
   flex-shrink: 0 !important;
+  font-family: 'DM Sans', sans-serif !important;
+  letter-spacing: 0.02em !important;
 }
-.user-name, #orgName {
+/* Hide old SVG inside avatar */
+.user-avatar-sm svg { display: none !important; }
+
+.user-name, #user-name, #orgName {
   font-size: 11px !important;
   font-weight: 600 !important;
   color: var(--nr-ink) !important;
@@ -319,12 +353,36 @@ body, html {
   overflow: hidden !important;
   text-overflow: ellipsis !important;
   max-width: 130px !important;
+  display: block !important;
 }
-.user-role, #userRole {
+.user-role, #user-role-text, #userRole {
   font-size: 9px !important;
   color: var(--nr-slate) !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  display: block !important;
 }
 .user-info { overflow: hidden; flex: 1; min-width: 0; }
+
+/* Logout button */
+#logout-btn, .btn-icon-sm {
+  background: none !important;
+  border: none !important;
+  cursor: pointer !important;
+  padding: 4px !important;
+  border-radius: 6px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+  transition: background 0.15s !important;
+}
+#logout-btn:hover, .btn-icon-sm:hover { background: var(--nr-snow) !important; }
+#logout-btn svg, .btn-icon-sm svg {
+  stroke: var(--nr-slate) !important;
+  width: 16px !important; height: 16px !important;
+}
 
 /* ── TOPBAR ──────────────────────────────────────────── */
 .top-header {
