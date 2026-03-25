@@ -4,7 +4,7 @@
    ═══════════════════════════════════════════════════════ */
 
 /* ── LOGIN PAGE ──────────────────────────────────────── */
-#login-page.page {
+#login-page.page:not(.hidden) {
   background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 60%, #EFF6FF 100%) !important;
   min-height: 100vh !important;
   display: flex !important;
