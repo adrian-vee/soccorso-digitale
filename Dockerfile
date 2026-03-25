@@ -53,7 +53,9 @@ COPY --from=builder /app/site ./site
 # Copy Next.js static export → served at /dashboard by Express
 COPY --from=dashboard-builder /app/dashboard/out ./dashboard-static
 
-# Create upload directories with full subtree needed by APK chunked upload
+# Create upload directories (fallback when no Railway Volume is mounted).
+# When a Railway Volume is mounted at /app/uploads these layer directories are
+# shadowed by the volume, so the server's own mkdir calls handle sub-dirs.
 RUN mkdir -p uploads/apk/temp/chunks uploads/logos uploads/signatures uploads/document-attachments
 
 # Non-root user for security
@@ -64,6 +66,8 @@ RUN chown -R nodejs:nodejs uploads
 
 USER nodejs
 
+# UPLOADS_DIR: override to point to a Railway Volume mount path.
+# Example Railway env: UPLOADS_DIR=/app/uploads  (matches Volume mount path)
 ENV NODE_ENV=production
 EXPOSE 5000
 

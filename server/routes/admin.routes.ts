@@ -3,6 +3,7 @@ import crypto from "node:crypto";
 import path from "node:path";
 import fs from "node:fs";
 import multer from "multer";
+import { UPLOADS_DIR } from "../uploads-dir";
 // @ts-ignore
 import { WebSocket } from "ws";
 import * as economicAnalysis from "../economic-analysis";
@@ -72,7 +73,7 @@ import { broadcastMessage } from "./index";
 const calculateCarbonFootprintForTrip = (_tripId: any, _vehicleId?: any, _km?: any) => Promise.resolve(0);
 
 export function registerAdminRoutes(app: Express) {
-  const uploadsLogosDir = path.join(process.cwd(), "uploads", "logos");
+  const uploadsLogosDir = path.join(UPLOADS_DIR,"logos");
   if (!fs.existsSync(uploadsLogosDir)) {
     fs.mkdirSync(uploadsLogosDir, { recursive: true });
   }
@@ -169,7 +170,7 @@ export function registerAdminRoutes(app: Express) {
   // Uses local filesystem (uploads/apk/) for storage on Railway
   // ============================================================================
 
-  const APK_DIR = path.join(process.cwd(), "uploads", "apk");
+  const APK_DIR = path.join(UPLOADS_DIR,"apk");
   const APK_FINAL_PATH = path.join(APK_DIR, "current.apk");
   const APK_META_PATH = path.join(APK_DIR, "meta.json");
 
@@ -280,7 +281,7 @@ export function registerAdminRoutes(app: Express) {
     }
   });
 
-  const uploadsApkTempDir = path.join(process.cwd(), "uploads", "apk", "temp");
+  const uploadsApkTempDir = path.join(UPLOADS_DIR,"apk", "temp");
   if (!fs.existsSync(uploadsApkTempDir)) {
     try { fs.mkdirSync(uploadsApkTempDir, { recursive: true }); } catch (e) { console.warn("Cannot create APK temp dir:", e); }
   }
@@ -16545,7 +16546,7 @@ La violazione degli obblighi di riservatezza può comportare sanzioni disciplina
       if (!org) return res.status(404).json({ error: "Organizzazione non trovata" });
       const orgId = org.id;
 
-      const logoFile = path.join(process.cwd(), "uploads", "logos", `${org.id}.png`);
+      const logoFile = path.join(UPLOADS_DIR,"logos", `${org.id}.png`);
       const logoUrl = fs.existsSync(logoFile) ? `/api/public/turni/${orgId}/logo` : '';
 
       const orgLocs = await db.select({ id: locations.id }).from(locations).where(eq(locations.organizationId, orgId));
@@ -16622,10 +16623,10 @@ La violazione degli obblighi di riservatezza può comportare sanzioni disciplina
 
   app.get("/api/public/turni/:orgId/logo", async (req, res) => {
     const orgParam = req.params.orgId;
-    let logoFile = path.join(process.cwd(), "uploads", "logos", `${orgParam}.png`);
+    let logoFile = path.join(UPLOADS_DIR,"logos", `${orgParam}.png`);
     if (!fs.existsSync(logoFile)) {
       const [org] = await db.select().from(organizations).where(eq(organizations.slug, orgParam)).limit(1);
-      if (org) logoFile = path.join(process.cwd(), "uploads", "logos", `${org.id}.png`);
+      if (org) logoFile = path.join(UPLOADS_DIR,"logos", `${org.id}.png`);
     }
     if (fs.existsSync(logoFile)) return res.sendFile(logoFile);
     res.status(404).end();
@@ -16768,7 +16769,7 @@ La violazione degli obblighi di riservatezza può comportare sanzioni disciplina
 
       const [org] = await db.select().from(organizations).where(eq(organizations.id, orgId)).limit(1);
       const orgName = org?.name || 'Organizzazione';
-      const logoFile = path.join(process.cwd(), "uploads", "logos", `${orgId}.png`);
+      const logoFile = path.join(UPLOADS_DIR,"logos", `${orgId}.png`);
       const logoUrl = fs.existsSync(logoFile) ? `/api/public/calendario/${req.params.token}/logo` : '';
 
       let locationName = 'Tutte le sedi';
@@ -16842,7 +16843,7 @@ La violazione degli obblighi di riservatezza può comportare sanzioni disciplina
   app.get("/api/public/calendario/:token/logo", async (req, res) => {
     const verified = verifyCalendarToken(req.params.token);
     if (!verified) return res.status(403).send('Forbidden');
-    const logoFile = path.join(process.cwd(), "uploads", "logos", `${verified.orgId}.png`);
+    const logoFile = path.join(UPLOADS_DIR,"logos", `${verified.orgId}.png`);
     if (fs.existsSync(logoFile)) {
       res.setHeader('Content-Type', 'image/png');
       res.sendFile(logoFile);
@@ -17480,7 +17481,7 @@ La violazione degli obblighi di riservatezza può comportare sanzioni disciplina
         return res.status(403).json({ error: "Accesso non autorizzato" });
       }
 
-      const attFullPath = path.join(process.cwd(), "uploads", att.storagePath);
+      const attFullPath = path.join(UPLOADS_DIR,att.storagePath);
       if (!fs.existsSync(attFullPath)) return res.status(404).json({ error: "File non trovato" });
 
       res.set({
@@ -17942,7 +17943,7 @@ La violazione degli obblighi di riservatezza può comportare sanzioni disciplina
       if (template && Array.isArray(template.attachments)) {
         for (const att of template.attachments as any[]) {
           try {
-            const attPath = path.join(process.cwd(), "uploads", att.storagePath);
+            const attPath = path.join(UPLOADS_DIR,att.storagePath);
             if (fs.existsSync(attPath)) fs.unlinkSync(attPath);
           } catch (e) { /* ignore cleanup errors */ }
         }
@@ -17980,7 +17981,7 @@ La violazione degli obblighi di riservatezza può comportare sanzioni disciplina
       const ext = req.file.originalname.split('.').pop() || 'bin';
       const storagePath = `document-attachments/${orgId}/${req.params.id}/${fileId}.${ext}`;
 
-      const attSavePath = path.join(process.cwd(), "uploads", storagePath);
+      const attSavePath = path.join(UPLOADS_DIR,storagePath);
       fs.mkdirSync(path.dirname(attSavePath), { recursive: true });
       fs.writeFileSync(attSavePath, req.file.buffer);
 
@@ -18021,7 +18022,7 @@ La violazione degli obblighi di riservatezza può comportare sanzioni disciplina
       if (!att) return res.status(404).json({ error: "Allegato non trovato" });
 
       try {
-        const attDelPath = path.join(process.cwd(), "uploads", att.storagePath);
+        const attDelPath = path.join(UPLOADS_DIR,att.storagePath);
         if (fs.existsSync(attDelPath)) fs.unlinkSync(attDelPath);
       } catch (e) { /* ignore */ }
 
@@ -18106,8 +18107,8 @@ La violazione degli obblighi di riservatezza può comportare sanzioni disciplina
                 const sigFileId = crypto.randomBytes(16).toString("hex");
                 const ext = att.filename?.split('.').pop() || 'bin';
                 const sigStoragePath = `document-attachments/${orgId}/signatures/${token}/${sigFileId}.${ext}`;
-                const srcPath = path.join(process.cwd(), "uploads", att.storagePath);
-                const destPath = path.join(process.cwd(), "uploads", sigStoragePath);
+                const srcPath = path.join(UPLOADS_DIR,att.storagePath);
+                const destPath = path.join(UPLOADS_DIR,sigStoragePath);
                 fs.mkdirSync(path.dirname(destPath), { recursive: true });
                 fs.copyFileSync(srcPath, destPath);
                 signatureAttachments.push({ ...att, id: sigFileId, storagePath: sigStoragePath });

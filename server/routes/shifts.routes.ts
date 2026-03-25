@@ -2,6 +2,7 @@ import type { Express } from "express";
 import crypto from "node:crypto";
 import path from "node:path";
 import fs from "node:fs";
+import { UPLOADS_DIR } from "../uploads-dir";
 // @ts-ignore
 import { WebSocket } from "ws";
 import { storage } from "../storage";
@@ -2056,7 +2057,7 @@ app.get("/api/shift-report/staff-pdf", requireAdmin, async (req, res) => {
       const [org] = await db.select().from(organizations).where(eq(organizations.id, orgId)).limit(1);
       if (org) {
         orgName = org.name || orgName;
-        const logoFile = path.join(process.cwd(), "uploads", "logos", `${org.id}.png`);
+        const logoFile = path.join(UPLOADS_DIR,"logos", `${org.id}.png`);
         if (fs.existsSync(logoFile)) orgLogoPath = logoFile;
       }
     }

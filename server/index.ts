@@ -13,6 +13,7 @@ import { setupSwagger } from "./swagger";
 import { globalLimiter, loginLimiter, publicApiLimiter } from "./rate-limit";
 import * as fs from "fs";
 import * as path from "path";
+import { UPLOADS_DIR } from "./uploads-dir";
 
 const app = express();
 const log = (...args: unknown[]) => logger.info(args.map(String).join(" "));
@@ -447,7 +448,7 @@ function configureExpoAndLanding(app: express.Application) {
   });
 
   app.use("/assets", express.static(path.resolve(process.cwd(), "assets")));
-  app.use("/uploads", express.static(path.resolve(process.cwd(), "uploads")));
+  app.use("/uploads", express.static(UPLOADS_DIR));
   app.use("/downloads", express.static(path.resolve(process.cwd(), "public", "downloads")));
   app.use(express.static(path.resolve(process.cwd(), "static-build")));
 
@@ -513,7 +514,7 @@ function setupErrorHandler(app: express.Application) {
 
   app.get("/download/:code", (req, res) => {
     const { code } = req.params;
-    const apkMetaPath = path.resolve(process.cwd(), "uploads", "apk", "meta.json");
+    const apkMetaPath = path.join(UPLOADS_DIR, "apk", "meta.json");
     let validCode = "SD2026APP";
     if (fs.existsSync(apkMetaPath)) {
       try {

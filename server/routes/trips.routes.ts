@@ -7,6 +7,7 @@ import type { Express } from "express";
 import crypto from "node:crypto";
 import path from "node:path";
 import fs from "node:fs";
+import { UPLOADS_DIR } from "../uploads-dir";
 import { storage } from "../storage";
 import { db } from "../db";
 import {
@@ -2784,7 +2785,7 @@ export function registerTripRoutes(app: Express) {
         const [org] = await db.select().from(organizations).where(eq(organizations.id, trip.organizationId)).limit(1);
         if (org) {
           organizationName = org.name;
-          const logoFile = path.join(process.cwd(), "uploads", "logos", `${org.id}.png`);
+          const logoFile = path.join(UPLOADS_DIR,"logos", `${org.id}.png`);
           if (fs.existsSync(logoFile)) {
             organizationLogoPath = logoFile;
           }
