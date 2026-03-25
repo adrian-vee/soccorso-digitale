@@ -31,6 +31,18 @@ def fix_srcset(m):
 
 html = re.sub(r'srcset="([^"]+)"', fix_srcset, html)
 
+# Fix 1: Remove inline opacity:1 from preloader so CSS default (opacity:0) applies
+# Without this the preloader covers the whole page when Webflow animations don't run
+html = html.replace('<div style="opacity:1" class="preloader">', '<div class="preloader">')
+
+# Fix 2: Add w-mod-ix3 to html class so the CSS hiding rule doesn't apply
+# html.w-mod-js:not(.w-mod-ix3) hides .button-text, .about-text etc until IX3 fires
+html = html.replace('class=" w-mod-js"', 'class=" w-mod-js w-mod-ix3"')
+html = html.replace("class=\" w-mod-js\"", "class=\" w-mod-js w-mod-ix3\"")
+
+# Fix 3: Point data-wf-domain to our domain so Webflow JS doesn't reject the page
+html = html.replace('data-wf-domain="conicorn.webflow.io"', 'data-wf-domain="soccorsodigitale.app"')
+
 with open(DEST, "w", encoding="utf-8") as f:
     f.write(html)
 
