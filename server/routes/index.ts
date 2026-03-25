@@ -24,6 +24,7 @@ import { registerBillingRoutes } from "./billing.routes";
 import { registerAnalyticsRoutes } from "./analytics.routes";
 import { registerAdminRoutes } from "./admin.routes";
 import { registerWebhookRoutes } from "./webhooks.routes";
+import { registerSaasOnboardingRoutes, runTrialExpiryCheck } from "./saas-onboarding.routes";
 import { requireAuth, requireAdmin } from "../auth-middleware";
 import { db } from "../db";
 import { sql } from "drizzle-orm";
@@ -68,6 +69,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   registerAnalyticsRoutes(app);
   registerAdminRoutes(app);
   registerWebhookRoutes(app);
+  registerSaasOnboardingRoutes(app);
 
   // HTTP + WebSocket server
   const httpServer = createServer(app);
@@ -111,6 +113,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error('[GDPR] Error cleaning expired patient names:', err);
     }
   }, 60 * 60 * 1000); // Every hour
+
+  // Trial lifecycle: check every 12 hours for expiring/expired trials
+  setInterval(() => runTrialExpiryCheck(), 12 * 60 * 60 * 1000);
+  // Run once at startup (after a short delay to let DB settle)
+  setTimeout(() => runTrialExpiryCheck(), 30 * 1000);
 
   return httpServer;
 }

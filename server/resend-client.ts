@@ -1,43 +1,49 @@
 import { Resend } from 'resend';
 
-let connectionSettings: any;
+const FROM_EMAIL = 'Soccorso Digitale <noreply@soccorsodigitale.app>';
 
-async function getCredentials() {
+async function getCredentials(): Promise<{ apiKey: string; fromEmail: string }> {
+  // Railway / production: use env var directly
+  const apiKey = process.env.RESEND_API_KEY;
+  if (apiKey) {
+    return { apiKey, fromEmail: FROM_EMAIL };
+  }
+
+  // Replit legacy: fetch from connector
   const hostname = process.env.REPLIT_CONNECTORS_HOSTNAME;
-  const xReplitToken = process.env.REPL_IDENTITY 
-    ? 'repl ' + process.env.REPL_IDENTITY 
-    : process.env.WEB_REPL_RENEWAL 
-    ? 'depl ' + process.env.WEB_REPL_RENEWAL 
+  const xReplitToken = process.env.REPL_IDENTITY
+    ? 'repl ' + process.env.REPL_IDENTITY
+    : process.env.WEB_REPL_RENEWAL
+    ? 'depl ' + process.env.WEB_REPL_RENEWAL
     : null;
 
-  if (!xReplitToken) {
-    throw new Error('X_REPLIT_TOKEN not found for repl/depl');
-  }
-
-  connectionSettings = await fetch(
-    'https://' + hostname + '/api/v2/connection?include_secrets=true&connector_names=resend',
-    {
-      headers: {
-        'Accept': 'application/json',
-        'X_REPLIT_TOKEN': xReplitToken
+  if (hostname && xReplitToken) {
+    const data = await fetch(
+      'https://' + hostname + '/api/v2/connection?include_secrets=true&connector_names=resend',
+      {
+        headers: {
+          'Accept': 'application/json',
+          'X_REPLIT_TOKEN': xReplitToken,
+        },
       }
-    }
-  ).then(res => res.json()).then(data => data.items?.[0]);
+    ).then((res) => res.json()).then((d) => d.items?.[0]);
 
-  if (!connectionSettings || (!connectionSettings.settings.api_key)) {
-    throw new Error('Resend not connected');
+    if (data?.settings?.api_key) {
+      return {
+        apiKey: data.settings.api_key,
+        fromEmail: data.settings.from_email || FROM_EMAIL,
+      };
+    }
   }
-  return {
-    apiKey: connectionSettings.settings.api_key, 
-    fromEmail: connectionSettings.settings.from_email
-  };
+
+  throw new Error('RESEND_API_KEY not configured — email sending is unavailable');
 }
 
 export async function getResendClient() {
   const { apiKey, fromEmail } = await getCredentials();
   return {
     client: new Resend(apiKey),
-    fromEmail
+    fromEmail,
   };
 }
 

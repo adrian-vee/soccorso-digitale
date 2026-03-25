@@ -10,6 +10,7 @@ const envSchema = z.object({
   GOOGLE_MAPS_API_KEY: z.string().optional(),
   RESEND_API_KEY: z.string().optional(),
   STRIPE_SECRET_KEY: z.string().optional(),
+  STRIPE_PUBLISHABLE_KEY: z.string().optional(),
   STRIPE_WEBHOOK_SECRET: z.string().optional(),
   TRIP_INTEGRITY_SECRET: z.string().optional(),
   GCS_BUCKET: z.string().optional(),

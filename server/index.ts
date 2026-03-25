@@ -419,7 +419,7 @@ function configureExpoAndLanding(app: express.Application) {
       return next();
     }
     
-    if (req.path === "/demo" || req.path === "/impatto" || req.path === "/partner-proposal" || req.path === "/partner-assicurazioni" || req.path === "/platform" || req.path === "/impegno-riservatezza") {
+    if (req.path === "/demo" || req.path === "/impatto" || req.path === "/partner-proposal" || req.path === "/partner-assicurazioni" || req.path === "/platform" || req.path === "/impegno-riservatezza" || req.path === "/inizia" || req.path === "/cancella-trial") {
       return next();
     }
 
@@ -441,6 +441,19 @@ function configureExpoAndLanding(app: express.Application) {
     }
 
     if (req.path === "/") {
+      // Serve the public marketing site homepage
+      const sitePath = path.resolve(process.cwd(), "site", "index.html");
+      if (fs.existsSync(sitePath)) {
+        res.setHeader("Content-Type", "text/html; charset=utf-8");
+        res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+        return res.sendFile(sitePath);
+      }
+      // Fallback to saas-landing-v2.html template
+      const saasPath = path.resolve(process.cwd(), "server", "templates", "saas-landing-v2.html");
+      if (fs.existsSync(saasPath)) {
+        res.setHeader("Content-Type", "text/html; charset=utf-8");
+        return res.sendFile(saasPath);
+      }
       return res.redirect(302, "/admin");
     }
 
