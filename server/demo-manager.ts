@@ -516,39 +516,21 @@ Piattaforma di Gestione Trasporti Sanitari
 soccorsodigitale.app
 `;
 
-    const senders = [
-      'noreply@soccorsodigitale.app',
-      fromEmail,
-      'onboarding@resend.dev',
-    ].filter(Boolean) as string[];
-    const uniqueSenders = [...new Set(senders)];
+    const result = await client.emails.send({
+      from: fromEmail,
+      to: data.recipientEmail,
+      subject: `Le tue credenziali demo - SOCCORSO DIGITALE`,
+      html: htmlContent,
+      text: textContent,
+    });
 
-    for (const sender of uniqueSenders) {
-      const formatted = sender.includes('<') ? sender : `SOCCORSO DIGITALE <${sender}>`;
-      console.log(`[DEMO] Trying to send email from: ${formatted} to: ${data.recipientEmail}`);
-
-      const result = await client.emails.send({
-        from: formatted,
-        to: data.recipientEmail,
-        subject: `Le tue credenziali demo - SOCCORSO DIGITALE`,
-        html: htmlContent,
-        text: textContent,
-      });
-
-      if (result.error) {
-        console.warn(`[DEMO] Resend error with ${sender}:`, result.error);
-        if ((result.error as any).statusCode === 403 && uniqueSenders.indexOf(sender) < uniqueSenders.length - 1) {
-          console.log('[DEMO] Retrying with fallback sender...');
-          continue;
-        }
-        return false;
-      }
-
-      console.log('[DEMO] Credentials email sent to:', data.recipientEmail);
-      return true;
+    if (result.error) {
+      console.error(`[DEMO] Resend error sending to ${data.recipientEmail}:`, result.error);
+      return false;
     }
 
-    return false;
+    console.log('[DEMO] Credentials email sent to:', data.recipientEmail);
+    return true;
   } catch (error) {
     console.error('[DEMO] Error sending demo email:', error);
     return false;
