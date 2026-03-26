@@ -868,8 +868,18 @@ export function registerAdminRoutes(app: Express) {
 
   app.post("/api/vehicles", requireAdmin, async (req, res) => {
     try {
-      const vehicleData = insertVehicleSchema.parse(req.body);
       const orgId = getEffectiveOrgId(req);
+      const body = { ...req.body };
+      // Auto-assign first location of the org if locationId not provided
+      if (!body.locationId && orgId) {
+        const [defaultLoc] = await db
+          .select()
+          .from(locations)
+          .where(eq(locations.organizationId, orgId))
+          .limit(1);
+        if (defaultLoc) body.locationId = defaultLoc.id;
+      }
+      const vehicleData = insertVehicleSchema.parse(body);
       if (isOrgAdmin(req) && orgId) {
         (vehicleData as any).organizationId = orgId;
       }
