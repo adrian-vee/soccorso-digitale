@@ -1,6 +1,9 @@
 import { Resend } from 'resend';
 
-const FROM_EMAIL = 'Soccorso Digitale <noreply@soccorsodigitale.app>';
+// Use verified custom domain if RESEND_FROM_EMAIL is set, otherwise fall back to
+// Resend's shared sandbox address (works without domain verification).
+const FROM_EMAIL = process.env.RESEND_FROM_EMAIL
+  || 'Soccorso Digitale <onboarding@resend.dev>';
 
 async function getCredentials(): Promise<{ apiKey: string; fromEmail: string }> {
   // Railway / production: use env var directly

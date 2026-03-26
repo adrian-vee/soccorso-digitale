@@ -1472,11 +1472,23 @@ function applyRoleBasedAccess() {
   }
   
   const superAdminOnlyPages = [
-    'organizations', 'partner-dashboard', 'partner-list', 'partner-requests',
+    'organizations', 'saas-metrics', 'org-health',
+    'partner-dashboard', 'partner-list', 'partner-requests',
     'methodology-standards',
     'funding-documents', 'branch-managers', 'marketplace-manage', 'marketplace-analytics',
-    'apk-management'
+    'apk-management', 'saas-dashboard', 'api-providers', 'spid-config'
   ];
+
+  // For non-full-admins: always hide super-admin-only nav items
+  if (!isFullAdmin) {
+    superAdminOnlyPages.forEach(page => {
+      const el = document.querySelector('.nav-item[data-page="' + page + '"]');
+      if (el) el.style.display = 'none';
+    });
+    // Hide the SISTEMA section (contains organizations, saas-metrics, org-health, etc.)
+    const sistemaEl = document.querySelector('.nav-section[data-section="sistema"]');
+    if (sistemaEl) sistemaEl.style.display = 'none';
+  }
   
   const modulePageMap = {
     'report_accise': ['reports'],

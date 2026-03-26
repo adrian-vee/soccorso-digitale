@@ -7,6 +7,20 @@ import { requireAdmin, requireSuperAdmin, requireOrgAdmin, getUserId, getOrganiz
 import { getResendClient } from "./resend-client";
 import { createDemoAccount } from "./demo-manager";
 
+// Modules enabled by default for every new organization.
+// These correspond to the keys used in the frontend modulePageMap.
+// Premium modules (gps_tracking, carbon_footprint, esg_dashboard, analisi_economica,
+// report_accise, rimborsi_volontari, governance_compliance, partner_program,
+// booking_hub, gestione_ruoli) must be explicitly activated by super admin.
+const DEFAULT_ORG_MODULES = [
+  'pianificazione_turni',       // Pianificazione Turni + stats + settings
+  'registro_sanificazioni',     // Registro Sanificazioni
+  'consegne_digitali',          // Consegne Digitali
+  'checklist',                  // Magazzino + Scadenze materiali
+  'registro_volontari_elettronico', // Registro Volontari
+  'benessere_staff',            // Benessere Personale
+];
+
 export function registerOrgAdminRoutes(app: Express) {
 
   app.get("/api/org-admin/organizations", requireSuperAdmin, async (_req, res) => {
@@ -54,6 +68,7 @@ export function registerOrgAdminRoutes(app: Express) {
         notes: notes || null,
         status: status || "trial",
         trialEndsAt,
+        enabledModules: DEFAULT_ORG_MODULES,
       }).returning();
 
       res.status(201).json(org);
