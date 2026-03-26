@@ -1,5 +1,6 @@
 import "./env"; // Validate environment variables at startup
 import express from "express";
+import bcrypt from "bcrypt";
 import type { Request, Response, NextFunction } from "express";
 import session from "express-session";
 // @ts-ignore
@@ -648,6 +649,23 @@ function setupErrorHandler(app: express.Application) {
     `);
   } catch (e) {
     // ignore if pool not available
+  }
+
+  // Ensure super admin password is bcrypt-hashed (fixes plain-text from reset-pw.js)
+  try {
+    const result = await pool.query(
+      "SELECT id, password FROM users WHERE email = 'superadmin@soccorsodigitale.app' LIMIT 1"
+    );
+    if (result.rows.length > 0) {
+      const { id, password } = result.rows[0];
+      if (password && !password.startsWith("$2b$") && !password.startsWith("$2a$")) {
+        const hashed = await bcrypt.hash(password, 12);
+        await pool.query("UPDATE users SET password = $1 WHERE id = $2", [hashed, id]);
+        log("Fixed super admin password: re-hashed with bcrypt");
+      }
+    }
+  } catch (e) {
+    logger.warn({ err: e }, "Could not check/fix super admin password hash");
   }
 
   if (process.env.NODE_ENV !== "production") {
