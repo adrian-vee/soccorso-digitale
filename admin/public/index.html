@@ -19,14 +19,21 @@
 </head>
 <body>
   <!-- Auth loading overlay: shown while session check runs, hides instantly after -->
-  <div id="auth-loading-overlay" style="position:fixed;inset:0;background:#f8fafc;display:flex;align-items:center;justify-content:center;z-index:9999;">
+  <div id="auth-loading-overlay" style="position:fixed;inset:0;background:#0f0f0f;display:flex;align-items:center;justify-content:center;z-index:9999;">
     <div style="text-align:center;">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="48" height="48" style="margin-bottom:12px;">
-        <rect x="35" y="15" width="30" height="70" rx="4" fill="#0066CC"/>
-        <rect x="15" y="35" width="70" height="30" rx="4" fill="#0066CC"/>
-        <path d="M 20 75 Q 50 55 80 75" stroke="#00A651" stroke-width="8" fill="none" stroke-linecap="round"/>
+        <defs>
+          <linearGradient id="hg" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#c9aaff"/>
+            <stop offset="50%" stop-color="#ffcdfd"/>
+            <stop offset="100%" stop-color="#839aff"/>
+          </linearGradient>
+        </defs>
+        <rect x="35" y="15" width="30" height="70" rx="4" fill="url(#hg)"/>
+        <rect x="15" y="35" width="70" height="30" rx="4" fill="url(#hg)"/>
+        <path d="M 20 75 Q 50 55 80 75" stroke="#b3e2ff" stroke-width="8" fill="none" stroke-linecap="round"/>
       </svg>
-      <div style="font-size:13px;color:#94a3b8;font-family:system-ui,sans-serif;">Caricamento...</div>
+      <div style="font-size:13px;color:#525252;font-family:system-ui,sans-serif;">Caricamento...</div>
     </div>
   </div>
   <div id="app">
@@ -39,10 +46,19 @@
             <canvas id="lp-canvas" class="lp-canvas"></canvas>
             <div class="lp-brand">
               <div class="lp-brand-icon">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-                  <path d="M12 2L4 7v5c0 5.25 3.5 10.15 8 11.35C16.5 22.15 20 17.25 20 12V7l-8-5z" fill="rgba(255,255,255,0.92)"/>
-                  <path d="M9 12l2 2 4-4" stroke="#1E3A8A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
+                <div>
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                    <defs>
+                      <linearGradient id="holo-icon" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#c9aaff"/>
+                        <stop offset="50%" stop-color="#ffcdfd"/>
+                        <stop offset="100%" stop-color="#839aff"/>
+                      </linearGradient>
+                    </defs>
+                    <path d="M12 2L4 7v5c0 5.25 3.5 10.15 8 11.35C16.5 22.15 20 17.25 20 12V7l-8-5z" fill="url(#holo-icon)"/>
+                    <path d="M9 12l2 2 4-4" stroke="#0f0f0f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
               </div>
               <h1 class="lp-brand-name">SOCCORSO DIGITALE</h1>
               <p class="lp-brand-sub">Gestione trasporto sanitario per cooperative ambulanze e organizzazioni di volontariato</p>
@@ -118,13 +134,16 @@
             }
           }
 
+          const holoColors = ['201,170,255','254,255,188','255,205,253','179,226,255','131,154,255'];
           function draw(t) {
             ctx.clearRect(0, 0, w, h);
-            dots.forEach(d => {
-              const pulse = Math.sin(t * d.speed + d.drift) * 0.15;
+            dots.forEach((d, i) => {
+              const pulse = Math.sin(t * d.speed + d.drift) * 0.18;
+              const alpha = Math.max(0.04, d.o + pulse);
+              const col = holoColors[i % holoColors.length];
               ctx.beginPath();
-              ctx.arc(d.x, d.y, 1.2, 0, Math.PI * 2);
-              ctx.fillStyle = 'rgba(255,255,255,' + Math.max(0.05, d.o + pulse) + ')';
+              ctx.arc(d.x, d.y, 1.3, 0, Math.PI * 2);
+              ctx.fillStyle = 'rgba(' + col + ',' + alpha + ')';
               ctx.fill();
             });
             requestAnimationFrame(draw);

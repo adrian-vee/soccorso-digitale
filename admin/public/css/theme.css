@@ -3,9 +3,26 @@
    Single source of truth. Loads last. Wins all.
    ═══════════════════════════════════════════════════════ */
 
-/* ── LOGIN PAGE ──────────────────────────────────────── */
+/* ── LOGIN PAGE — Conicorn Dark Theme ───────────────── */
+:root {
+  --holo-0:   #c9aaff;
+  --holo-25:  #feffbc;
+  --holo-50:  #ffcdfd;
+  --holo-75:  #b3e2ff;
+  --holo-100: #839aff;
+  --holo-grad: linear-gradient(270deg, var(--holo-0), var(--holo-25) 25%, var(--holo-50) 50%, var(--holo-75) 75%, var(--holo-100));
+  --dark-bg:  #0f0f0f;
+  --dark-card:#141414;
+  --dark-input:#1a1a1a;
+  --dark-border: rgba(255,255,255,0.10);
+  --dark-text: #ffffff;
+  --dark-muted: #a6a6a6;
+  --dark-subtle: #525252;
+}
+
 #login-page.page:not(.hidden) {
-  background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 60%, #EFF6FF 100%) !important;
+  background: var(--dark-bg) !important;
+  background-image: linear-gradient(#292929e6, #292929e6), url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='1' cy='1' r='1' fill='%23ffffff' fill-opacity='0.06'/%3E%3C/svg%3E") !important;
   min-height: 100vh !important;
   display: flex !important;
   align-items: center !important;
@@ -26,15 +43,16 @@
   width: 900px !important;
   max-width: 100% !important;
   min-height: 580px !important;
-  background: #fff !important;
-  border-radius: 22px !important;
+  background: var(--dark-card) !important;
+  border-radius: 24px !important;
   overflow: hidden !important;
-  box-shadow: 0 24px 64px rgba(30,58,138,0.14), 0 4px 16px rgba(30,58,138,0.07) !important;
+  border: 1px solid rgba(255,255,255,0.08) !important;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.6), 0 8px 24px rgba(0,0,0,0.4) !important;
 }
 
 /* LEFT PANEL */
 .lp-left {
-  background: linear-gradient(145deg, #1E3A8A 0%, #1e40af 100%) !important;
+  background: var(--dark-bg) !important;
   padding: 52px 44px !important;
   display: flex !important;
   flex-direction: column !important;
@@ -42,6 +60,17 @@
   justify-content: center !important;
   position: relative !important;
   overflow: hidden !important;
+  border-right: 1px solid rgba(255,255,255,0.06) !important;
+}
+
+/* Hologram ambient glow behind canvas */
+.lp-left::before {
+  content: '' !important;
+  position: absolute !important;
+  inset: 0 !important;
+  background: radial-gradient(circle at 50% 40%, rgba(201,170,255,0.15) 0%, rgba(131,154,255,0.08) 40%, transparent 70%) !important;
+  pointer-events: none !important;
+  z-index: 0 !important;
 }
 
 .lp-canvas {
@@ -50,6 +79,7 @@
   width: 100% !important;
   height: 100% !important;
   pointer-events: none !important;
+  opacity: 0.6 !important;
 }
 
 .lp-brand {
@@ -61,29 +91,40 @@
 .lp-brand-icon {
   width: 68px !important;
   height: 68px !important;
-  background: rgba(255,255,255,0.12) !important;
+  background: var(--holo-grad) !important;
   border-radius: 20px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
   margin: 0 auto 22px !important;
-  border: 1px solid rgba(255,255,255,0.22) !important;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.15) !important;
+  box-shadow: 0 0 32px rgba(201,170,255,0.3), 0 4px 16px rgba(0,0,0,0.4) !important;
+  padding: 2px !important;
+}
+
+.lp-brand-icon > * {
+  background: var(--dark-bg) !important;
+  border-radius: 17px !important;
+  width: 100% !important;
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
 .lp-brand-name {
-  font-size: 20px !important;
+  font-size: 18px !important;
   font-weight: 700 !important;
-  color: #fff !important;
-  letter-spacing: 0.06em !important;
+  color: var(--dark-text) !important;
+  letter-spacing: 0.04em !important;
   margin: 0 0 10px !important;
   font-family: 'DM Sans', sans-serif !important;
+  text-transform: uppercase !important;
 }
 
 .lp-brand-sub {
   font-size: 13px !important;
-  color: rgba(255,255,255,0.6) !important;
-  line-height: 1.55 !important;
+  color: var(--dark-muted) !important;
+  line-height: 1.6 !important;
   max-width: 240px !important;
   margin: 0 auto !important;
   font-family: 'DM Sans', sans-serif !important;
@@ -97,9 +138,10 @@
   gap: 20px !important;
   margin-top: 44px !important;
   padding: 16px 20px !important;
-  background: rgba(255,255,255,0.08) !important;
+  background: rgba(255,255,255,0.04) !important;
   border-radius: 14px !important;
-  border: 1px solid rgba(255,255,255,0.12) !important;
+  border: 1px solid rgba(255,255,255,0.08) !important;
+  backdrop-filter: blur(8px) !important;
 }
 
 .lp-stat {
@@ -109,22 +151,26 @@
 .lp-stat-val {
   font-size: 18px !important;
   font-weight: 700 !important;
-  color: #fff !important;
+  background: var(--holo-grad) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
   font-family: 'DM Sans', sans-serif !important;
 }
 
 .lp-stat-lbl {
   font-size: 9px !important;
-  color: rgba(255,255,255,0.5) !important;
-  letter-spacing: 0.08em !important;
-  margin-top: 2px !important;
+  color: var(--dark-subtle) !important;
+  letter-spacing: 0.1em !important;
+  margin-top: 3px !important;
   font-family: 'DM Sans', sans-serif !important;
+  text-transform: uppercase !important;
 }
 
 .lp-stat-div {
   width: 1px !important;
   height: 28px !important;
-  background: rgba(255,255,255,0.18) !important;
+  background: rgba(255,255,255,0.10) !important;
 }
 
 /* RIGHT PANEL */
@@ -133,7 +179,7 @@
   display: flex !important;
   flex-direction: column !important;
   justify-content: center !important;
-  background: #fff !important;
+  background: var(--dark-card) !important;
 }
 
 .lp-form-wrap {
@@ -144,14 +190,15 @@
 .lp-title {
   font-size: 26px !important;
   font-weight: 700 !important;
-  color: #0C1A2E !important;
+  color: var(--dark-text) !important;
   margin: 0 0 4px !important;
   font-family: 'DM Sans', sans-serif !important;
+  letter-spacing: -0.02em !important;
 }
 
 .lp-subtitle {
   font-size: 13px !important;
-  color: #64748B !important;
+  color: var(--dark-muted) !important;
   margin: 0 0 32px !important;
   font-family: 'DM Sans', sans-serif !important;
 }
@@ -160,12 +207,12 @@
   display: flex !important;
   align-items: center !important;
   gap: 8px !important;
-  background: #FEF2F2 !important;
-  border: 0.5px solid #FECACA !important;
-  border-radius: 9px !important;
+  background: rgba(239,68,68,0.10) !important;
+  border: 1px solid rgba(239,68,68,0.25) !important;
+  border-radius: 10px !important;
   padding: 10px 14px !important;
   font-size: 12px !important;
-  color: #DC2626 !important;
+  color: #f87171 !important;
   margin-bottom: 18px !important;
   font-family: 'DM Sans', sans-serif !important;
 }
@@ -177,31 +224,35 @@
 .lp-label {
   display: block !important;
   font-size: 12px !important;
-  font-weight: 600 !important;
-  color: #374151 !important;
-  margin-bottom: 6px !important;
+  font-weight: 500 !important;
+  color: var(--dark-muted) !important;
+  margin-bottom: 8px !important;
   font-family: 'DM Sans', sans-serif !important;
+  letter-spacing: 0.02em !important;
 }
 
 .lp-input {
   width: 100% !important;
-  height: 44px !important;
+  height: 46px !important;
   padding: 0 14px !important;
-  border: 0.5px solid #E2E8F0 !important;
-  border-radius: 9px !important;
+  border: 1px solid var(--dark-border) !important;
+  border-radius: 12px !important;
   font-size: 13px !important;
   font-family: 'DM Sans', sans-serif !important;
-  color: #0C1A2E !important;
-  background: #F8FAFC !important;
-  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s !important;
+  color: var(--dark-text) !important;
+  background: var(--dark-input) !important;
+  transition: border-color 0.15s, box-shadow 0.15s !important;
   outline: none !important;
   box-shadow: none !important;
 }
 
+.lp-input::placeholder {
+  color: var(--dark-subtle) !important;
+}
+
 .lp-input:focus {
-  border-color: #1E3A8A !important;
-  background: #fff !important;
-  box-shadow: 0 0 0 3px rgba(30,58,138,0.09) !important;
+  border-color: rgba(201,170,255,0.5) !important;
+  box-shadow: 0 0 0 3px rgba(201,170,255,0.12) !important;
 }
 
 .lp-input-wrap {
@@ -221,40 +272,44 @@
   border: none !important;
   padding: 0 !important;
   cursor: pointer !important;
-  color: #94A3B8 !important;
+  color: var(--dark-subtle) !important;
   display: flex !important;
   align-items: center !important;
   transition: color 0.15s !important;
 }
 
 .lp-eye:hover {
-  color: #1E3A8A !important;
+  color: var(--dark-muted) !important;
 }
 
+/* Hologram button — mirrors Conicorn primary button */
 .lp-btn {
   width: 100% !important;
-  height: 46px !important;
-  background: #1E3A8A !important;
-  color: #fff !important;
+  height: 48px !important;
+  background: var(--holo-grad) !important;
+  color: #000 !important;
   border: none !important;
-  border-radius: 10px !important;
+  border-radius: 100vw !important;
   font-size: 14px !important;
   font-weight: 600 !important;
   font-family: 'DM Sans', sans-serif !important;
   cursor: pointer !important;
-  margin-top: 8px !important;
+  margin-top: 10px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
   gap: 8px !important;
-  letter-spacing: 0.025em !important;
-  transition: background 0.15s, transform 0.12s, box-shadow 0.15s !important;
+  letter-spacing: 0.01em !important;
+  transition: opacity 0.15s, transform 0.12s, box-shadow 0.15s !important;
+  position: relative !important;
+  overflow: hidden !important;
+  box-shadow: 0 0 20px rgba(201,170,255,0.25) !important;
 }
 
 .lp-btn:hover:not(:disabled) {
-  background: #1e40af !important;
+  opacity: 0.92 !important;
   transform: translateY(-1px) !important;
-  box-shadow: 0 6px 20px rgba(30,58,138,0.28) !important;
+  box-shadow: 0 8px 28px rgba(201,170,255,0.35) !important;
 }
 
 .lp-btn:active:not(:disabled) {
@@ -262,7 +317,7 @@
 }
 
 .lp-btn:disabled {
-  opacity: 0.65 !important;
+  opacity: 0.5 !important;
   cursor: not-allowed !important;
 }
 
@@ -270,7 +325,7 @@
   text-align: center !important;
   margin-top: 18px !important;
   font-size: 11px !important;
-  color: #94A3B8 !important;
+  color: var(--dark-subtle) !important;
   font-family: 'DM Sans', sans-serif !important;
 }
 
@@ -279,6 +334,7 @@
   .lp-card {
     grid-template-columns: 1fr !important;
     min-height: auto !important;
+    border-radius: 16px !important;
   }
   .lp-left {
     display: none !important;
