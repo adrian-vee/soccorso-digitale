@@ -35,12 +35,14 @@ export function registerAuthRoutes(app: Express) {
         ? await bcrypt.compare(password, user.password).catch(() => false)
         : false
       if (!user || !passwordValid) {
+        console.log(`[auth] Login failed for ${email}: ${!user ? 'user not found' : 'wrong password'}`);
         await auditLog.login("", email, req.ip || "unknown");
         return res.status(401).json({ error: "Credenziali non valide" });
       }
 
       // Check if account is active
       if (user.isActive === false) {
+        console.log(`[auth] Login rejected for ${email}: account inactive`);
         return res.status(401).json({ error: "Account disattivato" });
       }
 

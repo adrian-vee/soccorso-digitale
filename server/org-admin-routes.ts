@@ -891,7 +891,7 @@ export function registerOrgAdminRoutes(app: Express) {
       const [updated] = await db.update(demoRequests)
         .set({
           status: "approved",
-          reviewedBy: userId ? parseInt(String(userId)) : null,
+          reviewedBy: null,
           reviewedAt: new Date(),
           reviewNotes: null,
         })
@@ -929,7 +929,7 @@ export function registerOrgAdminRoutes(app: Express) {
       const [updated] = await db.update(demoRequests)
         .set({
           status: "rejected",
-          reviewedBy: userId ? parseInt(String(userId)) : null,
+          reviewedBy: null,
           reviewedAt: new Date(),
           reviewNotes: reason || null,
         })
@@ -984,10 +984,9 @@ export function registerOrgAdminRoutes(app: Express) {
         status: "pending",
       }).returning();
 
-      // Send emails in the background — do not block the response
-      setImmediate(async () => {
-        try {
-          const { client, fromEmail } = await getResendClient();
+      // Send confirmation emails (synchronous — errors logged but don't affect response)
+      try {
+        const { client, fromEmail } = await getResendClient();
 
           const confirmationHtml = `<!DOCTYPE html>
 <html>
@@ -1044,7 +1043,7 @@ export function registerOrgAdminRoutes(app: Express) {
 </body>
 </html>`;
 
-          await Promise.allSettled([
+          const [confirmResult, notifyResult] = await Promise.allSettled([
             client.emails.send({
               from: fromEmail,
               to: demoRequest.contactEmail,
@@ -1058,10 +1057,17 @@ export function registerOrgAdminRoutes(app: Express) {
               html: adminNotificationHtml,
             }),
           ]);
-        } catch (emailError) {
-          console.error("[demo-request] Error sending emails:", emailError);
-        }
-      });
+          if (confirmResult.status === "rejected") {
+            console.error("[demo-request] Confirmation email failed:", confirmResult.reason);
+          } else {
+            console.log("[demo-request] Confirmation email sent to", demoRequest.contactEmail);
+          }
+          if (notifyResult.status === "rejected") {
+            console.error("[demo-request] Admin notification email failed:", notifyResult.reason);
+          }
+      } catch (emailError) {
+        console.error("[demo-request] Email client error:", emailError);
+      }
 
       res.status(201).json({ success: true, id: demoRequest.id });
     } catch (error) {

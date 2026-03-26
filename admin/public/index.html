@@ -11137,7 +11137,7 @@
        ORGANIZATIONS TABS: Demo Requests + Email Compose
        ============================================================ -->
   <script>
-  // ── Tab switcher ─────────────────────────────────────────────
+  // ── Tab switcher (3-tab version: orgs / demo / email) ────────
   function switchOrgTab(tab) {
     var tabs = ['orgs', 'demo', 'email'];
     tabs.forEach(function(t) {
@@ -11156,10 +11156,13 @@
     var orgsList = document.getElementById('organizations-list');
     var demoList = document.getElementById('demo-requests-list');
     var emailList = document.getElementById('email-compose-list');
+    var addBtn = document.getElementById('add-org-btn');
     if (orgsList) orgsList.style.display = (tab === 'orgs') ? '' : 'none';
     if (demoList) demoList.style.display = (tab === 'demo') ? '' : 'none';
     if (emailList) emailList.style.display = (tab === 'email') ? '' : 'none';
+    if (addBtn) addBtn.style.display = (tab === 'orgs') ? '' : 'none';
 
+    if (tab === 'orgs') { if (typeof loadOrganizationsPage === 'function') loadOrganizationsPage(); }
     if (tab === 'demo') loadDemoRequests();
     if (tab === 'email') loadEmailCompose();
   }
@@ -11169,7 +11172,7 @@
     var container = document.getElementById('demo-requests-list');
     if (!container) return;
     container.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-secondary)"><div class="spinner" style="width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 16px"></div>Caricamento richieste demo...</div>';
-    fetch('/api/super-admin/demo-requests', { headers: { 'Authorization': 'Bearer ' + (window._authToken || localStorage.getItem('authToken') || '') } })
+    fetch('/api/super-admin/demo-requests', { credentials: 'include', headers: { 'Authorization': 'Bearer ' + (window.adminAuthToken || localStorage.getItem('adminAuthToken') || '') } })
       .then(function(r) { return r.json(); })
       .then(function(data) {
         var requests = Array.isArray(data) ? data : (data.requests || data.data || []);
@@ -11244,7 +11247,7 @@
     if (btn) { btn.disabled = true; btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="animation:spin 0.8s linear infinite"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0118.8-4.3M22 12.5a10 10 0 01-18.8 4.2"/></svg>Approvazione...'; }
     fetch('/api/super-admin/demo-requests/' + id + '/approve', {
       method: 'POST',
-      headers: { 'Authorization': 'Bearer ' + (window._authToken || localStorage.getItem('authToken') || ''), 'Content-Type': 'application/json' }
+      headers: { 'Authorization': 'Bearer ' + (window.adminAuthToken || localStorage.getItem('adminAuthToken') || ''), 'Content-Type': 'application/json' }
     })
     .then(function(r) {
       if (!r.ok) return r.json().then(function(d) { throw new Error(d.message || 'Errore server ' + r.status); });
@@ -11267,7 +11270,7 @@
     if (btn) { btn.disabled = true; btn.textContent = 'Rifiuto...'; }
     fetch('/api/super-admin/demo-requests/' + id + '/reject', {
       method: 'POST',
-      headers: { 'Authorization': 'Bearer ' + (window._authToken || localStorage.getItem('authToken') || ''), 'Content-Type': 'application/json' },
+      headers: { 'Authorization': 'Bearer ' + (window.adminAuthToken || localStorage.getItem('adminAuthToken') || ''), 'Content-Type': 'application/json' },
       body: JSON.stringify({ reason: reason || '' })
     })
     .then(function(r) {
@@ -11822,7 +11825,7 @@
     if (!container) return;
 
     // Fetch organizations for recipient selection
-    fetch('/api/org-admin/organizations', { headers: { 'Authorization': 'Bearer ' + (window._authToken || localStorage.getItem('authToken') || '') } })
+    fetch('/api/org-admin/organizations', { headers: { 'Authorization': 'Bearer ' + (window.adminAuthToken || localStorage.getItem('adminAuthToken') || '') } })
       .then(function(r) { return r.json(); })
       .then(function(data) {
         _emailOrgs = Array.isArray(data) ? data : (data.organizations || data.data || []);
@@ -11997,7 +12000,7 @@
 
     fetch('/api/org-admin/send-email', {
       method: 'POST',
-      headers: { 'Authorization': 'Bearer ' + (window._authToken || localStorage.getItem('authToken') || ''), 'Content-Type': 'application/json' },
+      headers: { 'Authorization': 'Bearer ' + (window.adminAuthToken || localStorage.getItem('adminAuthToken') || ''), 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     })
     .then(function(r) {
