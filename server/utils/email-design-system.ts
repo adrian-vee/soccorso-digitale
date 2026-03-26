@@ -3,7 +3,7 @@
 // Style: Midnight Tech (approvato da Adrian)
 // ============================================================
 
-export const LOGO_URL = 'https://soccorsodigitale.app/images/logo.svg';
+export const LOGO_URL = 'https://soccorsodigitale.app/images/69b0dc9033646175674e6d28_logoicon.svg';
 export const LOGIN_URL = 'https://soccorsodigitale.app/admin';
 export const SITE_URL  = 'https://soccorsodigitale.app';
 
@@ -138,16 +138,14 @@ export function noticeBox(html: string, type: 'info' | 'warning' | 'success' = '
 // ─── Upgrade banner ──────────────────────────────────────────
 export function upgradeBanner(): string {
   return `
-  <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:32px;background:linear-gradient(135deg,#FFFFFF 0%,#F5F5F7 100%);border-radius:16px;border:1px solid #E5E5EA;">
-    <tr>
-      <td style="padding:24px;">
-        <div style="font-size:15px;font-weight:700;color:#1D1D1F;margin-bottom:4px;">Attiva il piano completo</div>
-        <div style="font-size:13px;color:#86868B;line-height:1.4;">Scegli il piano e attiva i moduli che vuoi, in autonomia e in pochi minuti.</div>
-      </td>
-      <td style="padding:24px;white-space:nowrap;vertical-align:middle;">
-        <a href="${SITE_URL}/#pricing" style="background:#000000;color:#FFFFFF;text-decoration:none;font-size:13px;font-weight:600;padding:10px 20px;border-radius:20px;">Vedi i Piani</a>
-      </td>
-    </tr>
+  <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:32px;background:#F5F5F7;border-radius:16px;border:1px solid #E5E5EA;">
+    <tr><td style="padding:24px 24px 16px;">
+      <div style="font-size:15px;font-weight:700;color:#1D1D1F;margin-bottom:6px;letter-spacing:-0.01em;">Attiva il piano completo</div>
+      <div style="font-size:13px;color:#86868B;line-height:1.5;">Scegli il piano e attiva i moduli che vuoi, in autonomia e in pochi minuti.</div>
+    </td></tr>
+    <tr><td style="padding:0 24px 24px;">
+      <a href="${SITE_URL}/#pricing" style="display:inline-block;background:#000000;color:#FFFFFF;text-decoration:none;font-size:13px;font-weight:600;padding:10px 24px;border-radius:20px;">Vedi i Piani &rarr;</a>
+    </td></tr>
   </table>`;
 }
 
@@ -157,7 +155,7 @@ export function modulesGrid(modules: Array<{ name: string; desc: string }>): str
   const cells = modules.map(m => `
     <td width="50%" style="padding:6px;vertical-align:top;">
       <table width="100%" cellpadding="0" cellspacing="0">
-        <tr><td style="background:#FFFFFF;border-radius:12px;padding:14px 16px;border:1px solid #E5E5EA;">
+        <tr><td style="background:#FFFFFF;border-radius:12px;padding:14px 16px;border:1px solid #E5E5EA;min-height:72px;vertical-align:top;">
           <table cellpadding="0" cellspacing="0"><tr>
             <td style="width:22px;vertical-align:top;padding-right:10px;padding-top:2px;">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -189,19 +187,22 @@ export function cardFooter(replyTo = 'info@soccorsodigitale.app'): string {
   return `
   <table width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid #E5E5EA;background:#FAFAFC;">
     <tr>
-      <td style="padding:24px 44px;">
+      <td style="padding:20px 44px;">
         <table cellpadding="0" cellspacing="0"><tr>
           <td style="vertical-align:middle;padding-right:8px;">
-            <img src="${LOGO_URL}" alt="" width="18" height="18" style="display:block;filter:grayscale(100%);opacity:0.4;">
+            <img src="${LOGO_URL}" alt="" width="16" height="16" style="display:block;filter:grayscale(100%);opacity:0.4;">
           </td>
           <td style="font-size:12px;font-weight:600;color:#86868B;vertical-align:middle;">Soccorso Digitale</td>
+          <td style="padding-left:20px;">
+            <a href="${SITE_URL}" style="font-size:12px;color:#86868B;text-decoration:none;margin-right:16px;">Sito web</a>
+            <a href="mailto:${replyTo}" style="font-size:12px;color:#86868B;text-decoration:none;">Supporto</a>
+          </td>
         </tr></table>
       </td>
-      <td style="padding:24px 44px;text-align:right;">
-        <a href="${SITE_URL}" style="font-size:12px;color:#86868B;text-decoration:none;margin-left:16px;">Sito web</a>
-        <a href="mailto:${replyTo}" style="font-size:12px;color:#86868B;text-decoration:none;margin-left:16px;">Supporto</a>
-      </td>
     </tr>
+    <tr><td style="padding:0 44px 20px;text-align:center;">
+      <div style="font-size:11px;color:#AEAEB2;line-height:1.6;">Email automatica · Non rispondere · &copy; 2026 Soccorso Digitale</div>
+    </td></tr>
   </table>`;
 }
 

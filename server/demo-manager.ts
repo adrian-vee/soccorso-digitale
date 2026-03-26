@@ -4,6 +4,7 @@ import { eq, and, lt, sql } from "drizzle-orm";
 import { getResendClient } from "./resend-client";
 import { templateCredenzialiDemo } from "./utils/email-templates";
 import crypto from "node:crypto";
+import bcrypt from "bcrypt";
 
 const ALL_MODULES = [
   'report_accise',
@@ -61,6 +62,7 @@ export async function createDemoAccount(requestEmail: string, requestName: strin
     const slug = generateSlug(baseOrgName) + '-' + demoSuffix;
     const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
     const password = generatePassword();
+    const hashedPassword = await bcrypt.hash(password, 10);
     const loginEmail = `d${Date.now().toString(36)}@sd.demo`;
 
     const [org] = await db.insert(organizations).values({
@@ -78,7 +80,7 @@ export async function createDemoAccount(requestEmail: string, requestName: strin
 
     await db.insert(users).values({
       email: loginEmail,
-      password: password,
+      password: hashedPassword,
       name: requestName,
       role: 'org_admin',
       organizationId: org.id,

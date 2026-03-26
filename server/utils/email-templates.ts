@@ -113,10 +113,6 @@ export function templateRichiestaRicevuta(params: {
     <table width="100%" cellpadding="0" cellspacing="0">
       <tr><td style="padding:40px 44px;">
         ${noticeBox(`Il nostro team verificherà la richiesta per <strong style="color:#1D1D1F;">${orgName}</strong> e attiverà l'accesso demo entro <strong style="color:#1D1D1F;">24 ore</strong>. Riceverai un'email con le credenziali di accesso.`, 'success')}
-        <p style="font-size:13px;color:#86868B;line-height:1.6;margin:0 0 32px;">
-          Per informazioni urgenti scrivi a
-          <a href="mailto:info@soccorsodigitale.app" style="color:#2997FF;text-decoration:none;">info@soccorsodigitale.app</a>
-        </p>
         ${ctaButton('Scopri la piattaforma', SITE_URL)}
       </td></tr>
     </table>
