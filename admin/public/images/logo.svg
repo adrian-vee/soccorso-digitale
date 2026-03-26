@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Croce medica -->
+  <rect x="26" y="8" width="12" height="48" rx="3" fill="#1D1D1F"/>
+  <rect x="8" y="26" width="48" height="12" rx="3" fill="#1D1D1F"/>
+  <!-- Arco verde ECG -->
+  <path d="M 10 50 Q 32 32 54 50" stroke="#32D74B" stroke-width="4" fill="none" stroke-linecap="round"/>
+</svg>

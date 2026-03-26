@@ -1,203 +1,220 @@
 // ============================================================
-// SOCCORSO DIGITALE — Email Design System
-// Stile: Apple-inspired, light, professional
+// SOCCORSO DIGITALE — Email Design System v2
+// Style: Midnight Tech (approvato da Adrian)
 // ============================================================
 
-export const EMAIL_FONTS = `font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Helvetica Neue',Arial,sans-serif;`;
-export const EMAIL_MONO  = `font-family:'SF Mono','Fira Code','Courier New',monospace;`;
+export const LOGO_URL = 'https://soccorsodigitale.app/images/logo.svg';
+export const LOGIN_URL = 'https://soccorsodigitale.app/admin';
+export const SITE_URL  = 'https://soccorsodigitale.app';
 
-// ─── Header logo pill ────────────────────────────────────────
-export function emailHeader(): string {
+// ─── Full document wrapper ───────────────────────────────────
+export function emailWrap(content: string, preheaderText = 'Soccorso Digitale'): string {
+  return `<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${preheaderText}</title>
+</head>
+<body style="margin:0;padding:0;background-color:#F2F2F7;font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif;-webkit-font-smoothing:antialiased;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#F2F2F7;padding:40px 16px;">
+<tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+
+  <!-- PRE-HEADER LOGO -->
+  <tr><td align="center" style="padding:0 0 24px;">
+    <table cellpadding="0" cellspacing="0"><tr>
+      <td style="vertical-align:middle;padding-right:8px;">
+        <img src="${LOGO_URL}" alt="Soccorso Digitale" width="18" height="18" style="display:block;opacity:0.5;filter:grayscale(100%);">
+      </td>
+      <td style="font-size:11px;font-weight:600;color:#86868B;letter-spacing:0.08em;text-transform:uppercase;vertical-align:middle;">Soccorso Digitale</td>
+    </tr></table>
+  </td></tr>
+
+  <!-- CARD -->
+  <tr><td style="background:#FFFFFF;border-radius:28px;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,0.04),0 1px 3px rgba(0,0,0,0.02);">
+    ${content}
+  </td></tr>
+
+  <!-- PAGE FOOTER -->
+  <tr><td style="padding:20px 0 0;text-align:center;">
+    <div style="font-size:11px;color:#AEAEB2;line-height:1.6;">Email automatica &middot; Non rispondere a questo messaggio<br>&copy; ${new Date().getFullYear()} Soccorso Digitale &middot; soccorsodigitale.app</div>
+  </td></tr>
+
+</table>
+</td></tr>
+</table>
+</body>
+</html>`;
+}
+
+// ─── Hero band (dark header) ─────────────────────────────────
+export function heroBand(badge: string, title: string, titleAccent: string, subtitle: string): string {
   return `
-  <tr>
-    <td align="center" style="padding:0 0 24px;">
-      <table cellpadding="0" cellspacing="0">
+  <table width="100%" cellpadding="0" cellspacing="0">
+    <tr><td style="background:linear-gradient(145deg,#000000 0%,#1A1A24 100%);padding:48px 44px 40px;border-radius:28px 28px 0 0;">
+      <table cellpadding="0" cellspacing="0" style="margin-bottom:32px;">
         <tr>
-          <td style="background:#1E3A8A;border-radius:12px;padding:10px 18px;">
-            <span style="font-size:12px;font-weight:700;color:#FFFFFF;letter-spacing:0.08em;${EMAIL_FONTS}">SOCCORSO DIGITALE</span>
+          <td style="vertical-align:middle;padding-right:10px;">
+            <img src="${LOGO_URL}" alt="Soccorso Digitale" width="26" height="26" style="display:block;filter:brightness(0) invert(1);opacity:0.95;">
           </td>
+          <td style="font-size:14px;font-weight:700;color:#FFFFFF;letter-spacing:0.03em;vertical-align:middle;">Soccorso Digitale</td>
         </tr>
       </table>
-    </td>
-  </tr>`;
-}
-
-// ─── Top bar blu con titolo ───────────────────────────────────
-export function emailTopBar(label: string, title: string, subtitle?: string): string {
-  return `
-  <tr>
-    <td style="background:#1E3A8A;border-radius:16px 16px 0 0;padding:28px 40px 24px;">
-      <p style="margin:0 0 4px;font-size:11px;font-weight:600;color:#93C5FD;letter-spacing:0.1em;text-transform:uppercase;${EMAIL_FONTS}">${label}</p>
-      <h1 style="margin:0;font-size:24px;font-weight:700;color:#FFFFFF;line-height:1.2;${EMAIL_FONTS}">${title}</h1>
-      ${subtitle ? `<p style="margin:6px 0 0;font-size:13px;color:#BFDBFE;line-height:1.5;${EMAIL_FONTS}">${subtitle}</p>` : ''}
-    </td>
-  </tr>`;
-}
-
-// ─── Box singola credenziale ──────────────────────────────────
-export function emailCredentialBox(label: string, value: string, highlight = false): string {
-  return `
-  <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:12px;">
-    <tr>
-      <td>
-        <p style="margin:0 0 4px;font-size:10px;font-weight:700;color:#64748B;letter-spacing:0.1em;text-transform:uppercase;${EMAIL_FONTS}">${label}</p>
-        <table width="100%" cellpadding="0" cellspacing="0">
-          <tr>
-            <td style="background:#FFFFFF;border:${highlight ? '1.5px solid #1E3A8A' : '1px solid #E2E8F0'};border-radius:10px;padding:12px 16px;">
-              <p style="margin:0;font-size:${highlight ? '17px' : '14px'};font-weight:${highlight ? '700' : '500'};color:${highlight ? '#1E3A8A' : '#0F172A'};${EMAIL_MONO}">${value}</p>
-            </td>
-          </tr>
-        </table>
-        ${highlight ? `<p style="margin:4px 0 0;font-size:10px;color:#94A3B8;${EMAIL_FONTS}">Tieni premuto per selezionare e copiare</p>` : ''}
-      </td>
-    </tr>
+      <table cellpadding="0" cellspacing="0" style="margin-bottom:16px;">
+        <tr><td style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);border-radius:30px;padding:6px 14px;">
+          <table cellpadding="0" cellspacing="0"><tr>
+            <td style="width:6px;height:6px;background:#32D74B;border-radius:50%;vertical-align:middle;padding-right:8px;"></td>
+            <td style="font-size:10px;font-weight:600;color:rgba(255,255,255,0.9);letter-spacing:0.05em;text-transform:uppercase;">${badge}</td>
+          </tr></table>
+        </td></tr>
+      </table>
+      <div style="font-size:30px;font-weight:800;color:#FFFFFF;letter-spacing:-0.03em;line-height:1.15;margin-bottom:12px;">${title}<br><span style="color:#2997FF;">${titleAccent}</span></div>
+      <div style="font-size:15px;color:#A1A1A6;line-height:1.5;max-width:420px;">${subtitle}</div>
+    </td></tr>
   </table>`;
 }
 
-// ─── Alert box ───────────────────────────────────────────────
-export function emailAlertBox(text: string, type: 'warning' | 'info' | 'success' = 'info'): string {
-  const colors = {
-    warning: { bg: '#FFFBEB', border: '#FDE68A', text: '#92400E' },
-    info:    { bg: '#EFF6FF', border: '#BFDBFE', text: '#1e40af' },
-    success: { bg: '#F0FDF4', border: '#BBF7D0', text: '#166534' },
-  };
-  const c = colors[type];
+// ─── Credentials box ─────────────────────────────────────────
+export function credsBox(email: string, password: string): string {
   return `
-  <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:20px;">
-    <tr>
-      <td style="background:${c.bg};border:1px solid ${c.border};border-radius:10px;padding:14px 18px;">
-        <p style="margin:0;font-size:13px;color:${c.text};line-height:1.5;${EMAIL_FONTS}">${text}</p>
-      </td>
-    </tr>
+  <div style="font-size:11px;font-weight:700;color:#86868B;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:16px;">Credenziali di accesso</div>
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#F5F5F7;border-radius:16px;padding:24px;margin-bottom:32px;border:1px solid #E5E5EA;">
+    <tr><td>
+      <div style="font-size:11px;font-weight:600;color:#86868B;margin-bottom:6px;">Email</div>
+      <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:16px;">
+        <tr><td style="background:#FFFFFF;border:1px solid #D1D1D6;border-radius:10px;padding:12px 16px;">
+          <span style="font-size:14px;color:#1D1D1F;font-family:'SF Mono','Roboto Mono',monospace;">${email}</span>
+        </td></tr>
+      </table>
+      <div style="font-size:11px;font-weight:600;color:#86868B;margin-bottom:6px;">Password temporanea</div>
+      <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:6px;">
+        <tr><td style="background:#FFFFFF;border:1px solid #D1D1D6;border-radius:10px;padding:12px 16px;">
+          <span style="font-size:18px;font-weight:700;color:#000000;font-family:'SF Mono','Roboto Mono',monospace;letter-spacing:0.05em;">${password}</span>
+        </td></tr>
+      </table>
+      <div style="font-size:11px;color:#86868B;">Tieni premuto per selezionare e copiare</div>
+    </td></tr>
   </table>`;
 }
 
 // ─── CTA button ──────────────────────────────────────────────
-export function emailCTA(text: string, url: string): string {
+export function ctaButton(text: string, url: string): string {
   return `
-  <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:20px;">
-    <tr>
-      <td align="center">
-        <a href="${url}" style="display:inline-block;background:#1E3A8A;color:#FFFFFF;text-decoration:none;font-size:14px;font-weight:600;padding:14px 36px;border-radius:10px;letter-spacing:0.01em;${EMAIL_FONTS}">${text}</a>
-        <p style="margin:6px 0 0;font-size:11px;color:#94A3B8;${EMAIL_FONTS}">${url}</p>
-      </td>
-    </tr>
+  <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:32px;">
+    <tr><td align="center">
+      <a href="${url}" style="display:block;background:#000000;color:#FFFFFF;text-decoration:none;font-size:15px;font-weight:600;padding:16px 40px;border-radius:14px;text-align:center;">${text} &rarr;</a>
+      <div style="font-size:12px;color:#86868B;margin-top:10px;">${url.replace('https://', '')}</div>
+    </td></tr>
   </table>`;
 }
 
-// ─── Lista moduli ─────────────────────────────────────────────
-export function emailModuleList(modules: Array<{ name: string; desc: string }>): string {
-  if (!modules.length) return '';
+// ─── Notice / alert box ──────────────────────────────────────
+export function noticeBox(html: string, type: 'info' | 'warning' | 'success' = 'info'): string {
+  const colors = {
+    info:    { bg: 'rgba(41,151,255,0.05)',  border: 'rgba(41,151,255,0.15)', icon: '#2997FF' },
+    warning: { bg: 'rgba(255,159,10,0.05)',  border: 'rgba(255,159,10,0.2)',  icon: '#FF9F0A' },
+    success: { bg: 'rgba(50,215,75,0.05)',   border: 'rgba(50,215,75,0.2)',   icon: '#32D74B' },
+  };
+  const c = colors[type];
+  const icons = {
+    info:    `<circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>`,
+    warning: `<path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>`,
+    success: `<path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>`,
+  };
   return `
-  <table width="100%" cellpadding="0" cellspacing="0">
-    <tr>
-      <td>
-        <p style="margin:0 0 12px;font-size:13px;font-weight:600;color:#0F172A;${EMAIL_FONTS}">Moduli inclusi</p>
-        ${modules.map(m => `
-        <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:6px;">
-          <tr>
-            <td style="background:#F8FAFC;border-radius:8px;padding:10px 14px;">
-              <table cellpadding="0" cellspacing="0">
-                <tr>
-                  <td style="width:22px;vertical-align:middle;padding-right:10px;">
-                    <table cellpadding="0" cellspacing="0"><tr>
-                      <td style="width:16px;height:16px;background:#DCFCE7;border-radius:50%;text-align:center;line-height:16px;">
-                        <span style="font-size:9px;color:#16A34A;font-weight:700;">&#10003;</span>
-                      </td>
-                    </tr></table>
-                  </td>
-                  <td>
-                    <p style="margin:0;font-size:12px;font-weight:600;color:#0F172A;${EMAIL_FONTS}">${m.name}</p>
-                    <p style="margin:1px 0 0;font-size:11px;color:#64748B;${EMAIL_FONTS}">${m.desc}</p>
-                  </td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-        </table>`).join('')}
-      </td>
-    </tr>
-  </table>`;
-}
-
-// ─── Row dettaglio (label/value) ──────────────────────────────
-export function emailDetailRow(label: string, value: string): string {
-  return `
-  <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:8px;">
-    <tr>
-      <td style="background:#F8FAFC;border-radius:8px;padding:10px 14px;">
-        <p style="margin:0 0 2px;font-size:10px;font-weight:700;color:#94A3B8;letter-spacing:0.08em;text-transform:uppercase;${EMAIL_FONTS}">${label}</p>
-        <p style="margin:0;font-size:13px;color:#0F172A;${EMAIL_FONTS}">${value}</p>
-      </td>
-    </tr>
-  </table>`;
-}
-
-// ─── Divisore ─────────────────────────────────────────────────
-export function emailDivider(): string {
-  return `
-  <tr>
-    <td style="padding:0 40px;">
-      <table width="100%" cellpadding="0" cellspacing="0"><tr>
-        <td style="border-top:1px solid #E2E8F0;font-size:0;line-height:0;">&nbsp;</td>
+  <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:32px;">
+    <tr><td style="background:${c.bg};border-radius:12px;padding:16px;border:1px solid ${c.border};">
+      <table cellpadding="0" cellspacing="0"><tr>
+        <td style="vertical-align:top;padding-right:12px;padding-top:2px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="${c.icon}" stroke-width="1.5" stroke-linecap="round">${icons[type]}</svg>
+        </td>
+        <td style="font-size:13px;color:#333336;line-height:1.5;">${html}</td>
       </tr></table>
-    </td>
-  </tr>`;
+    </td></tr>
+  </table>`;
 }
 
-// ─── Footer con link aiuto ────────────────────────────────────
-export function emailFooter(replyTo = 'info@soccorsodigitale.app'): string {
+// ─── Upgrade banner ──────────────────────────────────────────
+export function upgradeBanner(): string {
   return `
-  <tr>
-    <td style="padding:20px 40px 28px;text-align:center;">
-      <p style="margin:0;font-size:13px;color:#64748B;${EMAIL_FONTS}">
-        Hai bisogno di aiuto? Scrivi a
-        <a href="mailto:${replyTo}" style="color:#1E3A8A;text-decoration:none;font-weight:500;">${replyTo}</a>
-      </p>
-    </td>
-  </tr>`;
-}
-
-// ─── Footer pagina (fuori card) ───────────────────────────────
-export function emailPageFooter(): string {
-  return `
-  <tr>
-    <td style="padding:24px 0 0;text-align:center;">
-      <p style="margin:0 0 2px;font-size:13px;font-weight:700;color:#1E3A8A;letter-spacing:0.04em;${EMAIL_FONTS}">SOCCORSO DIGITALE</p>
-      <p style="margin:0 0 2px;font-size:11px;color:#94A3B8;${EMAIL_FONTS}">Piattaforma di Gestione Trasporti Sanitari</p>
-      <a href="https://soccorsodigitale.app" style="font-size:11px;color:#CBD5E1;text-decoration:none;${EMAIL_FONTS}">soccorsodigitale.app</a>
-      <p style="margin:10px 0 0;font-size:10px;color:#CBD5E1;${EMAIL_FONTS}">Email automatica &middot; Non rispondere &middot; &copy; ${new Date().getFullYear()} Soccorso Digitale</p>
-    </td>
-  </tr>`;
-}
-
-// ─── Wrapper principale ───────────────────────────────────────
-export function emailWrapper(content: string): string {
-  return `<!DOCTYPE html>
-<html lang="it">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-</head>
-<body style="margin:0;padding:0;background:#F5F5F7;${EMAIL_FONTS}">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#F5F5F7;padding:32px 20px;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:32px;background:linear-gradient(135deg,#FFFFFF 0%,#F5F5F7 100%);border-radius:16px;border:1px solid #E5E5EA;">
     <tr>
-      <td align="center">
-        <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
-          ${emailHeader()}
-          <tr>
-            <td style="background:#FFFFFF;border-radius:16px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,0.08);">
-              <table width="100%" cellpadding="0" cellspacing="0">
-                ${content}
-              </table>
-            </td>
-          </tr>
-          ${emailPageFooter()}
-        </table>
+      <td style="padding:24px;">
+        <div style="font-size:15px;font-weight:700;color:#1D1D1F;margin-bottom:4px;">Attiva il piano completo</div>
+        <div style="font-size:13px;color:#86868B;line-height:1.4;">Scegli il piano e attiva i moduli che vuoi, in autonomia e in pochi minuti.</div>
+      </td>
+      <td style="padding:24px;white-space:nowrap;vertical-align:middle;">
+        <a href="${SITE_URL}/#pricing" style="background:#000000;color:#FFFFFF;text-decoration:none;font-size:13px;font-weight:600;padding:10px 20px;border-radius:20px;">Vedi i Piani</a>
       </td>
     </tr>
-  </table>
-</body>
-</html>`;
+  </table>`;
+}
+
+// ─── Modules grid (2-column) ─────────────────────────────────
+export function modulesGrid(modules: Array<{ name: string; desc: string }>): string {
+  if (!modules.length) return '';
+  const cells = modules.map(m => `
+    <td width="50%" style="padding:6px;vertical-align:top;">
+      <table width="100%" cellpadding="0" cellspacing="0">
+        <tr><td style="background:#FFFFFF;border-radius:12px;padding:14px 16px;border:1px solid #E5E5EA;">
+          <table cellpadding="0" cellspacing="0"><tr>
+            <td style="width:22px;vertical-align:top;padding-right:10px;padding-top:2px;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="10" fill="#EBF5FF"/>
+                <path d="M8 12l3 3 5-5" stroke="#2997FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </td>
+            <td>
+              <div style="font-size:13px;font-weight:600;color:#1D1D1F;margin-bottom:3px;line-height:1.2;">${m.name}</div>
+              <div style="font-size:11px;color:#86868B;line-height:1.3;">${m.desc}</div>
+            </td>
+          </tr></table>
+        </td></tr>
+      </table>
+    </td>`);
+
+  let rows = '';
+  for (let i = 0; i < cells.length; i += 2) {
+    rows += `<tr>${cells[i]}${cells[i + 1] || '<td width="50%" style="padding:6px;"></td>'}</tr>`;
+  }
+
+  return `
+  <div style="font-size:11px;font-weight:700;color:#86868B;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:16px;">Moduli inclusi</div>
+  <table width="100%" cellpadding="0" cellspacing="0">${rows}</table>`;
+}
+
+// ─── Card footer ─────────────────────────────────────────────
+export function cardFooter(replyTo = 'info@soccorsodigitale.app'): string {
+  return `
+  <table width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid #E5E5EA;background:#FAFAFC;">
+    <tr>
+      <td style="padding:24px 44px;">
+        <table cellpadding="0" cellspacing="0"><tr>
+          <td style="vertical-align:middle;padding-right:8px;">
+            <img src="${LOGO_URL}" alt="" width="18" height="18" style="display:block;filter:grayscale(100%);opacity:0.4;">
+          </td>
+          <td style="font-size:12px;font-weight:600;color:#86868B;vertical-align:middle;">Soccorso Digitale</td>
+        </tr></table>
+      </td>
+      <td style="padding:24px 44px;text-align:right;">
+        <a href="${SITE_URL}" style="font-size:12px;color:#86868B;text-decoration:none;margin-left:16px;">Sito web</a>
+        <a href="mailto:${replyTo}" style="font-size:12px;color:#86868B;text-decoration:none;margin-left:16px;">Supporto</a>
+      </td>
+    </tr>
+  </table>`;
+}
+
+// ─── Detail row (label + value) ──────────────────────────────
+export function detailRow(label: string, value: string): string {
+  return `
+  <tr>
+    <td style="font-size:11px;font-weight:600;color:#86868B;padding:8px 0 4px;text-transform:uppercase;letter-spacing:0.06em;">${label}</td>
+  </tr>
+  <tr>
+    <td style="background:#FFFFFF;border:1px solid #D1D1D6;border-radius:10px;padding:12px 16px;">
+      <span style="font-size:14px;color:#1D1D1F;">${value}</span>
+    </td>
+  </tr>
+  <tr><td style="height:12px;"></td></tr>`;
 }
