@@ -336,38 +336,34 @@ function configureExpoAndLanding(app: express.Application) {
 
   log("Serving static Expo files with dynamic manifest routing");
 
-  // Public marketing site — explicit routes + /site/* static assets
+  // Public marketing site — Conicorn template served at root
   const sitePath = path.resolve(process.cwd(), "site");
-  if (fs.existsSync(sitePath)) {
+  const conicornPath = path.resolve(process.cwd(), "conicorn");
+  if (fs.existsSync(conicornPath)) {
     const adminPath0 = path.resolve(process.cwd(), "admin", "public");
-    // Serve Conicorn template assets (CSS, JS, images, fonts, media)
-    const conicornPath = path.resolve(process.cwd(), "conicorn");
-    if (fs.existsSync(conicornPath)) {
-      app.use("/conicorn", express.static(conicornPath, { etag: false, maxAge: 0 }));
+    // Serve Conicorn assets at root-level paths (template uses relative paths → /css, /js, etc.)
+    app.use("/css",    express.static(path.join(conicornPath, "css"),    { etag: false, maxAge: 0 }));
+    app.use("/js",     express.static(path.join(conicornPath, "js"),     { etag: false, maxAge: 0 }));
+    app.use("/fonts",  express.static(path.join(conicornPath, "fonts"),  { etag: false, maxAge: 0 }));
+    app.use("/images", express.static(path.join(conicornPath, "images"), { etag: false, maxAge: 0 }));
+    app.use("/media",  express.static(path.join(conicornPath, "media"),  { etag: false, maxAge: 0 }));
+    // Legacy /site prefix and /conicorn prefix still available
+    if (fs.existsSync(sitePath)) {
+      app.use("/site", express.static(sitePath, { etag: false, maxAge: 0 }));
     }
-    // Serve site CSS/JS/images under /site/ prefix (legacy)
+    app.use("/conicorn", express.static(conicornPath, { etag: false, maxAge: 0 }));
+    // Serve logo from admin/public at root level
+    app.get("/logo.svg", (_req, res) => res.sendFile(path.join(adminPath0, "logo.svg")));
+    log("Public site: Conicorn template → /css /js /fonts /images /media served from conicorn/");
+  } else if (fs.existsSync(sitePath)) {
+    const adminPath0 = path.resolve(process.cwd(), "admin", "public");
     app.use("/site", express.static(sitePath, { etag: false, maxAge: 0 }));
-    // Serve site assets at root-level paths (mdx.so clone uses relative paths resolving to /)
     app.use("/css",    express.static(path.join(sitePath, "css"),    { etag: false, maxAge: 0 }));
     app.use("/js",     express.static(path.join(sitePath, "js"),     { etag: false, maxAge: 0 }));
     app.use("/fonts",  express.static(path.join(sitePath, "fonts"),  { etag: false, maxAge: 0 }));
     app.use("/images", express.static(path.join(sitePath, "images"), { etag: false, maxAge: 0 }));
-    // Serve logo from admin/public at root level (HTML files reference /logo.svg)
     app.get("/logo.svg", (_req, res) => res.sendFile(path.join(adminPath0, "logo.svg")));
-    // Explicit page routes — must be before /admin handlers
-    app.get("/piattaforma", (_req, res) => res.sendFile(path.join(sitePath, "piattaforma.html")));
-    app.get("/clienti",     (_req, res) => res.sendFile(path.join(sitePath, "clienti.html")));
-    app.get("/contatti",    (_req, res) => res.sendFile(path.join(sitePath, "contatti.html")));
-    app.get("/demo",        (_req, res) => res.sendFile(path.join(sitePath, "demo.html")));
-    // Test route — mdx.so clone (same as / but explicit for QA)
-    app.get("/new", (_req, res) => res.sendFile(path.join(sitePath, "index.html")));
-    // mdx.so page routes — redirect to home (these are mdx.so internal pages)
-    app.get("/projects",  (_req, res) => res.redirect("/"));
-    app.get("/services",  (_req, res) => res.redirect("/"));
-    app.get("/contact",   (_req, res) => res.redirect("/"));
-    app.get("/about-us",  (_req, res) => res.redirect("/"));
-    app.get("/about",     (_req, res) => res.redirect("/"));
-    log("Public site: /piattaforma /clienti /contatti + /css /js /fonts /images /new assets");
+    log("Public site: legacy site/ folder → /css /js /fonts /images");
   }
 
   // Serve admin panel with SPA fallback (no cache for development)
@@ -447,7 +443,14 @@ function configureExpoAndLanding(app: express.Application) {
     }
 
     if (req.path === "/") {
-      // Serve the public marketing site homepage
+      // Serve the Conicorn template homepage
+      const conicornIndex = path.resolve(process.cwd(), "conicorn", "index.html");
+      if (fs.existsSync(conicornIndex)) {
+        res.setHeader("Content-Type", "text/html; charset=utf-8");
+        res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+        return res.sendFile(conicornIndex);
+      }
+      // Fallback to site/index.html
       const sitePath = path.resolve(process.cwd(), "site", "index.html");
       if (fs.existsSync(sitePath)) {
         res.setHeader("Content-Type", "text/html; charset=utf-8");
