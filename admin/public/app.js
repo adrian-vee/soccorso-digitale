@@ -2674,6 +2674,108 @@ async function loadDashboardMetrics() {
 // SUPER ADMIN — PLATFORM MODE / SUPPORT MODE
 // ============================================================
 
+// Apply org-module-based nav visibility when superadmin is in support mode.
+// Mirrors the isOrgAdmin branch in applyRoleBasedAccess so the sidebar looks
+// exactly like what the org's own admin sees.
+function _applySupportModeNav(enabledModules) {
+  const modulePageMap = {
+    'report_accise': ['reports'],
+    'carbon_footprint': ['carbon-footprint'],
+    'esg_dashboard': ['esg-dashboard'],
+    'analisi_economica': ['finance'],
+    'gps_tracking': ['gps-tracking'],
+    'checklist': ['checklists', 'inventory', 'scadenze'],
+    'consegne_digitali': ['handoffs'],
+    'registro_sanificazioni': ['sanitization-logs'],
+    'pianificazione_turni': ['scheduling', 'monthly-scheduling', 'staff-availability', 'shift-statistics', 'shift-settings'],
+    'rimborsi_volontari': ['volunteer-reimbursements'],
+    'registro_volontari_elettronico': ['volunteer-registry'],
+    'benessere_staff': ['burnout-prevention'],
+    'governance_compliance': ['compliance', 'data-quality'],
+    'partner_program': ['partner-dashboard', 'partner-list', 'partner-requests'],
+    'booking_hub': ['booking-hub'],
+    'gestione_ruoli': ['role-management'],
+  };
+
+  const orgAdminBasePages = new Set([
+    'dashboard', 'trips', 'programma-giornaliero', 'vehicles', 'credentials', 'sedi', 'structures',
+    'photo-reports', 'vehicle-documents', 'staff-members', 'announcements', 'settings',
+    'statistics', 'audit-logs', 'privacy', 'marketplace', 'realtime-availability',
+    'confidentiality-agreements', 'structure-requests', 'documents',
+    'sla-management', 'compliance-ulss9', 'art8-reports',
+    'coverage-map', 'emergency-alerts', 'notif-config', 'security-center',
+  ]);
+
+  const allowedPages = new Set(orgAdminBasePages);
+  const allPremiumPages = new Set();
+  Object.values(modulePageMap).forEach(pages => pages.forEach(p => allPremiumPages.add(p)));
+  enabledModules.forEach(moduleId => {
+    const pages = modulePageMap[moduleId];
+    if (pages) pages.forEach(p => allowedPages.add(p));
+  });
+
+  const premiumLockedPages = new Set();
+  allPremiumPages.forEach(p => { if (!allowedPages.has(p)) premiumLockedPages.add(p); });
+
+  // Clean up any previous support-mode state
+  document.querySelectorAll('.nav-badge-pro').forEach(b => b.remove());
+  document.querySelectorAll('.nav-item.premium-locked').forEach(i => i.classList.remove('premium-locked'));
+
+  document.querySelectorAll('.nav-item[data-page]').forEach(item => {
+    const page = item.getAttribute('data-page');
+    if (premiumLockedPages.has(page)) {
+      item.style.display = '';
+      item.classList.add('premium-locked');
+      if (!item.querySelector('.nav-badge-pro')) {
+        const proBadge = document.createElement('span');
+        proBadge.className = 'nav-badge-pro';
+        proBadge.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>';
+        item.appendChild(proBadge);
+      }
+    } else if (!allowedPages.has(page)) {
+      item.style.display = 'none';
+    } else {
+      item.style.display = '';
+    }
+  });
+
+  // Hide SISTEMA section (super-admin only pages)
+  const sistemaSection = document.querySelector('.nav-section[data-section="sistema"]');
+  if (sistemaSection) sistemaSection.style.display = 'none';
+
+  // Show standalone Impostazioni, hide Credenziali Accesso button
+  const standaloneSettings = document.getElementById('standalone-settings-nav');
+  if (standaloneSettings) standaloneSettings.style.display = '';
+  const credentialsBtn = document.querySelector('.nav-item-credentials');
+  if (credentialsBtn) credentialsBtn.style.display = 'none';
+
+  // Hide nav sections that have no visible items
+  document.querySelectorAll('.nav-section').forEach(section => {
+    const titleEl = section.querySelector('.nav-section-title');
+    const headerEl = section.querySelector('.nav-section-header-label');
+    const sectionName = (titleEl?.textContent || headerEl?.textContent || '').trim().toUpperCase();
+    if (['PARTNER PROGRAM', 'MULTI-TENANT'].some(s => sectionName.includes(s))) {
+      section.style.display = 'none';
+      return;
+    }
+    const visibleItems = Array.from(section.querySelectorAll('.nav-item')).filter(i => i.style.display !== 'none');
+    if (visibleItems.length === 0 && (titleEl || headerEl)) {
+      section.style.display = 'none';
+    }
+  });
+}
+
+// Restore full superadmin nav when leaving support mode
+function _restoreFullNav() {
+  document.querySelectorAll('.nav-badge-pro').forEach(b => b.remove());
+  document.querySelectorAll('.nav-item.premium-locked').forEach(i => i.classList.remove('premium-locked'));
+  document.querySelectorAll('.nav-item').forEach(item => { item.style.display = ''; });
+  document.querySelectorAll('.nav-section').forEach(section => { section.style.display = ''; });
+  // Standalone settings only shown for org_admin; platform mode uses platform-nav
+  const standaloneSettings = document.getElementById('standalone-settings-nav');
+  if (standaloneSettings) standaloneSettings.style.display = 'none';
+}
+
 function applySuperAdminMode(orgFilter, selectedOrg) {
   const isFullAdmin = currentUserInfo?.isFullAdmin;
   if (!isFullAdmin) return;
@@ -2684,7 +2786,7 @@ function applySuperAdminMode(orgFilter, selectedOrg) {
   const brandSubtitle = document.getElementById('brand-subtitle');
 
   if (orgFilter && selectedOrg) {
-    // SUPPORT MODE: specific org selected
+    // SUPPORT MODE: specific org selected — show sidebar as that org's admin sees it
     if (opNav) opNav.style.display = '';
     if (platNav) platNav.style.display = 'none';
     if (banner) {
@@ -2695,14 +2797,17 @@ function applySuperAdminMode(orgFilter, selectedOrg) {
     document.body.classList.remove('sa-platform-mode');
     document.body.classList.add('sa-support-mode');
     if (brandSubtitle) brandSubtitle.textContent = selectedOrg.name;
+    // Apply module-based filtering identical to what the org's own admin sees
+    _applySupportModeNav(selectedOrg.enabledModules || []);
   } else {
-    // PLATFORM MODE: all orgs
+    // PLATFORM MODE: all orgs — restore full superadmin sidebar
     if (opNav) opNav.style.display = 'none';
     if (platNav) platNav.style.display = '';
     if (banner) banner.style.display = 'none';
     document.body.classList.add('sa-platform-mode');
     document.body.classList.remove('sa-support-mode');
     if (brandSubtitle) brandSubtitle.textContent = 'Platform Admin';
+    _restoreFullNav();
   }
 }
 

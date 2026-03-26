@@ -88,6 +88,7 @@ export function registerAdminRoutes(app: Express) {
         status: organizations.status,
         isDemo: organizations.isDemo,
         demoExpiresAt: organizations.demoExpiresAt,
+        enabledModules: organizations.enabledModules,
       }).from(organizations).orderBy(organizations.name);
       const filtered = allOrgs.filter(org => {
         if (org.isDemo && org.demoExpiresAt && new Date(org.demoExpiresAt) < new Date()) {
