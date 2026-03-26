@@ -49,6 +49,7 @@ COPY --from=builder /app/server/templates ./server/templates
 COPY --from=builder /app/admin/public ./admin/public
 COPY --from=builder /app/assets ./assets
 COPY --from=builder /app/site ./site
+COPY --from=builder /app/conicorn ./conicorn
 
 # Copy Next.js static export → served at /dashboard by Express
 COPY --from=dashboard-builder /app/dashboard/out ./dashboard-static
