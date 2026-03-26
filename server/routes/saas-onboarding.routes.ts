@@ -18,6 +18,7 @@ import { db } from "../db";
 import { organizations, users, orgSubscriptions } from "@shared/schema";
 import { eq, and, lte, or } from "drizzle-orm";
 import { getResendClient } from "../resend-client";
+import { templateTrialBenvenuto, templateTrialInScadenza } from "../utils/email-templates";
 
 const FROM_EMAIL = "Soccorso Digitale <noreply@soccorsodigitale.app>";
 const APP_URL = process.env.APP_URL || "https://soccorsodigitale.app";
@@ -101,37 +102,25 @@ export async function sendWelcomeTrialEmail(
   password: string,
   trialEndsAt: Date
 ): Promise<void> {
-  const dashboardUrl = `${APP_URL}/admin`;
-  const formatted = trialEndsAt.toLocaleDateString("it-IT", { day: "2-digit", month: "long", year: "numeric" });
-
-  await sendEmail(email, `Benvenuto in Soccorso Digitale – Trial attivo per ${orgName}`, `
-<h2 style="margin:0 0 8px;color:#0D2440;font-size:20px;">Benvenuto, ${adminName}!</h2>
-<p style="color:#4a4a68;font-size:15px;line-height:1.7;margin:0 0 20px;">
-  Il tuo account Soccorso Digitale per <strong>${orgName}</strong> è stato attivato con successo.<br>
-  Hai <strong>14 giorni</strong> per esplorare tutte le funzionalità — il trial scade il <strong>${formatted}</strong>.
-</p>
-<table width="100%" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:24px;">
-<tr><td style="background:#0066CC;padding:12px 20px;border-radius:10px 10px 0 0;">
-<span style="color:#fff;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Credenziali di accesso</span>
-</td></tr>
-<tr><td style="padding:20px;">
-<p style="margin:0 0 8px;color:#64748b;font-size:12px;font-weight:700;text-transform:uppercase;">Email</p>
-<p style="margin:0 0 16px;color:#1a1a2e;font-size:14px;font-weight:500;">${email}</p>
-<p style="margin:0 0 8px;color:#64748b;font-size:12px;font-weight:700;text-transform:uppercase;">Password provvisoria</p>
-<p style="margin:0;font-family:'Courier New',monospace;background:#fff;border:1px solid #d1d5db;padding:8px 14px;border-radius:6px;color:#1a1a2e;font-size:15px;font-weight:600;display:inline-block;">${password}</p>
-</td></tr>
-</table>
-<div style="background:#EBF5FF;border-left:4px solid #0066CC;padding:14px 16px;margin-bottom:24px;border-radius:0 8px 8px 0;">
-<p style="margin:0;color:#0066CC;font-size:13px;font-weight:600;">Suggerimento sicurezza</p>
-<p style="margin:6px 0 0;color:#374151;font-size:13px;">Cambia la password al primo accesso nelle impostazioni del tuo profilo.</p>
-</div>
-<p style="text-align:center;margin-bottom:24px;">
-<a href="${dashboardUrl}" style="display:inline-block;background:#0066CC;color:#fff;text-decoration:none;padding:14px 48px;border-radius:8px;font-size:16px;font-weight:700;">Accedi alla Piattaforma</a>
-</p>
-<p style="color:#6B7280;font-size:13px;line-height:1.6;">
-  Durante il trial hai accesso completo a tutte le funzionalità. Prima della scadenza ti invieremo un avviso per confermare o cancellare la sottoscrizione.
-</p>
-`);
+  try {
+    const { client, fromEmail } = await getResendClient();
+    const html = templateTrialBenvenuto({
+      orgName,
+      adminName,
+      loginEmail: email,
+      password,
+      trialEndsAt,
+    });
+    const result = await client.emails.send({
+      from: fromEmail,
+      to: email,
+      subject: `Benvenuto in Soccorso Digitale – Trial attivo per ${orgName}`,
+      html,
+    });
+    if (result.error) console.error("[sendWelcomeTrialEmail] Resend error:", result.error);
+  } catch (err) {
+    console.error("[sendWelcomeTrialEmail] failed:", err);
+  }
 }
 
 export async function sendTrialWarningEmail(
@@ -141,26 +130,24 @@ export async function sendTrialWarningEmail(
   trialEndsAt: Date,
   planName: string
 ): Promise<void> {
-  const formatted = trialEndsAt.toLocaleDateString("it-IT", { day: "2-digit", month: "long", year: "numeric" });
-  const cancelUrl = `${APP_URL}/cancella-trial`;
-
-  await sendEmail(email, `Il tuo trial scade tra 2 giorni – ${orgName}`, `
-<h2 style="margin:0 0 8px;color:#0D2440;font-size:20px;">Caro ${adminName},</h2>
-<div style="background:#FFF7ED;border-left:4px solid #F59E0B;padding:16px;border-radius:0 8px 8px 0;margin-bottom:24px;">
-<p style="margin:0;color:#B45309;font-size:13px;font-weight:600;">Trial in scadenza il ${formatted}</p>
-<p style="margin:8px 0 0;color:#374151;font-size:13px;line-height:1.5;">
-  Il piano <strong>${planName}</strong> di <strong>${orgName}</strong> verrà attivato automaticamente al termine del trial con il metodo di pagamento già inserito.
-</p>
-</div>
-<p style="color:#4a4a68;font-size:15px;line-height:1.7;margin:0 0 20px;">
-  Se sei soddisfatto non devi fare nulla — il piano si attiva automaticamente.<br>
-  Se vuoi cancellare prima della scadenza, clicca qui sotto.
-</p>
-<p style="text-align:center;margin-bottom:16px;">
-<a href="${APP_URL}/admin" style="display:inline-block;background:#0066CC;color:#fff;text-decoration:none;padding:12px 36px;border-radius:8px;font-size:15px;font-weight:700;margin-right:12px;">Continua con il Piano</a>
-<a href="${cancelUrl}" style="display:inline-block;background:#fff;color:#dc2626;text-decoration:none;padding:12px 36px;border-radius:8px;font-size:15px;font-weight:700;border:1px solid #dc2626;">Cancella Trial</a>
-</p>
-`);
+  try {
+    const { client, fromEmail } = await getResendClient();
+    const html = templateTrialInScadenza({
+      orgName,
+      adminName,
+      trialEndsAt,
+      planName,
+    });
+    const result = await client.emails.send({
+      from: fromEmail,
+      to: email,
+      subject: `Il tuo trial scade tra 2 giorni – ${orgName}`,
+      html,
+    });
+    if (result.error) console.error("[sendTrialWarningEmail] Resend error:", result.error);
+  } catch (err) {
+    console.error("[sendTrialWarningEmail] failed:", err);
+  }
 }
 
 export async function sendTrialExpiredEmail(

@@ -1,4 +1,5 @@
 import { Resend } from 'resend';
+import { templateBenvenutoOrg, templateResetPassword } from './utils/email-templates';
 
 // Use verified custom domain if RESEND_FROM_EMAIL is set, otherwise fall back to
 // Resend's shared sandbox address (works without domain verification).
@@ -510,221 +511,21 @@ interface InvitationEmailData {
 
 export async function sendInvitationEmail(data: InvitationEmailData): Promise<boolean> {
   try {
-    console.log('Getting Resend client for invitation email...');
     const { client, fromEmail } = await getResendClient();
-    console.log(`Resend client obtained. From email: ${fromEmail}`);
-
-    const senderEmail = 'Soccorso Digitale <noreply@soccorsodigitale.app>';
-    const platformUrl = data.platformUrl || 'https://soccorsodigitale.app/admin/';
-    const currentYear = new Date().getFullYear();
-
-    const htmlContent = `<!DOCTYPE html>
-<html lang="it" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
-<head>
-<meta charset="UTF-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Credenziali di accesso - Soccorso Digitale</title>
-<!--[if mso]>
-<noscript>
-<xml>
-<o:OfficeDocumentSettings>
-<o:PixelsPerInch>96</o:PixelsPerInch>
-</o:OfficeDocumentSettings>
-</xml>
-</noscript>
-<![endif]-->
-</head>
-<body style="margin:0;padding:0;background-color:#f0f2f5;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;">
-<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color:#f0f2f5;border-collapse:collapse;">
-<tr><td align="center" style="padding:32px 16px;">
-<table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="max-width:600px;width:100%;background-color:#ffffff;border-radius:12px;overflow:hidden;">
-
-<!-- Header with gradient -->
-<tr>
-<td style="background:linear-gradient(135deg,#0066CC 0%,#004C99 50%,#003A75 100%);padding:40px 32px 32px;text-align:center;">
-<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
-<tr><td align="center" style="padding-bottom:18px;">
-<table role="presentation" cellspacing="0" cellpadding="0" border="0"><tr><td align="center" style="width:68px;height:68px;background-color:rgba(255,255,255,0.15);border-radius:16px;text-align:center;line-height:68px;border:2px solid rgba(255,255,255,0.25);">
-<svg width="36" height="36" viewBox="0 0 36 36" style="display:inline-block;vertical-align:middle;" xmlns="http://www.w3.org/2000/svg">
-<g fill="none" stroke="#00A651" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-<!-- Medical cross -->
-<line x1="18" y1="4" x2="18" y2="32"/><line x1="4" y1="18" x2="32" y2="18"/>
-<!-- Heart shape integrated with cross -->
-<path d="M 18 12 C 14.5 8 10 11 10 15 C 10 20 18 28 18 28 C 18 28 26 20 26 15 C 26 11 21.5 8 18 12" fill="none" stroke="#00A651" stroke-width="1.5"/>
-<!-- Heartbeat line -->
-<path d="M 8 20 L 10 20 L 12 16 L 14 20 L 16 20 L 18 14 L 20 24 L 22 20 L 28 20" stroke="#00A651" stroke-width="1.5" fill="none"/>
-</g>
-</svg>
-</td></tr></table>
-</td></tr>
-<tr><td align="center" style="color:#ffffff;font-size:28px;font-weight:700;line-height:1.2;letter-spacing:-0.3px;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;">Soccorso Digitale</td></tr>
-<tr><td align="center" style="color:rgba(255,255,255,0.75);font-size:13px;padding-top:8px;letter-spacing:1.5px;text-transform:uppercase;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;">Piattaforma di Gestione Operativa</td></tr>
-</table>
-</td>
-</tr>
-
-<!-- Green accent band with organization name -->
-<tr>
-<td style="background-color:#00A651;padding:16px 32px;text-align:center;">
-<span style="color:#ffffff;font-size:17px;font-weight:700;letter-spacing:0.5px;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;">${data.organizationName}</span>
-</td>
-</tr>
-
-<!-- Body content -->
-<tr>
-<td style="padding:36px 32px 20px;">
-<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
-<tr><td style="color:#1a1a2e;font-size:18px;font-weight:600;padding-bottom:14px;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;">Ciao ${data.recipientName},</td></tr>
-<tr><td style="color:#4a4a68;font-size:15px;line-height:1.7;padding-bottom:8px;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;">sei stato invitato ad accedere alla piattaforma <strong style="color:#0066CC;">Soccorso Digitale</strong> dell'organizzazione <strong>${data.organizationName}</strong>.</td></tr>
-<tr><td style="color:#4a4a68;font-size:15px;line-height:1.7;padding-bottom:8px;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;">Ti &egrave; stato assegnato il ruolo di <strong style="color:#00A651;">${data.roleName}</strong>.</td></tr>
-<tr><td style="color:#4a4a68;font-size:15px;line-height:1.7;padding-bottom:24px;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;">Di seguito trovi le tue credenziali di accesso.</td></tr>
-</table>
-
-<!-- Credentials box -->
-<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;">
-<tr>
-<td style="background-color:#0066CC;padding:14px 20px;">
-<span style="color:#ffffff;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;">Credenziali di Accesso</span>
-</td>
-</tr>
-<tr>
-<td style="padding:24px 20px;">
-<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
-<!-- Email row -->
-<tr>
-<td style="padding:10px 0;border-bottom:1px solid #e2e8f0;">
-<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
-<tr>
-<td width="110" valign="top" style="color:#64748b;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;padding-top:3px;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;">Email</td>
-<td style="color:#1a1a2e;font-size:15px;font-weight:500;word-break:break-all;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;">${data.recipientEmail}</td>
-</tr>
-</table>
-</td>
-</tr>
-<!-- Password row -->
-<tr>
-<td style="padding:10px 0;border-bottom:1px solid #e2e8f0;">
-<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
-<tr>
-<td width="110" valign="top" style="color:#64748b;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;padding-top:3px;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;">Password</td>
-<td><span style="display:inline-block;color:#1a1a2e;font-size:15px;font-weight:600;font-family:'Courier New',Courier,monospace;background-color:#ffffff;padding:6px 12px;border-radius:6px;border:1px solid #d1d5db;letter-spacing:0.5px;">${data.password}</span></td>
-</tr>
-</table>
-</td>
-</tr>
-<!-- Role row -->
-<tr>
-<td style="padding:10px 0;">
-<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
-<tr>
-<td width="110" valign="top" style="color:#64748b;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;padding-top:3px;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;">Ruolo</td>
-<td><span style="display:inline-block;background-color:#e0f2fe;color:#0066CC;font-size:13px;font-weight:700;padding:5px 14px;border-radius:20px;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;">${data.roleName}</span></td>
-</tr>
-</table>
-</td>
-</tr>
-</table>
-</td>
-</tr>
-</table>
-</td>
-</tr>
-
-<!-- Security notice -->
-<tr>
-<td style="padding:0 32px 24px;">
-<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color:#EEF2FF;border:1px solid #C7D2FE;border-radius:8px;">
-<tr><td style="padding:14px 16px;">
-<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
-<tr>
-<td width="24" valign="top" style="color:#4F46E5;font-size:16px;padding-right:10px;font-family:Arial,sans-serif;font-weight:bold;">&#10003;</td>
-<td style="color:#3730A3;font-size:13px;line-height:1.6;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;"><strong>Per la tua sicurezza,</strong> ti consigliamo di cambiare la password al primo accesso.</td>
-</tr>
-</table>
-</td></tr>
-</table>
-</td>
-</tr>
-
-<!-- Warning note -->
-<tr>
-<td style="padding:0 32px 24px;">
-<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color:#FFF7ED;border:1px solid #FDBA74;border-radius:8px;">
-<tr><td style="padding:12px 16px;">
-<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
-<tr>
-<td width="24" valign="top" style="color:#EA580C;font-size:16px;padding-right:8px;font-family:Arial,sans-serif;">&#9888;</td>
-<td style="color:#9A3412;font-size:13px;line-height:1.5;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;">Tieni al sicuro queste credenziali e non condividerle con altri. Contatta l'amministratore se hai domande.</td>
-</tr>
-</table>
-</td></tr>
-</table>
-</td>
-</tr>
-
-<!-- CTA Button -->
-<tr>
-<td align="center" style="padding:8px 32px 36px;">
-<table role="presentation" cellspacing="0" cellpadding="0" border="0">
-<tr>
-<td align="center" style="border-radius:8px;background-color:#0066CC;">
-<!--[if mso]>
-<v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="${platformUrl}" style="height:52px;v-text-anchor:middle;width:300px;" arcsize="15%" strokecolor="#0055AA" fillcolor="#0066CC">
-<w:anchorlock/>
-<center style="color:#ffffff;font-family:'Segoe UI',Tahoma,sans-serif;font-size:16px;font-weight:bold;">Accedi alla Piattaforma</center>
-</v:roundrect>
-<![endif]-->
-<!--[if !mso]><!-->
-<a href="${platformUrl}" target="_blank" style="display:inline-block;background-color:#0066CC;color:#ffffff;font-size:16px;font-weight:700;text-decoration:none;padding:16px 56px;border-radius:8px;letter-spacing:0.3px;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;mso-hide:all;">Accedi alla Piattaforma</a>
-<!--<![endif]-->
-</td>
-</tr>
-</table>
-</td>
-</tr>
-
-<!-- Divider -->
-<tr>
-<td style="padding:0 32px;">
-<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
-<tr><td style="border-top:1px solid #e2e8f0;font-size:0;line-height:0;">&nbsp;</td></tr>
-</table>
-</td>
-</tr>
-
-<!-- Footer -->
-<tr>
-<td style="padding:24px 32px 20px;text-align:center;">
-<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
-<tr><td align="center" style="color:#64748b;font-size:13px;font-weight:600;line-height:1.6;padding-bottom:6px;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;">Soccorso Digitale</td></tr>
-<tr><td align="center" style="color:#94a3b8;font-size:12px;line-height:1.6;padding-bottom:6px;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;">Piattaforma SaaS per la gestione operativa dei servizi di trasporto sanitario</td></tr>
-<tr><td align="center" style="color:#cbd5e1;font-size:11px;line-height:1.6;padding-bottom:12px;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;">Questa email &egrave; stata inviata automaticamente. Non rispondere a questo messaggio.<br>Se non hai richiesto queste credenziali, contatta l'amministratore della tua organizzazione.</td></tr>
-<tr><td align="center" style="color:#cbd5e1;font-size:11px;line-height:1.5;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;">&copy; ${currentYear} Soccorso Digitale. Tutti i diritti riservati.</td></tr>
-</table>
-</td>
-</tr>
-
-<!-- Bottom blue bar -->
-<tr>
-<td style="background-color:#0066CC;height:6px;font-size:0;line-height:0;">&nbsp;</td>
-</tr>
-
-</table>
-</td></tr>
-</table>
-</body>
-</html>`;
-
+    const htmlContent = templateBenvenutoOrg({
+      orgName: data.organizationName,
+      recipientName: data.recipientName,
+      loginEmail: data.recipientEmail,
+      password: data.password,
+      roleName: data.roleName,
+      loginUrl: data.platformUrl,
+    });
     const result = await client.emails.send({
-      from: senderEmail,
+      from: fromEmail,
       to: data.recipientEmail,
       subject: `Credenziali di accesso - ${data.organizationName}`,
       html: htmlContent,
     });
-
-    console.log('Invitation email send result:', JSON.stringify(result));
-
     if (result.error) {
       console.error('Resend API error sending invitation email:', JSON.stringify(result.error));
       return false;
@@ -733,9 +534,6 @@ export async function sendInvitationEmail(data: InvitationEmailData): Promise<bo
     return true;
   } catch (error: any) {
     console.error('Error sending invitation email:', error?.message || error);
-    if (error?.statusCode) {
-      console.error('Resend status code:', error.statusCode);
-    }
     return false;
   }
 }
@@ -750,117 +548,20 @@ export interface PasswordResetEmailData {
 
 export async function sendPasswordResetEmail(data: PasswordResetEmailData): Promise<boolean> {
   try {
-    const { client } = await getResendClient();
-    const senderEmail = 'Soccorso Digitale <noreply@soccorsodigitale.app>';
-    const platformUrl = data.platformUrl || 'https://soccorsodigitale.app/admin/';
-    const currentYear = new Date().getFullYear();
-
-    const htmlContent = `<!DOCTYPE html>
-<html lang="it">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nuova password - Soccorso Digitale</title>
-</head>
-<body style="margin:0;padding:0;background-color:#f0f2f5;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;">
-<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color:#f0f2f5;">
-<tr><td align="center" style="padding:32px 16px;">
-<table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="max-width:600px;width:100%;background-color:#ffffff;border-radius:12px;overflow:hidden;">
-
-<tr>
-<td style="background:linear-gradient(135deg,#0066CC 0%,#003A75 100%);padding:32px;text-align:center;">
-<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
-<tr><td align="center" style="padding-bottom:12px;">
-<table role="presentation" cellspacing="0" cellpadding="0" border="0"><tr><td align="center" style="width:56px;height:56px;background-color:rgba(255,255,255,0.2);border-radius:50%;text-align:center;line-height:56px;">
-<span style="color:#ffffff;font-size:28px;font-weight:700;">+</span>
-</td></tr></table>
-</td></tr>
-<tr><td align="center" style="color:#ffffff;font-size:24px;font-weight:700;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;">Soccorso Digitale</td></tr>
-</table>
-</td>
-</tr>
-
-<tr>
-<td style="background-color:#00A651;padding:12px 32px;text-align:center;">
-<span style="color:#ffffff;font-size:15px;font-weight:700;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;">${data.organizationName}</span>
-</td>
-</tr>
-
-<tr>
-<td style="padding:36px 32px;">
-<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
-<tr><td style="color:#1a1a2e;font-size:18px;font-weight:600;padding-bottom:14px;">Ciao ${data.recipientName},</td></tr>
-<tr><td style="color:#4a4a68;font-size:15px;line-height:1.7;padding-bottom:24px;">la tua password di accesso alla piattaforma <strong style="color:#0066CC;">Soccorso Digitale</strong> &egrave; stata aggiornata dall'amministratore della tua organizzazione.</td></tr>
-</table>
-
-<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;">
-<tr>
-<td style="background-color:#0066CC;padding:12px 20px;">
-<span style="color:#ffffff;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;">Nuova Password</span>
-</td>
-</tr>
-<tr>
-<td style="padding:20px;">
-<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
-<tr>
-<td style="padding:8px 0;">
-<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
-<tr>
-<td width="110" style="color:#64748b;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;padding-top:3px;">Email</td>
-<td style="color:#1a1a2e;font-size:15px;font-weight:500;word-break:break-all;">${data.recipientEmail}</td>
-</tr>
-</table>
-</td>
-</tr>
-<tr>
-<td style="padding:8px 0;border-top:1px solid #e2e8f0;">
-<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
-<tr>
-<td width="110" style="color:#64748b;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;padding-top:3px;">Password</td>
-<td><span style="display:inline-block;color:#1a1a2e;font-size:15px;font-weight:600;font-family:'Courier New',Courier,monospace;background-color:#ffffff;padding:6px 12px;border-radius:6px;border:1px solid #d1d5db;">${data.newPassword}</span></td>
-</tr>
-</table>
-</td>
-</tr>
-</table>
-</td>
-</tr>
-</table>
-
-<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="padding-top:24px;">
-<tr><td align="center">
-<a href="${platformUrl}" target="_blank" style="display:inline-block;background-color:#0066CC;color:#ffffff;font-size:16px;font-weight:700;text-decoration:none;padding:14px 48px;border-radius:8px;">Accedi alla Piattaforma</a>
-</td></tr>
-</table>
-</td>
-</tr>
-
-<tr><td style="padding:0 32px;"><table role="presentation" width="100%"><tr><td style="border-top:1px solid #e2e8f0;">&nbsp;</td></tr></table></td></tr>
-
-<tr>
-<td style="padding:16px 32px 20px;text-align:center;">
-<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
-<tr><td align="center" style="color:#94a3b8;font-size:12px;line-height:1.6;padding-bottom:8px;">Questa email &egrave; stata inviata automaticamente. Non rispondere a questo messaggio.</td></tr>
-<tr><td align="center" style="color:#cbd5e1;font-size:11px;">&copy; ${currentYear} Soccorso Digitale. Tutti i diritti riservati.</td></tr>
-</table>
-</td>
-</tr>
-
-<tr><td style="background-color:#0066CC;height:6px;">&nbsp;</td></tr>
-
-</table>
-</td></tr>
-</table>
-</body>
-</html>`;
-
+    const { client, fromEmail } = await getResendClient();
+    const htmlContent = templateResetPassword({
+      orgName: data.organizationName,
+      recipientName: data.recipientName,
+      loginEmail: data.recipientEmail,
+      newPassword: data.newPassword,
+      loginUrl: data.platformUrl,
+    });
     const result = await client.emails.send({
-      from: senderEmail,
+      from: fromEmail,
       to: data.recipientEmail,
       subject: `Nuova password - ${data.organizationName}`,
       html: htmlContent,
     });
-
     if (result.error) {
       console.error('Error sending password reset email:', JSON.stringify(result.error));
       return false;

@@ -6,6 +6,7 @@ import { eq, and, sql, desc, count } from "drizzle-orm";
 import { requireAdmin, requireSuperAdmin, requireOrgAdmin, getUserId, getOrganizationId, isFullAdmin } from "./auth-middleware";
 import { getResendClient } from "./resend-client";
 import { createDemoAccount } from "./demo-manager";
+import { templateRichiestaRicevuta, templateNotificaAdmin } from "./utils/email-templates";
 
 // Modules enabled by default for every new organization.
 // These correspond to the keys used in the frontend modulePageMap.
@@ -1003,60 +1004,21 @@ export function registerOrgAdminRoutes(app: Express) {
       try {
         const { client, fromEmail } = await getResendClient();
 
-          const confirmationHtml = `<!DOCTYPE html>
-<html>
-<head><meta charset="UTF-8"></head>
-<body style="margin:0;padding:0;background:#f5f5f5;font-family:'Segoe UI',Arial,sans-serif;">
-<div style="max-width:600px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.08);">
-  <div style="background:linear-gradient(135deg,#1a1a1a 0%,#2d2d2d 100%);padding:40px 40px 32px;text-align:center;">
-    <div style="display:inline-flex;align-items:center;gap:12px;margin-bottom:20px;">
-      <div style="width:44px;height:44px;background:linear-gradient(135deg,#c9aaff,#839aff);border-radius:12px;display:inline-flex;align-items:center;justify-content:center;">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 2L4 7v5c0 5.25 3.5 10.15 8 11.35C16.5 22.15 20 17.25 20 12V7l-8-5z" fill="white"/></svg>
-      </div>
-      <span style="color:#fff;font-size:16px;font-weight:700;letter-spacing:1px;">SOCCORSO DIGITALE</span>
-    </div>
-    <h1 style="color:#fff;font-size:24px;font-weight:700;margin:0 0 8px;">Richiesta Ricevuta!</h1>
-    <p style="color:#a6a6a6;font-size:15px;margin:0;">Ti contatteremo entro 24 ore lavorative</p>
-  </div>
-  <div style="padding:40px;">
-    <p style="color:#1a1a1a;font-size:16px;line-height:1.6;margin:0 0 24px;">Ciao <strong>${demoRequest.contactName}</strong>,</p>
-    <p style="color:#525252;font-size:15px;line-height:1.6;margin:0 0 24px;">Abbiamo ricevuto la tua richiesta di demo per <strong>${demoRequest.organizationName}</strong>. Il nostro team la analizzerà e ti invierà le credenziali di accesso entro 24 ore lavorative.</p>
-    <div style="background:#f8f8f8;border-radius:12px;padding:24px;margin:0 0 24px;">
-      <h3 style="color:#1a1a1a;font-size:14px;font-weight:600;margin:0 0 16px;text-transform:uppercase;letter-spacing:0.5px;">Cosa succede ora</h3>
-      <div style="display:flex;flex-direction:column;gap:12px;">
-        <div style="display:flex;align-items:flex-start;gap:12px;"><div style="width:24px;height:24px;background:linear-gradient(135deg,#c9aaff,#839aff);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span style="color:#fff;font-size:12px;font-weight:700;">1</span></div><p style="color:#525252;font-size:14px;margin:0;padding-top:2px;">Il team verifica la tua richiesta e predispone l'ambiente demo</p></div>
-        <div style="display:flex;align-items:flex-start;gap:12px;"><div style="width:24px;height:24px;background:linear-gradient(135deg,#c9aaff,#839aff);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span style="color:#fff;font-size:12px;font-weight:700;">2</span></div><p style="color:#525252;font-size:14px;margin:0;padding-top:2px;">Ricevi via email le credenziali di accesso con tutti i moduli attivi</p></div>
-        <div style="display:flex;align-items:flex-start;gap:12px;"><div style="width:24px;height:24px;background:linear-gradient(135deg,#c9aaff,#839aff);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span style="color:#fff;font-size:12px;font-weight:700;">3</span></div><p style="color:#525252;font-size:14px;margin:0;padding-top:2px;">Esplori la piattaforma liberamente per 7 giorni con i tuoi dati reali</p></div>
-      </div>
-    </div>
-    <div style="text-align:center;margin:32px 0;">
-      <a href="https://soccorsodigitale.app" style="display:inline-block;background:linear-gradient(135deg,#c9aaff,#839aff);color:#000;font-weight:700;font-size:14px;text-decoration:none;padding:14px 32px;border-radius:100px;">Visita il Sito</a>
-    </div>
-    <p style="color:#a6a6a6;font-size:13px;margin:0;">Per qualsiasi domanda, rispondi a questa email o scrivici a <a href="mailto:info@soccorsodigitale.app" style="color:#839aff;">info@soccorsodigitale.app</a></p>
-  </div>
-  <div style="background:#f8f8f8;padding:20px 40px;border-top:1px solid #e6e6e6;text-align:center;">
-    <p style="color:#a6a6a6;font-size:12px;margin:0;">© Soccorso Digitale in Cloud 2026 · <a href="https://soccorsodigitale.app/privacy" style="color:#a6a6a6;">Privacy</a></p>
-  </div>
-</div>
-</body>
-</html>`;
+          const confirmationHtml = templateRichiestaRicevuta({
+            contactName: demoRequest.contactName,
+            orgName: demoRequest.organizationName,
+          });
 
-          const adminNotificationHtml = `<!DOCTYPE html>
-<html>
-<body style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;">
-<h2 style="color:#1a1a1a;">🔔 Nuova Richiesta Demo</h2>
-<table style="width:100%;border-collapse:collapse;">
-<tr><td style="padding:8px;font-weight:bold;color:#525252;">Organizzazione:</td><td style="padding:8px;">${demoRequest.organizationName}</td></tr>
-<tr style="background:#f8f8f8;"><td style="padding:8px;font-weight:bold;color:#525252;">Contatto:</td><td style="padding:8px;">${demoRequest.contactName}</td></tr>
-<tr><td style="padding:8px;font-weight:bold;color:#525252;">Email:</td><td style="padding:8px;">${demoRequest.contactEmail}</td></tr>
-<tr style="background:#f8f8f8;"><td style="padding:8px;font-weight:bold;color:#525252;">Telefono:</td><td style="padding:8px;">${demoRequest.contactPhone || "—"}</td></tr>
-<tr><td style="padding:8px;font-weight:bold;color:#525252;">Città:</td><td style="padding:8px;">${[demoRequest.city, demoRequest.province].filter(Boolean).join(", ") || "—"}</td></tr>
-<tr style="background:#f8f8f8;"><td style="padding:8px;font-weight:bold;color:#525252;">Mezzi:</td><td style="padding:8px;">${demoRequest.vehicleCount ?? "—"}</td></tr>
-<tr><td style="padding:8px;font-weight:bold;color:#525252;">Note:</td><td style="padding:8px;">${demoRequest.notes || "—"}</td></tr>
-</table>
-<p><a href="https://soccorsodigitale.app/admin/" style="background:#1a1a1a;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;display:inline-block;margin-top:16px;">Gestisci nella Dashboard</a></p>
-</body>
-</html>`;
+          const adminNotificationHtml = templateNotificaAdmin({
+            orgName: demoRequest.organizationName,
+            contactName: demoRequest.contactName,
+            contactEmail: demoRequest.contactEmail,
+            contactPhone: demoRequest.contactPhone,
+            city: demoRequest.city,
+            province: demoRequest.province,
+            vehicleCount: demoRequest.vehicleCount,
+            notes: demoRequest.notes,
+          });
 
           const [confirmResult, notifyResult] = await Promise.allSettled([
             client.emails.send({
