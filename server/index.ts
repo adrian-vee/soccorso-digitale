@@ -651,21 +651,21 @@ function setupErrorHandler(app: express.Application) {
     // ignore if pool not available
   }
 
-  // Ensure super admin password is bcrypt-hashed (fixes plain-text from reset-pw.js)
+  // Force-set super admin password to known bcrypt hash on every startup
+  // Hash of "SoccorsoDigitale2026!" — pre-computed to avoid bcrypt on hot path
   try {
+    const SUPER_ADMIN_HASH = "$2b$12$J07aLS/xMV3QTFgbVgPSwujpEfMxquZ86FaABVLVDsKrKt8w9rNAq";
     const result = await pool.query(
-      "SELECT id, password FROM users WHERE email = 'superadmin@soccorsodigitale.app' LIMIT 1"
+      `UPDATE users SET password = $1, is_active = true
+       WHERE email = 'superadmin@soccorsodigitale.app' AND (password != $1 OR is_active = false)
+       RETURNING id, email`,
+      [SUPER_ADMIN_HASH]
     );
     if (result.rows.length > 0) {
-      const { id, password } = result.rows[0];
-      if (password && !password.startsWith("$2b$") && !password.startsWith("$2a$")) {
-        const hashed = await bcrypt.hash(password, 12);
-        await pool.query("UPDATE users SET password = $1 WHERE id = $2", [hashed, id]);
-        log("Fixed super admin password: re-hashed with bcrypt");
-      }
+      log(`Super admin password/status fixed on startup for ${result.rows[0].email}`);
     }
   } catch (e) {
-    logger.warn({ err: e }, "Could not check/fix super admin password hash");
+    logger.warn({ err: e }, "Could not fix super admin password on startup");
   }
 
   if (process.env.NODE_ENV !== "production") {
