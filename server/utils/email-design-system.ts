@@ -186,20 +186,14 @@ export function modulesGrid(modules: Array<{ name: string; desc: string }>): str
 export function cardFooter(replyTo = 'info@soccorsodigitale.app'): string {
   return `
   <table width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid #E5E5EA;background:#FAFAFC;">
-    <tr>
-      <td style="padding:20px 44px;">
-        <table cellpadding="0" cellspacing="0"><tr>
-          <td style="vertical-align:middle;padding-right:8px;">
-            <img src="${LOGO_URL}" alt="" width="16" height="16" style="display:block;filter:grayscale(100%);opacity:0.4;">
-          </td>
-          <td style="font-size:12px;font-weight:600;color:#86868B;vertical-align:middle;">Soccorso Digitale</td>
-          <td style="padding-left:20px;">
-            <a href="${SITE_URL}" style="font-size:12px;color:#86868B;text-decoration:none;margin-right:16px;">Sito web</a>
-            <a href="mailto:${replyTo}" style="font-size:12px;color:#86868B;text-decoration:none;">Supporto</a>
-          </td>
-        </tr></table>
-      </td>
-    </tr>
+    <tr><td style="padding:20px 44px;text-align:center;">
+      <img src="${LOGO_URL}" alt="" width="16" height="16" style="display:inline-block;filter:grayscale(100%);opacity:0.4;vertical-align:middle;margin-right:6px;">
+      <span style="font-size:12px;font-weight:600;color:#86868B;vertical-align:middle;">Soccorso Digitale</span>
+      <span style="margin:0 12px;color:#E5E5EA;vertical-align:middle;">|</span>
+      <a href="${SITE_URL}" style="font-size:12px;color:#86868B;text-decoration:none;vertical-align:middle;">Sito web</a>
+      <span style="margin:0 8px;color:#E5E5EA;vertical-align:middle;">·</span>
+      <a href="mailto:${replyTo}" style="font-size:12px;color:#86868B;text-decoration:none;vertical-align:middle;">Supporto</a>
+    </td></tr>
     <tr><td style="padding:0 44px 20px;text-align:center;">
       <div style="font-size:11px;color:#AEAEB2;line-height:1.6;">Email automatica · Non rispondere · &copy; 2026 Soccorso Digitale</div>
     </td></tr>

@@ -1331,29 +1331,24 @@ function updateSidebarFooter(user) {
   if (!user) return;
   const org = user.organization;
   const isSuperAdmin = user.role === 'super_admin';
-  const displayName = isSuperAdmin
-    ? (user.name || user.email?.split('@')[0] || 'Super Admin')
+  const orgDisplayName = isSuperAdmin
+    ? 'Soccorso Digitale'
     : (org?.name
         ? org.name.replace(/\s*\(Demo\s+\d+\)$/i, '')
-        : (user.email?.split('@')[0] || 'Organizzazione'));
+        : 'Organizzazione');
+  const userDisplayName = user.name || user.email?.split('@')[0] || '';
 
-  // Avatar initials (up to 2 words)
-  const avatarEl = document.getElementById('sidebar-user-avatar');
-  if (avatarEl) {
-    const initials = displayName
-      .split(' ')
-      .filter(Boolean)
-      .map(w => w[0])
-      .slice(0, 2)
-      .join('')
-      .toUpperCase();
-    avatarEl.textContent = initials || 'SD';
-  }
+  // New footer: org name + user name
+  const footerOrgEl = document.getElementById('footer-org-name');
+  if (footerOrgEl) footerOrgEl.textContent = orgDisplayName;
 
-  // Name
+  const footerUserEl = document.getElementById('footer-user-name');
+  if (footerUserEl) footerUserEl.textContent = userDisplayName;
+
+  // Legacy elements (may not exist in new HTML but keep for safety)
   const nameEl = document.getElementById('user-name');
   if (nameEl) {
-    nameEl.textContent = displayName;
+    nameEl.textContent = orgDisplayName;
     nameEl.style.cssText = '';
   }
 
@@ -1364,9 +1359,8 @@ function updateSidebarFooter(user) {
       admin: 'Amministratore', super_admin: 'Super Admin',
       director: 'Direttore', branch_manager: 'Resp. Sede', org_admin: 'Org Admin'
     };
-    const userName = user.name || user.email?.split('@')[0] || '';
     const roleName = roleMap[user.role] || user.role || 'Utente';
-    roleEl.textContent = userName ? `${userName} · ${roleName}` : roleName;
+    roleEl.textContent = userDisplayName ? `${userDisplayName} · ${roleName}` : roleName;
     roleEl.style.cssText = '';
   }
 }
@@ -1380,30 +1374,25 @@ function showDemoBannerIfNeeded() {
   
   const expiresAt = new Date(org.demoExpiresAt);
   const now = new Date();
-  const hoursLeft = Math.max(0, Math.round((expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60)));
-  const minutesLeft = Math.max(0, Math.round((expiresAt.getTime() - now.getTime()) / (1000 * 60)));
-  
+  const daysLeft = Math.max(0, Math.ceil((expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)));
+
   let timeText;
-  if (hoursLeft > 1) {
-    timeText = `${hoursLeft} ore rimanenti`;
-  } else if (minutesLeft > 0) {
-    timeText = `${minutesLeft} minuti rimanenti`;
+  if (daysLeft > 0) {
+    timeText = `${daysLeft} giorn${daysLeft === 1 ? 'o' : 'i'} rimanent${daysLeft === 1 ? 'e' : 'i'}`;
   } else {
-    timeText = 'Scaduta';
+    timeText = 'La tua prova è scaduta';
   }
-  
-  const cleanName = org.name.replace(/\s*\(Demo\s+\d+\)$/i, '');
-  
+
   const banner = document.createElement('div');
   banner.id = 'demo-banner';
   banner.innerHTML = `
     <div class="demo-banner-content">
       <span class="demo-banner-icon">&#9889;</span>
       <span class="demo-banner-text">
-        <strong>DEMO</strong> - Stai esplorando SOCCORSO DIGITALE in modalita demo. 
+        <strong>DEMO</strong> · Stai esplorando in modalità demo.
         <span class="demo-banner-time">${timeText}</span>
       </span>
-      <a href="mailto:info@soccorsodigitale.app?subject=Richiesta%20attivazione%20account&body=Buongiorno,%0A%0Avorrei attivare un account completo per la mia organizzazione.%0A%0ACordiali saluti" class="demo-banner-cta">Attiva Account Completo</a>
+      <a href="#" onclick="event.preventDefault();navigateTo('marketplace')" class="demo-banner-cta">Attiva un Piano</a>
     </div>
   `;
   
@@ -1667,21 +1656,16 @@ function applyRoleBasedAccess() {
     // Store locked pages globally for navigateTo checks
     window._premiumLockedPages = premiumLockedPages;
     
-    // Hide nav items not in allowed list AND not in premium locked list
-    // Premium locked pages stay visible but get a PRO badge
+    // Hide all nav items not in allowed list; premium-locked pages are hidden too
+    // (they appear in Marketplace instead)
     document.querySelectorAll('.nav-item[data-page]').forEach(item => {
       const page = item.getAttribute('data-page');
-      if (premiumLockedPages.has(page)) {
-        item.style.display = '';
-        item.classList.add('premium-locked');
-        if (!item.querySelector('.nav-badge-pro')) {
-          const proBadge = document.createElement('span');
-          proBadge.className = 'nav-badge-pro';
-          proBadge.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>';
-          item.appendChild(proBadge);
-        }
-      } else if (!allowedPages.has(page)) {
+      item.classList.remove('premium-locked');
+      item.querySelector('.nav-badge-pro')?.remove();
+      if (!allowedPages.has(page)) {
         item.style.display = 'none';
+      } else {
+        item.style.display = '';
       }
     });
     

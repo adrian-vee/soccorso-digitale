@@ -711,29 +711,13 @@
             </div>
           </nav>
 
-          <div class="sidebar-footer">
-            <div class="fleet-summary">
-              <div class="fleet-summary-item">
-                <span class="fleet-dot active"></span>
-                <span>Attivi</span>
-                <strong id="active-count">0</strong>
-              </div>
-              <div class="fleet-summary-item">
-                <span class="fleet-dot inactive"></span>
-                <span>In sosta</span>
-                <strong id="idle-count">0</strong>
-              </div>
-            </div>
-            <div class="sidebar-user">
-              <div id="sidebar-user-avatar" style="width:32px;height:32px;border-radius:8px;background:#1E3A8A;color:#DBEAFE;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;font-family:'DM Sans',sans-serif;letter-spacing:0.02em;">CE</div>
-              <div class="user-info">
-                <span class="user-name" id="user-name">Croce Europa</span>
-                <span class="user-role" id="user-role-text">Amministratore</span>
-              </div>
-              <button id="logout-btn" class="btn-icon-sm" title="Esci" style="background:none;border:none;cursor:pointer;padding:4px;border-radius:6px;display:flex;align-items:center;flex-shrink:0;transition:background 0.15s;" onmouseover="this.style.background='#F0F4FF'" onmouseout="this.style.background='none'">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-              </button>
-            </div>
+          <div class="sidebar-footer" style="margin-top:auto;padding:12px 16px;border-top:0.5px solid #E2E8F0;background:#FFFFFF;flex-shrink:0;">
+            <div id="footer-org-name" style="font-size:12px;font-weight:600;color:#0C1A2E;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Nome Organizzazione</div>
+            <div id="footer-user-name" style="font-size:11px;color:#64748B;margin-bottom:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Nome Utente</div>
+            <button id="logout-btn" onclick="handleLogout()" style="width:100%;background:none;border:0.5px solid #E2E8F0;border-radius:7px;padding:6px 12px;font-size:11px;font-weight:600;color:#64748B;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;font-family:'DM Sans',sans-serif;transition:all 0.15s;" onmouseover="this.style.background='#F0F4FF';this.style.color='#1E3A8A'" onmouseout="this.style.background='none';this.style.color='#64748B'">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+              Esci
+            </button>
           </div>
         </aside>
 
