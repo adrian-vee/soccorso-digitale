@@ -19,22 +19,13 @@
 </head>
 <body>
   <!-- Auth loading overlay: shown while session check runs, hides instantly after -->
-  <div id="auth-loading-overlay" style="position:fixed;inset:0;background:#0f0f0f;display:flex;align-items:center;justify-content:center;z-index:9999;">
-    <div style="text-align:center;">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="48" height="48" style="margin-bottom:12px;">
-        <defs>
-          <linearGradient id="hg" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stop-color="#c9aaff"/>
-            <stop offset="50%" stop-color="#ffcdfd"/>
-            <stop offset="100%" stop-color="#839aff"/>
-          </linearGradient>
-        </defs>
-        <rect x="35" y="15" width="30" height="70" rx="4" fill="url(#hg)"/>
-        <rect x="15" y="35" width="70" height="30" rx="4" fill="url(#hg)"/>
-        <path d="M 20 75 Q 50 55 80 75" stroke="#b3e2ff" stroke-width="8" fill="none" stroke-linecap="round"/>
-      </svg>
-      <div style="font-size:13px;color:#525252;font-family:system-ui,sans-serif;">Caricamento...</div>
+  <div id="auth-loading-overlay" style="position:fixed;inset:0;background:linear-gradient(135deg,#0B1426 0%,#1A1A24 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;">
+    <img src="/images/69b0dc9033646175674e6d28_logoicon.svg" style="width:48px;height:48px;filter:brightness(0) invert(1);opacity:0.9;margin-bottom:20px;" alt="">
+    <div style="font-size:13px;font-weight:600;color:rgba(255,255,255,0.5);letter-spacing:0.08em;text-transform:uppercase;font-family:system-ui,sans-serif;">Soccorso Digitale</div>
+    <div style="margin-top:24px;width:32px;height:2px;background:rgba(255,255,255,0.15);border-radius:1px;overflow:hidden;">
+      <div style="height:100%;background:#2997FF;border-radius:1px;animation:sd-load-bar 1.2s ease-in-out infinite;"></div>
     </div>
+    <style>@keyframes sd-load-bar{0%{width:0%;margin-left:0}50%{width:100%;margin-left:0}100%{width:0%;margin-left:100%}}</style>
   </div>
   <div id="app">
     <div id="login-page" class="page hidden">

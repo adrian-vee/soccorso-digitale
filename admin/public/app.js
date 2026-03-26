@@ -1615,58 +1615,36 @@ function applyRoleBasedAccess() {
   }
   
   if (isOrgAdmin) {
-    const orgInfo = currentUserInfo.organization;
-    const enabledModules = orgInfo?.enabledModules || [];
-    
-    // Base pages always available to org_admin
-    const orgAdminBasePages = [
-      'dashboard', 'trips', 'programma-giornaliero', 'vehicles', 'credentials', 'sedi', 'structures',
-      'photo-reports', 'vehicle-documents',
-      'staff-members', 'announcements', 'settings',
-      'statistics', 'audit-logs', 'privacy',
-      'marketplace', 'realtime-availability',
-      'confidentiality-agreements', 'structure-requests',
-      'documents',
-      'sla-management', 'compliance-ulss9', 'art8-reports',
-      'coverage-map', 'emergency-alerts', 'notif-config', 'security-center'
-    ];
-    
-    // Build the full allowed pages list: base + enabled module pages
-    const allowedPages = new Set(orgAdminBasePages);
-    const premiumLockedPages = new Set();
-    
-    // Collect all premium module pages
-    const allPremiumPages = new Set();
-    Object.values(modulePageMap).forEach(pages => {
-      pages.forEach(p => allPremiumPages.add(p));
-    });
-    
-    enabledModules.forEach(moduleId => {
-      const pages = modulePageMap[moduleId];
-      if (pages) pages.forEach(p => allowedPages.add(p));
-    });
-    
-    // Determine which premium pages are NOT enabled (locked)
-    allPremiumPages.forEach(p => {
-      if (!allowedPages.has(p)) {
-        premiumLockedPages.add(p);
-      }
-    });
-    
-    // Store locked pages globally for navigateTo checks
-    window._premiumLockedPages = premiumLockedPages;
-    
-    // Hide all nav items not in allowed list; premium-locked pages are hidden too
-    // (they appear in Marketplace instead)
+    // Exact whitelist of sidebar pages for org_admin.
+    // Pages NOT in this list are hidden completely — they appear in Marketplace as purchasable.
+    // Superadmin always sees everything (handled before this block).
+    const orgAdminAllowedPages = new Set([
+      // System
+      'dashboard', 'settings', 'marketplace',
+      // Servizi operativi
+      'trips', 'programma-giornaliero',
+      // Flotta
+      'vehicles', 'realtime-availability', 'photo-reports', 'vehicle-documents', 'sanitization-logs',
+      // Consegne digitali
+      'handoffs',
+      // Personale
+      'staff-members', 'volunteer-registry', 'burnout-prevention',
+      // Turni
+      'scheduling', 'monthly-scheduling', 'staff-availability', 'shift-statistics', 'shift-settings',
+      // Inventario e sede
+      'inventory', 'scadenze', 'sedi', 'structures',
+      // Report
+      'statistics', 'finance',
+    ]);
+
+    window._premiumLockedPages = new Set();
+
+    // Show only whitelisted pages; hide everything else (no PRO badge, no lock)
     document.querySelectorAll('.nav-item[data-page]').forEach(item => {
       const page = item.getAttribute('data-page');
       item.classList.remove('premium-locked');
       item.querySelector('.nav-badge-pro')?.remove();
-      if (!allowedPages.has(page)) {
-        item.style.display = 'none';
-      } else {
-        item.style.display = '';
-      }
+      item.style.display = orgAdminAllowedPages.has(page) ? '' : 'none';
     });
     
     // Hide special buttons without data-page (Credenziali Accesso)
