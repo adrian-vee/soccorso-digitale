@@ -4,6 +4,8 @@ import { db } from "./db";
 import { organizations, users, vehicles, locations, trips, demoRequests, staffMembers } from "@shared/schema";
 import { eq, and, sql, desc, count } from "drizzle-orm";
 import { requireAdmin, requireSuperAdmin, requireOrgAdmin, getUserId, getOrganizationId, isFullAdmin } from "./auth-middleware";
+import { getResendClient } from "./resend-client";
+import { createDemoAccount } from "./demo-manager";
 
 export function registerOrgAdminRoutes(app: Express) {
 
@@ -858,6 +860,286 @@ export function registerOrgAdminRoutes(app: Express) {
     } catch (error) {
       console.error("Error sending welcome email:", error);
       res.status(500).json({ error: "Errore nell'invio dell'email" });
+    }
+  });
+
+  // ── SUPER-ADMIN DEMO REQUEST MANAGEMENT ──────────────────────────────────────
+
+  app.get("/api/super-admin/demo-requests", requireSuperAdmin, async (_req, res) => {
+    try {
+      const requests = await db.select().from(demoRequests).orderBy(desc(demoRequests.createdAt));
+      res.json(requests);
+    } catch (error) {
+      console.error("Error fetching demo requests:", error);
+      res.status(500).json({ error: "Errore del server" });
+    }
+  });
+
+  app.post("/api/super-admin/demo-requests/:id/approve", requireSuperAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const userId = getUserId(req);
+
+      const [request] = await db.select().from(demoRequests).where(eq(demoRequests.id, id));
+      if (!request) {
+        return res.status(404).json({ error: "Richiesta non trovata" });
+      }
+      if (request.status !== "pending") {
+        return res.status(400).json({ error: "La richiesta è già stata elaborata" });
+      }
+
+      const [updated] = await db.update(demoRequests)
+        .set({
+          status: "approved",
+          reviewedBy: userId ? parseInt(String(userId)) : null,
+          reviewedAt: new Date(),
+          reviewNotes: null,
+        })
+        .where(eq(demoRequests.id, id))
+        .returning();
+
+      const result = await createDemoAccount(
+        request.contactEmail,
+        request.contactName,
+        request.organizationName,
+      );
+
+      if (!result.success) {
+        console.error("[demo-requests] createDemoAccount failed:", result.error);
+      }
+
+      res.json({ success: true, request: updated, demoResult: result });
+    } catch (error) {
+      console.error("Error approving demo request:", error);
+      res.status(500).json({ error: "Errore del server" });
+    }
+  });
+
+  app.post("/api/super-admin/demo-requests/:id/reject", requireSuperAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { reason } = req.body;
+      const userId = getUserId(req);
+
+      const [request] = await db.select().from(demoRequests).where(eq(demoRequests.id, id));
+      if (!request) {
+        return res.status(404).json({ error: "Richiesta non trovata" });
+      }
+
+      const [updated] = await db.update(demoRequests)
+        .set({
+          status: "rejected",
+          reviewedBy: userId ? parseInt(String(userId)) : null,
+          reviewedAt: new Date(),
+          reviewNotes: reason || null,
+        })
+        .where(eq(demoRequests.id, id))
+        .returning();
+
+      res.json({ success: true, request: updated });
+    } catch (error) {
+      console.error("Error rejecting demo request:", error);
+      res.status(500).json({ error: "Errore del server" });
+    }
+  });
+
+  // ── PUBLIC DEMO REQUEST SUBMISSION ───────────────────────────────────────────
+
+  app.post("/api/public/demo-request", async (req, res) => {
+    try {
+      const {
+        organizationName,
+        contactName,
+        contactEmail,
+        contactPhone,
+        city,
+        province,
+        vehicleCount,
+        orgType,
+        notes,
+      } = req.body;
+
+      if (!organizationName || !contactName || !contactEmail) {
+        return res.status(400).json({
+          error: "Nome organizzazione, nome referente e email sono obbligatori",
+        });
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(contactEmail)) {
+        return res.status(400).json({ error: "Indirizzo email non valido" });
+      }
+
+      const [demoRequest] = await db.insert(demoRequests).values({
+        organizationName: organizationName.trim(),
+        contactName: contactName.trim(),
+        contactEmail: contactEmail.trim().toLowerCase(),
+        contactPhone: contactPhone?.trim() || null,
+        city: city?.trim() || null,
+        province: province?.trim().toUpperCase().slice(0, 2) || null,
+        vehicleCount: vehicleCount ? parseInt(String(vehicleCount), 10) : null,
+        notes: [orgType ? `Tipologia: ${orgType}` : null, notes?.trim() || null]
+          .filter(Boolean)
+          .join(" — ") || null,
+        status: "pending",
+      }).returning();
+
+      // Send emails in the background — do not block the response
+      setImmediate(async () => {
+        try {
+          const { client, fromEmail } = await getResendClient();
+
+          const confirmationHtml = `<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"></head>
+<body style="margin:0;padding:0;background:#f5f5f5;font-family:'Segoe UI',Arial,sans-serif;">
+<div style="max-width:600px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.08);">
+  <div style="background:linear-gradient(135deg,#1a1a1a 0%,#2d2d2d 100%);padding:40px 40px 32px;text-align:center;">
+    <div style="display:inline-flex;align-items:center;gap:12px;margin-bottom:20px;">
+      <div style="width:44px;height:44px;background:linear-gradient(135deg,#c9aaff,#839aff);border-radius:12px;display:inline-flex;align-items:center;justify-content:center;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 2L4 7v5c0 5.25 3.5 10.15 8 11.35C16.5 22.15 20 17.25 20 12V7l-8-5z" fill="white"/></svg>
+      </div>
+      <span style="color:#fff;font-size:16px;font-weight:700;letter-spacing:1px;">SOCCORSO DIGITALE</span>
+    </div>
+    <h1 style="color:#fff;font-size:24px;font-weight:700;margin:0 0 8px;">Richiesta Ricevuta!</h1>
+    <p style="color:#a6a6a6;font-size:15px;margin:0;">Ti contatteremo entro 24 ore lavorative</p>
+  </div>
+  <div style="padding:40px;">
+    <p style="color:#1a1a1a;font-size:16px;line-height:1.6;margin:0 0 24px;">Ciao <strong>${demoRequest.contactName}</strong>,</p>
+    <p style="color:#525252;font-size:15px;line-height:1.6;margin:0 0 24px;">Abbiamo ricevuto la tua richiesta di demo per <strong>${demoRequest.organizationName}</strong>. Il nostro team la analizzerà e ti invierà le credenziali di accesso entro 24 ore lavorative.</p>
+    <div style="background:#f8f8f8;border-radius:12px;padding:24px;margin:0 0 24px;">
+      <h3 style="color:#1a1a1a;font-size:14px;font-weight:600;margin:0 0 16px;text-transform:uppercase;letter-spacing:0.5px;">Cosa succede ora</h3>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div style="display:flex;align-items:flex-start;gap:12px;"><div style="width:24px;height:24px;background:linear-gradient(135deg,#c9aaff,#839aff);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span style="color:#fff;font-size:12px;font-weight:700;">1</span></div><p style="color:#525252;font-size:14px;margin:0;padding-top:2px;">Il team verifica la tua richiesta e predispone l'ambiente demo</p></div>
+        <div style="display:flex;align-items:flex-start;gap:12px;"><div style="width:24px;height:24px;background:linear-gradient(135deg,#c9aaff,#839aff);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span style="color:#fff;font-size:12px;font-weight:700;">2</span></div><p style="color:#525252;font-size:14px;margin:0;padding-top:2px;">Ricevi via email le credenziali di accesso con tutti i moduli attivi</p></div>
+        <div style="display:flex;align-items:flex-start;gap:12px;"><div style="width:24px;height:24px;background:linear-gradient(135deg,#c9aaff,#839aff);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span style="color:#fff;font-size:12px;font-weight:700;">3</span></div><p style="color:#525252;font-size:14px;margin:0;padding-top:2px;">Esplori la piattaforma liberamente per 7 giorni con i tuoi dati reali</p></div>
+      </div>
+    </div>
+    <div style="text-align:center;margin:32px 0;">
+      <a href="https://soccorsodigitale.app" style="display:inline-block;background:linear-gradient(135deg,#c9aaff,#839aff);color:#000;font-weight:700;font-size:14px;text-decoration:none;padding:14px 32px;border-radius:100px;">Visita il Sito</a>
+    </div>
+    <p style="color:#a6a6a6;font-size:13px;margin:0;">Per qualsiasi domanda, rispondi a questa email o scrivici a <a href="mailto:info@soccorsodigitale.app" style="color:#839aff;">info@soccorsodigitale.app</a></p>
+  </div>
+  <div style="background:#f8f8f8;padding:20px 40px;border-top:1px solid #e6e6e6;text-align:center;">
+    <p style="color:#a6a6a6;font-size:12px;margin:0;">© Soccorso Digitale in Cloud 2026 · <a href="https://soccorsodigitale.app/privacy" style="color:#a6a6a6;">Privacy</a></p>
+  </div>
+</div>
+</body>
+</html>`;
+
+          const adminNotificationHtml = `<!DOCTYPE html>
+<html>
+<body style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;">
+<h2 style="color:#1a1a1a;">🔔 Nuova Richiesta Demo</h2>
+<table style="width:100%;border-collapse:collapse;">
+<tr><td style="padding:8px;font-weight:bold;color:#525252;">Organizzazione:</td><td style="padding:8px;">${demoRequest.organizationName}</td></tr>
+<tr style="background:#f8f8f8;"><td style="padding:8px;font-weight:bold;color:#525252;">Contatto:</td><td style="padding:8px;">${demoRequest.contactName}</td></tr>
+<tr><td style="padding:8px;font-weight:bold;color:#525252;">Email:</td><td style="padding:8px;">${demoRequest.contactEmail}</td></tr>
+<tr style="background:#f8f8f8;"><td style="padding:8px;font-weight:bold;color:#525252;">Telefono:</td><td style="padding:8px;">${demoRequest.contactPhone || "—"}</td></tr>
+<tr><td style="padding:8px;font-weight:bold;color:#525252;">Città:</td><td style="padding:8px;">${[demoRequest.city, demoRequest.province].filter(Boolean).join(", ") || "—"}</td></tr>
+<tr style="background:#f8f8f8;"><td style="padding:8px;font-weight:bold;color:#525252;">Mezzi:</td><td style="padding:8px;">${demoRequest.vehicleCount ?? "—"}</td></tr>
+<tr><td style="padding:8px;font-weight:bold;color:#525252;">Note:</td><td style="padding:8px;">${demoRequest.notes || "—"}</td></tr>
+</table>
+<p><a href="https://soccorsodigitale.app/admin/" style="background:#1a1a1a;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;display:inline-block;margin-top:16px;">Gestisci nella Dashboard</a></p>
+</body>
+</html>`;
+
+          await Promise.allSettled([
+            client.emails.send({
+              from: fromEmail,
+              to: demoRequest.contactEmail,
+              subject: "Richiesta Demo Ricevuta - Soccorso Digitale",
+              html: confirmationHtml,
+            }),
+            client.emails.send({
+              from: fromEmail,
+              to: "info@soccorsodigitale.app",
+              subject: `Nuova richiesta demo: ${demoRequest.organizationName}`,
+              html: adminNotificationHtml,
+            }),
+          ]);
+        } catch (emailError) {
+          console.error("[demo-request] Error sending emails:", emailError);
+        }
+      });
+
+      res.status(201).json({ success: true, id: demoRequest.id });
+    } catch (error) {
+      console.error("Error creating public demo request:", error);
+      res.status(500).json({ error: "Errore del server. Riprova tra qualche minuto." });
+    }
+  });
+
+  // ── ORG EMAIL SENDING ─────────────────────────────────────────────────────────
+
+  app.post("/api/org-admin/send-email", requireSuperAdmin, async (req, res) => {
+    try {
+      const {
+        organizationIds,
+        templateId,
+        subject,
+        htmlBody,
+        recipientEmails,
+      } = req.body as {
+        organizationIds: string[];
+        templateId: string;
+        subject: string;
+        htmlBody: string;
+        recipientEmails?: string[];
+      };
+
+      if (!subject || !htmlBody) {
+        return res.status(400).json({ error: "Oggetto e corpo email sono obbligatori" });
+      }
+      if (!Array.isArray(organizationIds) || organizationIds.length === 0) {
+        return res.status(400).json({ error: "Seleziona almeno un'organizzazione" });
+      }
+
+      let targets: string[] = [];
+
+      if (Array.isArray(recipientEmails) && recipientEmails.length > 0) {
+        targets = recipientEmails.filter(e => typeof e === "string" && e.trim());
+      } else {
+        const orgs = await db
+          .select({ email: organizations.email })
+          .from(organizations)
+          .where(
+            organizationIds.length === 1
+              ? eq(organizations.id, organizationIds[0])
+              : sql`${organizations.id} = ANY(ARRAY[${sql.join(
+                  organizationIds.map(id => sql`${id}`),
+                  sql`, `,
+                )}]::text[])`,
+          );
+        targets = orgs.map(o => o.email).filter((e): e is string => !!e);
+      }
+
+      if (targets.length === 0) {
+        return res.status(400).json({ error: "Nessun indirizzo email trovato per le organizzazioni selezionate" });
+      }
+
+      const { client, fromEmail } = await getResendClient();
+
+      const results = await Promise.allSettled(
+        targets.map(email =>
+          client.emails.send({
+            from: fromEmail,
+            to: email,
+            subject,
+            html: htmlBody,
+          }),
+        ),
+      );
+
+      const sent = results.filter(r => r.status === "fulfilled").length;
+      const failed = results.filter(r => r.status === "rejected").length;
+
+      console.log(`[org-email] Bulk send: ${sent} sent, ${failed} failed. Template: ${templateId}`);
+
+      res.json({ success: true, sent, failed, total: targets.length });
+    } catch (error) {
+      console.error("Error sending org emails:", error);
+      res.status(500).json({ error: "Errore durante l'invio delle email" });
     }
   });
 

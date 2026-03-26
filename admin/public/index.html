@@ -8198,9 +8198,11 @@
             <div style="display:flex;gap:0;margin-bottom:20px;border-bottom:2px solid var(--border)">
               <button class="btn" id="tab-orgs-btn" onclick="switchOrgTab('orgs')" style="border:none;border-bottom:2px solid var(--primary);margin-bottom:-2px;border-radius:0;padding:10px 20px;font-weight:600;color:var(--primary);background:transparent">Organizzazioni</button>
               <button class="btn" id="tab-demo-btn" onclick="switchOrgTab('demo')" style="border:none;border-bottom:2px solid transparent;margin-bottom:-2px;border-radius:0;padding:10px 20px;font-weight:500;color:var(--text-secondary);background:transparent">Richieste Demo <span id="demo-requests-badge" style="display:none;background:#E74C3C;color:white;font-size:11px;padding:2px 7px;border-radius:10px;margin-left:6px;font-weight:600">0</span></button>
+              <button class="btn" id="tab-email-btn" onclick="switchOrgTab('email')" style="border:none;border-bottom:2px solid transparent;margin-bottom:-2px;border-radius:0;padding:10px 20px;font-weight:500;color:var(--text-secondary);background:transparent">Invia Email</button>
             </div>
             <div id="organizations-list"></div>
             <div id="demo-requests-list" style="display:none"></div>
+            <div id="email-compose-list" style="display:none"></div>
           </section>
 
           <!-- Gare d'Appalto Intelligence Section -->
@@ -11129,6 +11131,908 @@
       document.addEventListener('DOMContentLoaded', patchChartDefaults);
     }
   })();
+  </script>
+
+  <!-- ============================================================
+       ORGANIZATIONS TABS: Demo Requests + Email Compose
+       ============================================================ -->
+  <script>
+  // ── Tab switcher ─────────────────────────────────────────────
+  function switchOrgTab(tab) {
+    var tabs = ['orgs', 'demo', 'email'];
+    tabs.forEach(function(t) {
+      var btn = document.getElementById('tab-' + t + '-btn');
+      if (!btn) return;
+      if (t === tab) {
+        btn.style.borderBottom = '2px solid var(--primary)';
+        btn.style.fontWeight = '600';
+        btn.style.color = 'var(--primary)';
+      } else {
+        btn.style.borderBottom = '2px solid transparent';
+        btn.style.fontWeight = '500';
+        btn.style.color = 'var(--text-secondary)';
+      }
+    });
+    var orgsList = document.getElementById('organizations-list');
+    var demoList = document.getElementById('demo-requests-list');
+    var emailList = document.getElementById('email-compose-list');
+    if (orgsList) orgsList.style.display = (tab === 'orgs') ? '' : 'none';
+    if (demoList) demoList.style.display = (tab === 'demo') ? '' : 'none';
+    if (emailList) emailList.style.display = (tab === 'email') ? '' : 'none';
+
+    if (tab === 'demo') loadDemoRequests();
+    if (tab === 'email') loadEmailCompose();
+  }
+
+  // ── Demo Requests ─────────────────────────────────────────────
+  function loadDemoRequests() {
+    var container = document.getElementById('demo-requests-list');
+    if (!container) return;
+    container.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-secondary)"><div class="spinner" style="width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 16px"></div>Caricamento richieste demo...</div>';
+    fetch('/api/super-admin/demo-requests', { headers: { 'Authorization': 'Bearer ' + (window._authToken || localStorage.getItem('authToken') || '') } })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        var requests = Array.isArray(data) ? data : (data.requests || data.data || []);
+        var pending = requests.filter(function(r) { return r.status === 'pending'; }).length;
+        var badge = document.getElementById('demo-requests-badge');
+        if (badge) {
+          if (pending > 0) {
+            badge.textContent = pending;
+            badge.style.display = 'inline-block';
+          } else {
+            badge.style.display = 'none';
+          }
+        }
+        if (requests.length === 0) {
+          container.innerHTML = '<div style="padding:60px;text-align:center;color:var(--text-secondary)"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin:0 auto 16px;display:block;opacity:0.4"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg><h3 style="margin:0 0 8px;font-size:16px;color:var(--text-primary)">Nessuna richiesta demo</h3><p style="margin:0;font-size:14px">Le nuove richieste appariranno qui.</p></div>';
+          return;
+        }
+        var html = '<div style="display:grid;gap:16px">';
+        requests.forEach(function(req) {
+          var date = req.createdAt ? new Date(req.createdAt).toLocaleDateString('it-IT', { day:'2-digit', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '—';
+          var statusBadge = '';
+          if (req.status === 'pending') {
+            statusBadge = '<span style="display:inline-flex;align-items:center;gap:5px;background:#FFF3CD;color:#856404;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600"><span style="width:6px;height:6px;background:#F59E0B;border-radius:50%;display:inline-block"></span>In attesa</span>';
+          } else if (req.status === 'approved') {
+            statusBadge = '<span style="display:inline-flex;align-items:center;gap:5px;background:#D4EDDA;color:#155724;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600"><span style="width:6px;height:6px;background:#28a745;border-radius:50%;display:inline-block"></span>Approvata</span>';
+          } else if (req.status === 'rejected') {
+            statusBadge = '<span style="display:inline-flex;align-items:center;gap:5px;background:#F8D7DA;color:#721c24;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600"><span style="width:6px;height:6px;background:#dc3545;border-radius:50%;display:inline-block"></span>Rifiutata</span>';
+          } else {
+            statusBadge = '<span style="background:var(--border);color:var(--text-secondary);padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600">' + (req.status || 'Sconosciuto') + '</span>';
+          }
+          var actions = '';
+          if (req.status === 'pending') {
+            actions = '<div style="display:flex;gap:8px;margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">'
+              + '<button onclick="approveDemoRequest(\'' + req.id + '\')" id="approve-btn-' + req.id + '" style="display:flex;align-items:center;gap:6px;padding:8px 18px;background:linear-gradient(135deg,#27AE60,#2ECC71);color:white;border:none;border-radius:8px;font-weight:600;font-size:13px;cursor:pointer;transition:opacity 0.2s"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Approva Demo</button>'
+              + '<button onclick="rejectDemoRequest(\'' + req.id + '\')" id="reject-btn-' + req.id + '" style="display:flex;align-items:center;gap:6px;padding:8px 18px;background:transparent;color:#E74C3C;border:2px solid #E74C3C;border-radius:8px;font-weight:600;font-size:13px;cursor:pointer;transition:all 0.2s"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Rifiuta</button>'
+              + '</div>';
+          }
+          html += '<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;transition:box-shadow 0.2s" onmouseenter="this.style.boxShadow=\'0 4px 20px rgba(0,0,0,0.08)\'" onmouseleave="this.style.boxShadow=\'none\'">'
+            + '<div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px">'
+            + '<div style="flex:1;min-width:200px">'
+            + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">'
+            + '<div style="width:40px;height:40px;background:linear-gradient(135deg,var(--primary),#7c3aed);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg></div>'
+            + '<div><h3 style="margin:0;font-size:16px;font-weight:700;color:var(--text-primary)">' + escHtml(req.organizationName || '—') + '</h3>'
+            + '<p style="margin:0;font-size:12px;color:var(--text-secondary)">' + escHtml(req.city || '') + (req.province ? ', ' + escHtml(req.province) : '') + '</p></div>'
+            + '</div>'
+            + '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-top:12px">'
+            + '<div style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-secondary)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span><strong style="color:var(--text-primary)">' + escHtml(req.contactName || '—') + '</strong></span></div>'
+            + '<div style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-secondary)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><a href="mailto:' + escHtml(req.contactEmail || '') + '" style="color:var(--primary);text-decoration:none">' + escHtml(req.contactEmail || '—') + '</a></div>'
+            + (req.contactPhone ? '<div style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-secondary)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.16 1.18 2 2 0 012.13 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.09a16 16 0 006 6l.46-.46a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92v2z"/></svg>' + escHtml(req.contactPhone) + '</div>' : '')
+            + (req.vehicleCount ? '<div style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-secondary)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg><span><strong style="color:var(--text-primary)">' + req.vehicleCount + '</strong> mezzi</span></div>' : '')
+            + '</div>'
+            + (req.notes ? '<div style="margin-top:12px;padding:10px 14px;background:var(--background);border-radius:8px;border-left:3px solid var(--primary)"><p style="margin:0;font-size:13px;color:var(--text-secondary);font-style:italic">"' + escHtml(req.notes) + '"</p></div>' : '')
+            + '</div>'
+            + '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">' + statusBadge
+            + '<span style="font-size:11px;color:var(--text-secondary)">' + date + '</span>'
+            + '</div>'
+            + '</div>'
+            + actions
+            + '</div>';
+        });
+        html += '</div>';
+        container.innerHTML = html;
+      })
+      .catch(function(err) {
+        container.innerHTML = '<div style="padding:40px;text-align:center;color:#E74C3C"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:block;margin:0 auto 12px;opacity:0.6"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Errore nel caricamento delle richieste demo.<br><small style="opacity:0.7">' + err.message + '</small></div>';
+        console.error('[DemoRequests] Errore:', err);
+      });
+  }
+
+  function approveDemoRequest(id) {
+    var btn = document.getElementById('approve-btn-' + id);
+    if (btn) { btn.disabled = true; btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="animation:spin 0.8s linear infinite"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0118.8-4.3M22 12.5a10 10 0 01-18.8 4.2"/></svg>Approvazione...'; }
+    fetch('/api/super-admin/demo-requests/' + id + '/approve', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + (window._authToken || localStorage.getItem('authToken') || ''), 'Content-Type': 'application/json' }
+    })
+    .then(function(r) {
+      if (!r.ok) return r.json().then(function(d) { throw new Error(d.message || 'Errore server ' + r.status); });
+      return r.json();
+    })
+    .then(function() {
+      showAdminToast('Demo approvata! Credenziali inviate via email.', 'success');
+      loadDemoRequests();
+    })
+    .catch(function(err) {
+      showAdminToast('Errore: ' + err.message, 'error');
+      if (btn) { btn.disabled = false; btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Approva Demo'; }
+    });
+  }
+
+  function rejectDemoRequest(id) {
+    var reason = prompt('Motivo del rifiuto (opzionale):');
+    if (reason === null) return; // user cancelled
+    var btn = document.getElementById('reject-btn-' + id);
+    if (btn) { btn.disabled = true; btn.textContent = 'Rifiuto...'; }
+    fetch('/api/super-admin/demo-requests/' + id + '/reject', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + (window._authToken || localStorage.getItem('authToken') || ''), 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reason: reason || '' })
+    })
+    .then(function(r) {
+      if (!r.ok) return r.json().then(function(d) { throw new Error(d.message || 'Errore server ' + r.status); });
+      return r.json();
+    })
+    .then(function() {
+      showAdminToast('Richiesta rifiutata.', 'info');
+      loadDemoRequests();
+    })
+    .catch(function(err) {
+      showAdminToast('Errore: ' + err.message, 'error');
+      if (btn) { btn.disabled = false; btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Rifiuta'; }
+    });
+  }
+
+  // ── Email Templates ───────────────────────────────────────────
+  var EMAIL_TEMPLATES = [
+    {
+      id: 'benvenuto',
+      icon: '👋',
+      title: 'Benvenuto',
+      description: 'Email di benvenuto per nuove organizzazioni',
+      subject: 'Benvenuto in Soccorso Digitale, {{orgName}}!',
+      html: `<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Benvenuto in Soccorso Digitale</title></head><body style="margin:0;padding:0;background:#f4f6f9;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f6f9;padding:40px 20px"><tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%">
+  <tr><td style="background:linear-gradient(135deg,#1a1a1a 0%,#2d2d2d 100%);border-radius:16px 16px 0 0;padding:36px 40px;text-align:center">
+    <div style="display:inline-flex;align-items:center;gap:12px;margin-bottom:8px">
+      <div style="width:42px;height:42px;background:linear-gradient(135deg,#6c63ff,#4f46e5);border-radius:10px;display:inline-block;vertical-align:middle"></div>
+      <span style="font-size:22px;font-weight:800;color:white;letter-spacing:-0.5px;vertical-align:middle">Soccorso Digitale</span>
+    </div>
+    <p style="margin:0;color:rgba(255,255,255,0.5);font-size:12px;letter-spacing:2px;text-transform:uppercase">in Cloud</p>
+  </td></tr>
+  <tr><td style="background:#ffffff;padding:48px 40px">
+    <h1 style="margin:0 0 12px;font-size:28px;font-weight:800;color:#1a1a1a;line-height:1.2">Benvenuto in Soccorso Digitale, {{orgName}}! 🎉</h1>
+    <p style="margin:0 0 28px;font-size:16px;color:#555;line-height:1.7">Il tuo account è stato attivato con successo. Da questo momento hai accesso a tutti gli strumenti digitali per gestire al meglio la tua organizzazione di soccorso.</p>
+    <div style="background:#f8f9ff;border-radius:12px;padding:24px;margin-bottom:28px;border-left:4px solid #4f46e5">
+      <h3 style="margin:0 0 16px;font-size:15px;font-weight:700;color:#1a1a1a">Moduli attivati nel tuo piano:</h3>
+      <table width="100%" cellpadding="0" cellspacing="0">
+        <tr><td style="padding:6px 0;font-size:14px;color:#333">✅ &nbsp;Gestione Missioni e Interventi</td></tr>
+        <tr><td style="padding:6px 0;font-size:14px;color:#333">✅ &nbsp;Registro Mezzi e Veicoli</td></tr>
+        <tr><td style="padding:6px 0;font-size:14px;color:#333">✅ &nbsp;Turni e Disponibilità Volontari</td></tr>
+        <tr><td style="padding:6px 0;font-size:14px;color:#333">✅ &nbsp;Gestione Documenti e Scadenze</td></tr>
+        <tr><td style="padding:6px 0;font-size:14px;color:#333">✅ &nbsp;Report e Statistiche</td></tr>
+      </table>
+    </div>
+    <p style="margin:0 0 28px;font-size:15px;color:#555;line-height:1.7">Per iniziare subito, accedi alla tua dashboard con le credenziali che ti abbiamo fornito:</p>
+    <div style="text-align:center;margin-bottom:36px">
+      <a href="https://soccorsodigitale.app/admin/" style="display:inline-block;padding:16px 40px;background:linear-gradient(135deg,#6c63ff,#4f46e5);color:white;text-decoration:none;border-radius:10px;font-weight:700;font-size:16px;letter-spacing:0.3px">Accedi alla Dashboard →</a>
+    </div>
+    <div style="border-top:1px solid #eee;padding-top:24px">
+      <h3 style="margin:0 0 12px;font-size:15px;font-weight:700;color:#1a1a1a">Risorse per iniziare:</h3>
+      <p style="margin:0 0 8px;font-size:14px;color:#555">📖 <a href="https://soccorsodigitale.app/docs/guida-rapida" style="color:#4f46e5;text-decoration:none">Guida rapida all'utilizzo</a></p>
+      <p style="margin:0 0 8px;font-size:14px;color:#555">🎬 <a href="https://soccorsodigitale.app/docs/video-tutorial" style="color:#4f46e5;text-decoration:none">Video tutorial (5 minuti)</a></p>
+      <p style="margin:0;font-size:14px;color:#555">💬 <a href="mailto:supporto@soccorsodigitale.app" style="color:#4f46e5;text-decoration:none">Supporto tecnico dedicato</a></p>
+    </div>
+  </td></tr>
+  <tr><td style="background:#1a1a1a;border-radius:0 0 16px 16px;padding:24px 40px;text-align:center">
+    <p style="margin:0 0 6px;font-size:13px;color:rgba(255,255,255,0.5)">© Soccorso Digitale in Cloud 2026 — Tutti i diritti riservati</p>
+    <p style="margin:0;font-size:12px"><a href="https://soccorsodigitale.app/privacy" style="color:rgba(255,255,255,0.35);text-decoration:none">Privacy Policy</a> &nbsp;·&nbsp; <a href="https://soccorsodigitale.app/unsubscribe" style="color:rgba(255,255,255,0.35);text-decoration:none">Disiscrivi</a></p>
+  </td></tr>
+</table>
+</td></tr></table>
+</body></html>`
+    },
+    {
+      id: 'rinnovo',
+      icon: '🔄',
+      title: 'Rinnovo Imminente',
+      description: 'Promemoria rinnovo abbonamento',
+      subject: 'Il tuo abbonamento scade tra 7 giorni — rinnova ora',
+      html: `<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Rinnovo Abbonamento</title></head><body style="margin:0;padding:0;background:#f4f6f9;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f6f9;padding:40px 20px"><tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%">
+  <tr><td style="background:linear-gradient(135deg,#1a1a1a 0%,#2d2d2d 100%);border-radius:16px 16px 0 0;padding:36px 40px;text-align:center">
+    <div style="display:inline-flex;align-items:center;gap:12px;margin-bottom:8px">
+      <div style="width:42px;height:42px;background:linear-gradient(135deg,#6c63ff,#4f46e5);border-radius:10px;display:inline-block;vertical-align:middle"></div>
+      <span style="font-size:22px;font-weight:800;color:white;letter-spacing:-0.5px;vertical-align:middle">Soccorso Digitale</span>
+    </div>
+    <p style="margin:0;color:rgba(255,255,255,0.5);font-size:12px;letter-spacing:2px;text-transform:uppercase">in Cloud</p>
+  </td></tr>
+  <tr><td style="background:#ffffff;padding:48px 40px">
+    <div style="background:#FFF3CD;border-radius:10px;padding:16px 20px;margin-bottom:28px;display:flex;align-items:center;gap:12px">
+      <span style="font-size:24px">⚠️</span>
+      <div><strong style="color:#856404;font-size:14px">Abbonamento in scadenza</strong><br><span style="color:#856404;font-size:13px">Mancano solo 7 giorni al rinnovo del tuo piano.</span></div>
+    </div>
+    <h1 style="margin:0 0 16px;font-size:26px;font-weight:800;color:#1a1a1a">Non interrompere il tuo servizio, {{orgName}}</h1>
+    <p style="margin:0 0 28px;font-size:16px;color:#555;line-height:1.7">Il tuo abbonamento a Soccorso Digitale scade tra 7 giorni. Per garantire la continuità operativa della tua organizzazione, ti invitiamo a procedere con il rinnovo prima della scadenza.</p>
+    <div style="background:#f8f9ff;border-radius:12px;padding:24px;margin-bottom:28px">
+      <h3 style="margin:0 0 16px;font-size:15px;font-weight:700;color:#1a1a1a">Il tuo piano attuale:</h3>
+      <table width="100%" cellpadding="0" cellspacing="0">
+        <tr><td style="padding:5px 0;font-size:14px;color:#333;width:50%">Piano</td><td style="padding:5px 0;font-size:14px;font-weight:600;color:#1a1a1a;text-align:right">{{planName}}</td></tr>
+        <tr><td style="padding:5px 0;font-size:14px;color:#333">Data scadenza</td><td style="padding:5px 0;font-size:14px;font-weight:600;color:#E74C3C;text-align:right">{{expiryDate}}</td></tr>
+        <tr><td style="padding:5px 0;font-size:14px;color:#333">Costo rinnovo</td><td style="padding:5px 0;font-size:14px;font-weight:600;color:#1a1a1a;text-align:right">{{renewalPrice}}/anno</td></tr>
+      </table>
+    </div>
+    <div style="text-align:center;margin-bottom:24px">
+      <a href="https://soccorsodigitale.app/admin/billing" style="display:inline-block;padding:16px 40px;background:linear-gradient(135deg,#6c63ff,#4f46e5);color:white;text-decoration:none;border-radius:10px;font-weight:700;font-size:16px">Rinnova ora →</a>
+    </div>
+    <div style="background:#FFF0F0;border-radius:8px;padding:16px 20px;margin-bottom:24px">
+      <p style="margin:0;font-size:13px;color:#721c24"><strong>Cosa succede se non rinnovi:</strong> Il tuo account verrà sospeso al termine del periodo, con impossibilità di accedere ai dati operativi. I dati vengono conservati per 30 giorni dalla scadenza.</p>
+    </div>
+    <p style="margin:0;font-size:14px;color:#555">Per assistenza o per richiedere una fattura pro-forma, contatta il nostro team: <a href="mailto:supporto@soccorsodigitale.app" style="color:#4f46e5;text-decoration:none">supporto@soccorsodigitale.app</a></p>
+  </td></tr>
+  <tr><td style="background:#1a1a1a;border-radius:0 0 16px 16px;padding:24px 40px;text-align:center">
+    <p style="margin:0 0 6px;font-size:13px;color:rgba(255,255,255,0.5)">© Soccorso Digitale in Cloud 2026 — Tutti i diritti riservati</p>
+    <p style="margin:0;font-size:12px"><a href="https://soccorsodigitale.app/privacy" style="color:rgba(255,255,255,0.35);text-decoration:none">Privacy Policy</a> &nbsp;·&nbsp; <a href="https://soccorsodigitale.app/unsubscribe" style="color:rgba(255,255,255,0.35);text-decoration:none">Disiscrivi</a></p>
+  </td></tr>
+</table>
+</td></tr></table>
+</body></html>`
+    },
+    {
+      id: 'upgrade',
+      icon: '🚀',
+      title: 'Upgrade Piano',
+      description: 'Suggerimento upgrade a piano superiore',
+      subject: '{{orgName}}: sblocca più funzionalità con il Piano Pro',
+      html: `<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Upgrade Piano</title></head><body style="margin:0;padding:0;background:#f4f6f9;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f6f9;padding:40px 20px"><tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%">
+  <tr><td style="background:linear-gradient(135deg,#1a1a1a 0%,#2d2d2d 100%);border-radius:16px 16px 0 0;padding:36px 40px;text-align:center">
+    <div style="display:inline-flex;align-items:center;gap:12px;margin-bottom:8px">
+      <div style="width:42px;height:42px;background:linear-gradient(135deg,#6c63ff,#4f46e5);border-radius:10px;display:inline-block;vertical-align:middle"></div>
+      <span style="font-size:22px;font-weight:800;color:white;letter-spacing:-0.5px;vertical-align:middle">Soccorso Digitale</span>
+    </div>
+    <p style="margin:0;color:rgba(255,255,255,0.5);font-size:12px;letter-spacing:2px;text-transform:uppercase">in Cloud</p>
+  </td></tr>
+  <tr><td style="background:#ffffff;padding:48px 40px">
+    <h1 style="margin:0 0 16px;font-size:26px;font-weight:800;color:#1a1a1a">Porta {{orgName}} al livello successivo 🚀</h1>
+    <p style="margin:0 0 28px;font-size:16px;color:#555;line-height:1.7">Il tuo piano attuale ti sta servendo bene, ma ci sono funzionalità avanzate nel Piano Pro che potrebbero trasformare ulteriormente la gestione della tua organizzazione.</p>
+    <div style="background:#f8f9ff;border-radius:12px;padding:24px;margin-bottom:24px;border:2px solid #4f46e5">
+      <h3 style="margin:0 0 16px;font-size:15px;font-weight:700;color:#4f46e5">🌟 Funzionalità esclusive Piano Pro:</h3>
+      <table width="100%" cellpadding="0" cellspacing="0">
+        <tr><td style="padding:7px 0;font-size:14px;color:#333;vertical-align:top">🗺️</td><td style="padding:7px 0 7px 8px;font-size:14px;color:#333"><strong>Mappa operativa in tempo reale</strong> — visualizza tutti i mezzi e i volontari su mappa interattiva</td></tr>
+        <tr><td style="padding:7px 0;font-size:14px;color:#333;vertical-align:top">📊</td><td style="padding:7px 0 7px 8px;font-size:14px;color:#333"><strong>Report avanzati e BI</strong> — analisi statistiche approfondite, export XLS e PDF personalizzati</td></tr>
+        <tr><td style="padding:7px 0;font-size:14px;color:#333;vertical-align:top">🔗</td><td style="padding:7px 0 7px 8px;font-size:14px;color:#333"><strong>Integrazioni SUEM 118</strong> — ricezione missioni direttamente dalla centrale operativa</td></tr>
+        <tr><td style="padding:7px 0;font-size:14px;color:#333;vertical-align:top">📱</td><td style="padding:7px 0 7px 8px;font-size:14px;color:#333"><strong>App mobile dedicata</strong> — notifiche push, disponibilità e refertazione da smartphone</td></tr>
+        <tr><td style="padding:7px 0;font-size:14px;color:#333;vertical-align:top">🤖</td><td style="padding:7px 0 7px 8px;font-size:14px;color:#333"><strong>Assistente AI</strong> — suggerimenti operativi basati sui dati storici della tua organizzazione</td></tr>
+      </table>
+    </div>
+    <div style="background:#f0fdf4;border-radius:10px;padding:16px 20px;margin-bottom:28px">
+      <p style="margin:0;font-size:15px;color:#166534"><strong>Piano Pro: solo €{{proPrice}}/anno</strong> — meno di €{{monthlyPrice}} al mese. Prova gratuita di 14 giorni disponibile.</p>
+    </div>
+    <div style="text-align:center;margin-bottom:24px">
+      <a href="https://soccorsodigitale.app/admin/upgrade" style="display:inline-block;padding:16px 40px;background:linear-gradient(135deg,#6c63ff,#4f46e5);color:white;text-decoration:none;border-radius:10px;font-weight:700;font-size:16px">Scopri il Piano Pro →</a>
+    </div>
+    <p style="margin:0;font-size:14px;color:#555;text-align:center">Hai domande? <a href="mailto:commerciale@soccorsodigitale.app" style="color:#4f46e5;text-decoration:none">Parla con il nostro team commerciale</a></p>
+  </td></tr>
+  <tr><td style="background:#1a1a1a;border-radius:0 0 16px 16px;padding:24px 40px;text-align:center">
+    <p style="margin:0 0 6px;font-size:13px;color:rgba(255,255,255,0.5)">© Soccorso Digitale in Cloud 2026 — Tutti i diritti riservati</p>
+    <p style="margin:0;font-size:12px"><a href="https://soccorsodigitale.app/privacy" style="color:rgba(255,255,255,0.35);text-decoration:none">Privacy Policy</a> &nbsp;·&nbsp; <a href="https://soccorsodigitale.app/unsubscribe" style="color:rgba(255,255,255,0.35);text-decoration:none">Disiscrivi</a></p>
+  </td></tr>
+</table>
+</td></tr></table>
+</body></html>`
+    },
+    {
+      id: 'nuova-funzionalita',
+      icon: '✨',
+      title: 'Nuova Funzionalità',
+      description: 'Annuncio nuova funzionalità disponibile',
+      subject: 'Novità: il nuovo modulo {{featureName}} è disponibile',
+      html: `<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Nuova Funzionalità</title></head><body style="margin:0;padding:0;background:#f4f6f9;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f6f9;padding:40px 20px"><tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%">
+  <tr><td style="background:linear-gradient(135deg,#1a1a1a 0%,#2d2d2d 100%);border-radius:16px 16px 0 0;padding:36px 40px;text-align:center">
+    <div style="display:inline-flex;align-items:center;gap:12px;margin-bottom:8px">
+      <div style="width:42px;height:42px;background:linear-gradient(135deg,#6c63ff,#4f46e5);border-radius:10px;display:inline-block;vertical-align:middle"></div>
+      <span style="font-size:22px;font-weight:800;color:white;letter-spacing:-0.5px;vertical-align:middle">Soccorso Digitale</span>
+    </div>
+    <p style="margin:0;color:rgba(255,255,255,0.5);font-size:12px;letter-spacing:2px;text-transform:uppercase">in Cloud</p>
+  </td></tr>
+  <tr><td style="background:#ffffff;padding:48px 40px">
+    <div style="background:linear-gradient(135deg,#6c63ff15,#4f46e515);border-radius:12px;padding:20px;margin-bottom:28px;text-align:center;border:1px solid #4f46e530">
+      <span style="font-size:40px">✨</span>
+      <p style="margin:8px 0 0;font-size:13px;font-weight:700;color:#4f46e5;letter-spacing:1px;text-transform:uppercase">Nuova funzionalità</p>
+    </div>
+    <h1 style="margin:0 0 16px;font-size:26px;font-weight:800;color:#1a1a1a">{{featureName}} è finalmente disponibile!</h1>
+    <p style="margin:0 0 28px;font-size:16px;color:#555;line-height:1.7">Siamo entusiasti di annunciare il rilascio del nuovo modulo <strong>{{featureName}}</strong>, progettato per rendere la gestione della tua organizzazione ancora più efficiente e intuitiva.</p>
+    <div style="background:#f8f9ff;border-radius:12px;padding:24px;margin-bottom:24px">
+      <h3 style="margin:0 0 16px;font-size:15px;font-weight:700;color:#1a1a1a">Cosa puoi fare con {{featureName}}:</h3>
+      <table width="100%" cellpadding="0" cellspacing="0">
+        <tr><td style="padding:6px 0;font-size:14px;color:#333">→ &nbsp;{{benefit1}}</td></tr>
+        <tr><td style="padding:6px 0;font-size:14px;color:#333">→ &nbsp;{{benefit2}}</td></tr>
+        <tr><td style="padding:6px 0;font-size:14px;color:#333">→ &nbsp;{{benefit3}}</td></tr>
+      </table>
+    </div>
+    <div style="background:#fff;border:2px dashed #e5e7eb;border-radius:12px;padding:32px;text-align:center;margin-bottom:28px">
+      <p style="margin:0;font-size:13px;color:#999">[Screenshot del modulo {{featureName}}]</p>
+    </div>
+    <div style="text-align:center;margin-bottom:20px">
+      <a href="https://soccorsodigitale.app/admin/" style="display:inline-block;padding:16px 40px;background:linear-gradient(135deg,#6c63ff,#4f46e5);color:white;text-decoration:none;border-radius:10px;font-weight:700;font-size:16px">Prova subito →</a>
+    </div>
+    <p style="margin:0;font-size:14px;color:#555;text-align:center">📹 <a href="https://soccorsodigitale.app/docs/video-tutorial" style="color:#4f46e5;text-decoration:none">Guarda il video tutorial (3 min)</a></p>
+  </td></tr>
+  <tr><td style="background:#1a1a1a;border-radius:0 0 16px 16px;padding:24px 40px;text-align:center">
+    <p style="margin:0 0 6px;font-size:13px;color:rgba(255,255,255,0.5)">© Soccorso Digitale in Cloud 2026 — Tutti i diritti riservati</p>
+    <p style="margin:0;font-size:12px"><a href="https://soccorsodigitale.app/privacy" style="color:rgba(255,255,255,0.35);text-decoration:none">Privacy Policy</a> &nbsp;·&nbsp; <a href="https://soccorsodigitale.app/unsubscribe" style="color:rgba(255,255,255,0.35);text-decoration:none">Disiscrivi</a></p>
+  </td></tr>
+</table>
+</td></tr></table>
+</body></html>`
+    },
+    {
+      id: 'manutenzione',
+      icon: '🔧',
+      title: 'Manutenzione Programmata',
+      description: 'Avviso finestra di manutenzione',
+      subject: 'Manutenzione programmata: {{date}} dalle {{startTime}} alle {{endTime}}',
+      html: `<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Manutenzione Programmata</title></head><body style="margin:0;padding:0;background:#f4f6f9;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f6f9;padding:40px 20px"><tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%">
+  <tr><td style="background:linear-gradient(135deg,#1a1a1a 0%,#2d2d2d 100%);border-radius:16px 16px 0 0;padding:36px 40px;text-align:center">
+    <div style="display:inline-flex;align-items:center;gap:12px;margin-bottom:8px">
+      <div style="width:42px;height:42px;background:linear-gradient(135deg,#6c63ff,#4f46e5);border-radius:10px;display:inline-block;vertical-align:middle"></div>
+      <span style="font-size:22px;font-weight:800;color:white;letter-spacing:-0.5px;vertical-align:middle">Soccorso Digitale</span>
+    </div>
+    <p style="margin:0;color:rgba(255,255,255,0.5);font-size:12px;letter-spacing:2px;text-transform:uppercase">in Cloud</p>
+  </td></tr>
+  <tr><td style="background:#ffffff;padding:48px 40px">
+    <div style="background:#FFF3CD;border-radius:10px;padding:18px 20px;margin-bottom:28px;text-align:center">
+      <span style="font-size:32px">🔧</span>
+      <p style="margin:8px 0 0;font-size:14px;font-weight:700;color:#856404">MANUTENZIONE PROGRAMMATA</p>
+    </div>
+    <h1 style="margin:0 0 16px;font-size:24px;font-weight:800;color:#1a1a1a">Interruzione temporanea del servizio</h1>
+    <p style="margin:0 0 24px;font-size:16px;color:#555;line-height:1.7">Stiamo effettuando importanti aggiornamenti all'infrastruttura per migliorare le prestazioni e la sicurezza della piattaforma. Durante la finestra di manutenzione, il servizio sarà temporaneamente non disponibile.</p>
+    <div style="background:#f8f9ff;border-radius:12px;padding:24px;margin-bottom:24px;border:2px solid #e5e7eb">
+      <h3 style="margin:0 0 16px;font-size:15px;font-weight:700;color:#1a1a1a">Dettagli manutenzione:</h3>
+      <table width="100%" cellpadding="0" cellspacing="0">
+        <tr><td style="padding:7px 0;font-size:14px;color:#555;width:40%">📅 Data</td><td style="padding:7px 0;font-size:14px;font-weight:700;color:#1a1a1a">{{date}}</td></tr>
+        <tr><td style="padding:7px 0;font-size:14px;color:#555">🕐 Dalle ore</td><td style="padding:7px 0;font-size:14px;font-weight:700;color:#1a1a1a">{{startTime}}</td></tr>
+        <tr><td style="padding:7px 0;font-size:14px;color:#555">🕑 Alle ore</td><td style="padding:7px 0;font-size:14px;font-weight:700;color:#1a1a1a">{{endTime}}</td></tr>
+        <tr><td style="padding:7px 0;font-size:14px;color:#555">⏱️ Durata stimata</td><td style="padding:7px 0;font-size:14px;font-weight:700;color:#E74C3C">{{duration}}</td></tr>
+      </table>
+    </div>
+    <div style="background:#f8f9ff;border-radius:10px;padding:16px 20px;margin-bottom:24px">
+      <h4 style="margin:0 0 10px;font-size:14px;font-weight:700;color:#1a1a1a">Servizi interessati:</h4>
+      <p style="margin:0 0 6px;font-size:13px;color:#555">⚠️ Accesso alla dashboard web — non disponibile</p>
+      <p style="margin:0 0 6px;font-size:13px;color:#555">⚠️ App mobile — non disponibile</p>
+      <p style="margin:0;font-size:13px;color:#27AE60">✅ Dati operativi — conservati integralmente</p>
+    </div>
+    <div style="background:#f0fdf4;border-radius:10px;padding:16px 20px;margin-bottom:24px">
+      <h4 style="margin:0 0 10px;font-size:14px;font-weight:700;color:#166534">Come prepararsi:</h4>
+      <p style="margin:0 0 6px;font-size:13px;color:#555">→ Completare eventuali refertazioni in sospeso prima della manutenzione</p>
+      <p style="margin:0 0 6px;font-size:13px;color:#555">→ Stampare i turni e le missioni in corso se necessario</p>
+      <p style="margin:0;font-size:13px;color:#555">→ Informare i referenti operativi dell'interruzione</p>
+    </div>
+    <p style="margin:0;font-size:14px;color:#555">Per urgenze durante la manutenzione: <a href="mailto:urgenze@soccorsodigitale.app" style="color:#4f46e5;text-decoration:none">urgenze@soccorsodigitale.app</a></p>
+  </td></tr>
+  <tr><td style="background:#1a1a1a;border-radius:0 0 16px 16px;padding:24px 40px;text-align:center">
+    <p style="margin:0 0 6px;font-size:13px;color:rgba(255,255,255,0.5)">© Soccorso Digitale in Cloud 2026 — Tutti i diritti riservati</p>
+    <p style="margin:0;font-size:12px"><a href="https://soccorsodigitale.app/privacy" style="color:rgba(255,255,255,0.35);text-decoration:none">Privacy Policy</a> &nbsp;·&nbsp; <a href="https://soccorsodigitale.app/unsubscribe" style="color:rgba(255,255,255,0.35);text-decoration:none">Disiscrivi</a></p>
+  </td></tr>
+</table>
+</td></tr></table>
+</body></html>`
+    },
+    {
+      id: 'report-mensile',
+      icon: '📊',
+      title: 'Report Mensile',
+      description: 'Rapporto attività mensile dell\'organizzazione',
+      subject: 'Rapporto Mensile {{month}} {{year}} — {{orgName}}',
+      html: `<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Report Mensile</title></head><body style="margin:0;padding:0;background:#f4f6f9;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f6f9;padding:40px 20px"><tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%">
+  <tr><td style="background:linear-gradient(135deg,#1a1a1a 0%,#2d2d2d 100%);border-radius:16px 16px 0 0;padding:36px 40px;text-align:center">
+    <div style="display:inline-flex;align-items:center;gap:12px;margin-bottom:8px">
+      <div style="width:42px;height:42px;background:linear-gradient(135deg,#6c63ff,#4f46e5);border-radius:10px;display:inline-block;vertical-align:middle"></div>
+      <span style="font-size:22px;font-weight:800;color:white;letter-spacing:-0.5px;vertical-align:middle">Soccorso Digitale</span>
+    </div>
+    <p style="margin:0;color:rgba(255,255,255,0.5);font-size:12px;letter-spacing:2px;text-transform:uppercase">in Cloud</p>
+  </td></tr>
+  <tr><td style="background:#ffffff;padding:48px 40px">
+    <p style="margin:0 0 8px;font-size:12px;font-weight:700;color:#4f46e5;letter-spacing:1px;text-transform:uppercase">Rapporto mensile</p>
+    <h1 style="margin:0 0 8px;font-size:28px;font-weight:800;color:#1a1a1a">{{month}} {{year}}</h1>
+    <p style="margin:0 0 32px;font-size:16px;color:#555">{{orgName}}</p>
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px">
+      <tr>
+        <td style="width:25%;padding:0 6px 0 0;vertical-align:top">
+          <div style="background:linear-gradient(135deg,#6c63ff,#4f46e5);border-radius:12px;padding:20px 16px;text-align:center">
+            <p style="margin:0;font-size:28px;font-weight:800;color:white">{{totalMissions}}</p>
+            <p style="margin:4px 0 0;font-size:11px;color:rgba(255,255,255,0.8);text-transform:uppercase;letter-spacing:0.5px">Missioni</p>
+          </div>
+        </td>
+        <td style="width:25%;padding:0 6px;vertical-align:top">
+          <div style="background:linear-gradient(135deg,#0ea5e9,#0284c7);border-radius:12px;padding:20px 16px;text-align:center">
+            <p style="margin:0;font-size:28px;font-weight:800;color:white">{{totalHours}}</p>
+            <p style="margin:4px 0 0;font-size:11px;color:rgba(255,255,255,0.8);text-transform:uppercase;letter-spacing:0.5px">Ore serv.</p>
+          </div>
+        </td>
+        <td style="width:25%;padding:0 6px;vertical-align:top">
+          <div style="background:linear-gradient(135deg,#10b981,#059669);border-radius:12px;padding:20px 16px;text-align:center">
+            <p style="margin:0;font-size:28px;font-weight:800;color:white">{{totalVehicles}}</p>
+            <p style="margin:4px 0 0;font-size:11px;color:rgba(255,255,255,0.8);text-transform:uppercase;letter-spacing:0.5px">Mezzi att.</p>
+          </div>
+        </td>
+        <td style="width:25%;padding:0 0 0 6px;vertical-align:top">
+          <div style="background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:12px;padding:20px 16px;text-align:center">
+            <p style="margin:0;font-size:28px;font-weight:800;color:white">{{totalStaff}}</p>
+            <p style="margin:4px 0 0;font-size:11px;color:rgba(255,255,255,0.8);text-transform:uppercase;letter-spacing:0.5px">Volontari</p>
+          </div>
+        </td>
+      </tr>
+    </table>
+    <div style="background:#f8f9ff;border-radius:12px;padding:24px;margin-bottom:24px">
+      <h3 style="margin:0 0 14px;font-size:15px;font-weight:700;color:#1a1a1a">Highlights del mese:</h3>
+      <p style="margin:0 0 8px;font-size:14px;color:#333">🏆 {{highlight1}}</p>
+      <p style="margin:0 0 8px;font-size:14px;color:#333">📈 {{highlight2}}</p>
+      <p style="margin:0;font-size:14px;color:#333">💡 {{highlight3}}</p>
+    </div>
+    <div style="background:#f0fdf4;border-radius:10px;padding:16px 20px;margin-bottom:28px">
+      <h4 style="margin:0 0 10px;font-size:14px;font-weight:700;color:#166534">Suggerimento per il mese prossimo:</h4>
+      <p style="margin:0;font-size:13px;color:#555">{{tipNextMonth}}</p>
+    </div>
+    <div style="text-align:center">
+      <a href="https://soccorsodigitale.app/admin/reports" style="display:inline-block;padding:14px 32px;background:linear-gradient(135deg,#6c63ff,#4f46e5);color:white;text-decoration:none;border-radius:10px;font-weight:700;font-size:15px">Vedi report completo →</a>
+    </div>
+  </td></tr>
+  <tr><td style="background:#1a1a1a;border-radius:0 0 16px 16px;padding:24px 40px;text-align:center">
+    <p style="margin:0 0 6px;font-size:13px;color:rgba(255,255,255,0.5)">© Soccorso Digitale in Cloud 2026 — Tutti i diritti riservati</p>
+    <p style="margin:0;font-size:12px"><a href="https://soccorsodigitale.app/privacy" style="color:rgba(255,255,255,0.35);text-decoration:none">Privacy Policy</a> &nbsp;·&nbsp; <a href="https://soccorsodigitale.app/unsubscribe" style="color:rgba(255,255,255,0.35);text-decoration:none">Disiscrivi</a></p>
+  </td></tr>
+</table>
+</td></tr></table>
+</body></html>`
+    },
+    {
+      id: 'fattura',
+      icon: '🧾',
+      title: 'Fattura Disponibile',
+      description: 'Notifica nuova fattura disponibile',
+      subject: 'Fattura #{{invoiceNumber}} disponibile — {{orgName}}',
+      html: `<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Fattura Disponibile</title></head><body style="margin:0;padding:0;background:#f4f6f9;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f6f9;padding:40px 20px"><tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%">
+  <tr><td style="background:linear-gradient(135deg,#1a1a1a 0%,#2d2d2d 100%);border-radius:16px 16px 0 0;padding:36px 40px;text-align:center">
+    <div style="display:inline-flex;align-items:center;gap:12px;margin-bottom:8px">
+      <div style="width:42px;height:42px;background:linear-gradient(135deg,#6c63ff,#4f46e5);border-radius:10px;display:inline-block;vertical-align:middle"></div>
+      <span style="font-size:22px;font-weight:800;color:white;letter-spacing:-0.5px;vertical-align:middle">Soccorso Digitale</span>
+    </div>
+    <p style="margin:0;color:rgba(255,255,255,0.5);font-size:12px;letter-spacing:2px;text-transform:uppercase">in Cloud</p>
+  </td></tr>
+  <tr><td style="background:#ffffff;padding:48px 40px">
+    <div style="text-align:center;margin-bottom:28px">
+      <div style="width:64px;height:64px;background:linear-gradient(135deg,#6c63ff15,#4f46e530);border-radius:16px;display:inline-flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:12px">🧾</div>
+      <h1 style="margin:0;font-size:24px;font-weight:800;color:#1a1a1a">Nuova fattura disponibile</h1>
+    </div>
+    <div style="background:#f8f9ff;border-radius:12px;padding:24px;margin-bottom:28px;border:1px solid #e5e7eb">
+      <table width="100%" cellpadding="0" cellspacing="0">
+        <tr><td style="padding:8px 0;font-size:14px;color:#555;border-bottom:1px solid #e5e7eb">Numero fattura</td><td style="padding:8px 0;font-size:14px;font-weight:700;color:#1a1a1a;text-align:right;border-bottom:1px solid #e5e7eb">#{{invoiceNumber}}</td></tr>
+        <tr><td style="padding:8px 0;font-size:14px;color:#555;border-bottom:1px solid #e5e7eb">Intestatario</td><td style="padding:8px 0;font-size:14px;font-weight:700;color:#1a1a1a;text-align:right;border-bottom:1px solid #e5e7eb">{{orgName}}</td></tr>
+        <tr><td style="padding:8px 0;font-size:14px;color:#555;border-bottom:1px solid #e5e7eb">Importo (IVA incl.)</td><td style="padding:8px 0;font-size:18px;font-weight:800;color:#4f46e5;text-align:right;border-bottom:1px solid #e5e7eb">€{{totalAmount}}</td></tr>
+        <tr><td style="padding:8px 0;font-size:14px;color:#555;border-bottom:1px solid #e5e7eb">Data emissione</td><td style="padding:8px 0;font-size:14px;font-weight:600;color:#1a1a1a;text-align:right;border-bottom:1px solid #e5e7eb">{{issueDate}}</td></tr>
+        <tr><td style="padding:8px 0;font-size:14px;color:#555">Scadenza pagamento</td><td style="padding:8px 0;font-size:14px;font-weight:600;color:#E74C3C;text-align:right">{{dueDate}}</td></tr>
+      </table>
+    </div>
+    <div style="text-align:center;margin-bottom:24px">
+      <a href="https://soccorsodigitale.app/admin/billing/invoices/{{invoiceNumber}}" style="display:inline-block;padding:16px 40px;background:linear-gradient(135deg,#6c63ff,#4f46e5);color:white;text-decoration:none;border-radius:10px;font-weight:700;font-size:16px">Scarica fattura PDF →</a>
+    </div>
+    <div style="background:#f8f9ff;border-radius:10px;padding:16px 20px;margin-bottom:16px">
+      <h4 style="margin:0 0 10px;font-size:14px;font-weight:700;color:#1a1a1a">Modalità di pagamento accettate:</h4>
+      <p style="margin:0 0 5px;font-size:13px;color:#555">🏦 Bonifico bancario — IBAN: IT60 X054 2811 1010 0000 0123 456</p>
+      <p style="margin:0 0 5px;font-size:13px;color:#555">💳 Carta di credito — tramite portale clienti</p>
+      <p style="margin:0;font-size:13px;color:#555">📋 Causale: Fattura #{{invoiceNumber}} — {{orgName}}</p>
+    </div>
+    <p style="margin:0;font-size:13px;color:#888;text-align:center">La fattura è conservata nell'area riservata del tuo account per 10 anni. Per chiarimenti: <a href="mailto:amministrazione@soccorsodigitale.app" style="color:#4f46e5;text-decoration:none">amministrazione@soccorsodigitale.app</a></p>
+  </td></tr>
+  <tr><td style="background:#1a1a1a;border-radius:0 0 16px 16px;padding:24px 40px;text-align:center">
+    <p style="margin:0 0 6px;font-size:13px;color:rgba(255,255,255,0.5)">© Soccorso Digitale in Cloud 2026 — Tutti i diritti riservati</p>
+    <p style="margin:0;font-size:12px"><a href="https://soccorsodigitale.app/privacy" style="color:rgba(255,255,255,0.35);text-decoration:none">Privacy Policy</a> &nbsp;·&nbsp; <a href="https://soccorsodigitale.app/unsubscribe" style="color:rgba(255,255,255,0.35);text-decoration:none">Disiscrivi</a></p>
+  </td></tr>
+</table>
+</td></tr></table>
+</body></html>`
+    },
+    {
+      id: 'scadenza-documenti',
+      icon: '📋',
+      title: 'Scadenza Documenti',
+      description: 'Avviso documenti in scadenza',
+      subject: 'Attenzione: documenti in scadenza per {{orgName}}',
+      html: `<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Documenti in Scadenza</title></head><body style="margin:0;padding:0;background:#f4f6f9;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f6f9;padding:40px 20px"><tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%">
+  <tr><td style="background:linear-gradient(135deg,#1a1a1a 0%,#2d2d2d 100%);border-radius:16px 16px 0 0;padding:36px 40px;text-align:center">
+    <div style="display:inline-flex;align-items:center;gap:12px;margin-bottom:8px">
+      <div style="width:42px;height:42px;background:linear-gradient(135deg,#6c63ff,#4f46e5);border-radius:10px;display:inline-block;vertical-align:middle"></div>
+      <span style="font-size:22px;font-weight:800;color:white;letter-spacing:-0.5px;vertical-align:middle">Soccorso Digitale</span>
+    </div>
+    <p style="margin:0;color:rgba(255,255,255,0.5);font-size:12px;letter-spacing:2px;text-transform:uppercase">in Cloud</p>
+  </td></tr>
+  <tr><td style="background:#ffffff;padding:48px 40px">
+    <div style="background:#FFF0F0;border-radius:10px;padding:16px 20px;margin-bottom:28px;border-left:4px solid #E74C3C">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:20px">⚠️</span>
+        <div><strong style="color:#721c24;font-size:14px">Attenzione richiesta</strong><br><span style="color:#721c24;font-size:13px">Alcuni documenti di {{orgName}} sono in prossima scadenza.</span></div>
+      </div>
+    </div>
+    <h1 style="margin:0 0 16px;font-size:24px;font-weight:800;color:#1a1a1a">Documenti in scadenza</h1>
+    <p style="margin:0 0 28px;font-size:15px;color:#555;line-height:1.7">Il sistema ha rilevato i seguenti documenti che richiedono aggiornamento nei prossimi 30 giorni. Ti invitiamo ad agire tempestivamente per garantire la conformità operativa.</p>
+    <div style="margin-bottom:24px">
+      <h3 style="margin:0 0 12px;font-size:14px;font-weight:700;color:#E74C3C;text-transform:uppercase;letter-spacing:0.5px">🚗 Mezzi e veicoli:</h3>
+      <div style="background:#f8f9ff;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb">
+        <table width="100%" cellpadding="0" cellspacing="0">
+          <tr style="background:#f3f4f6"><th style="padding:10px 16px;text-align:left;font-size:12px;color:#6b7280;font-weight:600;text-transform:uppercase">Documento</th><th style="padding:10px 16px;text-align:left;font-size:12px;color:#6b7280;font-weight:600;text-transform:uppercase">Mezzo</th><th style="padding:10px 16px;text-align:right;font-size:12px;color:#6b7280;font-weight:600;text-transform:uppercase">Scadenza</th></tr>
+          <tr><td style="padding:10px 16px;font-size:13px;color:#333;border-top:1px solid #e5e7eb">Revisione periodica</td><td style="padding:10px 16px;font-size:13px;color:#555;border-top:1px solid #e5e7eb">{{vehicle1}}</td><td style="padding:10px 16px;font-size:13px;font-weight:600;color:#E74C3C;text-align:right;border-top:1px solid #e5e7eb">{{expiry1}}</td></tr>
+          <tr><td style="padding:10px 16px;font-size:13px;color:#333;border-top:1px solid #e5e7eb">Collaudo CRI</td><td style="padding:10px 16px;font-size:13px;color:#555;border-top:1px solid #e5e7eb">{{vehicle2}}</td><td style="padding:10px 16px;font-size:13px;font-weight:600;color:#F59E0B;text-align:right;border-top:1px solid #e5e7eb">{{expiry2}}</td></tr>
+        </table>
+      </div>
+    </div>
+    <div style="margin-bottom:28px">
+      <h3 style="margin:0 0 12px;font-size:14px;font-weight:700;color:#E74C3C;text-transform:uppercase;letter-spacing:0.5px">👤 Volontari e personale:</h3>
+      <div style="background:#f8f9ff;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb">
+        <table width="100%" cellpadding="0" cellspacing="0">
+          <tr style="background:#f3f4f6"><th style="padding:10px 16px;text-align:left;font-size:12px;color:#6b7280;font-weight:600;text-transform:uppercase">Certificazione</th><th style="padding:10px 16px;text-align:left;font-size:12px;color:#6b7280;font-weight:600;text-transform:uppercase">Nominativo</th><th style="padding:10px 16px;text-align:right;font-size:12px;color:#6b7280;font-weight:600;text-transform:uppercase">Scadenza</th></tr>
+          <tr><td style="padding:10px 16px;font-size:13px;color:#333;border-top:1px solid #e5e7eb">BLSD</td><td style="padding:10px 16px;font-size:13px;color:#555;border-top:1px solid #e5e7eb">{{staff1}}</td><td style="padding:10px 16px;font-size:13px;font-weight:600;color:#E74C3C;text-align:right;border-top:1px solid #e5e7eb">{{staffExpiry1}}</td></tr>
+          <tr><td style="padding:10px 16px;font-size:13px;color:#333;border-top:1px solid #e5e7eb">Patente CRI</td><td style="padding:10px 16px;font-size:13px;color:#555;border-top:1px solid #e5e7eb">{{staff2}}</td><td style="padding:10px 16px;font-size:13px;font-weight:600;color:#F59E0B;text-align:right;border-top:1px solid #e5e7eb">{{staffExpiry2}}</td></tr>
+        </table>
+      </div>
+    </div>
+    <div style="text-align:center;margin-bottom:16px">
+      <a href="https://soccorsodigitale.app/admin/documents" style="display:inline-block;padding:14px 32px;background:linear-gradient(135deg,#6c63ff,#4f46e5);color:white;text-decoration:none;border-radius:10px;font-weight:700;font-size:15px">Gestisci documenti →</a>
+    </div>
+  </td></tr>
+  <tr><td style="background:#1a1a1a;border-radius:0 0 16px 16px;padding:24px 40px;text-align:center">
+    <p style="margin:0 0 6px;font-size:13px;color:rgba(255,255,255,0.5)">© Soccorso Digitale in Cloud 2026 — Tutti i diritti riservati</p>
+    <p style="margin:0;font-size:12px"><a href="https://soccorsodigitale.app/privacy" style="color:rgba(255,255,255,0.35);text-decoration:none">Privacy Policy</a> &nbsp;·&nbsp; <a href="https://soccorsodigitale.app/unsubscribe" style="color:rgba(255,255,255,0.35);text-decoration:none">Disiscrivi</a></p>
+  </td></tr>
+</table>
+</td></tr></table>
+</body></html>`
+    },
+    {
+      id: 'sicurezza',
+      icon: '🔒',
+      title: 'Aggiornamento Sicurezza',
+      description: 'Notifica aggiornamento di sicurezza',
+      subject: 'Aggiornamento di sicurezza importante — azione richiesta',
+      html: `<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Aggiornamento Sicurezza</title></head><body style="margin:0;padding:0;background:#f4f6f9;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f6f9;padding:40px 20px"><tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%">
+  <tr><td style="background:linear-gradient(135deg,#1a1a1a 0%,#2d2d2d 100%);border-radius:16px 16px 0 0;padding:36px 40px;text-align:center">
+    <div style="display:inline-flex;align-items:center;gap:12px;margin-bottom:8px">
+      <div style="width:42px;height:42px;background:linear-gradient(135deg,#6c63ff,#4f46e5);border-radius:10px;display:inline-block;vertical-align:middle"></div>
+      <span style="font-size:22px;font-weight:800;color:white;letter-spacing:-0.5px;vertical-align:middle">Soccorso Digitale</span>
+    </div>
+    <p style="margin:0;color:rgba(255,255,255,0.5);font-size:12px;letter-spacing:2px;text-transform:uppercase">in Cloud</p>
+  </td></tr>
+  <tr><td style="background:#ffffff;padding:48px 40px">
+    <div style="background:#1a1a1a;border-radius:12px;padding:20px;text-align:center;margin-bottom:28px">
+      <span style="font-size:32px">🔒</span>
+      <p style="margin:8px 0 0;font-size:13px;font-weight:700;color:rgba(255,255,255,0.9);letter-spacing:1px;text-transform:uppercase">Aggiornamento di sicurezza</p>
+    </div>
+    <h1 style="margin:0 0 16px;font-size:24px;font-weight:800;color:#1a1a1a">Azione richiesta: verifica le impostazioni di sicurezza</h1>
+    <p style="margin:0 0 24px;font-size:15px;color:#555;line-height:1.7">Abbiamo rilasciato un importante aggiornamento di sicurezza per la piattaforma Soccorso Digitale. Come amministratore di <strong>{{orgName}}</strong>, ti chiediamo di completare le seguenti verifiche nel più breve tempo possibile.</p>
+    <div style="background:#f8f9ff;border-radius:12px;padding:24px;margin-bottom:24px">
+      <h3 style="margin:0 0 14px;font-size:15px;font-weight:700;color:#1a1a1a">Cosa è cambiato:</h3>
+      <p style="margin:0 0 10px;font-size:14px;color:#333">🔐 <strong>Autenticazione a due fattori</strong> — ora disponibile e consigliata per tutti gli amministratori</p>
+      <p style="margin:0 0 10px;font-size:14px;color:#333">🔑 <strong>Gestione sessioni</strong> — le sessioni inattive vengono ora chiuse automaticamente dopo 8 ore</p>
+      <p style="margin:0;font-size:14px;color:#333">📊 <strong>Log accessi</strong> — nuovo pannello per monitorare gli accessi alla piattaforma</p>
+    </div>
+    <div style="background:#FFF3CD;border-radius:10px;padding:16px 20px;margin-bottom:24px">
+      <h4 style="margin:0 0 12px;font-size:14px;font-weight:700;color:#856404">Azioni richieste all'amministratore:</h4>
+      <p style="margin:0 0 6px;font-size:13px;color:#555">☐ Verificare l'elenco degli utenti con accesso alla dashboard</p>
+      <p style="margin:0 0 6px;font-size:13px;color:#555">☐ Revocare accessi di utenti non più attivi</p>
+      <p style="margin:0 0 6px;font-size:13px;color:#555">☐ Abilitare la 2FA per il tuo account amministratore</p>
+      <p style="margin:0;font-size:13px;color:#555">☐ Controllare il log accessi per attività inusuali</p>
+    </div>
+    <div style="text-align:center;margin-bottom:24px">
+      <a href="https://soccorsodigitale.app/admin/security" style="display:inline-block;padding:14px 32px;background:linear-gradient(135deg,#6c63ff,#4f46e5);color:white;text-decoration:none;border-radius:10px;font-weight:700;font-size:15px">Vai alle impostazioni sicurezza →</a>
+    </div>
+    <p style="margin:0;font-size:13px;color:#888;text-align:center">Per segnalare vulnerabilità o anomalie: <a href="mailto:security@soccorsodigitale.app" style="color:#4f46e5;text-decoration:none">security@soccorsodigitale.app</a></p>
+  </td></tr>
+  <tr><td style="background:#1a1a1a;border-radius:0 0 16px 16px;padding:24px 40px;text-align:center">
+    <p style="margin:0 0 6px;font-size:13px;color:rgba(255,255,255,0.5)">© Soccorso Digitale in Cloud 2026 — Tutti i diritti riservati</p>
+    <p style="margin:0;font-size:12px"><a href="https://soccorsodigitale.app/privacy" style="color:rgba(255,255,255,0.35);text-decoration:none">Privacy Policy</a> &nbsp;·&nbsp; <a href="https://soccorsodigitale.app/unsubscribe" style="color:rgba(255,255,255,0.35);text-decoration:none">Disiscrivi</a></p>
+  </td></tr>
+</table>
+</td></tr></table>
+</body></html>`
+    },
+    {
+      id: 'followup-demo',
+      icon: '💬',
+      title: 'Follow-up Demo',
+      description: 'Email di follow-up dopo il periodo demo',
+      subject: 'Come sta andando la demo di Soccorso Digitale, {{contactName}}?',
+      html: `<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Follow-up Demo</title></head><body style="margin:0;padding:0;background:#f4f6f9;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f6f9;padding:40px 20px"><tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%">
+  <tr><td style="background:linear-gradient(135deg,#1a1a1a 0%,#2d2d2d 100%);border-radius:16px 16px 0 0;padding:36px 40px;text-align:center">
+    <div style="display:inline-flex;align-items:center;gap:12px;margin-bottom:8px">
+      <div style="width:42px;height:42px;background:linear-gradient(135deg,#6c63ff,#4f46e5);border-radius:10px;display:inline-block;vertical-align:middle"></div>
+      <span style="font-size:22px;font-weight:800;color:white;letter-spacing:-0.5px;vertical-align:middle">Soccorso Digitale</span>
+    </div>
+    <p style="margin:0;color:rgba(255,255,255,0.5);font-size:12px;letter-spacing:2px;text-transform:uppercase">in Cloud</p>
+  </td></tr>
+  <tr><td style="background:#ffffff;padding:48px 40px">
+    <h1 style="margin:0 0 16px;font-size:26px;font-weight:800;color:#1a1a1a">Ciao {{contactName}}, come procede? 👋</h1>
+    <p style="margin:0 0 24px;font-size:16px;color:#555;line-height:1.7">Sono passati alcuni giorni dall'attivazione della tua demo di Soccorso Digitale per <strong>{{orgName}}</strong>. Volevamo fare un check-in per assicurarci che tutto stia andando per il meglio e che tu stia traendo il massimo dalla piattaforma.</p>
+    <div style="background:#f8f9ff;border-radius:12px;padding:24px;margin-bottom:24px">
+      <h3 style="margin:0 0 14px;font-size:15px;font-weight:700;color:#1a1a1a">Hai già provato queste funzionalità?</h3>
+      <table width="100%" cellpadding="0" cellspacing="0">
+        <tr><td style="padding:8px 0;vertical-align:top">
+          <div style="display:flex;gap:10px;align-items:flex-start">
+            <div style="width:28px;height:28px;background:linear-gradient(135deg,#6c63ff,#4f46e5);border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;color:white;margin-top:2px">🗂️</div>
+            <div><strong style="font-size:14px;color:#1a1a1a;display:block;margin-bottom:2px">Gestione Missioni</strong><span style="font-size:13px;color:#555">Registra e traccia ogni intervento in tempo reale con geolocalizzazione e refertazione digitale.</span></div>
+          </div>
+        </td></tr>
+        <tr><td style="padding:8px 0;vertical-align:top">
+          <div style="display:flex;gap:10px;align-items:flex-start">
+            <div style="width:28px;height:28px;background:linear-gradient(135deg,#0ea5e9,#0284c7);border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;color:white;margin-top:2px">📅</div>
+            <div><strong style="font-size:14px;color:#1a1a1a;display:block;margin-bottom:2px">Pianificazione Turni</strong><span style="font-size:13px;color:#555">Sistema avanzato di gestione disponibilità e turni con notifiche automatiche ai volontari.</span></div>
+          </div>
+        </td></tr>
+        <tr><td style="padding:8px 0;vertical-align:top">
+          <div style="display:flex;gap:10px;align-items:flex-start">
+            <div style="width:28px;height:28px;background:linear-gradient(135deg,#10b981,#059669);border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;color:white;margin-top:2px">📊</div>
+            <div><strong style="font-size:14px;color:#1a1a1a;display:block;margin-bottom:2px">Report e Statistiche</strong><span style="font-size:13px;color:#555">Analisi complete delle attività per relazioni annuali, rendicontazioni e programmazione futura.</span></div>
+          </div>
+        </td></tr>
+      </table>
+    </div>
+    <div style="background:linear-gradient(135deg,#6c63ff10,#4f46e510);border-radius:12px;padding:24px;margin-bottom:28px;border:1px solid #6c63ff30;text-align:center">
+      <p style="margin:0 0 12px;font-size:15px;color:#1a1a1a;font-weight:600">Vuoi una chiamata di 30 minuti con il nostro team?</p>
+      <p style="margin:0 0 16px;font-size:14px;color:#555">Ti guidiamo attraverso le funzionalità più avanzate e rispondiamo a tutte le tue domande.</p>
+      <a href="https://soccorsodigitale.app/prenota-demo" style="display:inline-block;padding:12px 28px;background:linear-gradient(135deg,#6c63ff,#4f46e5);color:white;text-decoration:none;border-radius:8px;font-weight:700;font-size:14px">Prenota una chiamata gratuita →</a>
+    </div>
+    <p style="margin:0 0 8px;font-size:14px;color:#555">Rispondi direttamente a questa email o scrivici su <a href="mailto:supporto@soccorsodigitale.app" style="color:#4f46e5;text-decoration:none">supporto@soccorsodigitale.app</a></p>
+    <p style="margin:0;font-size:14px;color:#555">Siamo qui per aiutarti a fare di {{orgName}} un'organizzazione ancora più efficiente. 💪</p>
+  </td></tr>
+  <tr><td style="background:#1a1a1a;border-radius:0 0 16px 16px;padding:24px 40px;text-align:center">
+    <p style="margin:0 0 6px;font-size:13px;color:rgba(255,255,255,0.5)">© Soccorso Digitale in Cloud 2026 — Tutti i diritti riservati</p>
+    <p style="margin:0;font-size:12px"><a href="https://soccorsodigitale.app/privacy" style="color:rgba(255,255,255,0.35);text-decoration:none">Privacy Policy</a> &nbsp;·&nbsp; <a href="https://soccorsodigitale.app/unsubscribe" style="color:rgba(255,255,255,0.35);text-decoration:none">Disiscrivi</a></p>
+  </td></tr>
+</table>
+</td></tr></table>
+</body></html>`
+    }
+  ];
+
+  // ── Email Compose UI ──────────────────────────────────────────
+  var _emailOrgs = [];
+  var _selectedTemplateId = null;
+  var _selectedOrgIds = [];
+
+  function loadEmailCompose() {
+    var container = document.getElementById('email-compose-list');
+    if (!container) return;
+
+    // Fetch organizations for recipient selection
+    fetch('/api/org-admin/organizations', { headers: { 'Authorization': 'Bearer ' + (window._authToken || localStorage.getItem('authToken') || '') } })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        _emailOrgs = Array.isArray(data) ? data : (data.organizations || data.data || []);
+        renderEmailCompose(container);
+      })
+      .catch(function() {
+        _emailOrgs = [];
+        renderEmailCompose(container);
+      });
+  }
+
+  function renderEmailCompose(container) {
+    var templateGrid = EMAIL_TEMPLATES.map(function(t) {
+      var isSelected = t.id === _selectedTemplateId;
+      return '<div onclick="selectEmailTemplate(\'' + t.id + '\')" id="tcard-' + t.id + '" style="cursor:pointer;border:2px solid ' + (isSelected ? 'var(--primary)' : 'var(--border)') + ';border-radius:10px;padding:14px;background:' + (isSelected ? 'var(--primary)10' : 'var(--surface)') + ';transition:all 0.15s">'
+        + '<div style="font-size:22px;margin-bottom:6px">' + t.icon + '</div>'
+        + '<div style="font-size:13px;font-weight:700;color:' + (isSelected ? 'var(--primary)' : 'var(--text-primary)') + ';margin-bottom:3px">' + escHtml(t.title) + '</div>'
+        + '<div style="font-size:11px;color:var(--text-secondary);line-height:1.4">' + escHtml(t.description) + '</div>'
+        + '</div>';
+    }).join('');
+
+    var orgCheckboxes = _emailOrgs.length > 0
+      ? '<div style="margin-bottom:6px"><label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;padding:6px 0;border-bottom:1px solid var(--border)">'
+        + '<input type="checkbox" id="email-select-all" onchange="emailToggleAllOrgs(this.checked)" style="width:15px;height:15px;cursor:pointer;accent-color:var(--primary)"><strong>Seleziona tutte (' + _emailOrgs.length + ')</strong></label></div>'
+        + _emailOrgs.map(function(org) {
+          return '<label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;padding:5px 0" title="' + escHtml(org.email || '') + '">'
+            + '<input type="checkbox" class="email-org-checkbox" value="' + org.id + '" onchange="emailOrgCheckboxChange()" style="width:15px;height:15px;cursor:pointer;accent-color:var(--primary)">'
+            + '<span>' + escHtml(org.name || org.id) + '</span>'
+            + (org.status ? '<span style="font-size:10px;color:var(--text-secondary);margin-left:auto">' + escHtml(org.status) + '</span>' : '')
+            + '</label>';
+        }).join('')
+      : '<p style="color:var(--text-secondary);font-size:13px;font-style:italic">Nessuna organizzazione disponibile.</p>';
+
+    var selectedTpl = _selectedTemplateId ? EMAIL_TEMPLATES.find(function(t) { return t.id === _selectedTemplateId; }) : null;
+    var subjectVal = selectedTpl ? escHtml(selectedTpl.subject) : '';
+
+    container.innerHTML = '<div style="display:grid;grid-template-columns:300px 1fr;gap:20px;align-items:start">'
+      // Left panel: template selector
+      + '<div>'
+      + '<h3 style="margin:0 0 14px;font-size:15px;font-weight:700;color:var(--text-primary)">Scegli template</h3>'
+      + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">' + templateGrid + '</div>'
+      + '</div>'
+      // Right panel: compose
+      + '<div>'
+      + '<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px">'
+      + (selectedTpl
+        ? '<h3 style="margin:0 0 20px;font-size:15px;font-weight:700;color:var(--text-primary)">' + selectedTpl.icon + ' ' + escHtml(selectedTpl.title) + '</h3>'
+          // Subject
+          + '<div style="margin-bottom:16px"><label style="display:block;font-size:12px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Oggetto</label>'
+          + '<input id="email-subject" type="text" value="' + subjectVal + '" style="width:100%;box-sizing:border-box;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;color:var(--text-primary);background:var(--background)"></div>'
+          // Recipients
+          + '<div style="margin-bottom:16px"><label style="display:block;font-size:12px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Destinatari</label>'
+          + '<div style="border:1px solid var(--border);border-radius:8px;padding:10px 14px;max-height:180px;overflow-y:auto;background:var(--background)">'
+          + orgCheckboxes
+          + '</div></div>'
+          // Custom emails
+          + '<div style="margin-bottom:16px"><label style="display:block;font-size:12px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Email aggiuntive <span style="font-weight:400;font-size:11px;text-transform:none">(opzionale, separate da virgola)</span></label>'
+          + '<input id="email-extra-recipients" type="text" placeholder="es. info@crocerossabollate.it, direttivo@associazione.it" style="width:100%;box-sizing:border-box;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--text-primary);background:var(--background)"></div>'
+          // Preview
+          + '<div style="margin-bottom:16px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'
+          + '<label style="display:block;font-size:12px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px">Anteprima</label>'
+          + '<button onclick="toggleEmailPreview()" id="email-preview-btn" style="padding:4px 12px;font-size:12px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text-primary);cursor:pointer">Mostra anteprima</button>'
+          + '</div>'
+          + '<div id="email-preview-container" style="display:none;border:1px solid var(--border);border-radius:8px;overflow:hidden">'
+          + '<iframe id="email-preview-iframe" style="width:100%;height:420px;border:none;display:block" sandbox="allow-same-origin"></iframe>'
+          + '</div></div>'
+          // Send
+          + '<div style="display:flex;justify-content:flex-end;gap:10px">'
+          + '<button onclick="previewEmailInline()" style="padding:10px 20px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text-primary);font-weight:600;font-size:14px;cursor:pointer">Anteprima</button>'
+          + '<button onclick="sendEmailCampaign()" id="email-send-btn" style="padding:10px 24px;background:linear-gradient(135deg,var(--primary),#7c3aed);color:white;border:none;border-radius:8px;font-weight:700;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:8px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>Invia Email</button>'
+          + '</div>'
+        : '<div style="padding:48px;text-align:center;color:var(--text-secondary)">'
+          + '<div style="font-size:48px;margin-bottom:12px">📧</div>'
+          + '<h3 style="margin:0 0 8px;font-size:16px;color:var(--text-primary)">Seleziona un template</h3>'
+          + '<p style="margin:0;font-size:14px">Scegli uno dei 10 template dalla colonna di sinistra per iniziare a comporre la tua email.</p>'
+          + '</div>')
+      + '</div>'
+      + '</div>'
+      + '</div>';
+  }
+
+  function selectEmailTemplate(id) {
+    _selectedTemplateId = id;
+    var container = document.getElementById('email-compose-list');
+    if (container) renderEmailCompose(container);
+  }
+
+  function emailToggleAllOrgs(checked) {
+    var checkboxes = document.querySelectorAll('.email-org-checkbox');
+    checkboxes.forEach(function(cb) { cb.checked = checked; });
+    emailOrgCheckboxChange();
+  }
+
+  function emailOrgCheckboxChange() {
+    _selectedOrgIds = [];
+    var checkboxes = document.querySelectorAll('.email-org-checkbox');
+    checkboxes.forEach(function(cb) { if (cb.checked) _selectedOrgIds.push(cb.value); });
+    var allChecked = _selectedOrgIds.length === _emailOrgs.length && _emailOrgs.length > 0;
+    var selectAll = document.getElementById('email-select-all');
+    if (selectAll) selectAll.checked = allChecked;
+  }
+
+  function getRenderedEmailHtml() {
+    var tpl = _selectedTemplateId ? EMAIL_TEMPLATES.find(function(t) { return t.id === _selectedTemplateId; }) : null;
+    if (!tpl) return '';
+    // Replace template variables with placeholder values for preview
+    return tpl.html
+      .replace(/\{\{orgName\}\}/g, '[Nome Organizzazione]')
+      .replace(/\{\{contactName\}\}/g, '[Nome Contatto]')
+      .replace(/\{\{featureName\}\}/g, '[Nome Funzionalità]')
+      .replace(/\{\{date\}\}/g, '[Data]')
+      .replace(/\{\{startTime\}\}/g, '[Ora inizio]')
+      .replace(/\{\{endTime\}\}/g, '[Ora fine]')
+      .replace(/\{\{duration\}\}/g, '[Durata stimata]')
+      .replace(/\{\{month\}\}/g, '[Mese]')
+      .replace(/\{\{year\}\}/g, '[Anno]')
+      .replace(/\{\{[^}]+\}\}/g, '[...]');
+  }
+
+  function previewEmailInline() {
+    var previewContainer = document.getElementById('email-preview-container');
+    var iframe = document.getElementById('email-preview-iframe');
+    var btn = document.getElementById('email-preview-btn');
+    if (!previewContainer || !iframe) return;
+
+    var html = getRenderedEmailHtml();
+    if (!html) { showAdminToast('Seleziona prima un template.', 'warning'); return; }
+
+    var showing = previewContainer.style.display !== 'none';
+    if (!showing) {
+      var doc = iframe.contentDocument || iframe.contentWindow.document;
+      doc.open(); doc.write(html); doc.close();
+      previewContainer.style.display = 'block';
+      if (btn) btn.textContent = 'Nascondi anteprima';
+    } else {
+      previewContainer.style.display = 'none';
+      if (btn) btn.textContent = 'Mostra anteprima';
+    }
+  }
+
+  function toggleEmailPreview() { previewEmailInline(); }
+
+  function sendEmailCampaign() {
+    var tpl = _selectedTemplateId ? EMAIL_TEMPLATES.find(function(t) { return t.id === _selectedTemplateId; }) : null;
+    if (!tpl) { showAdminToast('Seleziona prima un template.', 'warning'); return; }
+
+    var subjectInput = document.getElementById('email-subject');
+    var subject = subjectInput ? subjectInput.value.trim() : tpl.subject;
+    if (!subject) { showAdminToast('Inserisci un oggetto per l\'email.', 'warning'); return; }
+
+    var extraInput = document.getElementById('email-extra-recipients');
+    var extraEmails = extraInput ? extraInput.value.split(',').map(function(e) { return e.trim(); }).filter(function(e) { return e.length > 0; }) : [];
+
+    // Collect selected org IDs from current DOM state
+    var orgIds = [];
+    document.querySelectorAll('.email-org-checkbox:checked').forEach(function(cb) { orgIds.push(cb.value); });
+
+    if (orgIds.length === 0 && extraEmails.length === 0) {
+      showAdminToast('Seleziona almeno un destinatario.', 'warning'); return;
+    }
+
+    var sendBtn = document.getElementById('email-send-btn');
+    if (sendBtn) { sendBtn.disabled = true; sendBtn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation:spin 0.8s linear infinite"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0118.8-4.3M22 12.5a10 10 0 01-18.8 4.2"/></svg>Invio in corso...'; }
+
+    var payload = {
+      organizationIds: orgIds,
+      templateId: tpl.id,
+      subject: subject,
+      htmlBody: tpl.html
+    };
+    if (extraEmails.length > 0) payload.recipientEmails = extraEmails;
+
+    fetch('/api/org-admin/send-email', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + (window._authToken || localStorage.getItem('authToken') || ''), 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+    .then(function(r) {
+      if (!r.ok) return r.json().then(function(d) { throw new Error(d.message || 'Errore server ' + r.status); });
+      return r.json();
+    })
+    .then(function() {
+      var total = orgIds.length + extraEmails.length;
+      showAdminToast('Email inviata a ' + total + ' destinatari con successo!', 'success');
+      if (sendBtn) { sendBtn.disabled = false; sendBtn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>Invia Email'; }
+    })
+    .catch(function(err) {
+      showAdminToast('Errore invio: ' + err.message, 'error');
+      if (sendBtn) { sendBtn.disabled = false; sendBtn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>Invia Email'; }
+    });
+  }
+
+  // ── Helper: HTML escape ───────────────────────────────────────
+  function escHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+
+  // ── Helper: toast notification (fallback if not defined) ──────
+  function showAdminToast(msg, type) {
+    if (typeof window.showToast === 'function') { window.showToast(msg, type); return; }
+    if (typeof window.showNotification === 'function') { window.showNotification(msg, type); return; }
+    // Fallback: render a simple toast
+    var toast = document.createElement('div');
+    var bg = type === 'success' ? '#27AE60' : type === 'error' ? '#E74C3C' : type === 'warning' ? '#F39C12' : '#3498DB';
+    toast.style.cssText = 'position:fixed;bottom:24px;right:24px;background:' + bg + ';color:white;padding:14px 24px;border-radius:10px;font-size:14px;font-weight:600;z-index:99999;box-shadow:0 4px 20px rgba(0,0,0,0.25);max-width:380px;line-height:1.4;transition:opacity 0.3s';
+    toast.textContent = msg;
+    document.body.appendChild(toast);
+    setTimeout(function() { toast.style.opacity = '0'; setTimeout(function() { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 300); }, 3500);
+  }
   </script>
 </body>
 </html>
