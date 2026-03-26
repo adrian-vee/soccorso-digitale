@@ -31620,17 +31620,9 @@ function _renderOrgModuleGrid(org) {
 }
 
 async function _sendOrgEmail(orgId, type) {
-  try {
-    const res = await adminFetch('/api/org-admin/send-email', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ orgId, type })
-    });
-    if (!res.ok) { showNotification('Funzionalità in arrivo', 'info'); return; }
-    showNotification('Email inviata con successo', 'success');
-  } catch (e) {
-    showNotification('Funzionalità in arrivo', 'info');
-  }
+  // Quick-send buttons (welcome, invoice, trial warnings) are not yet wired to
+  // full templates — redirect super admin to the email campaign form instead.
+  showNotification('Usa il tab "Email & Automazioni" per inviare email personalizzate a questa organizzazione', 'info');
 }
 
 async function _toggleOrgSuspend(orgId, action) {

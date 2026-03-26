@@ -1110,17 +1110,23 @@ export function registerOrgAdminRoutes(app: Express) {
       };
 
       if (!subject || !htmlBody) {
-        return res.status(400).json({ error: "Oggetto e corpo email sono obbligatori" });
+        return res.status(400).json({ message: "Oggetto e corpo email sono obbligatori" });
       }
-      if (!Array.isArray(organizationIds) || organizationIds.length === 0) {
-        return res.status(400).json({ error: "Seleziona almeno un'organizzazione" });
+
+      const hasDirectRecipients = Array.isArray(recipientEmails) && recipientEmails.length > 0;
+      const hasOrgIds = Array.isArray(organizationIds) && organizationIds.length > 0;
+
+      if (!hasDirectRecipients && !hasOrgIds) {
+        return res.status(400).json({ message: "Seleziona almeno un destinatario" });
       }
 
       let targets: string[] = [];
 
-      if (Array.isArray(recipientEmails) && recipientEmails.length > 0) {
-        targets = recipientEmails.filter(e => typeof e === "string" && e.trim());
-      } else {
+      if (hasDirectRecipients) {
+        targets = recipientEmails!.filter(e => typeof e === "string" && e.trim());
+      }
+
+      if (hasOrgIds) {
         const orgs = await db
           .select({ email: organizations.email })
           .from(organizations)
@@ -1132,14 +1138,22 @@ export function registerOrgAdminRoutes(app: Express) {
                   sql`, `,
                 )}]::text[])`,
           );
-        targets = orgs.map(o => o.email).filter((e): e is string => !!e);
+        const orgEmails = orgs.map(o => o.email).filter((e): e is string => !!e);
+        targets = [...new Set([...targets, ...orgEmails])];
       }
 
       if (targets.length === 0) {
-        return res.status(400).json({ error: "Nessun indirizzo email trovato per le organizzazioni selezionate" });
+        return res.status(400).json({ message: "Nessun indirizzo email trovato per i destinatari selezionati" });
       }
 
-      const { client, fromEmail } = await getResendClient();
+      let client: any;
+      let fromEmail: string;
+      try {
+        ({ client, fromEmail } = await getResendClient());
+      } catch (configErr: any) {
+        console.error("[org-email] Email service not configured:", configErr.message);
+        return res.status(503).json({ message: "Servizio email non configurato: RESEND_API_KEY mancante" });
+      }
 
       const results = await Promise.allSettled(
         targets.map(email =>
@@ -1155,12 +1169,18 @@ export function registerOrgAdminRoutes(app: Express) {
       const sent = results.filter(r => r.status === "fulfilled").length;
       const failed = results.filter(r => r.status === "rejected").length;
 
+      if (failed > 0) {
+        results.forEach((r, i) => {
+          if (r.status === "rejected") console.error(`[org-email] Failed to ${targets[i]}:`, r.reason);
+        });
+      }
+
       console.log(`[org-email] Bulk send: ${sent} sent, ${failed} failed. Template: ${templateId}`);
 
       res.json({ success: true, sent, failed, total: targets.length });
     } catch (error) {
       console.error("Error sending org emails:", error);
-      res.status(500).json({ error: "Errore durante l'invio delle email" });
+      res.status(500).json({ message: "Errore durante l'invio delle email" });
     }
   });
 
