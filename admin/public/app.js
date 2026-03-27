@@ -3078,7 +3078,7 @@ async function loadCrmPage() {
       };
 
       tbody.innerHTML = data.map(org => `
-        <tr style="border-bottom:1px solid #F0F4FF;" onmouseenter="this.style.background='#F8FAFF'" onmouseleave="this.style.background=''">
+        <tr id="crm-org-row-${org.id}" style="border-bottom:1px solid #F0F4FF;" onmouseenter="this.style.background='#F8FAFF'" onmouseleave="this.style.background=''">
           <td style="padding:10px 14px;font-weight:600;color:#111827;">${escapeHtml(org.name)}</td>
           <td style="padding:10px 14px;color:#6B7280;">${org.type || '—'}</td>
           <td style="padding:10px 14px;color:#6B7280;">${org.region || '—'}</td>
@@ -3088,6 +3088,7 @@ async function loadCrmPage() {
           <td style="padding:10px 14px;text-align:center;">
             <div style="display:flex;gap:6px;justify-content:center;">
               ${org.email ? `<button onclick="showCrmSendModal('${org.id}','${escapeHtml(org.name).replace(/'/g,"\\'")}','${escapeHtml(org.email || '')}')" title="Invia email" style="height:30px;padding:0 10px;background:#EFF6FF;border:1px solid #DBEAFE;border-radius:6px;font-size:11px;font-weight:600;color:#1E3A8A;cursor:pointer;">✉ Email</button>` : ''}
+              <button onclick="showCrmEditOrgModal('${org.id}')" title="Modifica" style="height:30px;padding:0 10px;background:#F0F4FF;border:1px solid #DBEAFE;border-radius:6px;font-size:12px;color:#1E3A8A;cursor:pointer;">✏</button>
               <button onclick="showCrmStatusModal('${org.id}','${org.status}')" title="Cambia status" style="height:30px;padding:0 10px;background:#F8FAFF;border:1px solid #E2E8F0;border-radius:6px;font-size:11px;color:#374151;cursor:pointer;">Status</button>
               <button onclick="crmDeleteOrg('${org.id}','${escapeHtml(org.name).replace(/'/g,"\\'")}')}" title="Elimina" style="height:30px;padding:0 10px;background:#FEF2F2;border:1px solid #FECACA;border-radius:6px;font-size:11px;color:#dc2626;cursor:pointer;">✕</button>
             </div>
@@ -3125,6 +3126,115 @@ async function crmDeleteOrg(id, name) {
   const res = await adminFetch(`/api/crm/organizations/${id}`, { method: 'DELETE' });
   if (res.ok) { showNotification('Organizzazione eliminata', 'success'); loadCrmPage(); }
   else { const e = await res.json(); showNotification('Errore: ' + e.error, 'error'); }
+}
+
+// ── Modale modifica organizzazione ────────────────────
+
+async function showCrmEditOrgModal(id) {
+  const res = await adminFetch(`/api/crm/organizations/${id}`);
+  if (!res.ok) { showNotification('Errore caricamento dati', 'error'); return; }
+  const org = await res.json();
+
+  const orgTypes = [
+    { v: 'croce_rossa', l: 'Croce Rossa' },
+    { v: 'misericordia', l: 'Misericordia' },
+    { v: 'pubblica_assistenza', l: 'Pubblica Assistenza' },
+    { v: 'ambulanza_privata', l: 'Ambulanza Privata' },
+    { v: 'cooperativa', l: 'Cooperativa' },
+    { v: 'altro', l: 'Altro' },
+  ];
+
+  showModal({
+    title: 'Modifica Organizzazione',
+    size: 'md',
+    content: `
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div>
+          <label style="font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:5px;">Nome organizzazione *</label>
+          <input id="edit-org-name" type="text" value="${escapeHtml(org.name || '')}" style="width:100%;padding:9px 12px;border:1px solid #E2E8F0;border-radius:8px;font-size:13px;outline:none;box-sizing:border-box;">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div>
+            <label style="font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:5px;">Tipo</label>
+            <select id="edit-org-type" style="width:100%;height:38px;padding:0 10px;border:1px solid #E2E8F0;border-radius:8px;font-size:13px;outline:none;">
+              <option value="">— seleziona —</option>
+              ${orgTypes.map(t => `<option value="${t.v}" ${org.type === t.v ? 'selected' : ''}>${t.l}</option>`).join('')}
+            </select>
+          </div>
+          <div>
+            <label style="font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:5px;">Regione</label>
+            <input id="edit-org-region" type="text" value="${escapeHtml(org.region || '')}" style="width:100%;padding:9px 12px;border:1px solid #E2E8F0;border-radius:8px;font-size:13px;outline:none;box-sizing:border-box;">
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div>
+            <label style="font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:5px;">Città</label>
+            <input id="edit-org-city" type="text" value="${escapeHtml(org.city || '')}" style="width:100%;padding:9px 12px;border:1px solid #E2E8F0;border-radius:8px;font-size:13px;outline:none;box-sizing:border-box;">
+          </div>
+          <div>
+            <label style="font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:5px;">Telefono</label>
+            <input id="edit-org-phone" type="text" value="${escapeHtml(org.phone || '')}" style="width:100%;padding:9px 12px;border:1px solid #E2E8F0;border-radius:8px;font-size:13px;outline:none;box-sizing:border-box;">
+          </div>
+        </div>
+        <div>
+          <label style="font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:5px;">Email</label>
+          <input id="edit-org-email" type="email" value="${escapeHtml(org.email || '')}" style="width:100%;padding:9px 12px;border:1px solid #E2E8F0;border-radius:8px;font-size:13px;outline:none;box-sizing:border-box;">
+        </div>
+        <div>
+          <label style="font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:5px;">Sito web</label>
+          <input id="edit-org-website" type="url" value="${escapeHtml(org.website || '')}" placeholder="https://..." style="width:100%;padding:9px 12px;border:1px solid #E2E8F0;border-radius:8px;font-size:13px;outline:none;box-sizing:border-box;">
+        </div>
+        <div>
+          <label style="font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:5px;">Note</label>
+          <textarea id="edit-org-notes" rows="3" style="width:100%;padding:9px 12px;border:1px solid #E2E8F0;border-radius:8px;font-size:13px;outline:none;box-sizing:border-box;resize:vertical;">${escapeHtml(org.notes || '')}</textarea>
+        </div>
+      </div>`,
+    saveLabel: 'Salva modifiche',
+    onSave: async () => {
+      const name = document.getElementById('edit-org-name')?.value.trim();
+      if (!name) { showNotification('Il nome è obbligatorio', 'error'); return; }
+
+      const payload = {
+        name,
+        type: document.getElementById('edit-org-type')?.value || null,
+        region: document.getElementById('edit-org-region')?.value.trim() || null,
+        city: document.getElementById('edit-org-city')?.value.trim() || null,
+        phone: document.getElementById('edit-org-phone')?.value.trim() || null,
+        email: document.getElementById('edit-org-email')?.value.trim() || null,
+        website: document.getElementById('edit-org-website')?.value.trim() || null,
+        notes: document.getElementById('edit-org-notes')?.value.trim() || null,
+      };
+
+      const saveRes = await adminFetch(`/api/crm/organizations/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (!saveRes.ok) {
+        const e = await saveRes.json();
+        showNotification('Errore: ' + e.error, 'error');
+        return;
+      }
+
+      const updated = await saveRes.json();
+      showNotification('Organizzazione aggiornata', 'success');
+
+      // Aggiorna la riga senza ricaricare la pagina
+      const row = document.getElementById(`crm-org-row-${id}`);
+      if (row) {
+        const cells = row.querySelectorAll('td');
+        if (cells[0]) cells[0].textContent = updated.name;
+        if (cells[1]) cells[1].textContent = updated.type || '—';
+        if (cells[2]) cells[2].textContent = updated.region || '—';
+        if (cells[3]) {
+          cells[3].innerHTML = updated.email
+            ? `<a href="mailto:${escapeHtml(updated.email)}" style="color:#1E3A8A;text-decoration:none;">${escapeHtml(updated.email)}</a>`
+            : '—';
+        }
+      }
+    },
+  });
 }
 
 // ── Modale invia email ─────────────────────────────────
