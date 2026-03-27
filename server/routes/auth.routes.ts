@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import crypto from "node:crypto";
 import bcrypt from "bcrypt";
+import { supabaseAdmin, isSupabaseConfigured } from "../lib/supabase";
 import { storage } from "../storage";
 import { db } from "../db";
 import {
@@ -29,13 +30,113 @@ export function registerAuthRoutes(app: Express) {
   app.post("/api/auth/login", async (req, res) => {
     try {
       const { email, password } = req.body;
+
+      // ── Supabase Auth (primary, when configured) ─────────────────────────────
+      if (isSupabaseConfigured && supabaseAdmin) {
+        const { data, error } = await supabaseAdmin.auth.signInWithPassword({ email, password });
+
+        if (error) {
+          // "Email not confirmed", "Invalid login credentials" → wrong password
+          // "User not found" or any other → might not be in Supabase yet, fall through to bcrypt
+          const notInSupabase =
+            error.message?.toLowerCase().includes("user not found") ||
+            error.message?.toLowerCase().includes("not registered");
+
+          if (!notInSupabase) {
+            console.log(`[auth/supabase] Login failed for ${email}:`, error.message);
+            await auditLog.login("", email, req.ip || "unknown");
+            return res.status(401).json({ error: "Credenziali non valide" });
+          }
+          // User not in Supabase yet → fall through to bcrypt below
+          console.log(`[auth/supabase] ${email} not in Supabase, falling back to bcrypt`);
+        } else if (data.session) {
+          // Supabase login OK — look up our DB user for full profile
+          const user = await storage.getUserByEmail(email);
+          if (!user) {
+            return res.status(401).json({ error: "Utente non trovato nel sistema" });
+          }
+
+          if (user.isActive === false) {
+            return res.status(401).json({ error: "Account disattivato" });
+          }
+
+          if (user.organizationId) {
+            const demoExpired = await isDemoExpired(user.organizationId);
+            if (demoExpired) {
+              return res.status(401).json({ error: "La demo è scaduta. Contatta info@soccorsodigitale.app per attivare un account completo." });
+            }
+          }
+
+          // Store Supabase JWT as authToken — middleware validates via getUserByToken
+          const supabaseToken = data.session.access_token;
+          await storage.updateUserToken(user.id, supabaseToken);
+
+          req.session.userId = user.id;
+          req.session.userRole = user.role;
+          req.session.organizationId = user.organizationId ?? undefined;
+
+          await storage.updateUserLastLogin(user.id);
+
+          if (user.id) {
+            db.update(orgUserInvitations)
+              .set({ status: "accepted", acceptedAt: new Date() })
+              .where(and(eq(orgUserInvitations.userId, user.id), eq(orgUserInvitations.status, "pending")))
+              .catch(() => {});
+          }
+
+          await auditLog.login(user.id, (user as any).fullName || (user as any).name || email, req.ip || "unknown");
+
+          if (user.organizationId) {
+            db.insert(orgAccessLogs).values({
+              organizationId: user.organizationId,
+              userId: user.id,
+              userName: (user as any).fullName || (user as any).name || email,
+              action: "login",
+              details: { method: "supabase" },
+              ipAddress: req.ip || req.headers["x-forwarded-for"]?.toString() || "unknown",
+              userAgent: req.get("User-Agent") || "unknown",
+            }).catch(() => {});
+          }
+
+          let vehicle = null, location = null;
+          if (user.vehicleId) {
+            vehicle = await storage.getVehicle(user.vehicleId);
+            if (vehicle?.locationId) location = await storage.getLocation(vehicle.locationId);
+          } else if (user.locationId) {
+            location = await storage.getLocation(user.locationId);
+          }
+
+          let organization = null;
+          if (user.organizationId) {
+            const [org] = await db.select().from(organizations).where(eq(organizations.id, user.organizationId));
+            if (org) organization = { id: org.id, name: org.name, enabledModules: org.enabledModules, logoUrl: org.logoUrl };
+          }
+
+          let permissions: string[] = [];
+          let customRoleName: string | null = null;
+          if (user.customRoleId) {
+            permissions = await getUserPermissions(user.role, user.customRoleId);
+            const [cr] = await db.select().from(orgCustomRoles).where(eq(orgCustomRoles.id, user.customRoleId));
+            customRoleName = cr?.name || null;
+          }
+
+          const { password: _, authToken: __, ...userWithoutPassword } = user;
+          return res.json({
+            user: { ...userWithoutPassword, vehicle, location, organization, permissions, customRoleName },
+            token: supabaseToken,
+            refresh_token: data.session.refresh_token,
+          });
+        }
+      }
+
+      // ── Bcrypt fallback (Supabase not configured, or user not yet migrated) ──
       const user = await storage.getUserByEmail(email);
 
       const passwordValid = user?.password
         ? await bcrypt.compare(password, user.password).catch(() => false)
         : false
       if (!user || !passwordValid) {
-        console.log(`[auth] Login failed for ${email}: ${!user ? 'user not found' : 'wrong password'}`);
+        console.log(`[auth/bcrypt] Login failed for ${email}: ${!user ? 'user not found' : 'wrong password'}`);
         await auditLog.login("", email, req.ip || "unknown");
         return res.status(401).json({ error: "Credenziali non valide" });
       }
@@ -140,6 +241,52 @@ export function registerAuthRoutes(app: Express) {
     } catch (error) {
       console.error("Login error:", error);
       res.status(500).json({ error: "Errore del server" });
+    }
+  });
+
+  // POST /api/auth/refresh — Rinnova Supabase access token
+  app.post("/api/auth/refresh", async (req, res) => {
+    if (!isSupabaseConfigured || !supabaseAdmin) {
+      return res.status(501).json({ error: "Supabase non configurato" });
+    }
+    try {
+      const { refresh_token } = req.body;
+      if (!refresh_token) return res.status(400).json({ error: "refresh_token mancante" });
+
+      const { data, error } = await supabaseAdmin.auth.refreshSession({ refresh_token });
+      if (error || !data.session) return res.status(401).json({ error: "Refresh token non valido" });
+
+      // Update stored token in DB
+      const email = data.user?.email;
+      if (email) {
+        const dbUser = await storage.getUserByEmail(email);
+        if (dbUser) await storage.updateUserToken(dbUser.id, data.session.access_token);
+      }
+
+      res.json({
+        token: data.session.access_token,
+        refresh_token: data.session.refresh_token,
+      });
+    } catch (err) {
+      res.status(500).json({ error: "Errore server" });
+    }
+  });
+
+  // POST /api/auth/reset-password — Invia email reset via Supabase
+  app.post("/api/auth/reset-password", async (req, res) => {
+    if (!isSupabaseConfigured || !supabaseAdmin) {
+      return res.status(501).json({ error: "Supabase non configurato" });
+    }
+    try {
+      const { email } = req.body;
+      if (!email) return res.status(400).json({ error: "Email obbligatoria" });
+      const { error } = await supabaseAdmin.auth.resetPasswordForEmail(email, {
+        redirectTo: "https://soccorsodigitale.app/admin#reset-password",
+      });
+      if (error) throw error;
+      res.json({ success: true, message: "Email di reset inviata" });
+    } catch (err: any) {
+      res.status(400).json({ error: err.message });
     }
   });
 
