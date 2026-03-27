@@ -1215,43 +1215,7 @@ body.dashboard-active * {
   margin-top: 4px;
 }
 
-.sidebar-search-box {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 12px 12px 4px;
-  padding: 8px 12px;
-  border-radius: 8px;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.08);
-  transition: all 0.2s ease;
-}
-
-.sidebar-search-box:focus-within {
-  background: rgba(255,255,255,0.1);
-  border-color: rgba(59, 130, 246, 0.5);
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
-}
-
-.sidebar-search-box svg {
-  color: rgba(255,255,255,0.85);
-  flex-shrink: 0;
-}
-
-.sidebar-search-box input {
-  background: transparent;
-  border: none;
-  outline: none;
-  color: rgba(255,255,255,0.9);
-  font-size: 13px;
-  font-family: inherit;
-  flex: 1;
-  width: 100%;
-}
-
-.sidebar-search-box input::placeholder {
-  color: rgba(255,255,255,0.7);
-}
+/* .sidebar-search-box replaced with inline styles in index.html and org-admin/index.html */
 
 .sidebar-search-kbd {
   display: inline-flex;
