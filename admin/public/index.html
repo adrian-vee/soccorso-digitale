@@ -29,124 +29,96 @@
   </div>
   <div id="app">
     <div id="login-page" class="page hidden">
-      <div class="lp-wrap">
-        <div class="lp-card">
+      <div class="lp-split">
 
-          <!-- LEFT: brand + animated dot-map -->
-          <div class="lp-left">
-            <canvas id="lp-canvas" class="lp-canvas"></canvas>
-            <div class="lp-brand">
-              <div class="lp-brand-icon">
-                <div>
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-                    <defs>
-                      <linearGradient id="holo-icon" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stop-color="#c9aaff"/>
-                        <stop offset="50%" stop-color="#ffcdfd"/>
-                        <stop offset="100%" stop-color="#839aff"/>
-                      </linearGradient>
-                    </defs>
-                    <path d="M12 2L4 7v5c0 5.25 3.5 10.15 8 11.35C16.5 22.15 20 17.25 20 12V7l-8-5z" fill="url(#holo-icon)"/>
-                    <path d="M9 12l2 2 4-4" stroke="#0f0f0f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                </div>
-              </div>
-              <h1 class="lp-brand-name">SOCCORSO DIGITALE</h1>
-              <p class="lp-brand-sub">Gestione trasporto sanitario per cooperative ambulanze e organizzazioni di volontariato</p>
-            </div>
-            <div class="lp-stats">
-              <div class="lp-stat"><div class="lp-stat-val">500+</div><div class="lp-stat-lbl">SERVIZI</div></div>
-              <div class="lp-stat-div"></div>
-              <div class="lp-stat"><div class="lp-stat-val">7+</div><div class="lp-stat-lbl">ORGANIZZAZIONI</div></div>
-              <div class="lp-stat-div"></div>
-              <div class="lp-stat"><div class="lp-stat-val">99.9%</div><div class="lp-stat-lbl">UPTIME</div></div>
-            </div>
+        <!-- LEFT: brand + animated paths -->
+        <div class="lp-left">
+          <div class="lp-left-top">
+            <img src="/images/69abbc521cae938069a3fb46_Webclip.png" class="lp-logo-img" alt="Soccorso Digitale">
+            <span class="lp-logo-text">Soccorso Digitale</span>
           </div>
 
-          <!-- RIGHT: form -->
-          <div class="lp-right">
-            <div class="lp-form-wrap">
-              <h2 class="lp-title">Bentornato</h2>
-              <p class="lp-subtitle">Accedi al pannello di gestione</p>
-
-              <div class="lp-error" id="lp-error" style="display:none;">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                <span id="lp-error-text">Credenziali non valide. Riprova.</span>
-              </div>
-
-              <form id="login-form">
-                <div class="lp-field">
-                  <label class="lp-label" for="email">Email</label>
-                  <input type="email" id="email" name="email" class="lp-input"
-                         placeholder="admin@tuaorganizzazione.it" required autocomplete="email">
-                </div>
-                <div class="lp-field">
-                  <label class="lp-label" for="password">Password</label>
-                  <div class="lp-input-wrap">
-                    <input type="password" id="password" name="password" class="lp-input"
-                           placeholder="••••••••••" required autocomplete="current-password">
-                    <button type="button" class="lp-eye" onclick="togglePasswordVisibility()" title="Mostra/Nascondi password">
-                      <svg id="eye-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                      <svg id="eye-off-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
-                    </button>
-                  </div>
-                </div>
-                <button type="submit" class="lp-btn" id="lp-btn">
-                  <span id="lp-btn-text">Accedi</span>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </button>
-              </form>
-              <p class="lp-hint">Accesso riservato agli amministratori</p>
-            </div>
+          <div class="lp-paths-wrap" aria-hidden="true">
+            <svg viewBox="0 0 696 316" fill="none" xmlns="http://www.w3.org/2000/svg" class="lp-paths-svg" preserveAspectRatio="xMidYMid slice">
+              <path pathLength="1" class="lp-p-0"  d="M-380 -189 C-380 -189 -312 216 152 343 C616 470 684 875 684 875" stroke="#1E3A8A" stroke-width="0.5" stroke-dasharray="0.3 0.7"/>
+              <path pathLength="1" class="lp-p-1"  d="M-390 -177 C-390 -177 -322 204 142 331 C606 458 674 863 674 863" stroke="#1E3A8A" stroke-width="0.6" stroke-dasharray="0.3 0.7"/>
+              <path pathLength="1" class="lp-p-2"  d="M-400 -165 C-400 -165 -332 192 132 319 C596 446 664 851 664 851" stroke="#1E3A8A" stroke-width="0.7" stroke-dasharray="0.3 0.7"/>
+              <path pathLength="1" class="lp-p-3"  d="M-410 -153 C-410 -153 -342 180 122 307 C586 434 654 839 654 839" stroke="#1E3A8A" stroke-width="0.8" stroke-dasharray="0.3 0.7"/>
+              <path pathLength="1" class="lp-p-4"  d="M-420 -141 C-420 -141 -352 168 112 295 C576 422 644 827 644 827" stroke="#1E3A8A" stroke-width="0.9" stroke-dasharray="0.3 0.7"/>
+              <path pathLength="1" class="lp-p-5"  d="M-430 -129 C-430 -129 -362 156 102 283 C566 410 634 815 634 815" stroke="#1E3A8A" stroke-width="1.0" stroke-dasharray="0.3 0.7"/>
+              <path pathLength="1" class="lp-p-6"  d="M-440 -117 C-440 -117 -372 144 92 271 C556 398 624 803 624 803" stroke="#1E3A8A" stroke-width="1.0" stroke-dasharray="0.3 0.7"/>
+              <path pathLength="1" class="lp-p-7"  d="M-450 -105 C-450 -105 -382 132 82 259 C546 386 614 791 614 791" stroke="#1E3A8A" stroke-width="0.9" stroke-dasharray="0.3 0.7"/>
+              <path pathLength="1" class="lp-p-8"  d="M-460 -93 C-460 -93 -392 120 72 247 C536 374 604 779 604 779" stroke="#1E3A8A" stroke-width="0.8" stroke-dasharray="0.3 0.7"/>
+              <path pathLength="1" class="lp-p-9"  d="M-470 -81 C-470 -81 -402 108 62 235 C526 362 594 767 594 767" stroke="#1E3A8A" stroke-width="0.7" stroke-dasharray="0.3 0.7"/>
+              <path pathLength="1" class="lp-p-10" d="M-385 -183 C-385 -183 -317 210 157 337 C621 464 689 869 689 869" stroke="#1E3A8A" stroke-width="0.5" stroke-dasharray="0.3 0.7"/>
+              <path pathLength="1" class="lp-p-11" d="M-395 -171 C-395 -171 -327 198 167 325 C631 452 699 857 699 857" stroke="#1E3A8A" stroke-width="0.6" stroke-dasharray="0.3 0.7"/>
+              <path pathLength="1" class="lp-p-12" d="M-415 -147 C-415 -147 -347 174 187 301 C651 428 719 833 719 833" stroke="#1E3A8A" stroke-width="0.8" stroke-dasharray="0.3 0.7"/>
+              <path pathLength="1" class="lp-p-13" d="M-425 -135 C-425 -135 -357 162 197 289 C661 416 729 821 729 821" stroke="#1E3A8A" stroke-width="0.9" stroke-dasharray="0.3 0.7"/>
+              <path pathLength="1" class="lp-p-14" d="M-445 -111 C-445 -111 -377 138 217 265 C681 392 749 797 749 797" stroke="#1E3A8A" stroke-width="1.0" stroke-dasharray="0.3 0.7"/>
+              <path pathLength="1" class="lp-p-15" d="M-455 -99 C-455 -99 -387 126 227 253 C691 380 759 785 759 785" stroke="#1E3A8A" stroke-width="0.9" stroke-dasharray="0.3 0.7"/>
+            </svg>
           </div>
 
+          <div class="lp-left-bottom">
+            <p class="lp-tagline">Gestisci il trasporto sanitario in modo digitale.</p>
+            <p class="lp-tagline-sub">La piattaforma completa per cooperative di ambulanze e organizzazioni di volontariato.</p>
+          </div>
         </div>
+
+        <!-- RIGHT: form -->
+        <div class="lp-right">
+          <div class="lp-right-top">
+            <a href="/" class="lp-back">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+              Torna al sito
+            </a>
+          </div>
+
+          <div class="lp-form-area">
+            <h2 class="lp-title">Bentornato</h2>
+            <p class="lp-subtitle">Accedi al pannello di gestione della tua organizzazione.</p>
+
+            <div class="lp-error" id="lp-error" style="display:none;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              <span id="lp-error-text">Credenziali non valide. Riprova.</span>
+            </div>
+
+            <form id="login-form">
+              <div class="lp-field">
+                <label class="lp-label" for="email">Email</label>
+                <input type="email" id="email" name="email" class="lp-input"
+                       placeholder="admin@tuaorganizzazione.it" required autocomplete="email">
+              </div>
+              <div class="lp-field">
+                <label class="lp-label" for="password">Password</label>
+                <div class="lp-input-wrap">
+                  <input type="password" id="password" name="password" class="lp-input"
+                         placeholder="••••••••••" required autocomplete="current-password">
+                  <button type="button" class="lp-eye" onclick="togglePasswordVisibility()" title="Mostra/Nascondi password">
+                    <svg id="eye-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    <svg id="eye-off-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                  </button>
+                </div>
+              </div>
+              <button type="submit" class="lp-btn" id="lp-btn">
+                <span id="lp-btn-text">Accedi</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+            </form>
+
+            <a href="#" class="lp-forgot">Password dimenticata?</a>
+          </div>
+
+          <div class="lp-right-footer">
+            <a href="#">Termini di Servizio</a>
+            <span>·</span>
+            <a href="#">Privacy Policy</a>
+            <span>·</span>
+            <a href="#">Supporto</a>
+          </div>
+        </div>
+
       </div>
-
-      <script>
-        /* Animated dot-grid for login left panel */
-        (function() {
-          const canvas = document.getElementById('lp-canvas');
-          if (!canvas) return;
-          const ctx = canvas.getContext('2d');
-          let w, h, dots = [];
-
-          function resize() {
-            w = canvas.width = canvas.offsetWidth;
-            h = canvas.height = canvas.offsetHeight;
-            dots = [];
-            const gap = 16;
-            for (let x = gap; x < w - gap; x += gap) {
-              for (let y = gap; y < h - gap; y += gap) {
-                if (Math.random() > 0.42) {
-                  dots.push({ x, y, o: Math.random() * 0.45 + 0.1, drift: Math.random() * Math.PI * 2, speed: 0.3 + Math.random() * 0.4 });
-                }
-              }
-            }
-          }
-
-          const holoColors = ['201,170,255','254,255,188','255,205,253','179,226,255','131,154,255'];
-          function draw(t) {
-            ctx.clearRect(0, 0, w, h);
-            dots.forEach((d, i) => {
-              const pulse = Math.sin(t * d.speed + d.drift) * 0.18;
-              const alpha = Math.max(0.04, d.o + pulse);
-              const col = holoColors[i % holoColors.length];
-              ctx.beginPath();
-              ctx.arc(d.x, d.y, 1.3, 0, Math.PI * 2);
-              ctx.fillStyle = 'rgba(' + col + ',' + alpha + ')';
-              ctx.fill();
-            });
-            requestAnimationFrame(draw);
-          }
-
-          window.addEventListener('resize', resize);
-          resize();
-          requestAnimationFrame(draw);
-        })();
-
-        /* Login form submit is handled by handleLogin() in app.js */
-      </script>
     </div>
 
     <div id="dashboard-page" class="page hidden">
