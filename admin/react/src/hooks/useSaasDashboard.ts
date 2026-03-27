@@ -8,6 +8,7 @@ export function useSaasMetrics() {
     queryFn: () => fetchApi<SaasMetrics | null>('/api/saas-metrics'),
     refetchInterval: 60_000,
     staleTime: 30_000,
+    retry: false,
   })
 }
 
@@ -16,6 +17,7 @@ export function useSaasHistory() {
     queryKey: ['saas-metrics-history'],
     queryFn: () => fetchApi<MetricsHistory[]>('/api/saas-metrics/history'),
     staleTime: 120_000,
+    retry: false,
   })
 }
 
@@ -24,5 +26,6 @@ export function useOrganizations() {
     queryKey: ['organizations'],
     queryFn: () => fetchApi<Organization[]>('/api/admin/organizations'),
     staleTime: 60_000,
+    retry: false,
   })
 }

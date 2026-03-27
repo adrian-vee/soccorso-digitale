@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { PageHeader } from '../components/PageHeader'
 import { KpiGrid } from '../components/KpiGrid'
@@ -21,6 +21,13 @@ export function SaasDashboard() {
         minute: '2-digit',
       })
     : '--:--'
+
+  // Refetch quando vanilla JS naviga a questa pagina (es. dopo login)
+  useEffect(() => {
+    const handler = () => queryClient.refetchQueries()
+    window.addEventListener('sd-navigate', handler)
+    return () => window.removeEventListener('sd-navigate', handler)
+  }, [queryClient])
 
   const handleRefresh = useCallback(() => {
     queryClient.invalidateQueries()

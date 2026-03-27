@@ -9356,7 +9356,8 @@
           <section id="saas-dashboard-section" class="section hidden">
             <!-- React mount point — gestisce tutta questa pagina -->
             <div id="react-saas-root"></div>
-            <!-- Vecchio contenuto vanilla JS rimane come fallback -->
+            <!-- Vecchio contenuto vanilla JS — nascosto, React gestisce questa vista -->
+            <div id="saas-vanilla-legacy" style="display:none" aria-hidden="true">
             <div class="saas-db-header">
               <div>
                 <h2 class="saas-db-title">Dashboard Piattaforma</h2>
@@ -9446,6 +9447,7 @@
                 </div>
               </div>
             </div>
+            </div><!-- /saas-vanilla-legacy -->
           </section>
 
           <!-- CRM / Email Marketing Section -->

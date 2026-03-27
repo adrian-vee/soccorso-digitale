@@ -3,9 +3,10 @@ const getToken = (): string | null =>
 
 export async function fetchApi<T>(path: string): Promise<T> {
   const token = getToken()
+  if (!token) throw new Error('Not authenticated')
   const res = await fetch(path, {
     headers: {
-      Authorization: `Bearer ${token ?? ''}`,
+      Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
     },
   })
