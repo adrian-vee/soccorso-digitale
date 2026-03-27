@@ -38,3 +38,21 @@ export const publicApiLimiter = rateLimit({
   legacyHeaders: false,
   message: { error: "Rate limit superato" },
 });
+
+// Rate limit per endpoint auth sensibili (register, reset-password, refresh)
+export const authSensitiveLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Troppi tentativi, riprova tra 15 minuti" },
+});
+
+// Rate limit per endpoint pubblici SaaS (trial, demo, contact)
+export const publicFormLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 ora
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Troppe richieste, riprova più tardi" },
+});

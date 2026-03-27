@@ -11,7 +11,7 @@ import { seedDatabase } from "./seed";
 import { pool } from "./db";
 import { logger } from "./logger";
 import { setupSwagger } from "./swagger";
-import { globalLimiter, loginLimiter, publicApiLimiter } from "./rate-limit";
+import { globalLimiter, loginLimiter, publicApiLimiter, authSensitiveLimiter, publicFormLimiter } from "./rate-limit";
 import { apiVersionRewrite, apiVersionHeaders } from "./middleware/api-version";
 import { stagingBanner } from "./middleware/staging-banner";
 import * as fs from "fs";
@@ -617,9 +617,15 @@ function setupErrorHandler(app: express.Application) {
 
   configureExpoAndLanding(app);
 
-  // Rate limiting for login and public API
+  // Rate limiting for auth and public API endpoints
   app.use("/api/auth/login", loginLimiter);
+  app.use("/api/auth/register", authSensitiveLimiter);
+  app.use("/api/auth/reset-password", authSensitiveLimiter);
+  app.use("/api/auth/refresh", authSensitiveLimiter);
   app.use("/api/hub", publicApiLimiter);
+  app.use("/api/public/start-trial", publicFormLimiter);
+  app.use("/api/public/demo-request", publicFormLimiter);
+  app.use("/api/public/contact", publicFormLimiter);
   // v1 paths inherit the rewrite above — these are kept for clarity
   app.use("/api/v1/auth/login", loginLimiter);
   app.use("/api/v1/hub", publicApiLimiter);
