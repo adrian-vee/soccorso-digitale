@@ -1058,6 +1058,16 @@ export function registerCrmRoutes(app: Express) {
     }
   );
 
+  app.get("/api/crm/discovery/debug-env", requireSuperAdmin, (req, res) => {
+    res.json({
+      has_key: !!process.env.GOOGLE_PLACES_API_KEY,
+      key_length: process.env.GOOGLE_PLACES_API_KEY?.length || 0,
+      key_preview: process.env.GOOGLE_PLACES_API_KEY?.substring(0, 8) || "undefined",
+      node_env: process.env.NODE_ENV,
+      all_env_keys: Object.keys(process.env).filter((k) => k.includes("GOOGLE")),
+    });
+  });
+
   app.post(
     "/api/crm/discovery/google-places",
     requireSuperAdmin,

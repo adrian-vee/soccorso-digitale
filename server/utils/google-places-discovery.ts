@@ -3,7 +3,7 @@
  */
 import { Pool } from "pg";
 
-const GOOGLE_API_KEY = process.env.GOOGLE_PLACES_API_KEY;
+// GOOGLE_API_KEY letta a runtime dentro ogni funzione (non a livello di modulo)
 
 const PROVINCE_COORDS: Record<
   string,
@@ -89,6 +89,7 @@ async function searchPlacesInArea(
   lng: number,
   radius = 30000
 ): Promise<any[]> {
+  const GOOGLE_API_KEY = process.env.GOOGLE_PLACES_API_KEY;
   if (!GOOGLE_API_KEY) throw new Error("GOOGLE_PLACES_API_KEY non configurata");
 
   const url =
@@ -108,6 +109,7 @@ async function searchPlacesInArea(
 }
 
 async function getPlaceDetails(placeId: string): Promise<any> {
+  const GOOGLE_API_KEY = process.env.GOOGLE_PLACES_API_KEY;
   const url =
     `https://maps.googleapis.com/maps/api/place/details/json?` +
     `place_id=${placeId}&fields=name,formatted_address,formatted_phone_number,website,geometry&language=it&key=${GOOGLE_API_KEY}`;
