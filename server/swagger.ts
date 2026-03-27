@@ -1,6 +1,7 @@
 import swaggerJsdoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
-import type { Express } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
+import { requireSuperAdmin } from "./auth-middleware";
 
 const rb = {
   required: true,
@@ -2937,15 +2938,21 @@ const options: swaggerJsdoc.Options = {
   apis: [],
 };
 
+// Async wrapper so Express catches rejections from requireSuperAdmin
+function guardSwagger(req: Request, res: Response, next: NextFunction) {
+  requireSuperAdmin(req, res, next).catch(next);
+}
+
 export function setupSwagger(app: Express): void {
   const spec = swaggerJsdoc(options);
   app.use(
     "/api-docs",
+    guardSwagger,
     swaggerUi.serve,
     swaggerUi.setup(spec, {
       customCss: ".swagger-ui .topbar { display: none }",
       customSiteTitle: "Soccorso Digitale API Docs",
     })
   );
-  app.get("/api-docs.json", (_req, res) => res.json(spec));
+  app.get("/api-docs.json", guardSwagger, (_req, res) => res.json(spec));
 }
