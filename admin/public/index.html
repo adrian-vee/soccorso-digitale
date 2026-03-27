@@ -7,8 +7,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="/admin/styles.css?v=20260225m">
-  <link rel="stylesheet" href="/admin/dashboard-redesign.css?v=20260324sb2">
-  <link rel="stylesheet" href="/admin/css/nordic-rescue.css?v=1">
   <link rel="stylesheet" href="/admin/css/theme.css?v=2">
   <link rel="stylesheet" href="/admin/css/design-system.css?v=1">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -270,11 +268,11 @@
               <div class="nav-section-body open">
                 <button class="nav-item" data-page="realtime-availability">
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3" fill="currentColor"/><path d="M12 2v4"/><path d="M12 18v4"/><path d="M2 12h4"/><path d="M18 12h4"/></svg>
-                  <span>Disponibilita' Live</span>
+                  <span>Disponibilità Live</span>
                 </button>
                 <button class="nav-item" data-page="staff-availability">
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><circle cx="12" cy="15" r="2"/><path d="M12 13v-1"/></svg>
-                  <span>Disponibilita</span>
+                  <span>Disponibilità</span>
                 </button>
                 <button class="nav-item" data-page="monthly-scheduling">
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>
@@ -377,7 +375,7 @@
                 </button>
                 <button class="nav-item nav-item-compliance" data-page="data-quality">
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-                  <span>Qualita del Dato</span>
+                  <span>Qualità del Dato</span>
                 </button>
               </div>
             </div>
@@ -415,7 +413,7 @@
                 <span class="nav-section-header-icon">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M8 12h8M12 8v8"/></svg>
                 </span>
-                <span class="nav-section-header-label">Sostenibilita</span>
+                <span class="nav-section-header-label">Sostenibilità</span>
                 <svg class="nav-section-chevron" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
               </button>
               <div class="nav-section-body open">
@@ -565,8 +563,8 @@
                 </div>
               </div>
 
-              <!-- INTELLIGENCE -->
-              <div class="nav-section nav-section-collapsible" data-section="sa-intelligence">
+              <!-- INTELLIGENCE — hidden until populated -->
+              <div class="nav-section nav-section-collapsible" data-section="sa-intelligence" style="display:none">
                 <button class="nav-section-header" onclick="toggleNavSection(this)" aria-expanded="true">
                   <span class="nav-section-header-icon" style="--section-color:#f59e0b;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/><circle cx="12" cy="12" r="10"/></svg>
@@ -689,8 +687,8 @@
               <button class="btn-icon" id="refresh-btn" title="Aggiorna dati">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
               </button>
-              <!-- Dark/Light mode toggle — cosmetic only, no logic -->
-              <button id="ds-theme-toggle" title="Cambia tema" aria-label="Toggle dark/light mode">
+              <!-- Dark/Light mode toggle — hidden until implemented -->
+              <button id="ds-theme-toggle" title="Cambia tema" aria-label="Toggle dark/light mode" style="display:none">
                 <svg id="ds-icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
                 <svg id="ds-icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
               </button>
@@ -906,7 +904,7 @@
                   <!-- Hourly Heatmap -->
                   <div class="dash-chart-panel heatmap-panel">
                     <div class="panel-header-dark">
-                      <span class="panel-title-dark">Attivita Oraria</span>
+                      <span class="panel-title-dark">Attività Oraria</span>
                     </div>
                     <div class="heatmap-container" id="hourly-heatmap">
                       <!-- Generated by JS -->
@@ -964,7 +962,7 @@
                   <!-- Data Quality Panel -->
                   <div class="dash-panel-dark quality-panel">
                     <div class="panel-header-dark">
-                      <span class="panel-title-dark">Qualita del Dato</span>
+                      <span class="panel-title-dark">Qualità del Dato</span>
                     </div>
                     <div class="quality-metrics">
                       <div class="quality-metric">
@@ -3119,11 +3117,11 @@
           <!-- Staff Availability Section -->
           <section id="staff-availability-section" class="section hidden">
             <div class="section-header-row">
-              <h2>Disponibilita Personale</h2>
+              <h2>Disponibilità Personale</h2>
               <div style="display: flex; gap: 12px; align-items: center;">
                 <button class="btn btn-primary btn-sm" onclick="openNewAvailabilityModal()">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                  Nuova Disponibilita
+                  Nuova Disponibilità
                 </button>
                 <button class="btn btn-secondary btn-sm" onclick="exportAvailabilityToExcel()">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
@@ -3149,7 +3147,7 @@
             <div class="coverage-analytics" id="availability-analytics">
               <div class="coverage-stat positive">
                 <div class="coverage-stat-value" id="avail-total-submissions">0</div>
-                <div class="coverage-stat-label">Disponibilita Ricevute</div>
+                <div class="coverage-stat-label">Disponibilità Ricevute</div>
               </div>
               <div class="coverage-stat">
                 <div class="coverage-stat-value" id="avail-available-count">0</div>
@@ -6841,7 +6839,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3" fill="white"/><path d="M12 2v4"/><path d="M12 18v4"/><path d="M2 12h4"/><path d="M18 12h4"/></svg>
                   </div>
                   <div class="burnout-header-text" style="color: white;">
-                    <h2 style="margin: 0 0 4px 0; font-size: 22px; font-weight: 700; color: white;">Disponibilita' Tempo Reale</h2>
+                    <h2 style="margin: 0 0 4px 0; font-size: 22px; font-weight: 700; color: white;">Disponibilità Tempo Reale</h2>
                     <p style="margin: 0; opacity: 0.8; font-size: 14px; color: rgba(255,255,255,0.85);">Ultimo aggiornamento: <span id="rta-last-update">--:--</span> &bull; Aggiornamento automatico ogni 30s</p>
                   </div>
                 </div>
@@ -7746,8 +7744,8 @@
                       <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                     </div>
                     <div>
-                      <h3 style="margin:0;font-size:1.05rem">Disponibilita Settimanale</h3>
-                      <p style="margin:0;color:var(--text-secondary);font-size:.8rem">Configura gli orari di disponibilita per ogni giorno</p>
+                      <h3 style="margin:0;font-size:1.05rem">Disponibilità Settimanale</h3>
+                      <p style="margin:0;color:var(--text-secondary);font-size:.8rem">Configura gli orari di disponibilità per ogni giorno</p>
                     </div>
                   </div>
                 </div>
