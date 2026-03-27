@@ -335,31 +335,45 @@ export function registerAnalyticsRoutes(app: Express) {
       let imported = 0;
       let fromAnac = false;
 
-      // Try ANAC API with a very short overall timeout (5s) - the releases endpoint is often suspended
+      // Try ANAC OpenData API — CPV trasporto sanitario, tutta Italia, nessun filtro regione
       try {
         const ANAC_BASE = "https://api.anticorruzione.it/opendata/ocds/api/v1/1.0.0";
         const now = new Date();
-        const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 6, 1);
-        const startDate = sixMonthsAgo.toISOString().split('T')[0];
+        const nineMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 9, 1);
+        const startDate = nineMonthsAgo.toISOString().split('T')[0];
         const endDate = now.toISOString().split('T')[0];
 
-        const idsUrl = `${ANAC_BASE}/tender/ids?filterField=tenderStartDate&filterArgs=${startDate},${endDate}&tenderStatus=OPEN&limit=50`;
-        const idsResponse = await fetch(idsUrl, { signal: AbortSignal.timeout(5000) });
+        // Recupera fino a 100 CIG — nessun filtro regione
+        const idsUrl = `${ANAC_BASE}/tender/ids?filterField=tenderStartDate&filterArgs=${startDate},${endDate}&tenderStatus=OPEN&limit=100`;
+        const idsResponse = await fetch(idsUrl, { signal: AbortSignal.timeout(8000) });
 
         if (!idsResponse.ok) throw new Error(`ANAC API returned ${idsResponse.status}`);
         const tenderIds = await idsResponse.json();
         if (!Array.isArray(tenderIds) || tenderIds.length === 0) throw new Error("No tender IDs returned");
 
-        // Try first 3 releases with 3s timeout each - if they all fail, the endpoint is down
-        const venteKeywords = ['veneto', 'padova', 'venezia', 'verona', 'vicenza', 'treviso', 'rovigo', 'belluno'];
-        const healthCpvCodes = ['85143000', '85140000', '85100000', '85110000', '85111000', '85112000', '33192160', '34114100', '34114110', '34114120'];
-        let releaseFailures = 0;
+        // CPV trasporto sanitario (tutti i codici pertinenti)
+        const healthCpvCodes = [
+          '85143000', // Trasporto in ambulanza
+          '60130000', // Servizi di trasporto stradale speciale
+          '85111000', // Servizi ospedalieri
+          '85112000', // Servizi paramedici
+          '85140000', // Servizi sanitari vari
+          '85100000', // Servizi sanitari
+          '85110000', // Servizi ospedalieri e connessi
+          '33192160', // Barelle
+          '34114100', // Veicoli di emergenza
+          '34114110', // Ambulanze
+          '34114120', // Veicoli per paramedicale
+        ];
 
-        for (const tender of tenderIds.slice(0, 5)) {
+        let releaseFailures = 0;
+        console.log(`ANAC: trovati ${tenderIds.length} CIG, elaboro fino a 20...`);
+
+        for (const tender of tenderIds.slice(0, 20)) {
           try {
             const releaseUrl = `${ANAC_BASE}/releases/tender/${encodeURIComponent(tender.value)}`;
-            const releaseRes = await fetch(releaseUrl, { signal: AbortSignal.timeout(3000) });
-            if (!releaseRes.ok) { releaseFailures++; if (releaseFailures >= 3) throw new Error("Releases endpoint down"); continue; }
+            const releaseRes = await fetch(releaseUrl, { signal: AbortSignal.timeout(4000) });
+            if (!releaseRes.ok) { releaseFailures++; if (releaseFailures >= 5) throw new Error("Releases endpoint down"); continue; }
             const releases = await releaseRes.json();
             if (!Array.isArray(releases) || releases.length === 0) continue;
 
@@ -367,32 +381,41 @@ export function registerAnalyticsRoutes(app: Express) {
             const tenderData = release.tender;
             if (!tenderData) continue;
 
-            const buyerName = release.buyer?.name?.toLowerCase() || '';
-            const buyerAddress = release.buyer?.address?.region?.toLowerCase() || '';
-            const partyAddresses = (release.parties || []).map((p: any) =>
-              `${p.address?.region || ''} ${p.address?.locality || ''} ${p.name || ''}`.toLowerCase()
-            ).join(' ');
-            const isVeneto = venteKeywords.some(k => buyerName.includes(k) || buyerAddress.includes(k) || partyAddresses.includes(k));
-            const cpvCodes = (tenderData.items || []).map((i: any) => i.classification?.id || '');
-            const isHealthTransport = cpvCodes.some((c: string) => healthCpvCodes.some(h => c.startsWith(h.substring(0, 4))));
+            const cpvCodes: string[] = (tenderData.items || []).map((i: any) => i.classification?.id || '');
+            const isHealthTransport = cpvCodes.some((c: string) =>
+              healthCpvCodes.some(h => c.startsWith(h.substring(0, 5)))
+            );
 
-            if (isVeneto || isHealthTransport) {
-              const existingCheck = await db.select().from(tenderMonitors).where(eq(tenderMonitors.cigCode, tender.value)).limit(1);
+            // Importa TUTTI i bandi di trasporto sanitario, qualunque regione
+            if (isHealthTransport) {
+              const existingCheck = await db.select().from(tenderMonitors)
+                .where(eq(tenderMonitors.cigCode, tender.value)).limit(1);
               if (existingCheck.length === 0) {
+                const buyerRegion = release.buyer?.address?.region || null;
+                const serviceType = cpvCodes.some((c: string) => c.startsWith('85143') || c.startsWith('34114'))
+                  ? 'emergenza_118'
+                  : cpvCodes.some((c: string) => c.startsWith('60130'))
+                    ? 'trasporto_ordinario'
+                    : 'altro';
                 await db.insert(tenderMonitors).values({
                   organizationId: orgId || 'croce-europa-default',
                   title: tenderData.title || `Bando ${tender.value}`,
-                  source: 'ANAC', sourceUrl: `https://dati.anticorruzione.it/superset/dashboard/dettaglio_cig/?cig=${tender.value}`,
-                  status: 'new', priority: 'medium',
-                  serviceType: isHealthTransport ? 'emergenza_118' : 'altro',
+                  source: 'ANAC',
+                  sourceUrl: `https://dati.anticorruzione.it/superset/dashboard/dettaglio_cig/?cig=${tender.value}`,
+                  status: 'new',
+                  priority: 'medium',
+                  serviceType,
                   stationeName: release.buyer?.name || null,
                   estimatedValue: tenderData.value?.amount ? Number(tenderData.value.amount) : null,
-                  cigCode: tender.value, cpvCode: cpvCodes[0] || null,
-                  region: isVeneto ? 'Veneto' : (release.buyer?.address?.region || null),
+                  cigCode: tender.value,
+                  cpvCode: cpvCodes[0] || null,
+                  region: buyerRegion,
                   province: release.buyer?.address?.locality || null,
                   deadline: tenderData.tenderPeriod?.endDate ? new Date(tenderData.tenderPeriod.endDate) : null,
-                  durationMonths: tenderData.contractPeriod?.durationInDays ? Math.ceil(tenderData.contractPeriod.durationInDays / 30) : null,
-                  notes: `Importato automaticamente da ANAC Open Data. ${tenderData.description || ''}`.trim(),
+                  durationMonths: tenderData.contractPeriod?.durationInDays
+                    ? Math.ceil(tenderData.contractPeriod.durationInDays / 30)
+                    : null,
+                  notes: `Importato da ANAC Open Data. ${tenderData.description || ''}`.trim(),
                 });
                 imported++;
                 fromAnac = true;
@@ -400,43 +423,59 @@ export function registerAnalyticsRoutes(app: Express) {
             }
           } catch (innerErr: any) {
             releaseFailures++;
-            if (releaseFailures >= 3) throw new Error("Releases endpoint consistently failing");
+            if (releaseFailures >= 5) throw new Error("Releases endpoint consistently failing");
             continue;
           }
         }
         if (imported > 0) fromAnac = true;
+        console.log(`ANAC: importati ${imported} bandi nuovi`);
       } catch (anacError: any) {
-        console.log("ANAC API unavailable, using Veneto procurement data:", anacError.message);
+        console.log("ANAC API non disponibile, uso dati di esempio:", anacError.message);
       }
 
-      // Always ensure we have Veneto sample tenders (real procurement patterns)
-      const sampleTenders = [
-        { title: 'Servizio di Trasporto Sanitario per ULSS 6 Euganea - Padova', stationeName: 'Azienda ULSS 6 Euganea', region: 'Veneto', province: 'Padova', serviceType: 'emergenza_118', estimatedValue: 2500000, cpvCode: '85143000', durationMonths: 36, priority: 'high', deadline: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000), cigCode: 'CIG-ULSS6-2026-001' },
-        { title: 'Servizio Ambulanze per Emergenza 118 - ULSS 2 Marca Trevigiana', stationeName: 'Azienda ULSS 2 Marca Trevigiana', region: 'Veneto', province: 'Treviso', serviceType: 'emergenza_118', estimatedValue: 1800000, cpvCode: '85143000', durationMonths: 24, priority: 'high', deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), cigCode: 'CIG-ULSS2-2026-001' },
-        { title: 'Trasporto Dializzati - Azienda Ospedaliera di Verona', stationeName: 'Azienda Ospedaliera Universitaria Integrata Verona', region: 'Veneto', province: 'Verona', serviceType: 'trasporto_dialisi', estimatedValue: 950000, cpvCode: '85143000', durationMonths: 24, priority: 'medium', deadline: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000), cigCode: 'CIG-AOVR-2026-001' },
-        { title: 'Servizio di Trasporto Sanitario Ordinario ULSS 3 Serenissima', stationeName: 'Azienda ULSS 3 Serenissima', region: 'Veneto', province: 'Venezia', serviceType: 'trasporto_ordinario', estimatedValue: 1200000, cpvCode: '85143000', durationMonths: 36, priority: 'medium', deadline: new Date(Date.now() + 75 * 24 * 60 * 60 * 1000), cigCode: 'CIG-ULSS3-2026-001' },
-        { title: 'Affidamento Servizio 118 Area Metropolitana Vicenza', stationeName: 'Azienda ULSS 8 Berica', region: 'Veneto', province: 'Vicenza', serviceType: 'emergenza_118', estimatedValue: 3200000, cpvCode: '85143000', durationMonths: 48, priority: 'critical', deadline: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000), cigCode: 'CIG-ULSS8-2026-001' },
-        { title: 'Servizio Trasporto Pazienti Oncologici - IOV Padova', stationeName: 'Istituto Oncologico Veneto', region: 'Veneto', province: 'Padova', serviceType: 'trasporto_ordinario', estimatedValue: 680000, cpvCode: '85143000', durationMonths: 24, priority: 'medium', deadline: new Date(Date.now() + 55 * 24 * 60 * 60 * 1000), cigCode: 'CIG-IOV-2026-001' },
-        { title: 'Servizio Ambulanza ed Elisoccorso ULSS 1 Dolomiti', stationeName: 'Azienda ULSS 1 Dolomiti', region: 'Veneto', province: 'Belluno', serviceType: 'emergenza_118', estimatedValue: 4100000, cpvCode: '85143000', durationMonths: 60, priority: 'high', deadline: new Date(Date.now() + 40 * 24 * 60 * 60 * 1000), cigCode: 'CIG-ULSS1-2026-001' },
-        { title: 'Trasporto Sanitario Interbasinale ULSS 5 Polesana', stationeName: 'Azienda ULSS 5 Polesana', region: 'Veneto', province: 'Rovigo', serviceType: 'trasporto_ordinario', estimatedValue: 420000, cpvCode: '85143000', durationMonths: 24, priority: 'low', deadline: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000), cigCode: 'CIG-ULSS5-2026-001' },
-      ];
+      // Fallback: dati di esempio da tutta Italia (solo se DB è vuoto o quasi)
+      const existingCount = await db.select().from(tenderMonitors)
+        .where(eq(tenderMonitors.organizationId, orgId || 'croce-europa-default'));
+      if (existingCount.length < 3) {
+        const sampleTenders = [
+          // Veneto
+          { title: 'Servizio Trasporto Sanitario - ULSS 6 Euganea Padova', stationeName: 'Azienda ULSS 6 Euganea', region: 'Veneto', province: 'Padova', serviceType: 'emergenza_118', estimatedValue: 2500000, cpvCode: '85143000', durationMonths: 36, priority: 'high', deadline: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000), cigCode: 'CIG-ULSS6-2026-001' },
+          { title: 'Emergenza 118 - ULSS 8 Berica Vicenza', stationeName: 'Azienda ULSS 8 Berica', region: 'Veneto', province: 'Vicenza', serviceType: 'emergenza_118', estimatedValue: 3200000, cpvCode: '85143000', durationMonths: 48, priority: 'critical', deadline: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000), cigCode: 'CIG-ULSS8-2026-001' },
+          // Lombardia
+          { title: 'Servizio Ambulanze 118 - ATS Milano', stationeName: 'ATS Città Metropolitana di Milano', region: 'Lombardia', province: 'Milano', serviceType: 'emergenza_118', estimatedValue: 8500000, cpvCode: '85143000', durationMonths: 48, priority: 'critical', deadline: new Date(Date.now() + 35 * 24 * 60 * 60 * 1000), cigCode: 'CIG-ATS-MI-2026-001' },
+          { title: 'Trasporto Dializzati - ASST Bergamo Est', stationeName: 'ASST Bergamo Est', region: 'Lombardia', province: 'Bergamo', serviceType: 'trasporto_dialisi', estimatedValue: 1100000, cpvCode: '85143000', durationMonths: 24, priority: 'high', deadline: new Date(Date.now() + 50 * 24 * 60 * 60 * 1000), cigCode: 'CIG-ASST-BG-2026-001' },
+          // Lazio
+          { title: 'Servizio ARES 118 Roma - Lotto 1', stationeName: 'ARES 118 Lazio', region: 'Lazio', province: 'Roma', serviceType: 'emergenza_118', estimatedValue: 12000000, cpvCode: '85143000', durationMonths: 60, priority: 'critical', deadline: new Date(Date.now() + 25 * 24 * 60 * 60 * 1000), cigCode: 'CIG-ARES-RM-2026-001' },
+          // Toscana
+          { title: 'Trasporto Sanitario Ordinario - ASL Toscana Centro', stationeName: 'ASL Toscana Centro', region: 'Toscana', province: 'Firenze', serviceType: 'trasporto_ordinario', estimatedValue: 2800000, cpvCode: '60130000', durationMonths: 36, priority: 'high', deadline: new Date(Date.now() + 65 * 24 * 60 * 60 * 1000), cigCode: 'CIG-ASL-FI-2026-001' },
+          // Emilia-Romagna
+          { title: 'Trasporto Disabili e Dializzati - AUSL Bologna', stationeName: 'AUSL di Bologna', region: 'Emilia-Romagna', province: 'Bologna', serviceType: 'trasporto_dialisi', estimatedValue: 1650000, cpvCode: '85143000', durationMonths: 36, priority: 'medium', deadline: new Date(Date.now() + 80 * 24 * 60 * 60 * 1000), cigCode: 'CIG-AUSL-BO-2026-001' },
+          // Campania
+          { title: 'Servizio 118 Emergenza Urgenza - ASL Napoli 1', stationeName: 'ASL Napoli 1 Centro', region: 'Campania', province: 'Napoli', serviceType: 'emergenza_118', estimatedValue: 6200000, cpvCode: '85143000', durationMonths: 48, priority: 'critical', deadline: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000), cigCode: 'CIG-ASL-NA1-2026-001' },
+          // Piemonte
+          { title: 'Trasporto Sanitario - ASL TO3 Collegno', stationeName: 'ASL TO3', region: 'Piemonte', province: 'Torino', serviceType: 'trasporto_ordinario', estimatedValue: 1900000, cpvCode: '60130000', durationMonths: 36, priority: 'medium', deadline: new Date(Date.now() + 70 * 24 * 60 * 60 * 1000), cigCode: 'CIG-ASL-TO3-2026-001' },
+          // Sicilia
+          { title: 'Servizio SEUS 118 Palermo - Lotto 2', stationeName: 'SEUS SCpA Sicilia', region: 'Sicilia', province: 'Palermo', serviceType: 'emergenza_118', estimatedValue: 4500000, cpvCode: '85143000', durationMonths: 48, priority: 'high', deadline: new Date(Date.now() + 42 * 24 * 60 * 60 * 1000), cigCode: 'CIG-SEUS-PA-2026-001' },
+        ];
 
-      for (const sample of sampleTenders) {
-        const existing = await db.select().from(tenderMonitors).where(eq(tenderMonitors.title, sample.title)).limit(1);
-        if (existing.length === 0) {
-          await db.insert(tenderMonitors).values({
-            organizationId: orgId || 'croce-europa-default',
-            ...sample,
-            source: 'ANAC',
-            sourceUrl: 'https://dati.anticorruzione.it/opendata/',
-            status: 'new',
-            notes: 'Bando rilevato dal monitoraggio portali appalti pubblici Veneto - Fonte ANAC Open Data.',
-          });
-          imported++;
+        for (const sample of sampleTenders) {
+          const existing = await db.select().from(tenderMonitors)
+            .where(eq(tenderMonitors.cigCode, sample.cigCode)).limit(1);
+          if (existing.length === 0) {
+            await db.insert(tenderMonitors).values({
+              organizationId: orgId || 'croce-europa-default',
+              ...sample,
+              source: 'ANAC',
+              sourceUrl: 'https://dati.anticorruzione.it/opendata/',
+              status: 'new',
+              notes: 'Bando campione — fonte portali appalti pubblici regionali.',
+            });
+            imported++;
+          }
         }
       }
 
-      const source = fromAnac ? 'ANAC Open Data' : 'Monitoraggio Portali Veneto';
+      const source = fromAnac ? 'ANAC Open Data' : 'Dati campione nazionali';
       lastAnacSync = new Date();
       res.json({
         imported,
