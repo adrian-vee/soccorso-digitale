@@ -1,0 +1,178 @@
+/* ═══════════════════════════════════════════════════════
+   SOCCORSO DIGITALE — Design System v1.0
+   Override layer. Loads last. Higher specificity wins.
+   ═══════════════════════════════════════════════════════ */
+
+/* ── LAYOUT: CONTENT AREA ────────────────────────────── */
+.main-content,
+.content-area,
+.dashboard-enterprise,
+.page-content {
+  padding: 24px 32px !important;
+}
+
+/* Card / section gap */
+.main-content > * + *,
+.content-area > * + *,
+.dashboard-enterprise > * + *,
+.page-content > * + * {
+  margin-top: 16px !important;
+}
+
+/* ── SIDEBAR ─────────────────────────────────────────── */
+.nav-item {
+  font-size: 13px !important;
+  padding: 10px 16px !important;
+}
+
+.nav-item span {
+  font-size: 13px !important;
+}
+
+.sidebar-brand {
+  padding: 0 16px !important;
+}
+
+/* ── KPI / STAT CARDS ────────────────────────────────── */
+.kpi-card,
+.stat-card,
+.metric-card {
+  min-height: 100px !important;
+  padding: 20px 24px !important;
+}
+
+.kpi-value,
+.stat-value,
+.metric-value {
+  font-size: 32px !important;
+}
+
+/* ── TABLES ──────────────────────────────────────────── */
+table th {
+  font-size: 11px !important;
+  padding: 14px 16px !important;
+}
+
+table td {
+  font-size: 13px !important;
+  padding: 14px 16px !important;
+}
+
+table tr:hover td {
+  background: #F0F4FF !important;
+}
+
+/* ── PAGE / SECTION HEADERS ──────────────────────────── */
+.page-title,
+.section-title,
+.content-header h1,
+.main-content h1,
+.page-content h1,
+h1.page-h1 {
+  font-size: 24px !important;
+  font-weight: 700 !important;
+  color: #0C1A2E !important;
+  margin-bottom: 4px !important;
+}
+
+.page-subtitle,
+.content-header p,
+.main-content .subtitle,
+.page-content .subtitle {
+  font-size: 13px !important;
+  color: #64748B !important;
+}
+
+/* Header bottom border */
+.content-header,
+.page-header {
+  border-bottom: 1px solid #E2E8F0 !important;
+  padding-bottom: 16px !important;
+  margin-bottom: 20px !important;
+}
+
+/* ── BUTTONS ─────────────────────────────────────────── */
+.btn-primary,
+button.primary,
+.mag-btn.primary {
+  min-height: 40px !important;
+  padding: 10px 20px !important;
+  font-size: 13px !important;
+}
+
+.btn-secondary,
+button.secondary,
+.mag-btn.ghost,
+.btn-ghost {
+  min-height: 36px !important;
+  padding: 8px 18px !important;
+  font-size: 13px !important;
+}
+
+/* ── TURNI (SCHEDULING) — TEXT CONTRAST FIXES ────────── */
+
+/* Covered cells: green border, keep text dark */
+.sched-shift-cell.covered {
+  color: #0C1A2E !important;
+  background: #F0FDF4 !important;
+}
+
+/* Uncovered cells: red tint, dark text */
+.sched-shift-cell.uncovered {
+  color: #0C1A2E !important;
+}
+
+/* Today column: blue tint */
+.sched-shift-cell.today-col {
+  color: #0C1A2E !important;
+}
+
+/* Weekend column: amber tint */
+.sched-shift-cell.weekend-col {
+  color: #0C1A2E !important;
+}
+
+/* Nested spans/labels inside shift cells — always dark on light bg */
+.sched-shift-cell span,
+.sched-shift-cell small,
+.sched-shift-cell .shift-name,
+.sched-shift-cell .shift-time {
+  color: inherit !important;
+}
+
+/* Empty cells */
+.sched-shift-cell.empty {
+  color: #94A3B8 !important;
+}
+
+/* ── TABLET BREAKPOINT (≤ 1024px) ────────────────────── */
+@media (max-width: 1024px) {
+  /* Sidebar collapses off-screen */
+  .main-sidebar {
+    transform: translateX(-100%) !important;
+    transition: transform 0.25s ease !important;
+  }
+  .main-sidebar.open {
+    transform: translateX(0) !important;
+  }
+
+  /* Content fills full width */
+  .main-wrapper {
+    margin-left: 0 !important;
+  }
+
+  /* Content area padding reduced */
+  .main-content,
+  .content-area,
+  .dashboard-enterprise,
+  .page-content {
+    padding: 16px 20px !important;
+  }
+
+  /* KPI grid: 2 columns */
+  .kpi-grid,
+  .stats-grid,
+  .metric-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
