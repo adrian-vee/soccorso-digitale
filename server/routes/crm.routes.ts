@@ -14,6 +14,8 @@ import {
   stopCampaign,
   getCampaignStatus,
 } from "../utils/campaign-queue";
+import { runGooglePlacesDiscovery } from "../utils/google-places-discovery";
+import { runEmailEnrichment } from "../utils/email-enrichment";
 
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -865,6 +867,152 @@ export function registerCrmRoutes(app: Express) {
         recent_campaigns: recentCampaigns.rows,
         top_regions: topRegions.rows,
       });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // ── DISCOVERY ────────────────────────────────────────────
+
+  app.get("/api/crm/discovery/jobs", requireSuperAdmin, async (_req, res) => {
+    try {
+      const result = await pool.query(
+        "SELECT * FROM crm_discovery_jobs ORDER BY created_at DESC LIMIT 20"
+      );
+      res.json(result.rows);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.get(
+    "/api/crm/discovery/jobs/:id",
+    requireSuperAdmin,
+    async (req, res) => {
+      try {
+        const result = await pool.query(
+          "SELECT * FROM crm_discovery_jobs WHERE id = $1",
+          [req.params.id]
+        );
+        if (!result.rows.length)
+          return res.status(404).json({ error: "Job non trovato" });
+        const job = result.rows[0];
+        res.json({
+          ...job,
+          progress_pct:
+            job.total > 0 ? Math.round((job.progress / job.total) * 100) : 0,
+        });
+      } catch (err: any) {
+        res.status(500).json({ error: err.message });
+      }
+    }
+  );
+
+  app.post(
+    "/api/crm/discovery/google-places",
+    requireSuperAdmin,
+    async (req, res) => {
+      try {
+        if (!process.env.GOOGLE_PLACES_API_KEY) {
+          return res
+            .status(400)
+            .json({ error: "GOOGLE_PLACES_API_KEY non configurata su Railway" });
+        }
+
+        const { provinces = [] } = req.body;
+        const jobResult = await pool.query(
+          `INSERT INTO crm_discovery_jobs (type, params) VALUES ('google_places', $1) RETURNING *`,
+          [JSON.stringify({ provinces })]
+        );
+        const job = jobResult.rows[0];
+
+        res.json({
+          success: true,
+          jobId: job.id,
+          message: "Discovery avviata in background",
+        });
+
+        runGooglePlacesDiscovery(job.id, provinces, pool).catch((err) => {
+          pool.query(
+            `UPDATE crm_discovery_jobs SET status = 'error', error_message = $1 WHERE id = $2`,
+            [err.message, job.id]
+          );
+        });
+      } catch (err: any) {
+        res.status(500).json({ error: err.message });
+      }
+    }
+  );
+
+  app.post(
+    "/api/crm/discovery/enrich",
+    requireSuperAdmin,
+    async (_req, res) => {
+      try {
+        if (!process.env.HUNTER_API_KEY) {
+          return res.status(400).json({
+            error:
+              "HUNTER_API_KEY non configurata. Vai su hunter.io per ottenerla.",
+          });
+        }
+
+        const jobResult = await pool.query(
+          `INSERT INTO crm_discovery_jobs (type) VALUES ('email_enrichment') RETURNING *`
+        );
+        const job = jobResult.rows[0];
+
+        res.json({
+          success: true,
+          jobId: job.id,
+          message: "Enrichment avviato in background",
+        });
+
+        runEmailEnrichment(job.id, pool).catch((err) => {
+          pool.query(
+            `UPDATE crm_discovery_jobs SET status = 'error', error_message = $1 WHERE id = $2`,
+            [err.message, job.id]
+          );
+        });
+      } catch (err: any) {
+        res.status(500).json({ error: err.message });
+      }
+    }
+  );
+
+  // ── STATS (per discovery tab enrichment counter) ──────────
+
+  app.get("/api/crm/stats", requireSuperAdmin, async (_req, res) => {
+    try {
+      const result = await pool.query(`
+        SELECT
+          COUNT(*) AS total,
+          COUNT(CASE WHEN email IS NOT NULL THEN 1 END) AS with_email,
+          COUNT(CASE WHEN website IS NOT NULL AND email IS NULL THEN 1 END) AS enrichable
+        FROM crm_organizations
+      `);
+      res.json(result.rows[0]);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // ── MAP DATA (distribuzione per regione) ─────────────────
+
+  app.get("/api/crm/map-data", requireSuperAdmin, async (_req, res) => {
+    try {
+      const result = await pool.query(`
+        SELECT
+          region,
+          COUNT(*) AS total,
+          COUNT(CASE WHEN email IS NOT NULL THEN 1 END) AS with_email,
+          COUNT(CASE WHEN status = 'customer' THEN 1 END) AS customers,
+          COUNT(CASE WHEN status = 'interested' THEN 1 END) AS interested
+        FROM crm_organizations
+        WHERE region IS NOT NULL
+        GROUP BY region
+        ORDER BY total DESC
+      `);
+      res.json(result.rows);
     } catch (err: any) {
       res.status(500).json({ error: err.message });
     }

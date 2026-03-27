@@ -3349,7 +3349,7 @@ function crmHandleDrop(event) {
 // ── Tab switching ──────────────────────────────────────────
 
 function switchCrmTab(tab) {
-  const tabs = ['orgs', 'campaigns', 'analytics', 'templates', 'settings'];
+  const tabs = ['orgs', 'campaigns', 'analytics', 'templates', 'settings', 'discovery'];
   tabs.forEach(t => {
     const btn = document.getElementById(`crm-tab-${t}`);
     const panel = document.getElementById(`crm-panel-${t}`);
@@ -3366,6 +3366,7 @@ function switchCrmTab(tab) {
   else if (tab === 'analytics') loadCrmAnalytics();
   else if (tab === 'templates') loadCrmTemplates();
   else if (tab === 'settings') loadCrmSmtpList();
+  else if (tab === 'discovery') loadDiscoveryTab();
 }
 
 // ── Campagne ──────────────────────────────────────────────
@@ -41681,6 +41682,248 @@ async function importPgServices() {
   } finally {
     importBtn.disabled = false;
     importBtn.textContent = 'Importa Servizi';
+  }
+}
+
+// ── CRM Discovery Tab ─────────────────────────────────────
+
+function loadDiscoveryTab() {
+  const content = document.getElementById('crm-discovery-content');
+  if (!content) return;
+  content.innerHTML = `
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;">
+
+    <!-- Google Places -->
+    <div style="background:#fff;border-radius:12px;padding:24px;border:1px solid #E2E8F0;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+        <div style="width:40px;height:40px;background:#EFF6FF;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;">🗺️</div>
+        <div>
+          <div style="font-size:15px;font-weight:700;color:#0B2347;">Google Places</div>
+          <div style="font-size:12px;color:#64748B;">Trova organizzazioni sanitarie in Italia</div>
+        </div>
+      </div>
+      <div style="margin-bottom:16px;">
+        <label style="font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:8px;">Province da scansionare</label>
+        <select id="discovery-provinces" multiple style="width:100%;height:120px;padding:8px;border:1px solid #E2E8F0;border-radius:8px;font-size:13px;outline:none;">
+          <option value="MI">Milano (Lombardia)</option>
+          <option value="RM">Roma (Lazio)</option>
+          <option value="NA">Napoli (Campania)</option>
+          <option value="TO">Torino (Piemonte)</option>
+          <option value="VR" selected>Verona (Veneto)</option>
+          <option value="VE">Venezia (Veneto)</option>
+          <option value="PD">Padova (Veneto)</option>
+          <option value="BS">Brescia (Lombardia)</option>
+          <option value="BG">Bergamo (Lombardia)</option>
+          <option value="BO">Bologna (Emilia-Romagna)</option>
+          <option value="FI">Firenze (Toscana)</option>
+          <option value="PA">Palermo (Sicilia)</option>
+          <option value="BA">Bari (Puglia)</option>
+        </select>
+        <div style="font-size:11px;color:#94A3B8;margin-top:4px;">Tieni premuto Ctrl per selezionare più province. Nessuna selezione = tutte le province.</div>
+      </div>
+      <div style="background:#FFFBEB;border:1px solid #FDE68A;border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:12px;color:#92400E;">
+        ⚠️ Costo stimato: ~$0.032 per query. Con 5 province e 8 keyword = ~$1.28
+      </div>
+      <button onclick="startGoogleDiscovery()" style="width:100%;background:#1E3A8A;color:#fff;border:none;padding:12px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">
+        🔍 Avvia Discovery
+      </button>
+    </div>
+
+    <!-- Email Enrichment -->
+    <div style="background:#fff;border-radius:12px;padding:24px;border:1px solid #E2E8F0;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+        <div style="width:40px;height:40px;background:#F0FDF4;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;">📧</div>
+        <div>
+          <div style="font-size:15px;font-weight:700;color:#0B2347;">Email Enrichment</div>
+          <div style="font-size:12px;color:#64748B;">Trova email da siti web via Hunter.io</div>
+        </div>
+      </div>
+      <div id="enrichment-stats" style="background:#F8FAFF;border-radius:8px;padding:14px;margin-bottom:16px;">
+        <div style="font-size:13px;color:#64748B;">Caricamento statistiche...</div>
+      </div>
+      <div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:12px;color:#1e40af;">
+        ℹ️ Richiede HUNTER_API_KEY su Railway. 25 ricerche gratuite/mese, poi $49/mese per 500 ricerche.
+      </div>
+      <button onclick="startEmailEnrichment()" style="width:100%;background:#10B981;color:#fff;border:none;padding:12px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">
+        ✨ Avvia Enrichment
+      </button>
+    </div>
+
+  </div>
+
+  <!-- Job History -->
+  <div style="background:#fff;border-radius:12px;padding:20px;border:1px solid #E2E8F0;margin-bottom:20px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <h4 style="font-size:14px;font-weight:700;color:#0B2347;">Job in corso e storico</h4>
+      <button onclick="loadDiscoveryJobs()" style="background:#F0F4FF;border:1px solid #E2E8F0;padding:6px 12px;border-radius:6px;font-size:12px;cursor:pointer;">🔄 Aggiorna</button>
+    </div>
+    <div id="discovery-jobs-list">Caricamento...</div>
+  </div>
+
+  <!-- Mappa regioni heatmap -->
+  <div style="background:#fff;border-radius:12px;padding:20px;border:1px solid #E2E8F0;">
+    <h4 style="font-size:14px;font-weight:700;color:#0B2347;margin-bottom:16px;">Distribuzione per regione</h4>
+    <div id="crm-map-container">Caricamento mappa...</div>
+  </div>`;
+
+  loadEnrichmentStats();
+  loadDiscoveryJobs();
+  loadMapData();
+}
+
+async function loadEnrichmentStats() {
+  const el = document.getElementById('enrichment-stats');
+  if (!el) return;
+  try {
+    const res = await adminFetch('/api/crm/stats');
+    if (!res.ok) return;
+    const stats = await res.json();
+    el.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+      <div style="text-align:center;">
+        <div style="font-size:22px;font-weight:700;color:#0B2347;">${stats.total || 0}</div>
+        <div style="font-size:11px;color:#64748B;">Totale org</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-size:22px;font-weight:700;color:#10B981;">${stats.with_email || 0}</div>
+        <div style="font-size:11px;color:#64748B;">Con email</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-size:22px;font-weight:700;color:#F59E0B;">${stats.enrichable || 0}</div>
+        <div style="font-size:11px;color:#64748B;">Arricchibili</div>
+      </div>
+    </div>`;
+  } catch {}
+}
+
+async function loadDiscoveryJobs() {
+  const el = document.getElementById('discovery-jobs-list');
+  if (!el) return;
+  try {
+    const res = await adminFetch('/api/crm/discovery/jobs');
+    if (!res.ok) { el.innerHTML = '<div style="text-align:center;padding:24px;color:#dc2626;">Errore caricamento</div>'; return; }
+    const jobs = await res.json();
+
+    const statusColors = {
+      pending:   { bg: '#F1F5F9', text: '#64748B', label: 'In attesa' },
+      running:   { bg: '#DBEAFE', text: '#1E3A8A', label: 'In corso...' },
+      completed: { bg: '#DCFCE7', text: '#166534', label: 'Completato' },
+      error:     { bg: '#FEE2E2', text: '#991B1B', label: 'Errore' },
+    };
+
+    if (!jobs.length) {
+      el.innerHTML = '<div style="text-align:center;padding:24px;color:#94A3B8;">Nessun job ancora avviato.</div>';
+      return;
+    }
+
+    el.innerHTML = jobs.map(j => {
+      const sc = statusColors[j.status] || statusColors.pending;
+      const pct = j.total > 0 ? Math.round((j.progress / j.total) * 100) : 0;
+      return `
+      <div style="border-bottom:1px solid #F1F5F9;padding:14px 0;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-size:13px;font-weight:600;color:#0B2347;">${j.type === 'google_places' ? '🗺️ Google Places' : '📧 Email Enrichment'}</span>
+            <span style="background:${sc.bg};color:${sc.text};font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;">${sc.label}</span>
+          </div>
+          <div style="font-size:12px;color:#64748B;">${new Date(j.created_at).toLocaleString('it-IT')}</div>
+        </div>
+        ${j.status === 'running' ? `
+        <div style="height:4px;background:#E2E8F0;border-radius:2px;overflow:hidden;margin-bottom:4px;">
+          <div style="height:100%;background:#1E3A8A;border-radius:2px;width:${pct}%;transition:width .5s;"></div>
+        </div>` : ''}
+        <div style="font-size:12px;color:#64748B;">
+          ${j.status !== 'pending' ? `Trovate: <strong>${j.found}</strong> · Duplicate: ${j.duplicates} · ${j.total > 0 ? pct + '%' : '—'}` : 'In attesa di avvio...'}
+          ${j.error_message ? `<span style="color:#EF4444;"> · Errore: ${j.error_message}</span>` : ''}
+        </div>
+      </div>`;
+    }).join('');
+  } catch {}
+}
+
+async function loadMapData() {
+  const el = document.getElementById('crm-map-container');
+  if (!el) return;
+  try {
+    const res = await adminFetch('/api/crm/map-data');
+    if (!res.ok) { el.innerHTML = '<div style="color:#dc2626;padding:16px;">Errore caricamento mappa</div>'; return; }
+    const regions = await res.json();
+
+    if (!regions.length) {
+      el.innerHTML = '<div style="text-align:center;padding:24px;color:#94A3B8;">Nessuna organizzazione ancora.</div>';
+      return;
+    }
+
+    const maxCount = regions[0]?.total || 1;
+    el.innerHTML = regions.map(r => `
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+      <div style="font-size:13px;font-weight:500;color:#0B2347;width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.region}</div>
+      <div style="flex:1;background:#F0F4FF;border-radius:4px;height:22px;overflow:hidden;position:relative;">
+        <div style="height:100%;background:linear-gradient(90deg,#1E3A8A,#3b82f6);width:${Math.round((r.total/maxCount)*100)}%;border-radius:4px;transition:width .5s;"></div>
+        <div style="position:absolute;inset:0;display:flex;align-items:center;padding-left:8px;font-size:11px;font-weight:600;color:#fff;">${r.total}</div>
+      </div>
+      <div style="font-size:11px;color:#94A3B8;width:80px;text-align:right;">${r.customers > 0 ? r.customers + ' clienti' : ''}</div>
+    </div>`).join('');
+  } catch {}
+}
+
+async function startGoogleDiscovery() {
+  const select = document.getElementById('discovery-provinces');
+  const provinces = Array.from(select.selectedOptions).map(o => o.value);
+
+  if (!confirm(`Avviare la discovery Google Places per ${provinces.length > 0 ? provinces.length + ' province' : 'tutte le province'}?\nPotrebbe richiedere diversi minuti e generare costi su Google Cloud.`)) return;
+
+  try {
+    const res = await adminFetch('/api/crm/discovery/google-places', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ provinces })
+    });
+    const data = await res.json();
+
+    if (!res.ok) { alert('Errore: ' + data.error); return; }
+
+    alert('Discovery avviata! Monitora il progresso nella sezione "Job in corso".');
+    loadDiscoveryJobs();
+
+    // Polling ogni 5 secondi finché non completa
+    const interval = setInterval(async () => {
+      try {
+        const jobRes = await adminFetch(`/api/crm/discovery/jobs/${data.jobId}`);
+        const job = await jobRes.json();
+        if (job.status === 'completed' || job.status === 'error') clearInterval(interval);
+        loadDiscoveryJobs();
+        loadMapData();
+      } catch { clearInterval(interval); }
+    }, 5000);
+  } catch (err) {
+    alert('Errore avvio discovery: ' + err.message);
+  }
+}
+
+async function startEmailEnrichment() {
+  if (!confirm('Avviare email enrichment?\nRichiede HUNTER_API_KEY configurata su Railway.\nVerranno elaborate solo org con sito web ma senza email.')) return;
+  try {
+    const res = await adminFetch('/api/crm/discovery/enrich', { method: 'POST' });
+    const data = await res.json();
+    if (!res.ok) { alert('Errore: ' + data.error); return; }
+
+    alert('Enrichment avviato! Monitora il progresso nella sezione "Job in corso".');
+    loadDiscoveryJobs();
+
+    const interval = setInterval(async () => {
+      try {
+        const jobRes = await adminFetch(`/api/crm/discovery/jobs/${data.jobId}`);
+        const job = await jobRes.json();
+        if (job.status === 'completed' || job.status === 'error') {
+          clearInterval(interval);
+          loadEnrichmentStats();
+        }
+        loadDiscoveryJobs();
+      } catch { clearInterval(interval); }
+    }, 5000);
+  } catch (err) {
+    alert('Errore avvio enrichment: ' + err.message);
   }
 }
 

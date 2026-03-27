@@ -9441,6 +9441,10 @@
                 style="padding:8px 18px;border:none;background:none;font-size:13px;font-weight:500;color:#6B7280;border-bottom:2px solid transparent;margin-bottom:-2px;cursor:pointer;">
                 SMTP
               </button>
+              <button id="crm-tab-discovery" onclick="switchCrmTab('discovery')"
+                style="padding:8px 18px;border:none;background:none;font-size:13px;font-weight:500;color:#6B7280;border-bottom:2px solid transparent;margin-bottom:-2px;cursor:pointer;">
+                Discovery
+              </button>
             </div>
 
             <!-- Panel: Organizzazioni -->
@@ -9548,6 +9552,13 @@
                   <strong>Outlook/Office365:</strong> smtp.office365.com · porta 587<br>
                   <strong>Resend SMTP:</strong> smtp.resend.com · porta 587 · username: <code>resend</code> · password: la tua API key Resend
                 </div>
+              </div>
+            </div>
+
+            <!-- Panel: Discovery -->
+            <div id="crm-panel-discovery" style="display:none;">
+              <div id="crm-discovery-content">
+                <div style="padding:40px;text-align:center;color:#9CA3AF;">Caricamento…</div>
               </div>
             </div>
           </section>
