@@ -1498,8 +1498,9 @@ function applyRoleBasedAccess() {
     'partner_program': ['partner-dashboard', 'partner-list', 'partner-requests'],
     'booking_hub': ['booking-hub'],
     'gestione_ruoli': ['role-management'],
+    'gare_appalto_intelligence': ['tenders'],
   };
-  
+
   const adminOnlyPages = [
     'sedi', 'structures',
     'documents', 'reports', 'finance', 'esg-dashboard', 
@@ -1637,6 +1638,16 @@ function applyRoleBasedAccess() {
       'inventory', 'scadenze', 'sedi', 'structures',
       // Report
       'statistics', 'finance',
+      // Accesso e ruoli
+      'credentials', 'role-management',
+      // Flotta avanzata
+      'gps-tracking', 'checklists',
+      // Prenotazioni e volontari
+      'booking-hub', 'volunteer-reimbursements',
+      // Sede e strutture
+      'branch-managers', 'structure-requests',
+      // Reportistica avanzata
+      'reports', 'tenders',
     ]);
 
     window._premiumLockedPages = new Set();
@@ -1649,9 +1660,9 @@ function applyRoleBasedAccess() {
       item.style.display = orgAdminAllowedPages.has(page) ? '' : 'none';
     });
     
-    // Hide special buttons without data-page (Credenziali Accesso)
+    // Show Credenziali Accesso button for org_admin
     const credentialsBtn = document.querySelector('.nav-item-credentials');
-    if (credentialsBtn) credentialsBtn.style.display = 'none';
+    if (credentialsBtn) credentialsBtn.style.display = '';
     
     // Hide Sistema section entirely for org_admin (they only see Impostazioni as standalone)
     const sistemaSection = document.querySelector('.nav-section[data-section="sistema"]');
@@ -2677,6 +2688,7 @@ function _applySupportModeNav(enabledModules) {
     'partner_program': ['partner-dashboard', 'partner-list', 'partner-requests'],
     'booking_hub': ['booking-hub'],
     'gestione_ruoli': ['role-management'],
+    'gare_appalto_intelligence': ['tenders'],
   };
 
   // Same whitelist as applyRoleBasedAccess — no PRO badge, no locked items
@@ -2689,6 +2701,11 @@ function _applySupportModeNav(enabledModules) {
     'scheduling', 'monthly-scheduling', 'staff-availability', 'shift-statistics', 'shift-settings',
     'inventory', 'scadenze', 'sedi', 'structures',
     'statistics', 'finance',
+    'credentials', 'role-management',
+    'gps-tracking', 'checklists',
+    'booking-hub', 'volunteer-reimbursements',
+    'branch-managers', 'structure-requests',
+    'reports', 'tenders',
   ]);
 
   // Clean up any previous support-mode state
@@ -2708,11 +2725,11 @@ function _applySupportModeNav(enabledModules) {
   const sistemaSection = document.querySelector('.nav-section[data-section="sistema"]');
   if (sistemaSection) sistemaSection.style.display = 'none';
 
-  // Show standalone Impostazioni, hide Credenziali Accesso button
+  // Show standalone Impostazioni and Credenziali Accesso button
   const standaloneSettings = document.getElementById('standalone-settings-nav');
   if (standaloneSettings) standaloneSettings.style.display = '';
   const credentialsBtn = document.querySelector('.nav-item-credentials');
-  if (credentialsBtn) credentialsBtn.style.display = 'none';
+  if (credentialsBtn) credentialsBtn.style.display = '';
 
   // Hide nav sections that have no visible items
   document.querySelectorAll('.nav-section').forEach(section => {
