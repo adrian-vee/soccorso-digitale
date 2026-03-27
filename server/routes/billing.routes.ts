@@ -366,6 +366,16 @@ export function registerBillingRoutes(app: Express) {
   // MARKETPLACE BROWSE (Org Admin)
   // ============================================================================
 
+  // Modules always included in the base plan — no purchase required.
+  // Corresponds to DEFAULT_ORG_MODULES in org-admin-routes.ts plus
+  // all sidebar-accessible pages for org_admin.
+  const BASE_PLAN_MODULES = new Set([
+    'pianificazione_turni', 'registro_sanificazioni', 'consegne_digitali',
+    'checklist', 'registro_volontari_elettronico', 'benessere_staff',
+    'rimborsi_volontari', 'gestione_ruoli', 'gps_tracking',
+    'booking_hub', 'report_accise', 'analisi_economica',
+  ]);
+
   app.get("/api/marketplace", requireAdmin, async (req, res) => {
     try {
       const items = await db.select().from(premiumModules)
@@ -376,11 +386,16 @@ export function registerBillingRoutes(app: Express) {
       const enabledModules = Array.isArray(org?.enabledModules) ? (org.enabledModules as string[]) : [];
       const subs = await db.select().from(orgSubscriptions)
         .where(eq(orgSubscriptions.organizationId, userOrgId as any));
-      const enriched = items.map(item => ({
-        ...item,
-        isOwned: enabledModules.includes(item.moduleKey),
-        subscription: subs.find(s => s.moduleKey === item.moduleKey) || null,
-      }));
+      const enriched = items.map(item => {
+        const isBaseIncluded = BASE_PLAN_MODULES.has(item.moduleKey);
+        const subscription = subs.find(s => s.moduleKey === item.moduleKey) || null;
+        return {
+          ...item,
+          isBaseIncluded,
+          isOwned: isBaseIncluded || enabledModules.includes(item.moduleKey),
+          subscription,
+        };
+      });
       res.json(enriched);
     } catch (error) {
       res.status(500).json({ error: "Errore del server" });

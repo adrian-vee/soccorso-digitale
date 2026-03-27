@@ -33072,15 +33072,43 @@ function _renderOrgModuleGrid(org) {
     const isOn = enabled.includes(m.id);
     return `<div class="org-module-item ${isOn ? 'enabled' : ''}" id="org-mod-${org.id}-${m.id}">
       <div class="org-module-toggle-row">
-        <strong style="font-size:12px;color:#1E293B">${m.name}</strong>
-        <label class="org-toggle-switch">
-          <input type="checkbox" ${isOn ? 'checked' : ''} onchange="toggleModule('${org.id}','${m.id}',this.checked)">
-          <span class="org-toggle-slider"></span>
-        </label>
+        <div>
+          <strong style="font-size:12px;color:#1E293B">${m.name}</strong>
+          <p style="font-size:11px;color:#64748B;margin:2px 0 0">${m.desc}</p>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;margin-left:12px">
+          ${isOn
+            ? `<span style="background:#DCFCE7;color:#166534;font-size:11px;padding:3px 10px;border-radius:20px;white-space:nowrap">✓ Attivo</span>
+               <button onclick="adminDeactivateModule('${org.id}','${m.id}')" style="font-size:11px;color:#EF4444;background:none;border:none;cursor:pointer;padding:0;white-space:nowrap">Disattiva</button>`
+            : `<button onclick="adminActivateModule('${org.id}','${m.id}')" style="background:#1E3A8A;color:#fff;border:none;padding:6px 14px;border-radius:6px;font-size:12px;cursor:pointer;white-space:nowrap">Attiva gratis</button>`
+          }
+        </div>
       </div>
-      <p style="font-size:11px;color:#64748B;margin:0">${m.desc}</p>
     </div>`;
   }).join('');
+}
+
+async function adminActivateModule(orgId, moduleId) {
+  try {
+    const res = await adminFetch(`/api/admin/organizations/${orgId}/modules/${moduleId}/activate`, { method: 'POST' });
+    if (!res.ok) throw new Error('Errore');
+    showNotification('Modulo attivato', 'success');
+    showOrgDetail(orgId);
+  } catch (e) {
+    showNotification('Errore: ' + e.message, 'error');
+  }
+}
+
+async function adminDeactivateModule(orgId, moduleId) {
+  if (!confirm('Disattivare questo modulo per l\'organizzazione?')) return;
+  try {
+    const res = await adminFetch(`/api/admin/organizations/${orgId}/modules/${moduleId}/activate`, { method: 'DELETE' });
+    if (!res.ok) throw new Error('Errore');
+    showNotification('Modulo disattivato', 'success');
+    showOrgDetail(orgId);
+  } catch (e) {
+    showNotification('Errore: ' + e.message, 'error');
+  }
 }
 
 async function _sendOrgEmail(orgId, type) {
@@ -38379,31 +38407,37 @@ function renderMpCard(item) {
   const features = Array.isArray(item.features) ? item.features.slice(0, 3) : [];
   
   let priceHtml = '';
-  if (item.billingType === 'one_time') {
+  if (item.isBaseIncluded) {
+    priceHtml = `<span style="font-size:12px;font-weight:600;color:#166534">✓ Incluso nel piano</span>`;
+  } else if (item.billingType === 'one_time') {
     priceHtml = `<span class="mp-card-amount">${formatMpPrice(item.priceOneTime)}&euro;</span><span class="mp-card-period"> una tantum</span>`;
   } else {
     priceHtml = `<span class="mp-card-amount">${formatMpPrice(item.priceMonthly)}&euro;</span><span class="mp-card-period">/mese</span>`;
   }
-  
+
   let actionHtml = '';
-  if (item.isOwned) {
+  if (item.isBaseIncluded) {
+    actionHtml = '<button class="mp-card-btn mp-card-btn-owned" onclick="event.stopPropagation()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Incluso</button>';
+  } else if (item.isOwned && !item.subscription) {
+    actionHtml = '<button class="mp-card-btn mp-card-btn-owned" onclick="event.stopPropagation()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Attivo (Admin)</button>';
+  } else if (item.isOwned) {
     actionHtml = '<button class="mp-card-btn mp-card-btn-owned" onclick="event.stopPropagation()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Attivo</button>';
   } else if (item.trialDays > 0) {
     actionHtml = `<button class="mp-card-btn mp-card-btn-trial" onclick="event.stopPropagation(); openMarketplaceDetail('${item.id}')">Prova Gratis</button>`;
   } else {
     actionHtml = `<button class="mp-card-btn mp-card-btn-buy" onclick="event.stopPropagation(); openMarketplaceDetail('${item.id}')">Dettagli</button>`;
   }
-  
+
   return `
-    <div class="mp-card ${item.isOwned ? 'mp-card-active' : ''}" onclick="openMarketplaceDetail('${item.id}')">
-      ${item.badgeText && !item.isOwned ? `<div class="mp-card-badge" style="background:${item.badgeColor || cat.text}">${item.badgeText}</div>` : ''}
-      ${item.isOwned ? `<div class="mp-card-owned-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>` : ''}
+    <div class="mp-card ${(item.isOwned || item.isBaseIncluded) ? 'mp-card-active' : ''}" onclick="openMarketplaceDetail('${item.id}')">
+      ${(item.isOwned || item.isBaseIncluded) ? `<div class="mp-card-owned-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>` : ''}
       <div class="mp-card-top">
         <div class="mp-card-icon" style="background:${cat.bg};color:${cat.text}">${getFeatherIcon(item.icon)}</div>
         <div class="mp-card-title-group">
           <div class="mp-card-name">${item.name}</div>
           <div class="mp-card-cat" style="color:${cat.text}">${cat.label.toUpperCase()}</div>
         </div>
+        ${item.badgeText && !item.isOwned && !item.isBaseIncluded ? `<span class="mp-card-badge" style="background:${item.badgeColor || cat.text}">${item.badgeText}</span>` : ''}
       </div>
       <p class="mp-card-desc">${item.description || ''}</p>
       <div class="mp-card-features">
@@ -38452,9 +38486,11 @@ function openMarketplaceDetail(itemId) {
       ${pricingHtml}
       <div class="mp-detail-actions">
         <button class="mp-detail-cancel" onclick="closeMpDetail()">Chiudi</button>
-        ${item.isOwned 
-          ? '<button class="mp-detail-owned-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Gia Attivo</button>'
-          : `<button class="mp-detail-buy-btn" onclick="purchaseMarketplaceItem('${item.moduleKey}', '${item.billingType}')">${item.trialDays > 0 ? 'Inizia Prova Gratuita' : 'Acquista Ora'}</button>`
+        ${item.isBaseIncluded
+          ? '<button class="mp-detail-owned-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Incluso nel piano</button>'
+          : item.isOwned
+            ? '<button class="mp-detail-owned-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Gia Attivo</button>'
+            : `<button class="mp-detail-buy-btn" onclick="purchaseMarketplaceItem('${item.moduleKey}', '${item.billingType}')">${item.trialDays > 0 ? 'Inizia Prova Gratuita' : 'Acquista Ora'}</button>`
         }
       </div>
     </div>

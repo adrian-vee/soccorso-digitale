@@ -14,12 +14,13 @@ import { templateRichiestaRicevuta, templateNotificaAdmin } from "./utils/email-
 // report_accise, rimborsi_volontari, governance_compliance, partner_program,
 // booking_hub, gestione_ruoli) must be explicitly activated by super admin.
 const DEFAULT_ORG_MODULES = [
-  'pianificazione_turni',       // Pianificazione Turni + stats + settings
-  'registro_sanificazioni',     // Registro Sanificazioni
-  'consegne_digitali',          // Consegne Digitali
-  'checklist',                  // Magazzino + Scadenze materiali
+  'pianificazione_turni',           // Pianificazione Turni + stats + settings
+  'registro_sanificazioni',         // Registro Sanificazioni
+  'consegne_digitali',              // Consegne Digitali
+  'checklist',                      // Magazzino + Scadenze materiali
   'registro_volontari_elettronico', // Registro Volontari
-  'benessere_staff',            // Benessere Personale
+  'benessere_staff',                // Benessere Personale
+  'rimborsi_volontari',             // Rimborsi Volontari (sidebar accessible)
 ];
 
 export function registerOrgAdminRoutes(app: Express) {
@@ -859,6 +860,37 @@ export function registerOrgAdminRoutes(app: Express) {
     } catch (error) {
       console.error("Error updating org modules:", error);
       res.status(500).json({ error: "Errore nell'aggiornamento dei moduli" });
+    }
+  });
+
+  // ── ADMIN MODULE ACTIVATE / DEACTIVATE ───────────────────────────────────────
+
+  app.post("/api/admin/organizations/:orgId/modules/:moduleKey/activate", requireSuperAdmin, async (req, res) => {
+    try {
+      const { orgId, moduleKey } = req.params;
+      const [org] = await db.select().from(organizations).where(eq(organizations.id, orgId));
+      if (!org) return res.status(404).json({ error: "Organizzazione non trovata" });
+      const modules = Array.isArray(org.enabledModules) ? [...(org.enabledModules as string[])] : [];
+      if (!modules.includes(moduleKey)) modules.push(moduleKey);
+      await db.update(organizations).set({ enabledModules: modules, updatedAt: new Date() }).where(eq(organizations.id, orgId));
+      res.json({ success: true, enabledModules: modules });
+    } catch (error) {
+      console.error("Error activating module:", error);
+      res.status(500).json({ error: "Errore nell'attivazione del modulo" });
+    }
+  });
+
+  app.delete("/api/admin/organizations/:orgId/modules/:moduleKey/activate", requireSuperAdmin, async (req, res) => {
+    try {
+      const { orgId, moduleKey } = req.params;
+      const [org] = await db.select().from(organizations).where(eq(organizations.id, orgId));
+      if (!org) return res.status(404).json({ error: "Organizzazione non trovata" });
+      const modules = (Array.isArray(org.enabledModules) ? (org.enabledModules as string[]) : []).filter((m: string) => m !== moduleKey);
+      await db.update(organizations).set({ enabledModules: modules, updatedAt: new Date() }).where(eq(organizations.id, orgId));
+      res.json({ success: true, enabledModules: modules });
+    } catch (error) {
+      console.error("Error deactivating module:", error);
+      res.status(500).json({ error: "Errore nella disattivazione del modulo" });
     }
   });
 

@@ -32182,9 +32182,6 @@ td.tg-cell-uncovered {
 }
 .mp-card-active:hover { border-color: rgba(0,166,81,0.5); }
 .mp-card-badge {
-  position: absolute;
-  top: 14px;
-  right: 14px;
   padding: 3px 10px;
   border-radius: 6px;
   color: #fff;
@@ -32192,6 +32189,10 @@ td.tg-cell-uncovered {
   font-weight: 700;
   letter-spacing: 0.5px;
   text-transform: uppercase;
+  margin-left: auto;
+  flex-shrink: 0;
+  align-self: flex-start;
+  white-space: nowrap;
 }
 .mp-card-owned-check {
   position: absolute;
