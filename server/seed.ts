@@ -809,14 +809,14 @@ export async function seedDatabase() {
       },
       { 
         email: "superadmin@soccorsodigitale.app", 
-        password: "SoccorsoDigitale2026!", 
-        name: "Adrian Vasile", 
+        password: process.env.SEED_PASSWORD || "$2b$12$defaulthashfordevonly00000000000000000000000000000000000",
+        name: "Adrian Vasile",
         role: "admin",
         locationId: null
       },
       { 
         email: "direttore@croceeuropa.it", 
-        password: "direttore123", 
+        password: process.env.SEED_PASSWORD || "$2b$12$defaulthashfordevonly00000000000000000000000000000000000",
         name: "Laura Bianchi", 
         role: "director",
         locationId: null
@@ -832,7 +832,7 @@ export async function seedDatabase() {
       await db.update(users)
         .set({ 
           email: 'superadmin@soccorsodigitale.app', 
-          password: 'SoccorsoDigitale2026!' 
+          password: process.env.SEED_PASSWORD || "$2b$12$defaulthashfordevonly00000000000000000000000000000000000",
         })
         .where(eq(users.id, adminUser[0].id));
       console.log(`Updated super admin credentials to superadmin@soccorsodigitale.app`);

@@ -505,6 +505,11 @@ function setupErrorHandler(app: express.Application) {
   setupSession(app);
   setupRequestLogging(app);
 
+  // Redirect /login → /admin (permanent)
+  app.get("/login", (_req, res) => {
+    res.redirect(301, "/admin");
+  });
+
   // Public Social Impact Dashboard - MUST be before all other routes
   // Demo Request Page
   app.get("/demo", (req, res) => {
