@@ -9354,6 +9354,9 @@
 
           <!-- SaaS Dashboard Section (Super Admin Platform Mode) -->
           <section id="saas-dashboard-section" class="section hidden">
+            <!-- React mount point — gestisce tutta questa pagina -->
+            <div id="react-saas-root"></div>
+            <!-- Vecchio contenuto vanilla JS rimane come fallback -->
             <div class="saas-db-header">
               <div>
                 <h2 class="saas-db-title">Dashboard Piattaforma</h2>
@@ -12199,5 +12202,8 @@
     setTimeout(function() { toast.style.opacity = '0'; setTimeout(function() { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 300); }, 3500);
   }
   </script>
+  <!-- React SaaS Dashboard bundle -->
+  <link rel="stylesheet" href="/admin/react-dist/saas-dashboard.css" />
+  <script type="module" src="/admin/react-dist/saas-dashboard.js"></script>
 </body>
 </html>

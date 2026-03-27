@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+:root {
+  --background: #F0F4FF;
+  --foreground: #0C1A2E;
+  --card: #FFFFFF;
+  --card-foreground: #0C1A2E;
+  --primary: #1E3A8A;
+  --primary-foreground: #FFFFFF;
+  --muted: #F1F5F9;
+  --muted-foreground: #64748B;
+  --border: #E2E8F0;
+  --radius: 0.5rem;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: transparent;
+  color: #0C1A2E;
+}
