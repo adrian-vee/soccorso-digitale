@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════
-   SOCCORSO DIGITALE — Design System v1.0
+   SOCCORSO DIGITALE — Design System v1.1
    Override layer. Loads last. Higher specificity wins.
    ═══════════════════════════════════════════════════════ */
 
@@ -19,14 +19,24 @@
   margin-top: 16px !important;
 }
 
-/* ── SIDEBAR ─────────────────────────────────────────── */
+/* ── SIDEBAR — larghezza minima 220px ────────────────── */
+/* theme.css già gestisce --sidebar-w: 220px su .main-sidebar.
+   Qui correggiamo solo il text-overflow che taglia le label. */
 .nav-item {
   font-size: 13px !important;
-  padding: 10px 16px !important;
+  padding: 7px 12px 7px 16px !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: unset !important;
+  line-height: 1.4 !important;
 }
 
 .nav-item span {
   font-size: 13px !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: unset !important;
+  flex: 1 !important;
 }
 
 .sidebar-brand {
@@ -34,17 +44,79 @@
 }
 
 /* ── KPI / STAT CARDS ────────────────────────────────── */
-.kpi-card,
-.stat-card,
-.metric-card {
-  min-height: 100px !important;
+
+/* Superadmin org dashboard: org-kpi-card */
+.org-kpi-card {
+  min-height: 110px !important;
   padding: 20px 24px !important;
 }
 
-.kpi-value,
+.org-kpi-card .kpi-value,
+.kpi-value {
+  font-size: 32px !important;
+  font-weight: 700 !important;
+  line-height: 1.1 !important;
+}
+
+.org-kpi-card .kpi-label,
+.kpi-label {
+  font-size: 11px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+  margin-top: 6px !important;
+}
+
+.org-kpi-card .kpi-sub,
+.kpi-sub {
+  font-size: 11px !important;
+  margin-top: 2px !important;
+}
+
+/* RTA dashboard: rta-stat-card */
+.rta-stat-card {
+  min-height: 110px !important;
+  padding: 20px 24px !important;
+}
+
+.rta-stat-value {
+  font-size: 32px !important;
+  font-weight: 700 !important;
+  line-height: 1.1 !important;
+}
+
+.rta-stat-label {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+}
+
+/* Enterprise modal KPI: enterprise-kpi-card */
+.enterprise-kpi-card {
+  min-height: 110px !important;
+  padding: 20px 24px !important;
+}
+
+/* CRM KPI bar (inline-styled divs inside #crm-kpi-bar) */
+#crm-kpi-bar > div {
+  min-height: 110px !important;
+  padding: 20px 24px !important;
+}
+
+/* Generic fallback */
+.kpi-card,
+.stat-card,
+.metric-card {
+  min-height: 110px !important;
+  padding: 20px 24px !important;
+}
+
+.kpi-card .value,
 .stat-value,
 .metric-value {
   font-size: 32px !important;
+  font-weight: 700 !important;
+  line-height: 1.1 !important;
 }
 
 /* ── TABLES ──────────────────────────────────────────── */
@@ -60,6 +132,98 @@ table td {
 
 table tr:hover td {
   background: #F0F4FF !important;
+}
+
+/* ── TURNI — pianificazione settimanale ──────────────── */
+/* Intestazioni colonne: sfondo navy, testo bianco        */
+.scheduling-table th.sched-vehicle-col,
+.scheduling-table th.sched-time-col,
+.scheduling-table th.sched-day-col {
+  background: #1E3A8A !important;
+  color: #ffffff !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  padding: 8px 10px !important;
+  white-space: nowrap !important;
+}
+
+/* Colonna "oggi" — blu leggermente più chiaro */
+.scheduling-table th.sched-day-col.today-col {
+  background: #2563EB !important;
+  color: #ffffff !important;
+}
+
+/* Colonna weekend — blu scuro con tint ambra */
+.scheduling-table th.sched-day-col.weekend-col {
+  background: #1e3a8a !important;
+  color: #FDE68A !important;
+}
+
+/* Celle dati settimanali */
+.scheduling-table td.sched-shift-cell {
+  font-size: 12px !important;
+  color: #0C1A2E !important;
+  padding: 8px 10px !important;
+}
+
+/* ── TURNI — pianificazione mensile ─────────────────── */
+/* Riga intestazione veicoli */
+#schedule-grid-table tr.tg-vehicle-header th,
+#schedule-grid-table tr.tg-role-header th {
+  background: #1E3A8A !important;
+  color: #ffffff !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  padding: 8px 10px !important;
+}
+
+/* Colonna giorno (prima colonna) */
+#schedule-grid-table th.tg-day-col {
+  background: #0F2563 !important;
+  color: #ffffff !important;
+}
+
+/* Celle dati mensile */
+#schedule-grid-table td {
+  font-size: 12px !important;
+  color: #0C1A2E !important;
+  padding: 8px 10px !important;
+}
+
+/* ── TURNI — shift cells (colori esistenti mantenuti) ── */
+
+/* Covered cells: green tint, testo scuro */
+.sched-shift-cell.covered {
+  color: #0C1A2E !important;
+  background: #F0FDF4 !important;
+}
+
+/* Uncovered cells */
+.sched-shift-cell.uncovered {
+  color: #0C1A2E !important;
+}
+
+/* Today column: blue tint */
+.sched-shift-cell.today-col {
+  color: #0C1A2E !important;
+}
+
+/* Weekend column: amber tint */
+.sched-shift-cell.weekend-col {
+  color: #0C1A2E !important;
+}
+
+/* Spans/labels inside shift cells */
+.sched-shift-cell span,
+.sched-shift-cell small,
+.sched-shift-cell .shift-name,
+.sched-shift-cell .shift-time {
+  color: inherit !important;
+}
+
+/* Empty cells */
+.sched-shift-cell.empty {
+  color: #94A3B8 !important;
 }
 
 /* ── PAGE / SECTION HEADERS ──────────────────────────── */
@@ -107,42 +271,6 @@ button.secondary,
   min-height: 36px !important;
   padding: 8px 18px !important;
   font-size: 13px !important;
-}
-
-/* ── TURNI (SCHEDULING) — TEXT CONTRAST FIXES ────────── */
-
-/* Covered cells: green border, keep text dark */
-.sched-shift-cell.covered {
-  color: #0C1A2E !important;
-  background: #F0FDF4 !important;
-}
-
-/* Uncovered cells: red tint, dark text */
-.sched-shift-cell.uncovered {
-  color: #0C1A2E !important;
-}
-
-/* Today column: blue tint */
-.sched-shift-cell.today-col {
-  color: #0C1A2E !important;
-}
-
-/* Weekend column: amber tint */
-.sched-shift-cell.weekend-col {
-  color: #0C1A2E !important;
-}
-
-/* Nested spans/labels inside shift cells — always dark on light bg */
-.sched-shift-cell span,
-.sched-shift-cell small,
-.sched-shift-cell .shift-name,
-.sched-shift-cell .shift-time {
-  color: inherit !important;
-}
-
-/* Empty cells */
-.sched-shift-cell.empty {
-  color: #94A3B8 !important;
 }
 
 /* ── TABLET BREAKPOINT (≤ 1024px) ────────────────────── */
