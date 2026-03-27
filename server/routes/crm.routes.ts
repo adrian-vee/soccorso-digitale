@@ -149,7 +149,23 @@ export function registerCrmRoutes(app: Express) {
   // ── TRACKING: Click redirect ───────────────────────────────
 
   app.get("/api/crm/track/click/:logId", async (req, res) => {
-    const redirectUrl = (req.query.url as string) || "https://soccorsodigitale.app";
+    const FALLBACK_URL = "https://soccorsodigitale.app";
+    const ALLOWED_HOSTNAMES = ["soccorsodigitale.app", "www.soccorsodigitale.app"];
+
+    // Validate redirect URL to prevent open redirect attacks (OWASP A01)
+    let safeRedirectUrl = FALLBACK_URL;
+    const rawUrl = req.query.url as string | undefined;
+    if (rawUrl) {
+      try {
+        const parsed = new URL(rawUrl);
+        if (ALLOWED_HOSTNAMES.includes(parsed.hostname)) {
+          safeRedirectUrl = parsed.href;
+        }
+      } catch {
+        // Malformed URL — use fallback
+      }
+    }
+
     try {
       await pool.query(
         `UPDATE crm_email_logs
@@ -158,7 +174,7 @@ export function registerCrmRoutes(app: Express) {
         [req.params.logId]
       );
     } catch { /* non bloccare il redirect */ }
-    res.redirect(302, redirectUrl);
+    res.redirect(302, safeRedirectUrl);
   });
 
   // ── WEBHOOK RESEND ─────────────────────────────────────────
