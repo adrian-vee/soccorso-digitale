@@ -19,6 +19,20 @@ import {
   requireSuperAdmin,
 } from "../auth-middleware";
 
+// Moduli combo: quando si attiva il module_key, si abilitano TUTTI gli id sidebar elencati
+const COMBO_MODULES: Record<string, string[]> = {
+  analisi_economica_utif: ['analisi_economica', 'report_accise'],
+};
+
+function getEnabledIds(moduleKey: string): string[] {
+  return COMBO_MODULES[moduleKey] ?? [moduleKey];
+}
+
+function disableModuleIds(current: string[], moduleKey: string): string[] {
+  const toRemove = getEnabledIds(moduleKey);
+  return current.filter(m => !toRemove.includes(m));
+}
+
 const PDFDocument = new Proxy(function () {} as any, {
   construct(_target: any, args: any[]) {
     const Mod = require("pdfkit");
@@ -188,8 +202,10 @@ export function registerBillingRoutes(app: Express) {
             const [org] = await db.select().from(organizations).where(eq(organizations.id, organizationId));
             if (org) {
               const enabledModules = Array.isArray(org.enabledModules) ? [...(org.enabledModules as string[])] : [];
-              if (!enabledModules.includes(moduleKey)) {
-                enabledModules.push(moduleKey);
+              const toAdd = getEnabledIds(moduleKey);
+              let changed = false;
+              toAdd.forEach(id => { if (!enabledModules.includes(id)) { enabledModules.push(id); changed = true; } });
+              if (changed) {
                 await db.update(organizations)
                   .set({ enabledModules })
                   .where(eq(organizations.id, organizationId));
@@ -422,8 +438,10 @@ export function registerBillingRoutes(app: Express) {
 
       const [org] = await db.select().from(organizations).where(eq(organizations.id, userOrgId as any));
       const enabledModules = Array.isArray(org?.enabledModules) ? [...(org.enabledModules as string[])] : [];
-      if (!enabledModules.includes(moduleKey)) {
-        enabledModules.push(moduleKey);
+      const toAddTrial = getEnabledIds(moduleKey);
+      let trialChanged = false;
+      toAddTrial.forEach(id => { if (!enabledModules.includes(id)) { enabledModules.push(id); trialChanged = true; } });
+      if (trialChanged) {
         await db.update(organizations).set({ enabledModules }).where(eq(organizations.id, userOrgId as any));
       }
 
@@ -451,7 +469,7 @@ export function registerBillingRoutes(app: Express) {
       }).where(eq(orgSubscriptions.id, subscriptionId));
 
       const [org] = await db.select().from(organizations).where(eq(organizations.id, userOrgId as any));
-      const enabledModules = Array.isArray(org?.enabledModules) ? (org.enabledModules as string[]).filter(m => m !== sub.moduleKey) : [];
+      const enabledModules = disableModuleIds(Array.isArray(org?.enabledModules) ? (org.enabledModules as string[]) : [], sub.moduleKey);
       await db.update(organizations).set({ enabledModules }).where(eq(organizations.id, userOrgId as any));
 
       res.json({ success: true });
@@ -518,8 +536,10 @@ export function registerBillingRoutes(app: Express) {
       }
 
       const enabledModules = Array.isArray(org?.enabledModules) ? [...(org.enabledModules as string[])] : [];
-      if (!enabledModules.includes(moduleKey)) {
-        enabledModules.push(moduleKey);
+      const toAddPurchase = getEnabledIds(moduleKey);
+      let purchaseChanged = false;
+      toAddPurchase.forEach(id => { if (!enabledModules.includes(id)) { enabledModules.push(id); purchaseChanged = true; } });
+      if (purchaseChanged) {
         await db.update(organizations).set({ enabledModules }).where(eq(organizations.id, userOrgId as any));
       }
 
@@ -800,8 +820,10 @@ export function registerBillingRoutes(app: Express) {
 
         const [org] = await db.select().from(organizations).where(eq(organizations.id, trial.organizationId));
         if (org) {
-          const enabledModules = Array.isArray(org.enabledModules)
-            ? (org.enabledModules as string[]).filter(m => m !== trial.moduleKey) : [];
+          const enabledModules = disableModuleIds(
+            Array.isArray(org.enabledModules) ? (org.enabledModules as string[]) : [],
+            trial.moduleKey
+          );
           await db.update(organizations).set({ enabledModules }).where(eq(organizations.id, trial.organizationId));
         }
       }

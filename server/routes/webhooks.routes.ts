@@ -41,9 +41,12 @@ export function registerWebhookRoutes(app: Express): void {
 
             const [org] = await db.select().from(organizations).where(eq(organizations.id, organizationId));
             if (org) {
+              const comboIds = moduleKey === 'analisi_economica_utif'
+                ? ['analisi_economica', 'report_accise'] : [moduleKey];
               const enabledModules = Array.isArray(org.enabledModules) ? [...(org.enabledModules as string[])] : [];
-              if (!enabledModules.includes(moduleKey)) {
-                enabledModules.push(moduleKey);
+              let hookChanged = false;
+              comboIds.forEach(id => { if (!enabledModules.includes(id)) { enabledModules.push(id); hookChanged = true; } });
+              if (hookChanged) {
                 await db.update(organizations)
                   .set({ enabledModules })
                   .where(eq(organizations.id, organizationId));
