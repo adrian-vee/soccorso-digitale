@@ -3913,7 +3913,7 @@ export function registerFleetRoutes(app: Express) {
   app.get("/api/admin/rescue-sheets", requireAdmin, async (req, res) => {
     try {
       const orgId = getEffectiveOrgId(req);
-      if (isOrgAdmin(req) && orgId) {
+      if (orgId) {
         const orgSheets = await db.select().from(rescueSheets)
           .where(eq(rescueSheets.organizationId, orgId))
           .orderBy(desc(rescueSheets.createdAt));

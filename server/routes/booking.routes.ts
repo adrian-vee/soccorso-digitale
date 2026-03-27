@@ -20,11 +20,12 @@ import {
   structureDepartments,
   departments as departmentsTable,
 } from "@shared/schema";
-import { and, eq, asc, inArray } from "drizzle-orm";
+import { and, eq, asc, desc, inArray } from "drizzle-orm";
 import {
   requireAuth,
   requireAdmin,
   getUserId,
+  getEffectiveOrgId,
 } from "../auth-middleware";
 
 export function registerBookingRoutes(app: Express) {
@@ -36,19 +37,20 @@ export function registerBookingRoutes(app: Express) {
   app.get("/api/scheduled-services", requireAuth, async (req, res) => {
     try {
       const { vehicleId, locationId, date } = req.query;
+      const orgId = getEffectiveOrgId(req);
 
-      let services;
-      if (vehicleId && date) {
-        services = await storage.getScheduledServicesByVehicleAndDate(vehicleId as string, date as string);
-      } else if (vehicleId) {
-        services = await storage.getScheduledServicesByVehicle(vehicleId as string);
-      } else if (locationId) {
-        services = await storage.getScheduledServicesByLocation(locationId as string);
-      } else if (date) {
-        services = await storage.getScheduledServicesByDate(date as string);
-      } else {
-        services = await storage.getScheduledServices();
-      }
+      // Build conditions — always filter by org when available
+      const conditions: ReturnType<typeof eq>[] = [];
+      if (orgId) conditions.push(eq(scheduledServices.organizationId, orgId));
+      if (vehicleId) conditions.push(eq(scheduledServices.vehicleId, vehicleId as string));
+      if (locationId) conditions.push(eq(scheduledServices.locationId, locationId as string));
+      if (date) conditions.push(eq(scheduledServices.serviceDate, date as string));
+
+      const services = await db
+        .select()
+        .from(scheduledServices)
+        .where(conditions.length > 0 ? and(...conditions) : undefined)
+        .orderBy(desc(scheduledServices.serviceDate), scheduledServices.scheduledTime);
 
       const vehicleIds = [...new Set(services.filter((s: any) => s.vehicleId).map((s: any) => s.vehicleId))];
       let vehicleMap: Record<string, { code: string; natoName: string | null; licensePlate: string | null }> = {};

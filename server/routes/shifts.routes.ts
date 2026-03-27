@@ -2365,10 +2365,8 @@ app.get("/api/shift-stats", requireAdmin, async (req, res) => {
     const lastDay = new Date(year, monthNum, 0).getDate();
     const dateTo = `${monthStr}-${String(lastDay).padStart(2, '0')}`;
 
-    const userId = getUserId(req);
-    const user = userId ? await storage.getUser(userId) : null;
-    const orgId = user?.organizationId;
-    
+    const orgId = getEffectiveOrgId(req);
+
     const shiftConditions: any[] = [
       gte(shiftInstances.shiftDate, dateFrom),
       lte(shiftInstances.shiftDate, dateTo),
@@ -5451,11 +5449,29 @@ app.put("/api/admin/shift-settings/staff/:staffId", requireAdmin, async (req, re
   // ===== BURNOUT PREVENTION =====
 app.get("/api/burnout/dashboard", requireAdmin, async (req, res) => {
   try {
+    const orgId = getEffectiveOrgId(req);
+
     // Get current week
     const now = new Date();
     const weekStart = new Date(now);
     weekStart.setDate(now.getDate() - now.getDay() + 1); // Monday
     const weekStartStr = weekStart.toISOString().split('T')[0];
+
+    // Resolve staff IDs scoped to the current org
+    const staffListQuery = db.select({
+      id: staffMembers.id,
+      firstName: staffMembers.firstName,
+      lastName: staffMembers.lastName,
+    }).from(staffMembers);
+    const staffListAll = orgId
+      ? await staffListQuery.where(eq(staffMembers.organizationId, orgId))
+      : await staffListQuery;
+    const orgStaffIds = staffListAll.map(s => s.id);
+
+    const weekCond = eq(operatorWorkload.weekStartDate, weekStartStr);
+    const workloadWhere = (orgId && orgStaffIds.length > 0)
+      ? and(weekCond, inArray(operatorWorkload.staffMemberId, orgStaffIds))
+      : (orgId && orgStaffIds.length === 0) ? sql`false` : weekCond;
 
     let workloads = await db.select({
       staffMemberId: operatorWorkload.staffMemberId,
@@ -5464,8 +5480,7 @@ app.get("/api/burnout/dashboard", requireAdmin, async (req, res) => {
       nightShiftsCount: operatorWorkload.nightShiftsCount,
       riskLevel: operatorWorkload.riskLevel,
       riskScore: operatorWorkload.riskScore,
-    }).from(operatorWorkload)
-      .where(eq(operatorWorkload.weekStartDate, weekStartStr));
+    }).from(operatorWorkload).where(workloadWhere);
 
     if (workloads.length === 0) {
       try { await calculateBurnoutFromShiftsInternal(); } catch (e) { console.error('Auto-calc burnout error:', e); }
@@ -5476,16 +5491,11 @@ app.get("/api/burnout/dashboard", requireAdmin, async (req, res) => {
         nightShiftsCount: operatorWorkload.nightShiftsCount,
         riskLevel: operatorWorkload.riskLevel,
         riskScore: operatorWorkload.riskScore,
-      }).from(operatorWorkload)
-        .where(eq(operatorWorkload.weekStartDate, weekStartStr));
+      }).from(operatorWorkload).where(workloadWhere);
     }
 
-    // Get staff names
-    const staffList = await db.select({
-      id: staffMembers.id,
-      firstName: staffMembers.firstName,
-      lastName: staffMembers.lastName,
-    }).from(staffMembers);
+    // Staff names already fetched above
+    const staffList = staffListAll;
     
     const staffMap = new Map(staffList.map(s => [s.id, `${s.firstName} ${s.lastName}`]));
 
@@ -5563,6 +5573,7 @@ app.get("/api/burnout/workload/:staffMemberId", requireAdmin, async (req, res) =
 
 app.get("/api/burnout/staff-risk", requireAdmin, async (req, res) => {
   try {
+    const orgId = getEffectiveOrgId(req);
     const now = new Date();
     const weekStart = new Date(now);
     const dayOfWeek = now.getDay();
@@ -5570,23 +5581,29 @@ app.get("/api/burnout/staff-risk", requireAdmin, async (req, res) => {
     weekStart.setDate(now.getDate() + mondayOffset);
     const weekStartStr = `${weekStart.getFullYear()}-${String(weekStart.getMonth() + 1).padStart(2, '0')}-${String(weekStart.getDate()).padStart(2, '0')}`;
 
-    let workloads = await db.select()
-      .from(operatorWorkload)
-      .where(eq(operatorWorkload.weekStartDate, weekStartStr));
-
-    if (workloads.length === 0) {
-      await calculateBurnoutFromShiftsInternal();
-      workloads = await db.select()
-        .from(operatorWorkload)
-        .where(eq(operatorWorkload.weekStartDate, weekStartStr));
-    }
-
-    const staffList = await db.select({
+    const staffQuery = db.select({
       id: staffMembers.id,
       firstName: staffMembers.firstName,
       lastName: staffMembers.lastName,
-    }).from(staffMembers)
-      .where(eq(staffMembers.isActive, true));
+    }).from(staffMembers).where(
+      orgId
+        ? and(eq(staffMembers.isActive, true), eq(staffMembers.organizationId, orgId))
+        : eq(staffMembers.isActive, true)
+    );
+    const staffList = await staffQuery;
+    const orgStaffIds = staffList.map(s => s.id);
+
+    const weekCond = eq(operatorWorkload.weekStartDate, weekStartStr);
+    const workloadWhere = (orgId && orgStaffIds.length > 0)
+      ? and(weekCond, inArray(operatorWorkload.staffMemberId, orgStaffIds))
+      : (orgId && orgStaffIds.length === 0) ? sql`false` : weekCond;
+
+    let workloads = await db.select().from(operatorWorkload).where(workloadWhere);
+
+    if (workloads.length === 0) {
+      await calculateBurnoutFromShiftsInternal();
+      workloads = await db.select().from(operatorWorkload).where(workloadWhere);
+    }
 
     const workloadMap = new Map(workloads.map(w => [w.staffMemberId, w]));
 
