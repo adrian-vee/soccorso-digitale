@@ -1769,7 +1769,7 @@ function showLogin() {
 
 // Pages only visible to super_admin without a selected org (SaaS platform view)
 const SUPER_ADMIN_PLATFORM_PAGES = new Set([
-  'saas-dashboard', 'client-overview', 'onboarding-pipeline',
+  'crm', 'saas-dashboard', 'client-overview', 'onboarding-pipeline',
   'plans-billing', 'adoption-usage', 'api-providers',
 ]);
 
@@ -2265,6 +2265,7 @@ function navigateTo(page) {
     'role-management': 'Ruoli e Accessi',
     'apk-management': 'Gestione App APK',
     'programma-giornaliero': 'Programma Giornaliero',
+    'crm': 'CRM / Email Marketing',
     'saas-dashboard': 'Dashboard SaaS',
     'client-overview': 'Panoramica Clienti',
     'onboarding-pipeline': 'Onboarding Clienti',
@@ -2292,6 +2293,7 @@ function navigateTo(page) {
   if (page === 'emergency-alerts') { loadEmergencyAlerts(); }
   if (page === 'notif-config') { loadNotifConfig(); }
   if (page === 'security-center') { loadSecurityCenter(); }
+  if (page === 'crm') { loadCrmPage(); }
   if (page === 'saas-dashboard') { loadSaasDashboard(); }
   if (page === 'client-overview') { loadClientOverview(); }
   if (page === 'onboarding-pipeline') { loadOnboardingPipeline(); }
@@ -2917,6 +2919,343 @@ function renderSaasAdoption(orgs) {
     </div>`;
   });
   listEl.innerHTML = items.join('');
+}
+
+// ============================================================
+// CRM / EMAIL MARKETING
+// ============================================================
+
+let crmPage = 1;
+let crmDebounceTimer = null;
+
+function crmFilterDebounce() {
+  clearTimeout(crmDebounceTimer);
+  crmDebounceTimer = setTimeout(() => { crmPage = 1; loadCrmPage(); }, 400);
+}
+
+async function loadCrmPage() {
+  try {
+    // Load stats
+    const statsRes = await adminFetch('/api/crm/stats');
+    if (statsRes.ok) {
+      const s = await statsRes.json();
+      const kpiBar = document.getElementById('crm-kpi-bar');
+      if (kpiBar) {
+        kpiBar.innerHTML = [
+          { label: 'Totale organizzazioni', val: s.total, color: '#1E3A8A', bg: '#EFF6FF' },
+          { label: 'Con email', val: s.with_email, color: '#0369a1', bg: '#F0F9FF' },
+          { label: 'Contattate', val: s.contacted_count, color: '#7c3aed', bg: '#F5F3FF' },
+          { label: 'Clienti', val: s.customer_count, color: '#15803d', bg: '#F0FDF4' },
+        ].map(k => `
+          <div style="background:${k.bg};border:1px solid ${k.color}22;border-radius:12px;padding:16px 18px;">
+            <div style="font-size:26px;font-weight:800;color:${k.color};">${k.val || 0}</div>
+            <div style="font-size:12px;color:#64748B;margin-top:4px;">${k.label}</div>
+          </div>
+        `).join('');
+      }
+    }
+
+    // Load organizations
+    const search = document.getElementById('crm-search')?.value || '';
+    const region = document.getElementById('crm-filter-region')?.value || 'all';
+    const type = document.getElementById('crm-filter-type')?.value || 'all';
+    const status = document.getElementById('crm-filter-status')?.value || 'all';
+
+    const params = new URLSearchParams({ page: crmPage, limit: 50 });
+    if (search) params.set('search', search);
+    if (region !== 'all') params.set('region', region);
+    if (type !== 'all') params.set('type', type);
+    if (status !== 'all') params.set('status', status);
+
+    const dataRes = await adminFetch(`/api/crm/organizations?${params}`);
+    if (!dataRes.ok) throw new Error('Errore caricamento dati');
+    const { data, total, limit } = await dataRes.json();
+
+    const tbody = document.getElementById('crm-table-body');
+    if (!tbody) return;
+
+    if (!data.length) {
+      tbody.innerHTML = `<tr><td colspan="7" style="padding:40px;text-align:center;color:#9CA3AF;">Nessuna organizzazione trovata</td></tr>`;
+    } else {
+      const statusBadge = (s) => {
+        const map = {
+          new: ['#6B7280','#F3F4F6','Nuovo'],
+          contacted: ['#1E3A8A','#EFF6FF','Contattato'],
+          interested: ['#d97706','#FFFBEB','Interessato'],
+          customer: ['#15803d','#F0FDF4','Cliente'],
+          not_interested: ['#dc2626','#FEF2F2','Non interessato'],
+        };
+        const [color,bg,label] = map[s] || ['#6B7280','#F3F4F6', s];
+        return `<span style="background:${bg};color:${color};border-radius:20px;padding:2px 10px;font-size:11px;font-weight:600;">${label}</span>`;
+      };
+
+      tbody.innerHTML = data.map(org => `
+        <tr style="border-bottom:1px solid #F0F4FF;" onmouseenter="this.style.background='#F8FAFF'" onmouseleave="this.style.background=''">
+          <td style="padding:10px 14px;font-weight:600;color:#111827;">${escapeHtml(org.name)}</td>
+          <td style="padding:10px 14px;color:#6B7280;">${org.type || '—'}</td>
+          <td style="padding:10px 14px;color:#6B7280;">${org.region || '—'}</td>
+          <td style="padding:10px 14px;color:#6B7280;font-size:12px;">${org.email ? `<a href="mailto:${escapeHtml(org.email)}" style="color:#1E3A8A;text-decoration:none;">${escapeHtml(org.email)}</a>` : '—'}</td>
+          <td style="padding:10px 14px;">${statusBadge(org.status)}</td>
+          <td style="padding:10px 14px;color:#9CA3AF;font-size:12px;">${org.last_contacted_at ? new Date(org.last_contacted_at).toLocaleDateString('it-IT') : '—'}</td>
+          <td style="padding:10px 14px;text-align:center;">
+            <div style="display:flex;gap:6px;justify-content:center;">
+              ${org.email ? `<button onclick="showCrmSendModal('${org.id}','${escapeHtml(org.name).replace(/'/g,"\\'")}','${escapeHtml(org.email || '')}')" title="Invia email" style="height:30px;padding:0 10px;background:#EFF6FF;border:1px solid #DBEAFE;border-radius:6px;font-size:11px;font-weight:600;color:#1E3A8A;cursor:pointer;">✉ Email</button>` : ''}
+              <button onclick="showCrmStatusModal('${org.id}','${org.status}')" title="Cambia status" style="height:30px;padding:0 10px;background:#F8FAFF;border:1px solid #E2E8F0;border-radius:6px;font-size:11px;color:#374151;cursor:pointer;">Status</button>
+              <button onclick="crmDeleteOrg('${org.id}','${escapeHtml(org.name).replace(/'/g,"\\'")}')}" title="Elimina" style="height:30px;padding:0 10px;background:#FEF2F2;border:1px solid #FECACA;border-radius:6px;font-size:11px;color:#dc2626;cursor:pointer;">✕</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // Pagination
+    const totalPages = Math.ceil(total / limit);
+    const pag = document.getElementById('crm-pagination');
+    if (pag) {
+      pag.innerHTML = `
+        <span>${total} organizzazioni totali</span>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <button onclick="crmGoPage(${crmPage - 1})" ${crmPage <= 1 ? 'disabled' : ''} style="height:28px;padding:0 10px;border:1px solid #E2E8F0;border-radius:6px;font-size:12px;cursor:pointer;background:${crmPage<=1?'#F9FAFB':'#fff'};">← Prec</button>
+          <span>Pag. ${crmPage} / ${totalPages || 1}</span>
+          <button onclick="crmGoPage(${crmPage + 1})" ${crmPage >= totalPages ? 'disabled' : ''} style="height:28px;padding:0 10px;border:1px solid #E2E8F0;border-radius:6px;font-size:12px;cursor:pointer;background:${crmPage>=totalPages?'#F9FAFB':'#fff'};">Succ →</button>
+        </div>
+      `;
+    }
+  } catch (e) {
+    const tbody = document.getElementById('crm-table-body');
+    if (tbody) tbody.innerHTML = `<tr><td colspan="7" style="padding:30px;text-align:center;color:#dc2626;">Errore: ${e.message}</td></tr>`;
+  }
+}
+
+function crmGoPage(page) {
+  crmPage = page;
+  loadCrmPage();
+}
+
+async function crmDeleteOrg(id, name) {
+  if (!confirm(`Eliminare "${name}"?`)) return;
+  const res = await adminFetch(`/api/crm/organizations/${id}`, { method: 'DELETE' });
+  if (res.ok) { showNotification('Organizzazione eliminata', 'success'); loadCrmPage(); }
+  else { const e = await res.json(); showNotification('Errore: ' + e.error, 'error'); }
+}
+
+// ── Modale invia email ─────────────────────────────────
+
+async function showCrmSendModal(orgId, orgName, orgEmail) {
+  // Carica template
+  const res = await adminFetch('/api/crm/templates');
+  const templates = res.ok ? await res.json() : [];
+
+  const m = showModal({
+    title: `Invia Email — ${orgName}`,
+    size: 'lg',
+    content: `
+      <div style="margin-bottom:14px;">
+        <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:6px;">Destinatario</label>
+        <div style="padding:8px 12px;background:#F8FAFF;border-radius:8px;font-size:13px;color:#1E3A8A;">${escapeHtml(orgEmail)}</div>
+      </div>
+      <div style="margin-bottom:14px;">
+        <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:6px;">Template</label>
+        <select id="crm-send-tpl" onchange="crmPreviewTemplate()" style="width:100%;height:38px;padding:0 10px;border:1px solid #E2E8F0;border-radius:8px;font-size:13px;">
+          <option value="">— Nessun template (scrivi sotto) —</option>
+          ${templates.map(t => `<option value="${t.id}" data-subject="${escapeHtml(t.subject)}" data-html="${encodeURIComponent(t.body_html)}">${escapeHtml(t.name)}</option>`).join('')}
+        </select>
+      </div>
+      <div style="margin-bottom:14px;">
+        <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:6px;">Oggetto</label>
+        <input id="crm-send-subject" type="text" placeholder="Oggetto email…" style="width:100%;height:38px;padding:0 12px;border:1px solid #E2E8F0;border-radius:8px;font-size:13px;box-sizing:border-box;">
+      </div>
+      <div id="crm-send-preview" style="border:1px solid #E2E8F0;border-radius:8px;min-height:120px;overflow:hidden;background:#fff;"></div>
+    `,
+    onSave: async () => {
+      const tplId = document.getElementById('crm-send-tpl')?.value;
+      const subject = document.getElementById('crm-send-subject')?.value;
+      const body = await adminFetch(`/api/crm/templates`).then(r => r.json()).then(ts => ts.find(t => t.id === tplId)?.body_html || '');
+
+      const res2 = await adminFetch('/api/crm/send-single', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ organization_id: orgId, template_id: tplId || undefined, custom_subject: subject }),
+      });
+      const data = await res2.json();
+      if (!res2.ok) throw new Error(data.error || 'Errore invio');
+      showNotification('Email inviata con successo!', 'success');
+      loadCrmPage();
+    },
+    saveLabel: 'Invia Email',
+  });
+}
+
+function crmPreviewTemplate() {
+  const sel = document.getElementById('crm-send-tpl');
+  const preview = document.getElementById('crm-send-preview');
+  const subjectInput = document.getElementById('crm-send-subject');
+  if (!sel || !preview) return;
+  const opt = sel.options[sel.selectedIndex];
+  if (opt && opt.dataset.html) {
+    const html = decodeURIComponent(opt.dataset.html);
+    const iframe = document.createElement('iframe');
+    iframe.style.cssText = 'width:100%;height:280px;border:none;';
+    preview.innerHTML = '';
+    preview.appendChild(iframe);
+    iframe.contentDocument.open();
+    iframe.contentDocument.write(html.replace(/{{org_name}}/g,'[Nome Org]').replace(/{{region}}/g,'[Regione]').replace(/{{city}}/g,'[Città]').replace(/{{unsubscribe_url}}/g,'#'));
+    iframe.contentDocument.close();
+    if (subjectInput && opt.dataset.subject && !subjectInput.value) {
+      subjectInput.value = decodeURIComponent(opt.dataset.subject);
+    }
+  } else {
+    preview.innerHTML = '<div style="padding:20px;color:#9CA3AF;font-size:13px;">Seleziona un template per la preview.</div>';
+  }
+}
+
+// ── Modale cambia status ───────────────────────────────
+
+function showCrmStatusModal(orgId, currentStatus) {
+  showModal({
+    title: 'Cambia Status',
+    content: `
+      <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:8px;">Nuovo status</label>
+      <select id="crm-new-status" style="width:100%;height:40px;padding:0 12px;border:1px solid #E2E8F0;border-radius:8px;font-size:14px;">
+        <option value="new" ${currentStatus==='new'?'selected':''}>Nuovo</option>
+        <option value="contacted" ${currentStatus==='contacted'?'selected':''}>Contattato</option>
+        <option value="interested" ${currentStatus==='interested'?'selected':''}>Interessato</option>
+        <option value="customer" ${currentStatus==='customer'?'selected':''}>Cliente</option>
+        <option value="not_interested" ${currentStatus==='not_interested'?'selected':''}>Non interessato</option>
+      </select>
+    `,
+    onSave: async () => {
+      const newStatus = document.getElementById('crm-new-status')?.value;
+      const res = await adminFetch(`/api/crm/organizations/${orgId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (!res.ok) { const e = await res.json(); throw new Error(e.error); }
+      showNotification('Status aggiornato', 'success');
+      loadCrmPage();
+    },
+    saveLabel: 'Salva Status',
+  });
+}
+
+// ── Modale nuova organizzazione ────────────────────────
+
+function showCrmNewOrgModal() {
+  showModal({
+    title: 'Nuova Organizzazione',
+    size: 'lg',
+    content: `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div>
+          <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:5px;">Nome *</label>
+          <input id="crm-new-name" type="text" placeholder="Croce Verde di…" style="width:100%;height:38px;padding:0 12px;border:1px solid #E2E8F0;border-radius:8px;font-size:13px;box-sizing:border-box;">
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:5px;">Tipo</label>
+          <select id="crm-new-type" style="width:100%;height:38px;padding:0 10px;border:1px solid #E2E8F0;border-radius:8px;font-size:13px;">
+            <option value="altro">Altro</option>
+            <option value="ambulanza">Ambulanza</option>
+            <option value="volontariato">Volontariato</option>
+            <option value="cooperativa">Cooperativa</option>
+            <option value="croce_rossa">Croce Rossa</option>
+            <option value="misericordia">Misericordia</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:5px;">Email</label>
+          <input id="crm-new-email" type="email" placeholder="info@org.it" style="width:100%;height:38px;padding:0 12px;border:1px solid #E2E8F0;border-radius:8px;font-size:13px;box-sizing:border-box;">
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:5px;">Telefono</label>
+          <input id="crm-new-phone" type="text" placeholder="+39 02 1234567" style="width:100%;height:38px;padding:0 12px;border:1px solid #E2E8F0;border-radius:8px;font-size:13px;box-sizing:border-box;">
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:5px;">Città</label>
+          <input id="crm-new-city" type="text" style="width:100%;height:38px;padding:0 12px;border:1px solid #E2E8F0;border-radius:8px;font-size:13px;box-sizing:border-box;">
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:5px;">Regione</label>
+          <input id="crm-new-region" type="text" style="width:100%;height:38px;padding:0 12px;border:1px solid #E2E8F0;border-radius:8px;font-size:13px;box-sizing:border-box;">
+        </div>
+        <div style="grid-column:span 2;">
+          <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:5px;">Note</label>
+          <textarea id="crm-new-notes" rows="2" style="width:100%;padding:8px 12px;border:1px solid #E2E8F0;border-radius:8px;font-size:13px;box-sizing:border-box;resize:vertical;"></textarea>
+        </div>
+      </div>
+    `,
+    onSave: async () => {
+      const name = document.getElementById('crm-new-name')?.value?.trim();
+      if (!name) throw new Error('Nome obbligatorio');
+      const payload = {
+        name,
+        type: document.getElementById('crm-new-type')?.value,
+        email: document.getElementById('crm-new-email')?.value?.trim() || undefined,
+        phone: document.getElementById('crm-new-phone')?.value?.trim() || undefined,
+        city: document.getElementById('crm-new-city')?.value?.trim() || undefined,
+        region: document.getElementById('crm-new-region')?.value?.trim() || undefined,
+        notes: document.getElementById('crm-new-notes')?.value?.trim() || undefined,
+      };
+      const res = await adminFetch('/api/crm/organizations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) { const e = await res.json(); throw new Error(e.error); }
+      showNotification('Organizzazione creata!', 'success');
+      loadCrmPage();
+    },
+    saveLabel: 'Crea Organizzazione',
+  });
+}
+
+// ── Modale importa CSV/Excel ───────────────────────────
+
+function showCrmImportModal() {
+  showModal({
+    title: 'Importa Organizzazioni',
+    content: `
+      <p style="font-size:13px;color:#6B7280;margin:0 0 16px;">Supporta file CSV e Excel (.xlsx). Colonne riconosciute: <code>name, email, phone, city, region, province, type, website, notes</code>.</p>
+      <div id="crm-drop-zone" style="border:2px dashed #DBEAFE;border-radius:12px;padding:40px;text-align:center;cursor:pointer;background:#F8FAFF;"
+           onclick="document.getElementById('crm-file-input').click()"
+           ondragover="event.preventDefault();this.style.borderColor='#1E3A8A'"
+           ondragleave="this.style.borderColor='#DBEAFE'"
+           ondrop="crmHandleDrop(event)">
+        <div style="font-size:32px;margin-bottom:10px;">📁</div>
+        <div style="font-weight:600;color:#1E3A8A;font-size:14px;">Clicca o trascina il file qui</div>
+        <div style="font-size:12px;color:#9CA3AF;margin-top:6px;">CSV o Excel (.xlsx)</div>
+        <input id="crm-file-input" type="file" accept=".csv,.xlsx,.xls" style="display:none;" onchange="crmHandleFileSelect(this.files[0])">
+      </div>
+      <div id="crm-import-result" style="margin-top:14px;font-size:13px;"></div>
+    `,
+    onSave: async () => {
+      const file = window._crmImportFile;
+      if (!file) throw new Error('Seleziona un file prima');
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await adminFetch('/api/crm/organizations/import', { method: 'POST', body: formData });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      showNotification(`Importati: ${data.imported}, Saltati: ${data.skipped}`, 'success');
+      loadCrmPage();
+    },
+    saveLabel: 'Importa',
+  });
+}
+
+function crmHandleFileSelect(file) {
+  if (!file) return;
+  window._crmImportFile = file;
+  const dropZone = document.getElementById('crm-drop-zone');
+  if (dropZone) {
+    dropZone.innerHTML = `<div style="font-size:28px;">✅</div><div style="font-weight:600;color:#15803d;margin-top:8px;">${escapeHtml(file.name)}</div><div style="font-size:12px;color:#9CA3AF;margin-top:4px;">${(file.size/1024).toFixed(1)} KB</div>`;
+  }
+}
+
+function crmHandleDrop(event) {
+  event.preventDefault();
+  const file = event.dataTransfer.files[0];
+  crmHandleFileSelect(file);
 }
 
 // ============================================================

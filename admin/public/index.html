@@ -549,6 +549,23 @@
                 </div>
               </div>
 
+              <!-- MARKETING / CRM -->
+              <div class="nav-section nav-section-collapsible" data-section="sa-marketing">
+                <button class="nav-section-header" onclick="toggleNavSection(this)" aria-expanded="true">
+                  <span class="nav-section-header-icon" style="--section-color:#1E3A8A;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                  </span>
+                  <span class="nav-section-header-label">Marketing</span>
+                  <svg class="nav-section-chevron" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="nav-section-body open">
+                  <button class="nav-item" data-page="crm">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                    <span>CRM / Email Marketing</span>
+                  </button>
+                </div>
+              </div>
+
               <!-- INTELLIGENCE -->
               <div class="nav-section nav-section-collapsible" data-section="sa-intelligence">
                 <button class="nav-section-header" onclick="toggleNavSection(this)" aria-expanded="true">
@@ -9392,6 +9409,71 @@
                   <!-- Populated by JS -->
                 </div>
               </div>
+            </div>
+          </section>
+
+          <!-- CRM / Email Marketing Section -->
+          <section id="crm-section" class="section hidden">
+            <div class="section-header-row" style="margin-bottom:0;">
+              <h2 class="section-title">CRM / Email Marketing</h2>
+            </div>
+            <!-- KPI bar -->
+            <div id="crm-kpi-bar" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:18px 0;"></div>
+            <!-- Toolbar -->
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#fff;border:1px solid #E2E8F0;border-radius:12px;padding:12px 16px;margin-bottom:14px;">
+              <input type="text" id="crm-search" placeholder="Cerca nome, email, città…"
+                style="flex:1;min-width:180px;height:36px;padding:0 12px;border:1px solid #E2E8F0;border-radius:8px;font-size:13px;outline:none;" oninput="crmFilterDebounce()">
+              <select id="crm-filter-region" onchange="loadCrmPage()" style="height:36px;padding:0 10px;border:1px solid #E2E8F0;border-radius:8px;font-size:13px;">
+                <option value="all">Tutte le regioni</option>
+                <option>Abruzzo</option><option>Basilicata</option><option>Calabria</option>
+                <option>Campania</option><option>Emilia-Romagna</option><option>Friuli-Venezia Giulia</option>
+                <option>Lazio</option><option>Liguria</option><option>Lombardia</option><option>Marche</option>
+                <option>Molise</option><option>Piemonte</option><option>Puglia</option><option>Sardegna</option>
+                <option>Sicilia</option><option>Toscana</option><option>Trentino-Alto Adige</option>
+                <option>Umbria</option><option>Valle d'Aosta</option><option>Veneto</option>
+              </select>
+              <select id="crm-filter-type" onchange="loadCrmPage()" style="height:36px;padding:0 10px;border:1px solid #E2E8F0;border-radius:8px;font-size:13px;">
+                <option value="all">Tutti i tipi</option>
+                <option value="ambulanza">Ambulanza</option>
+                <option value="volontariato">Volontariato</option>
+                <option value="cooperativa">Cooperativa</option>
+                <option value="croce_rossa">Croce Rossa</option>
+                <option value="misericordia">Misericordia</option>
+                <option value="altro">Altro</option>
+              </select>
+              <select id="crm-filter-status" onchange="loadCrmPage()" style="height:36px;padding:0 10px;border:1px solid #E2E8F0;border-radius:8px;font-size:13px;">
+                <option value="all">Tutti gli status</option>
+                <option value="new">Nuovo</option>
+                <option value="contacted">Contattato</option>
+                <option value="interested">Interessato</option>
+                <option value="customer">Cliente</option>
+                <option value="not_interested">Non interessato</option>
+              </select>
+              <button onclick="showCrmImportModal()" style="height:36px;padding:0 14px;background:#F0F4FF;border:1px solid #DBEAFE;border-radius:8px;font-size:13px;font-weight:600;color:#1E3A8A;cursor:pointer;">↑ Importa CSV/Excel</button>
+              <button onclick="showCrmNewOrgModal()" style="height:36px;padding:0 14px;background:#1E3A8A;border:none;border-radius:8px;font-size:13px;font-weight:600;color:#fff;cursor:pointer;">+ Nuova Organizzazione</button>
+            </div>
+            <!-- Table -->
+            <div style="background:#fff;border:1px solid #E2E8F0;border-radius:12px;overflow:hidden;">
+              <div id="crm-table-wrap" style="overflow-x:auto;">
+                <table style="width:100%;border-collapse:collapse;font-size:13px;">
+                  <thead>
+                    <tr style="background:#F8FAFF;border-bottom:1px solid #E2E8F0;">
+                      <th style="padding:10px 14px;text-align:left;font-weight:600;color:#374151;">Nome</th>
+                      <th style="padding:10px 14px;text-align:left;font-weight:600;color:#374151;">Tipo</th>
+                      <th style="padding:10px 14px;text-align:left;font-weight:600;color:#374151;">Regione</th>
+                      <th style="padding:10px 14px;text-align:left;font-weight:600;color:#374151;">Email</th>
+                      <th style="padding:10px 14px;text-align:left;font-weight:600;color:#374151;">Status</th>
+                      <th style="padding:10px 14px;text-align:left;font-weight:600;color:#374151;">Ultima email</th>
+                      <th style="padding:10px 14px;text-align:center;font-weight:600;color:#374151;">Azioni</th>
+                    </tr>
+                  </thead>
+                  <tbody id="crm-table-body">
+                    <tr><td colspan="7" style="padding:40px;text-align:center;color:#9CA3AF;">Caricamento…</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <!-- Pagination -->
+              <div id="crm-pagination" style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-top:1px solid #F0F4FF;font-size:13px;color:#6B7280;"></div>
             </div>
           </section>
 
