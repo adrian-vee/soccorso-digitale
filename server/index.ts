@@ -631,6 +631,186 @@ function setupErrorHandler(app: express.Application) {
     // ignore if pool not available
   }
 
+  // Auto-create analytics tables (tender_monitors, scorecards, forecasts, etc.)
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS tender_monitors (
+        id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
+        organization_id VARCHAR,
+        title TEXT NOT NULL,
+        source TEXT NOT NULL,
+        source_url TEXT,
+        cpv_code TEXT,
+        cig_code TEXT,
+        statione_name TEXT,
+        estimated_value REAL,
+        deadline TIMESTAMP,
+        publication_date TIMESTAMP,
+        region TEXT,
+        province TEXT,
+        service_type TEXT,
+        status TEXT NOT NULL DEFAULT 'new',
+        required_vehicles INTEGER,
+        required_personnel INTEGER,
+        duration_months INTEGER,
+        notes TEXT,
+        priority TEXT DEFAULT 'medium',
+        assigned_to VARCHAR,
+        is_auto_detected BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+      );
+
+      CREATE TABLE IF NOT EXISTS tender_simulations (
+        id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
+        organization_id VARCHAR,
+        tender_id VARCHAR,
+        name TEXT NOT NULL,
+        vehicles_count INTEGER NOT NULL DEFAULT 1,
+        personnel_count INTEGER NOT NULL DEFAULT 2,
+        hours_per_day REAL NOT NULL DEFAULT 12,
+        days_per_month INTEGER NOT NULL DEFAULT 30,
+        duration_months INTEGER NOT NULL DEFAULT 12,
+        fuel_cost_monthly REAL,
+        personnel_cost_monthly REAL,
+        vehicle_cost_monthly REAL,
+        insurance_cost_monthly REAL,
+        maintenance_cost_monthly REAL,
+        overhead_cost_monthly REAL,
+        total_cost_monthly REAL,
+        margin_percent REAL DEFAULT 15,
+        proposed_monthly_price REAL,
+        proposed_total_price REAL,
+        price_per_hour REAL,
+        price_per_km REAL,
+        market_avg_price REAL,
+        competitiveness_score REAL,
+        notes TEXT,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW()
+      );
+
+      CREATE TABLE IF NOT EXISTS org_score_cards (
+        id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
+        organization_id VARCHAR NOT NULL,
+        total_trips_last_12m INTEGER DEFAULT 0,
+        avg_response_time_min REAL,
+        fleet_size INTEGER DEFAULT 0,
+        active_personnel INTEGER DEFAULT 0,
+        coverage_area_km2 REAL,
+        total_km_last_12m REAL,
+        operational_score REAL DEFAULT 0,
+        compliance_score REAL DEFAULT 0,
+        sustainability_score REAL DEFAULT 0,
+        financial_score REAL DEFAULT 0,
+        overall_score REAL DEFAULT 0,
+        has_iso_9001 BOOLEAN DEFAULT FALSE,
+        has_iso_45001 BOOLEAN DEFAULT FALSE,
+        has_iso_14001 BOOLEAN DEFAULT FALSE,
+        last_calculated_at TIMESTAMP,
+        is_public BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+      );
+
+      CREATE TABLE IF NOT EXISTS saas_metrics (
+        id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
+        metric_date DATE NOT NULL,
+        mrr REAL DEFAULT 0,
+        arr REAL DEFAULT 0,
+        new_mrr REAL DEFAULT 0,
+        churned_mrr REAL DEFAULT 0,
+        expansion_mrr REAL DEFAULT 0,
+        total_orgs INTEGER DEFAULT 0,
+        active_orgs INTEGER DEFAULT 0,
+        trial_orgs INTEGER DEFAULT 0,
+        churned_orgs INTEGER DEFAULT 0,
+        new_orgs_this_month INTEGER DEFAULT 0,
+        total_trips_all_orgs INTEGER DEFAULT 0,
+        total_users_all_orgs INTEGER DEFAULT 0,
+        total_vehicles_all_orgs INTEGER DEFAULT 0,
+        avg_trips_per_org REAL,
+        avg_health_score REAL,
+        at_risk_orgs INTEGER DEFAULT 0,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW()
+      );
+
+      CREATE TABLE IF NOT EXISTS org_health_scores (
+        id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
+        organization_id VARCHAR NOT NULL,
+        login_frequency REAL DEFAULT 0,
+        trips_per_week REAL DEFAULT 0,
+        feature_adoption REAL DEFAULT 0,
+        data_completeness REAL DEFAULT 0,
+        last_active_at TIMESTAMP,
+        days_since_last_login INTEGER,
+        support_tickets INTEGER DEFAULT 0,
+        health_score REAL DEFAULT 0,
+        risk_level TEXT DEFAULT 'healthy',
+        trend TEXT DEFAULT 'stable',
+        recommended_action TEXT,
+        last_calculated_at TIMESTAMP,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+      );
+
+      CREATE TABLE IF NOT EXISTS revenue_forecasts (
+        id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
+        organization_id VARCHAR,
+        forecast_month DATE NOT NULL,
+        projected_revenue REAL,
+        projected_costs REAL,
+        projected_profit REAL,
+        projected_trips INTEGER,
+        projected_km REAL,
+        confidence_level REAL,
+        forecast_model TEXT DEFAULT 'linear',
+        actual_revenue REAL,
+        actual_costs REAL,
+        actual_profit REAL,
+        actual_trips INTEGER,
+        revenue_variance REAL,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW()
+      );
+
+      CREATE TABLE IF NOT EXISTS predictive_alerts (
+        id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
+        organization_id VARCHAR,
+        alert_type TEXT NOT NULL,
+        severity TEXT NOT NULL DEFAULT 'medium',
+        title TEXT NOT NULL,
+        description TEXT NOT NULL,
+        predicted_date TIMESTAMP,
+        confidence REAL,
+        related_entity_type TEXT,
+        related_entity_id VARCHAR,
+        suggested_action TEXT,
+        status TEXT NOT NULL DEFAULT 'active',
+        resolved_at TIMESTAMP,
+        resolved_by VARCHAR,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW()
+      );
+
+      CREATE TABLE IF NOT EXISTS benchmarks (
+        id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
+        metric_date DATE NOT NULL,
+        metric_type TEXT NOT NULL,
+        avg_value REAL,
+        median_value REAL,
+        p25_value REAL,
+        p75_value REAL,
+        min_value REAL,
+        max_value REAL,
+        sample_size INTEGER,
+        region TEXT,
+        org_size_category TEXT,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW()
+      );
+    `);
+    log("Analytics tables ensured (CREATE IF NOT EXISTS)");
+  } catch (e: any) {
+    logger.warn({ err: e }, "Could not ensure analytics tables");
+  }
+
   // Force-set super admin password to known bcrypt hash on every startup
   // Hash of "SoccorsoDigitale2026!" — pre-computed to avoid bcrypt on hot path
   try {
