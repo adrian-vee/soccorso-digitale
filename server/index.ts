@@ -502,7 +502,42 @@ function setupErrorHandler(app: express.Application) {
   log("Starting Express server...");
 
   // Security headers — first middleware
-  app.use(helmet({ contentSecurityPolicy: false }));
+  // CSP allows existing CDN dependencies (chart.js, leaflet, d3, jspdf, Google Fonts)
+  // while blocking scripts from unknown origins and preventing clickjacking/object injection.
+  // 'unsafe-inline' for scripts is required by the vanilla JS dashboard (no build/nonce step).
+  // Key security gains: frame-ancestors, object-src none, base-uri, connect-src whitelist.
+  app.use(helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          "cdn.jsdelivr.net",
+          "unpkg.com",
+          "cdnjs.cloudflare.com",
+        ],
+        styleSrc: ["'self'", "'unsafe-inline'", "fonts.googleapis.com"],
+        fontSrc: ["'self'", "fonts.gstatic.com"],
+        imgSrc: ["'self'", "data:", "blob:", "https:"],
+        mediaSrc: ["'self'", "blob:", "https:"],
+        connectSrc: [
+          "'self'",
+          "https://*.supabase.co",
+          "https://api.stripe.com",
+          "https://*.sentry.io",
+          "https://app.posthog.com",
+          "https://nominatim.openstreetmap.org",
+          "https://*.basemaps.cartocdn.com",
+        ],
+        frameSrc: ["'self'", "https://cdn.embedly.com", "https://www.youtube.com", "https://js.stripe.com"],
+        objectSrc: ["'none'"],
+        baseUri: ["'self'"],
+        frameAncestors: ["'none'"],
+        upgradeInsecureRequests: [],
+      },
+    },
+  }));
 
   // Global rate limiting
   app.use(globalLimiter);
