@@ -333,7 +333,6 @@ export function registerAnalyticsRoutes(app: Express) {
     try {
       const orgId = getEffectiveOrgId(req);
       let imported = 0;
-      let fromAnac = false;
 
       // Try ANAC OpenData API — CPV trasporto sanitario, tutta Italia, nessun filtro regione
       try {
@@ -418,7 +417,7 @@ export function registerAnalyticsRoutes(app: Express) {
                   notes: `Importato da ANAC Open Data. ${tenderData.description || ''}`.trim(),
                 });
                 imported++;
-                fromAnac = true;
+
               }
             }
           } catch (innerErr: any) {
@@ -427,62 +426,22 @@ export function registerAnalyticsRoutes(app: Express) {
             continue;
           }
         }
-        if (imported > 0) fromAnac = true;
         console.log(`ANAC: importati ${imported} bandi nuovi`);
       } catch (anacError: any) {
-        console.log("ANAC API non disponibile, uso dati di esempio:", anacError.message);
+        console.error("ANAC API non disponibile:", anacError.message);
+        return res.status(503).json({
+          error: "Nessuna gara trovata da ANAC. Verifica la connessione o riprova più tardi.",
+          detail: anacError.message,
+        });
       }
 
-      // Fallback: dati di esempio da tutta Italia (solo se DB è vuoto o quasi)
-      const existingCount = await db.select().from(tenderMonitors)
-        .where(eq(tenderMonitors.organizationId, orgId || 'croce-europa-default'));
-      if (existingCount.length < 3) {
-        const sampleTenders = [
-          // Veneto
-          { title: 'Servizio Trasporto Sanitario - ULSS 6 Euganea Padova', stationeName: 'Azienda ULSS 6 Euganea', region: 'Veneto', province: 'Padova', serviceType: 'emergenza_118', estimatedValue: 2500000, cpvCode: '85143000', durationMonths: 36, priority: 'high', deadline: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000), cigCode: 'CIG-ULSS6-2026-001' },
-          { title: 'Emergenza 118 - ULSS 8 Berica Vicenza', stationeName: 'Azienda ULSS 8 Berica', region: 'Veneto', province: 'Vicenza', serviceType: 'emergenza_118', estimatedValue: 3200000, cpvCode: '85143000', durationMonths: 48, priority: 'critical', deadline: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000), cigCode: 'CIG-ULSS8-2026-001' },
-          // Lombardia
-          { title: 'Servizio Ambulanze 118 - ATS Milano', stationeName: 'ATS Città Metropolitana di Milano', region: 'Lombardia', province: 'Milano', serviceType: 'emergenza_118', estimatedValue: 8500000, cpvCode: '85143000', durationMonths: 48, priority: 'critical', deadline: new Date(Date.now() + 35 * 24 * 60 * 60 * 1000), cigCode: 'CIG-ATS-MI-2026-001' },
-          { title: 'Trasporto Dializzati - ASST Bergamo Est', stationeName: 'ASST Bergamo Est', region: 'Lombardia', province: 'Bergamo', serviceType: 'trasporto_dialisi', estimatedValue: 1100000, cpvCode: '85143000', durationMonths: 24, priority: 'high', deadline: new Date(Date.now() + 50 * 24 * 60 * 60 * 1000), cigCode: 'CIG-ASST-BG-2026-001' },
-          // Lazio
-          { title: 'Servizio ARES 118 Roma - Lotto 1', stationeName: 'ARES 118 Lazio', region: 'Lazio', province: 'Roma', serviceType: 'emergenza_118', estimatedValue: 12000000, cpvCode: '85143000', durationMonths: 60, priority: 'critical', deadline: new Date(Date.now() + 25 * 24 * 60 * 60 * 1000), cigCode: 'CIG-ARES-RM-2026-001' },
-          // Toscana
-          { title: 'Trasporto Sanitario Ordinario - ASL Toscana Centro', stationeName: 'ASL Toscana Centro', region: 'Toscana', province: 'Firenze', serviceType: 'trasporto_ordinario', estimatedValue: 2800000, cpvCode: '60130000', durationMonths: 36, priority: 'high', deadline: new Date(Date.now() + 65 * 24 * 60 * 60 * 1000), cigCode: 'CIG-ASL-FI-2026-001' },
-          // Emilia-Romagna
-          { title: 'Trasporto Disabili e Dializzati - AUSL Bologna', stationeName: 'AUSL di Bologna', region: 'Emilia-Romagna', province: 'Bologna', serviceType: 'trasporto_dialisi', estimatedValue: 1650000, cpvCode: '85143000', durationMonths: 36, priority: 'medium', deadline: new Date(Date.now() + 80 * 24 * 60 * 60 * 1000), cigCode: 'CIG-AUSL-BO-2026-001' },
-          // Campania
-          { title: 'Servizio 118 Emergenza Urgenza - ASL Napoli 1', stationeName: 'ASL Napoli 1 Centro', region: 'Campania', province: 'Napoli', serviceType: 'emergenza_118', estimatedValue: 6200000, cpvCode: '85143000', durationMonths: 48, priority: 'critical', deadline: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000), cigCode: 'CIG-ASL-NA1-2026-001' },
-          // Piemonte
-          { title: 'Trasporto Sanitario - ASL TO3 Collegno', stationeName: 'ASL TO3', region: 'Piemonte', province: 'Torino', serviceType: 'trasporto_ordinario', estimatedValue: 1900000, cpvCode: '60130000', durationMonths: 36, priority: 'medium', deadline: new Date(Date.now() + 70 * 24 * 60 * 60 * 1000), cigCode: 'CIG-ASL-TO3-2026-001' },
-          // Sicilia
-          { title: 'Servizio SEUS 118 Palermo - Lotto 2', stationeName: 'SEUS SCpA Sicilia', region: 'Sicilia', province: 'Palermo', serviceType: 'emergenza_118', estimatedValue: 4500000, cpvCode: '85143000', durationMonths: 48, priority: 'high', deadline: new Date(Date.now() + 42 * 24 * 60 * 60 * 1000), cigCode: 'CIG-SEUS-PA-2026-001' },
-        ];
-
-        for (const sample of sampleTenders) {
-          const existing = await db.select().from(tenderMonitors)
-            .where(eq(tenderMonitors.cigCode, sample.cigCode)).limit(1);
-          if (existing.length === 0) {
-            await db.insert(tenderMonitors).values({
-              organizationId: orgId || 'croce-europa-default',
-              ...sample,
-              source: 'ANAC',
-              sourceUrl: 'https://dati.anticorruzione.it/opendata/',
-              status: 'new',
-              notes: 'Bando campione — fonte portali appalti pubblici regionali.',
-            });
-            imported++;
-          }
-        }
-      }
-
-      const source = fromAnac ? 'ANAC Open Data' : 'Dati campione nazionali';
       lastAnacSync = new Date();
       res.json({
         imported,
-        source,
+        source: 'ANAC Open Data',
         message: imported > 0
-          ? `Importati ${imported} nuovi bandi - Fonte: ${source}`
-          : 'Tutti i bandi sono già presenti nel sistema'
+          ? `Importati ${imported} nuovi bandi da ANAC Open Data`
+          : 'Nessun nuovo bando trovato. Tutti i bandi recenti sono già presenti nel sistema.',
       });
     } catch (error) {
       console.error("Error syncing ANAC:", error);
