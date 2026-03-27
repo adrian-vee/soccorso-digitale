@@ -6,6 +6,8 @@
  *
  * SECURITY: All webhook events are verified via Stripe-Signature header
  * using STRIPE_WEBHOOK_SECRET. Unverified requests are rejected with 400.
+ * If STRIPE_WEBHOOK_SECRET is not set, the endpoint returns 503 and
+ * refuses all requests rather than processing unverified events.
  */
 
 import type { Express } from "express";
@@ -47,10 +49,8 @@ export function registerWebhookRoutes(app: Express): void {
         return res.status(400).json({ error: `Webhook signature verification failed: ${err.message}` });
       }
     } else {
-      // STRIPE_WEBHOOK_SECRET not configured — log warning and fall through
-      // This should only happen in local dev; production must have it set.
-      console.warn("[webhooks/stripe] STRIPE_WEBHOOK_SECRET not set — skipping signature verification (dev mode only)");
-      event = req.body;
+      console.error("[webhooks/stripe] STRIPE_WEBHOOK_SECRET not configured — endpoint disabled");
+      return res.status(503).json({ error: "Webhook not configured" });
     }
 
     try {
