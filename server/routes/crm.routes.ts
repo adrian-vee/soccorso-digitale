@@ -180,6 +180,54 @@ export function registerCrmRoutes(app: Express) {
   // ── WEBHOOK RESEND ─────────────────────────────────────────
 
   app.post("/api/crm/webhooks/resend", async (req, res) => {
+    // Verify Resend/Svix webhook signature (OWASP A01 — M-02)
+    const webhookSecret = process.env.RESEND_WEBHOOK_SECRET;
+    if (webhookSecret) {
+      const svixId = req.headers["svix-id"] as string;
+      const svixTimestamp = req.headers["svix-timestamp"] as string;
+      const svixSignature = req.headers["svix-signature"] as string;
+
+      if (!svixId || !svixTimestamp || !svixSignature) {
+        console.warn("[crm/webhooks/resend] Missing Svix signature headers");
+        return res.status(400).json({ error: "Missing webhook signature headers" });
+      }
+
+      // Reject events older than 5 minutes (replay attack prevention)
+      const tsSeconds = parseInt(svixTimestamp, 10);
+      if (isNaN(tsSeconds) || Math.abs(Date.now() / 1000 - tsSeconds) > 300) {
+        console.warn("[crm/webhooks/resend] Timestamp out of tolerance");
+        return res.status(400).json({ error: "Webhook timestamp out of tolerance" });
+      }
+
+      try {
+        const rawBody = (req as any).rawBody
+          ? (req as any).rawBody.toString("utf8")
+          : JSON.stringify(req.body);
+        const signedContent = `${svixId}.${svixTimestamp}.${rawBody}`;
+        const secretBytes = Buffer.from(webhookSecret.replace(/^whsec_/, ""), "base64");
+        const expectedHmac = crypto
+          .createHmac("sha256", secretBytes)
+          .update(signedContent)
+          .digest("base64");
+
+        // svix-signature may contain multiple space-separated "v1,<sig>" entries
+        const sigValid = svixSignature.split(" ").some((part) => {
+          const [, b64] = part.split(",");
+          return b64 === expectedHmac;
+        });
+
+        if (!sigValid) {
+          console.warn("[crm/webhooks/resend] Signature mismatch");
+          return res.status(400).json({ error: "Invalid webhook signature" });
+        }
+      } catch (verifyErr) {
+        console.error("[crm/webhooks/resend] Signature verification error:", verifyErr);
+        return res.status(400).json({ error: "Signature verification failed" });
+      }
+    } else {
+      console.warn("[crm/webhooks/resend] RESEND_WEBHOOK_SECRET not set — skipping verification (dev mode only)");
+    }
+
     try {
       const { type, data } = req.body;
       const messageId = data?.email_id || data?.message_id;
