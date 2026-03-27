@@ -1507,8 +1507,8 @@ function applyRoleBasedAccess() {
   ];
   
   const branchManagerPages = [
-    'dashboard', 'vehicles', 'gps-tracking', 'checklists', 
-    'sporting-events', 'staff-members', 'staff-availability',
+    'dashboard', 'vehicles', 'gps-tracking', 'checklists',
+    'staff-members', 'staff-availability',
     'monthly-scheduling', 'scheduling', 'volunteer-reimbursements',
     'burnout-prevention', 'inventory', 'scadenze'
   ];
@@ -2659,25 +2659,17 @@ function _applySupportModeNav(enabledModules) {
     'gestione_ruoli': ['role-management'],
   };
 
-  const orgAdminBasePages = new Set([
-    'dashboard', 'trips', 'programma-giornaliero', 'vehicles', 'credentials', 'sedi', 'structures',
-    'photo-reports', 'vehicle-documents', 'staff-members', 'announcements', 'settings',
-    'statistics', 'audit-logs', 'privacy', 'marketplace', 'realtime-availability',
-    'confidentiality-agreements', 'structure-requests', 'documents',
-    'sla-management', 'compliance-ulss9', 'art8-reports',
-    'coverage-map', 'emergency-alerts', 'notif-config', 'security-center',
+  // Same whitelist as applyRoleBasedAccess — no PRO badge, no locked items
+  const allowedPages = new Set([
+    'dashboard', 'settings', 'marketplace',
+    'trips', 'programma-giornaliero',
+    'vehicles', 'realtime-availability', 'photo-reports', 'vehicle-documents', 'sanitization-logs',
+    'handoffs',
+    'staff-members', 'volunteer-registry', 'burnout-prevention',
+    'scheduling', 'monthly-scheduling', 'staff-availability', 'shift-statistics', 'shift-settings',
+    'inventory', 'scadenze', 'sedi', 'structures',
+    'statistics', 'finance',
   ]);
-
-  const allowedPages = new Set(orgAdminBasePages);
-  const allPremiumPages = new Set();
-  Object.values(modulePageMap).forEach(pages => pages.forEach(p => allPremiumPages.add(p)));
-  enabledModules.forEach(moduleId => {
-    const pages = modulePageMap[moduleId];
-    if (pages) pages.forEach(p => allowedPages.add(p));
-  });
-
-  const premiumLockedPages = new Set();
-  allPremiumPages.forEach(p => { if (!allowedPages.has(p)) premiumLockedPages.add(p); });
 
   // Clean up any previous support-mode state
   document.querySelectorAll('.nav-badge-pro').forEach(b => b.remove());
@@ -2685,16 +2677,7 @@ function _applySupportModeNav(enabledModules) {
 
   document.querySelectorAll('.nav-item[data-page]').forEach(item => {
     const page = item.getAttribute('data-page');
-    if (premiumLockedPages.has(page)) {
-      item.style.display = '';
-      item.classList.add('premium-locked');
-      if (!item.querySelector('.nav-badge-pro')) {
-        const proBadge = document.createElement('span');
-        proBadge.className = 'nav-badge-pro';
-        proBadge.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>';
-        item.appendChild(proBadge);
-      }
-    } else if (!allowedPages.has(page)) {
+    if (!allowedPages.has(page)) {
       item.style.display = 'none';
     } else {
       item.style.display = '';
