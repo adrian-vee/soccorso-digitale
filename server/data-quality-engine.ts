@@ -5,6 +5,22 @@ import {
 } from "../shared/schema";
 import { eq, and, gte, lte, desc, sql, count, isNull, or } from "drizzle-orm";
 
+// Ritorna la data di cutoff (90 giorni fa) per limitare i full table scan
+function ninetyDaysAgo(): string {
+  const d = new Date();
+  d.setDate(d.getDate() - 90);
+  return d.toISOString().split("T")[0];
+}
+
+// Costruisce la condizione WHERE per isolamento tenant + date range
+function buildTripFilter(orgId: string | null) {
+  const cutoff = ninetyDaysAgo();
+  if (orgId) {
+    return and(eq(trips.organizationId, orgId), gte(trips.serviceDate, cutoff));
+  }
+  return gte(trips.serviceDate, cutoff);
+}
+
 // ============================================================================
 // CONFIGURAZIONE MONITORAGGIO QUALITÀ
 // ============================================================================
@@ -79,8 +95,8 @@ export interface CompletenessResult {
   criticalMissing: string[];
 }
 
-export async function analyzeTripsCompleteness(): Promise<CompletenessResult[]> {
-  const allTrips = await db.select().from(trips);
+export async function analyzeTripsCompleteness(orgId: string | null): Promise<CompletenessResult[]> {
+  const allTrips = await db.select().from(trips).where(buildTripFilter(orgId));
   const results: CompletenessResult[] = [];
   
   // Campi obbligatori da controllare (allineati con config)
@@ -135,9 +151,11 @@ export interface AnomalyDetection {
   details: Record<string, any>;
 }
 
-export async function analyzeTripsCoherence(): Promise<AnomalyDetection[]> {
-  const allTrips = await db.select().from(trips).orderBy(trips.serviceDate, trips.departureTime);
-  const allVehicles = await db.select().from(vehicles);
+export async function analyzeTripsCoherence(orgId: string | null): Promise<AnomalyDetection[]> {
+  const filter = buildTripFilter(orgId);
+  const allTrips = await db.select().from(trips).where(filter).orderBy(trips.serviceDate, trips.departureTime);
+  const vehicleFilter = orgId ? eq(vehicles.organizationId, orgId) : undefined;
+  const allVehicles = await db.select().from(vehicles).where(vehicleFilter);
   const vehicleMap = new Map(allVehicles.map(v => [v.id, v]));
   
   const anomalies: AnomalyDetection[] = [];
@@ -292,10 +310,12 @@ export async function analyzeTripsCoherence(): Promise<AnomalyDetection[]> {
     }
     
     // 9. Controllo sovrapposizione viaggi stesso veicolo
-    for (let i = 0; i < sortedTrips.length; i++) {
-      for (let j = i + 1; j < sortedTrips.length; j++) {
-        const tripA = sortedTrips[i];
-        const tripB = sortedTrips[j];
+    // Guard O(n²): se più di 300 viaggi per veicolo, controlla solo gli ultimi 300
+    const overlapTrips = sortedTrips.length > 300 ? sortedTrips.slice(-300) : sortedTrips;
+    for (let i = 0; i < overlapTrips.length; i++) {
+      for (let j = i + 1; j < overlapTrips.length; j++) {
+        const tripA = overlapTrips[i];
+        const tripB = overlapTrips[j];
         
         if (tripA.serviceDate === tripB.serviceDate && 
             tripA.departureTime && tripA.returnTime && 
@@ -335,8 +355,8 @@ export interface TimelinessResult {
   score: number;
 }
 
-export async function analyzeTripsTimeliness(): Promise<TimelinessResult[]> {
-  const allTrips = await db.select().from(trips);
+export async function analyzeTripsTimeliness(orgId: string | null): Promise<TimelinessResult[]> {
+  const allTrips = await db.select().from(trips).where(buildTripFilter(orgId));
   const results: TimelinessResult[] = [];
   const config = DEFAULT_QUALITY_CONFIG.timeliness;
   
@@ -399,26 +419,26 @@ export interface OverallQualityScore {
   latePercent: number;
 }
 
-export async function calculateOverallQualityScore(): Promise<OverallQualityScore> {
+export async function calculateOverallQualityScore(orgId: string | null): Promise<OverallQualityScore> {
   // Analizza completezza
-  const completenessResults = await analyzeTripsCompleteness();
+  const completenessResults = await analyzeTripsCompleteness(orgId);
   const totalRecords = completenessResults.length;
   const completeRecords = completenessResults.filter(r => r.isComplete).length;
   const incompleteRecords = totalRecords - completeRecords;
-  const avgCompleteness = totalRecords > 0 
+  const avgCompleteness = totalRecords > 0
     ? Math.round(completenessResults.reduce((sum, r) => sum + r.completenessScore, 0) / totalRecords)
     : 100;
-  
+
   // Analizza coerenza
-  const anomalies = await analyzeTripsCoherence();
+  const anomalies = await analyzeTripsCoherence(orgId);
   const anomalyCount = anomalies.length;
   const criticalAnomalies = anomalies.filter(a => a.severity === "critical").length;
   const coherenceScore = totalRecords > 0
     ? Math.round(100 - (anomalyCount / totalRecords * 100))
     : 100;
-  
+
   // Analizza tempestività
-  const timelinessResults = await analyzeTripsTimeliness();
+  const timelinessResults = await analyzeTripsTimeliness(orgId);
   const realtimeCount = timelinessResults.filter(r => r.status === "realtime").length;
   const lateCount = timelinessResults.filter(r => r.status === "late").length;
   const realtimePercent = totalRecords > 0 ? Math.round(realtimeCount / totalRecords * 100) : 0;
@@ -495,16 +515,18 @@ export interface DetailedQualityMetrics {
   }>;
 }
 
-export async function getDetailedQualityMetrics(): Promise<DetailedQualityMetrics> {
-  const allTrips = await db.select().from(trips);
-  const allVehicles = await db.select().from(vehicles);
+export async function getDetailedQualityMetrics(orgId: string | null): Promise<DetailedQualityMetrics> {
+  const filter = buildTripFilter(orgId);
+  const allTrips = await db.select().from(trips).where(filter);
+  const vehicleFilter = orgId ? eq(vehicles.organizationId, orgId) : undefined;
+  const allVehicles = await db.select().from(vehicles).where(vehicleFilter);
   const vehicleMap = new Map(allVehicles.map(v => [v.id, v]));
-  
+
   // Overview
-  const overview = await calculateOverallQualityScore();
-  
+  const overview = await calculateOverallQualityScore(orgId);
+
   // Completeness analysis
-  const completenessResults = await analyzeTripsCompleteness();
+  const completenessResults = await analyzeTripsCompleteness(orgId);
   const fieldMissingCount: Record<string, number> = {};
   const incompleteTrips: DetailedQualityMetrics["completeness"]["incompleteTrips"] = [];
   
@@ -528,15 +550,15 @@ export async function getDetailedQualityMetrics(): Promise<DetailedQualityMetric
     }
   }
   
-  // Coherence analysis  
-  const anomalies = await analyzeTripsCoherence();
+  // Coherence analysis
+  const anomalies = await analyzeTripsCoherence(orgId);
   const anomalyByType: Record<string, number> = {};
   for (const anomaly of anomalies) {
     anomalyByType[anomaly.anomalyType] = (anomalyByType[anomaly.anomalyType] || 0) + 1;
   }
-  
+
   // Timeliness analysis
-  const timelinessResults = await analyzeTripsTimeliness();
+  const timelinessResults = await analyzeTripsTimeliness(orgId);
   const timelinessDistribution: Record<string, number> = {
     realtime: 0,
     timely: 0,
@@ -630,8 +652,8 @@ export async function getDetailedQualityMetrics(): Promise<DetailedQualityMetric
 // SALVATAGGIO STORICO (per trend)
 // ============================================================================
 
-export async function saveQualitySnapshot() {
-  const overview = await calculateOverallQualityScore();
+export async function saveQualitySnapshot(orgId: string | null = null) {
+  const overview = await calculateOverallQualityScore(orgId);
   const today = new Date().toISOString().split("T")[0];
   
   await db.insert(dataQualityHistory).values({

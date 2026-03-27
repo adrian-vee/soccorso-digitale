@@ -24,24 +24,25 @@ export function registerAnalyticsRoutes(app: Express) {
   // Overview metrics (lightweight)
   app.get("/api/data-quality/metrics", requireAdmin, async (req, res) => {
     try {
-      const overview = await dataQuality.calculateOverallQualityScore();
+      const orgId = getEffectiveOrgId(req);
+      const overview = await dataQuality.calculateOverallQualityScore(orgId);
 
       // Get timeliness data
-      const timelinessResults = await dataQuality.analyzeTripsTimeliness();
+      const timelinessResults = await dataQuality.analyzeTripsTimeliness(orgId);
       const lateCount = timelinessResults.filter(r => r.status === "late").length;
       const latePercent = overview.totalRecords > 0
         ? Math.round(lateCount / overview.totalRecords * 100)
         : 0;
 
       // Get anomalies for breakdown
-      const anomalies = await dataQuality.analyzeTripsCoherence();
+      const anomalies = await dataQuality.analyzeTripsCoherence(orgId);
       const anomalyByType: Record<string, number> = {};
       for (const a of anomalies) {
         anomalyByType[a.anomalyType] = (anomalyByType[a.anomalyType] || 0) + 1;
       }
 
       // Get completeness for field breakdown
-      const completenessResults = await dataQuality.analyzeTripsCompleteness();
+      const completenessResults = await dataQuality.analyzeTripsCompleteness(orgId);
       const fieldMissing: Record<string, number> = {};
       for (const r of completenessResults) {
         for (const f of [...r.missingFields, ...r.criticalMissing]) {
@@ -49,9 +50,14 @@ export function registerAnalyticsRoutes(app: Express) {
         }
       }
 
-      // Get critical records
-      const allTrips = await storage.getTrips();
-      const allVehicles = await storage.getVehicles();
+      // Get critical records (scoped to org + 90-day window)
+      const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 90);
+      const tripWhere = orgId
+        ? and(eq(trips.organizationId, orgId), gte(trips.serviceDate, cutoff.toISOString().split("T")[0]))
+        : gte(trips.serviceDate, cutoff.toISOString().split("T")[0]);
+      const allTrips = await db.select().from(trips).where(tripWhere);
+      const vehicleWhere = orgId ? eq(vehiclesTable.organizationId, orgId) : undefined;
+      const allVehicles = await db.select().from(vehiclesTable).where(vehicleWhere);
       const vehicleMap = new Map(allVehicles.map(v => [v.id, v]));
 
       const criticalDetails: any[] = [];
@@ -108,7 +114,7 @@ export function registerAnalyticsRoutes(app: Express) {
         incompleteTrips: overview.incompleteRecords,
         missingFields: {
           datetime: fieldMissing.departureTime || 0,
-          destination: fieldMissing.destination || 0,
+          destination: fieldMissing.destinationType || 0,
           km: fieldMissing.kmInitial || 0,
           returnTime: fieldMissing.returnTime || 0,
           serviceType: fieldMissing.serviceType || 0
@@ -136,7 +142,8 @@ export function registerAnalyticsRoutes(app: Express) {
   // Detailed metrics (full analysis)
   app.get("/api/data-quality/detailed", requireAdmin, async (req, res) => {
     try {
-      const metrics = await dataQuality.getDetailedQualityMetrics();
+      const orgId = getEffectiveOrgId(req);
+      const metrics = await dataQuality.getDetailedQualityMetrics(orgId);
       res.json(metrics);
     } catch (error) {
       console.error("Error fetching detailed data quality:", error);
@@ -147,7 +154,8 @@ export function registerAnalyticsRoutes(app: Express) {
   // Anomalies list
   app.get("/api/data-quality/anomalies", requireAdmin, async (req, res) => {
     try {
-      const anomalies = await dataQuality.analyzeTripsCoherence();
+      const orgId = getEffectiveOrgId(req);
+      const anomalies = await dataQuality.analyzeTripsCoherence(orgId);
       res.json({ anomalies });
     } catch (error) {
       console.error("Error fetching anomalies:", error);
@@ -158,7 +166,8 @@ export function registerAnalyticsRoutes(app: Express) {
   // Timeliness distribution
   app.get("/api/data-quality/timeliness", requireAdmin, async (req, res) => {
     try {
-      const results = await dataQuality.analyzeTripsTimeliness();
+      const orgId = getEffectiveOrgId(req);
+      const results = await dataQuality.analyzeTripsTimeliness(orgId);
       const distribution = { realtime: 0, timely: 0, delayed: 0, late: 0 };
       let totalDelay = 0;
 
@@ -193,7 +202,8 @@ export function registerAnalyticsRoutes(app: Express) {
   // Save quality snapshot (for daily cron)
   app.post("/api/data-quality/snapshot", requireAdmin, async (req, res) => {
     try {
-      const overview = await dataQuality.saveQualitySnapshot();
+      const orgId = getEffectiveOrgId(req);
+      const overview = await dataQuality.saveQualitySnapshot(orgId);
       res.json({ success: true, overview });
     } catch (error) {
       console.error("Error saving quality snapshot:", error);
@@ -234,9 +244,10 @@ export function registerAnalyticsRoutes(app: Express) {
         return tripDate >= fromDate && tripDate <= toDate;
       });
 
-      // Analyze quality for these specific trips
-      const completenessResults = await dataQuality.analyzeTripsCompleteness();
-      const coherenceResults = await dataQuality.analyzeTripsCoherence();
+      // Analyze quality for these specific trips (scoped to org)
+      const orgId = getEffectiveOrgId(req);
+      const completenessResults = await dataQuality.analyzeTripsCompleteness(orgId);
+      const coherenceResults = await dataQuality.analyzeTripsCoherence(orgId);
 
       // Filter results to only include our trips
       const tripIds = new Set(filteredTrips.map(t => t.id));
