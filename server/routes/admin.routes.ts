@@ -8052,6 +8052,12 @@ La piattaforma rappresenta un investimento strategico significativo che posizion
   // Get vehicle checklists history
   app.get("/api/vehicle-checklists/:vehicleId", requireAuth, async (req, res) => {
     try {
+      const orgId = getEffectiveOrgId(req);
+      if (orgId) {
+        const [v] = await db.select({ id: vehicles.id }).from(vehicles)
+          .where(and(eq(vehicles.id, req.params.vehicleId), eq(vehicles.organizationId, orgId)));
+        if (!v) return res.status(403).json({ error: "Accesso negato" });
+      }
       const limit = req.query.limit ? parseInt(req.query.limit as string) : 30;
       const checklists = await storage.getVehicleChecklists(req.params.vehicleId, limit);
       res.json(checklists);
@@ -8064,6 +8070,12 @@ La piattaforma rappresenta un investimento strategico significativo che posizion
   // Get today's checklist for a vehicle
   app.get("/api/vehicle-checklists/:vehicleId/today", requireAuth, async (req, res) => {
     try {
+      const orgId = getEffectiveOrgId(req);
+      if (orgId) {
+        const [v] = await db.select({ id: vehicles.id }).from(vehicles)
+          .where(and(eq(vehicles.id, req.params.vehicleId), eq(vehicles.organizationId, orgId)));
+        if (!v) return res.status(403).json({ error: "Accesso negato" });
+      }
       const checklist = await storage.getTodayChecklistForVehicle(req.params.vehicleId);
       res.json(checklist || null);
     } catch (error) {
@@ -14310,7 +14322,10 @@ La violazione degli obblighi di riservatezza può comportare sanzioni disciplina
       const vehicleId = req.query.vehicleId as string;
       if (!vehicleId) return res.status(400).json({ error: "vehicleId richiesto" });
 
-      const [vehicle] = await db.select().from(vehicles).where(eq(vehicles.id, vehicleId));
+      const orgId = getEffectiveOrgId(req);
+      const vehicleConditions: any[] = [eq(vehicles.id, vehicleId)];
+      if (orgId) vehicleConditions.push(eq(vehicles.organizationId, orgId));
+      const [vehicle] = await db.select().from(vehicles).where(and(...vehicleConditions));
       if (!vehicle) return res.status(404).json({ error: "Veicolo non trovato" });
 
       const consumptionRate = vehicle.fuelConsumptionPer100km || 18;
@@ -14941,11 +14956,14 @@ La violazione degli obblighi di riservatezza può comportare sanzioni disciplina
 
   app.get("/api/vehicle-documents/:vehicleId", requireAuth, async (req, res) => {
     try {
+      const orgId = getEffectiveOrgId(req);
+      const conditions: any[] = [
+        eq(vehicleDocuments.vehicleId, req.params.vehicleId),
+        eq(vehicleDocuments.isActive, true),
+      ];
+      if (orgId) conditions.push(eq(vehicleDocuments.organizationId, orgId));
       const docs = await db.select().from(vehicleDocuments)
-        .where(and(
-          eq(vehicleDocuments.vehicleId, req.params.vehicleId),
-          eq(vehicleDocuments.isActive, true)
-        ))
+        .where(and(...conditions))
         .orderBy(vehicleDocuments.expiryDate);
       res.json(docs);
     } catch (error) {
