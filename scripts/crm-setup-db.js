@@ -9,7 +9,14 @@ if (!process.env.DATABASE_URL) {
   process.exit(1);
 }
 
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const connectionString = process.env.DATABASE_URL?.includes('railway.internal')
+  ? 'postgresql://postgres:oQbQTHEtQdNxfcSrNiyQjfNvwvZWaSJo@caboose.proxy.rlwy.net:28423/railway'
+  : process.env.DATABASE_URL;
+
+const pool = new Pool({
+  connectionString,
+  ssl: { rejectUnauthorized: false }
+});
 
 async function run() {
   const client = await pool.connect();
