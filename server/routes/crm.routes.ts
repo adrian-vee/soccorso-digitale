@@ -16,6 +16,7 @@ import {
 } from "../utils/campaign-queue";
 import { runGooglePlacesDiscovery } from "../utils/google-places-discovery";
 import { runEmailEnrichment } from "../utils/email-enrichment";
+import { runApolloEnrichment } from "../utils/apollo-enrichment";
 
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -1128,6 +1129,43 @@ export function registerCrmRoutes(app: Express) {
         });
 
         runEmailEnrichment(job.id, pool).catch((err) => {
+          pool.query(
+            `UPDATE crm_discovery_jobs SET status = 'error', error_message = $1 WHERE id = $2`,
+            [err.message, job.id]
+          );
+        });
+      } catch (err: any) {
+        res.status(500).json({ error: err.message });
+      }
+    }
+  );
+
+  // ── APOLLO ENRICHMENT ─────────────────────────────────────
+
+  app.post(
+    "/api/crm/discovery/enrich-apollo",
+    requireSuperAdmin,
+    async (_req, res) => {
+      try {
+        if (!process.env.APOLLO_API_KEY) {
+          return res.status(400).json({
+            error:
+              "APOLLO_API_KEY non configurata. Aggiungila nelle variabili Railway.",
+          });
+        }
+
+        const jobResult = await pool.query(
+          `INSERT INTO crm_discovery_jobs (type) VALUES ('apollo_enrichment') RETURNING *`
+        );
+        const job = jobResult.rows[0];
+
+        res.json({
+          success: true,
+          jobId: job.id,
+          message: "Apollo enrichment avviato in background",
+        });
+
+        runApolloEnrichment(job.id, pool).catch((err) => {
           pool.query(
             `UPDATE crm_discovery_jobs SET status = 'error', error_message = $1 WHERE id = $2`,
             [err.message, job.id]

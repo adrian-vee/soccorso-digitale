@@ -42051,7 +42051,24 @@ function loadDiscoveryTab() {
         ℹ️ Richiede HUNTER_API_KEY su Railway. 25 ricerche gratuite/mese, poi $49/mese per 500 ricerche.
       </div>
       <button onclick="startEmailEnrichment()" style="width:100%;background:#10B981;color:#fff;border:none;padding:12px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">
-        ✨ Avvia Enrichment
+        ✨ Avvia Enrichment Hunter.io
+      </button>
+    </div>
+
+    <!-- Apollo.io Enrichment Card -->
+    <div style="background:#fff;border-radius:12px;padding:20px;border:1px solid #E2E8F0;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+        <div style="width:40px;height:40px;background:#7C3AED;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;">🚀</div>
+        <div>
+          <div style="font-size:15px;font-weight:700;color:#0B2347;">Apollo.io Enrichment</div>
+          <div style="font-size:12px;color:#64748B;">Secondo provider — org senza email da Hunter.io</div>
+        </div>
+      </div>
+      <div style="background:#F5F3FF;border:1px solid #DDD6FE;border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:12px;color:#5B21B6;">
+        ℹ️ Richiede APOLLO_API_KEY su Railway. Piano base $49/mese. Elabora tutte le org senza email.
+      </div>
+      <button onclick="startApolloEnrichment()" style="width:100%;background:#7C3AED;color:#fff;border:none;padding:12px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">
+        🚀 Avvia Apollo Enrichment
       </button>
     </div>
 
@@ -42230,6 +42247,32 @@ async function startEmailEnrichment() {
     }, 5000);
   } catch (err) {
     alert('Errore avvio enrichment: ' + err.message);
+  }
+}
+
+async function startApolloEnrichment() {
+  if (!confirm('Avviare Apollo enrichment?\nRichiede APOLLO_API_KEY configurata su Railway.\nVerranno elaborate tutte le org senza email.')) return;
+  try {
+    const res = await adminFetch('/api/crm/discovery/enrich-apollo', { method: 'POST' });
+    const data = await res.json();
+    if (!res.ok) { alert('Errore: ' + data.error); return; }
+
+    alert('Apollo enrichment avviato! Monitora il progresso nella sezione "Job in corso".');
+    loadDiscoveryJobs();
+
+    const interval = setInterval(async () => {
+      try {
+        const jobRes = await adminFetch(`/api/crm/discovery/jobs/${data.jobId}`);
+        const job = await jobRes.json();
+        if (job.status === 'completed' || job.status === 'error') {
+          clearInterval(interval);
+          loadEnrichmentStats();
+        }
+        loadDiscoveryJobs();
+      } catch { clearInterval(interval); }
+    }, 5000);
+  } catch (err) {
+    alert('Errore avvio Apollo enrichment: ' + err.message);
   }
 }
 
