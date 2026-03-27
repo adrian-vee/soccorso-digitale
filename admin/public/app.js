@@ -3922,6 +3922,7 @@ async function loadCrmTemplates() {
           <span style="background:${color}15;color:${color};font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;white-space:nowrap;">${label}</span>
         </div>
         <div style="font-size:12px;color:#6B7280;line-height:1.4;">${escapeHtml(tpl.subject)}</div>
+        <div id="tpl-preview-${tpl.id}" style="height:200px;overflow:hidden;pointer-events:none;border-radius:8px;border:1px solid #E2E8F0;background:#FAFAFA;"></div>
         <div style="display:flex;gap:6px;margin-top:4px;">
           <button onclick="openTemplateEditor(${JSON.stringify(JSON.stringify(tpl))})" style="flex:1;height:30px;background:#EFF6FF;border:1px solid #DBEAFE;border-radius:6px;font-size:11px;font-weight:600;color:#1E3A8A;cursor:pointer;">✏ Modifica</button>
           <button onclick="duplicateTemplate('${tpl.id}')" style="height:30px;padding:0 10px;background:#F8FAFF;border:1px solid #E2E8F0;border-radius:6px;font-size:11px;color:#374151;cursor:pointer;" title="Duplica">⎘</button>
@@ -3929,6 +3930,18 @@ async function loadCrmTemplates() {
         </div>
       </div>`;
   }).join('');
+
+  // Inject HTML previews after DOM is set (avoids attribute-escaping issues)
+  templates.forEach(tpl => {
+    const el = document.getElementById(`tpl-preview-${tpl.id}`);
+    if (!el) return;
+    if (tpl.body_html && tpl.body_html.trim().startsWith('<')) {
+      el.innerHTML = `<div style="transform-origin:top left;transform:scale(0.6);width:167%;pointer-events:none;">${tpl.body_html}</div>`;
+    } else {
+      const text = tpl.body_text || tpl.body_html || '';
+      el.innerHTML = `<div style="font-family:sans-serif;padding:16px;font-size:13px;color:#374151;line-height:1.6;">${escapeHtml(text)}</div>`;
+    }
+  });
 }
 
 // Template editor — overlay full-screen
