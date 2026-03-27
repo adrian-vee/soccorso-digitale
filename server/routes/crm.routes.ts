@@ -289,22 +289,65 @@ export function registerCrmRoutes(app: Express) {
           return res.status(400).json({ error: "Formato non supportato. Usa .csv o .xlsx" });
         }
 
+        // Mapping tipologie dal testo libero all'enum DB
+        const TYPE_MAP: Record<string, string> = {
+          "croce rossa":                    "croce_rossa",
+          "cri":                            "croce_rossa",
+          "misericordia":                   "misericordia",
+          "pubblica assistenza":            "pubblica_assistenza",
+          "pubblica assistenza / ipab":     "pubblica_assistenza",
+          "volontariato":                   "pubblica_assistenza",
+          "ambulanza privata":              "ambulanza_privata",
+          "ambulanza":                      "ambulanza_privata",
+          "cooperativa sociale":            "cooperativa",
+          "cooperativa":                    "cooperativa",
+          "impresa sociale / amb. privata": "ambulanza_privata",
+          "impresa sociale":                "ambulanza_privata",
+        };
+
+        function mapType(raw: string | undefined): string {
+          if (!raw) return "altro";
+          return TYPE_MAP[raw.trim().toLowerCase()] ?? "altro";
+        }
+
         let imported = 0;
         let skipped = 0;
+        const skipReasons: string[] = [];
 
         for (const row of records) {
-          const orgName = row.name || row.Name || row.Nome || row.NOME;
-          if (!orgName) { skipped++; continue; }
+          const orgName =
+            row["Nome Organizzazione"] ||
+            row.name || row.Name || row.Nome || row.NOME ||
+            null;
 
-          const email = row.email || row.Email || row.EMAIL || null;
+          const email =
+            row["Email"] || row.email || row.Email || row.EMAIL || null;
+
+          // Salta solo se mancano ENTRAMBI nome ed email
+          if (!orgName && !email) {
+            skipped++;
+            if (skipReasons.length < 5) {
+              skipReasons.push(`Riga ${imported + skipped}: saltata — né nome né email (keys: ${Object.keys(row).join(", ")})`);
+            }
+            continue;
+          }
 
           if (email) {
             const existing = await pool.query(
               "SELECT id FROM crm_organizations WHERE email = $1",
               [email]
             );
-            if (existing.rows.length) { skipped++; continue; }
+            if (existing.rows.length) {
+              skipped++;
+              if (skipReasons.length < 5) {
+                skipReasons.push(`Riga ${imported + skipped}: saltata — email duplicata: ${email}`);
+              }
+              continue;
+            }
           }
+
+          const rawType =
+            row["Tipologia"] || row.type || row.Type || row.Tipo || row.Tipologia || null;
 
           await pool.query(
             `INSERT INTO crm_organizations
@@ -312,21 +355,27 @@ export function registerCrmRoutes(app: Express) {
              VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,'csv_import')
              ON CONFLICT DO NOTHING`,
             [
-              orgName,
+              orgName || null,
               email,
-              row.phone || row.Phone || row.Telefono || null,
-              row.city || row.City || row.Città || row.citta || null,
-              row.region || row.Region || row.Regione || null,
-              row.province || row.Province || row.Provincia || null,
-              row.type || row.Type || row.Tipo || "altro",
-              row.website || row.Website || row.Sito || null,
-              row.notes || row.Notes || row.Note || null,
+              row["Telefono"] || row.phone || row.Phone || row.Telefono || null,
+              row["Città"] || row.city || row.City || row.Città || row.citta || null,
+              row["Regione"] || row.region || row.Region || row.Regione || null,
+              row["Provincia"] || row.province || row.Province || row.Provincia || null,
+              mapType(rawType),
+              row["Sito Web"] || row.website || row.Website || row.Sito || null,
+              row["Note"] || row.notes || row.Notes || row.Note || null,
             ]
           );
           imported++;
         }
 
-        res.json({ success: true, imported, skipped, total: records.length });
+        res.json({
+          success: true,
+          imported,
+          skipped,
+          total: records.length,
+          debug: skipReasons,
+        });
       } catch (err: any) {
         res.status(500).json({ error: err.message });
       }
