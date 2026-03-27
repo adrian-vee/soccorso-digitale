@@ -1123,18 +1123,71 @@
             <div id="pg-content" class="table-container"></div>
 
             <div id="pg-upload-modal" class="modal-overlay" style="display:none;">
-              <div class="modal-content" style="max-width:900px;max-height:85vh;overflow-y:auto;">
-                <div class="modal-header">
-                  <h3>Importa Programma da PDF</h3>
+              <div class="modal-content" style="max-width:540px;max-height:90vh;overflow-y:auto;">
+                <div class="modal-header" style="border-bottom:1px solid #E2E8F0;padding:20px 24px 16px;">
+                  <div>
+                    <h3 style="margin:0;font-size:16px;font-weight:700;color:#0C1A2E;">Importa Programma da PDF</h3>
+                    <p style="margin:3px 0 0;font-size:12px;color:#64748B;">Estrae automaticamente i servizi dal documento</p>
+                  </div>
                   <button class="modal-close" onclick="document.getElementById('pg-upload-modal').style.display='none'">&times;</button>
                 </div>
-                <div class="modal-body">
-                  <div id="pg-dropzone" style="border:2px dashed var(--border-color);border-radius:12px;padding:40px;text-align:center;cursor:pointer;transition:all 0.2s;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                    <p style="margin-top:12px;color:var(--text-secondary);">Trascina qui il PDF del programma giornaliero o clicca per selezionare</p>
-                    <input type="file" id="pg-file-input" accept=".pdf" style="display:none;" />
+                <div class="modal-body" style="padding:20px 24px;">
+
+                  <!-- Drop Zone -->
+                  <div id="pg-dropzone" style="border:2px dashed #E2E8F0;border-radius:14px;padding:40px 24px;text-align:center;cursor:pointer;transition:all 0.2s ease;background:#F8FAFC;">
+                    <div id="pg-dz-icon" style="width:64px;height:64px;background:#EFF6FF;border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;transition:all 0.2s ease;">
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1E3A8A" stroke-width="1.5" stroke-linecap="round">
+                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                        <polyline points="17 8 12 3 7 8"/>
+                        <line x1="12" y1="3" x2="12" y2="15"/>
+                      </svg>
+                    </div>
+                    <div style="font-size:15px;font-weight:600;color:#0C1A2E;margin-bottom:6px;">Trascina il PDF qui</div>
+                    <div style="font-size:13px;color:#64748B;margin-bottom:16px;">oppure clicca per selezionare il file</div>
+                    <div style="display:flex;align-items:center;justify-content:center;gap:8px;">
+                      <span style="background:#DBEAFE;color:#1E3A8A;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;letter-spacing:0.04em;">PDF</span>
+                      <span style="font-size:11px;color:#94A3B8;">Dimensione massima: 10 MB</span>
+                    </div>
+                    <input type="file" id="pg-file-input" accept=".pdf,application/pdf" style="display:none;" />
                   </div>
-                  <div id="pg-parse-status" style="margin-top:16px;display:none;"></div>
+
+                  <!-- File selezionato preview (nascosto) -->
+                  <div id="pg-file-selected-row" style="display:none;margin-top:14px;">
+                    <div style="background:#F0F4FF;border:1px solid #DBEAFE;border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:12px;">
+                      <div style="width:36px;height:36px;background:#1E3A8A;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round">
+                          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                          <polyline points="14 2 14 8 20 8"/>
+                          <line x1="16" y1="13" x2="8" y2="13"/>
+                          <line x1="16" y1="17" x2="8" y2="17"/>
+                        </svg>
+                      </div>
+                      <div style="flex:1;min-width:0;">
+                        <div id="pg-sel-file-name" style="font-size:13px;font-weight:600;color:#0C1A2E;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">documento.pdf</div>
+                        <div id="pg-sel-file-size" style="font-size:11px;color:#64748B;margin-top:1px;">—</div>
+                      </div>
+                      <button onclick="pgResetDropzone()" style="background:none;border:none;cursor:pointer;padding:4px;border-radius:6px;color:#94A3B8;display:flex;align-items:center;transition:all 0.15s;" onmouseover="this.style.color='#EF4444';this.style.background='#FEF2F2'" onmouseout="this.style.color='#94A3B8';this.style.background='none'">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Info banner -->
+                  <div id="pg-info-banner" style="margin-top:14px;background:#FFFBEB;border:1px solid #FDE68A;border-radius:10px;padding:10px 14px;display:flex;align-items:flex-start;gap:8px;">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="1.5" stroke-linecap="round" style="flex-shrink:0;margin-top:1px;">
+                      <circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>
+                    </svg>
+                    <span style="font-size:12px;color:#92400E;line-height:1.5;">
+                      Carica il PDF del programma giornaliero ricevuto dalla struttura sanitaria. Il sistema estrarrà automaticamente i servizi.
+                    </span>
+                  </div>
+
+                  <!-- Parse status -->
+                  <div id="pg-parse-status" style="margin-top:14px;display:none;"></div>
+
+                  <!-- Preview risultato analisi -->
                   <div id="pg-preview-section" style="margin-top:16px;display:none;">
                     <div id="pg-preview-header" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"></div>
                     <div id="pg-preview-table" style="overflow-x:auto;"></div>
@@ -1151,6 +1204,7 @@
                       <button id="pg-import-btn" class="btn btn-primary">Importa Servizi</button>
                     </div>
                   </div>
+
                 </div>
               </div>
             </div>

@@ -40142,45 +40142,79 @@ function openPgUploadModal() {
     pgParsedData = null;
     document.getElementById('pg-parse-status').style.display = 'none';
     document.getElementById('pg-preview-section').style.display = 'none';
+    document.getElementById('pg-info-banner').style.display = 'flex';
     document.getElementById('pg-file-input').value = '';
+    pgResetDropzone();
   }
+}
+
+function pgResetDropzone() {
+  const dz = document.getElementById('pg-dropzone');
+  const fileInput = document.getElementById('pg-file-input');
+  const selectedRow = document.getElementById('pg-file-selected-row');
+  if (dz) { dz.style.display = 'block'; dz.style.borderColor = '#E2E8F0'; dz.style.background = '#F8FAFC'; }
+  const icon = document.getElementById('pg-dz-icon');
+  if (icon) icon.style.background = '#EFF6FF';
+  if (selectedRow) selectedRow.style.display = 'none';
+  if (fileInput) fileInput.value = '';
+}
+
+function pgShowFileSelected(file) {
+  const dz = document.getElementById('pg-dropzone');
+  const selectedRow = document.getElementById('pg-file-selected-row');
+  if (dz) dz.style.display = 'none';
+  if (selectedRow) selectedRow.style.display = 'block';
+  const nameEl = document.getElementById('pg-sel-file-name');
+  const sizeEl = document.getElementById('pg-sel-file-size');
+  if (nameEl) nameEl.textContent = file.name;
+  if (sizeEl) sizeEl.textContent = (file.size / 1024 / 1024).toFixed(1) + ' MB';
 }
 
 function setupPgDropzone() {
   const dropzone = document.getElementById('pg-dropzone');
   const fileInput = document.getElementById('pg-file-input');
   const importBtn = document.getElementById('pg-import-btn');
-  
+
   if (!dropzone || !fileInput) return;
-  
+
   dropzone.onclick = () => fileInput.click();
-  
+
   dropzone.addEventListener('dragover', (e) => {
     e.preventDefault();
-    dropzone.style.borderColor = 'var(--primary)';
-    dropzone.style.background = 'rgba(0, 102, 204, 0.05)';
+    dropzone.style.borderColor = '#1E3A8A';
+    dropzone.style.background = '#EFF6FF';
+    const icon = document.getElementById('pg-dz-icon');
+    if (icon) icon.style.background = '#DBEAFE';
   });
-  
+
   dropzone.addEventListener('dragleave', () => {
-    dropzone.style.borderColor = 'var(--border-color)';
-    dropzone.style.background = '';
+    dropzone.style.borderColor = '#E2E8F0';
+    dropzone.style.background = '#F8FAFC';
+    const icon = document.getElementById('pg-dz-icon');
+    if (icon) icon.style.background = '#EFF6FF';
   });
-  
+
   dropzone.addEventListener('drop', (e) => {
     e.preventDefault();
-    dropzone.style.borderColor = 'var(--border-color)';
-    dropzone.style.background = '';
+    dropzone.style.borderColor = '#E2E8F0';
+    dropzone.style.background = '#F8FAFC';
+    const icon = document.getElementById('pg-dz-icon');
+    if (icon) icon.style.background = '#EFF6FF';
     const file = e.dataTransfer?.files?.[0];
     if (file && file.type === 'application/pdf') {
+      pgShowFileSelected(file);
       uploadPgPdf(file);
     }
   });
-  
+
   fileInput.addEventListener('change', (e) => {
     const file = e.target.files?.[0];
-    if (file) uploadPgPdf(file);
+    if (file) {
+      pgShowFileSelected(file);
+      uploadPgPdf(file);
+    }
   });
-  
+
   if (importBtn) {
     importBtn.removeEventListener('click', importPgServices);
     importBtn.addEventListener('click', importPgServices);
@@ -40190,11 +40224,13 @@ function setupPgDropzone() {
 async function uploadPgPdf(file) {
   const statusEl = document.getElementById('pg-parse-status');
   const previewSection = document.getElementById('pg-preview-section');
-  
+  const infoBanner = document.getElementById('pg-info-banner');
+
+  if (infoBanner) infoBanner.style.display = 'none';
   statusEl.style.display = 'block';
-  statusEl.innerHTML = `<div style="display: flex; align-items: center; gap: 8px; padding: 12px; background: #eff6ff; border-radius: 8px; color: #1d4ed8;">
-    <div class="spinner" style="width: 20px; height: 20px; border: 2px solid #93c5fd; border-top-color: #1d4ed8; border-radius: 50%; animation: spin 1s linear infinite;"></div>
-    Analisi del PDF in corso: ${file.name}...
+  statusEl.innerHTML = `<div style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:10px;color:#1D4ED8;font-size:13px;font-weight:500;">
+    <div class="spinner" style="width:18px;height:18px;border:2px solid #93C5FD;border-top-color:#1D4ED8;border-radius:50%;animation:spin 1s linear infinite;flex-shrink:0;"></div>
+    Analisi del PDF in corso…
   </div>`;
   
   try {
