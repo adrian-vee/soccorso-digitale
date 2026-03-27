@@ -139,34 +139,31 @@ const PROVINCE_COORDS: Record<
 };
 
 const SEARCH_KEYWORDS = [
-  // Cattura TUTTE le croci (rossa, verde, bianca, azzurra, viola, gialla, ecc.)
-  'croce',
-
-  // Cattura tutte le misericordie
-  'misericordia',
-
-  // Cattura pubblica assistenza e varianti
+  'croce rossa italiana',
+  'croce verde',
+  'croce bianca',
+  'croce azzurra',
+  'croce viola',
+  'croce oro',
   'pubblica assistenza',
-
-  // Ambulanze private e cooperative
-  'ambulanza',
+  'pubbliche assistenze',
+  'ANPAS',
+  'misericordia ambulanza',
+  'ambulanza privata',
+  'ambulanze private',
   'trasporto sanitario',
+  'cooperativa ambulanze',
+  'associazione volontari ambulanza',
+  'volontari soccorso ambulanza',
   'trasporto infermi',
-  'trasporto disabili',
-  'trasporto dialisi',
-
-  // Volontariato sanitario generico
+  'noleggio ambulanza',
+  'CRI ambulanza',
+  'AVS soccorso',
+  'AVIS soccorso',
+  'protezione civile ambulanza',
+  'gruppo soccorso',
+  'nucleo soccorso',
   'soccorso volontari',
-  'associazione soccorso',
-  'volontariato sanitario',
-
-  // Cooperative sociali sanitarie
-  'cooperativa sociale sanitaria',
-  'cooperativa trasporto sanitario',
-
-  // Emergenza
-  'emergenza urgenza',
-  'pronto soccorso volontari',
 ];
 
 async function searchPlacesInArea(
@@ -203,6 +200,65 @@ async function getPlaceDetails(placeId: string): Promise<any> {
   const res = await fetch(url);
   const data = (await res.json()) as any;
   return data.result || {};
+}
+
+function isRelevantOrganization(place: any): boolean {
+  const name = (place.name || '').toLowerCase();
+  const types = place.types || [];
+
+  const excludedTypes = [
+    'hospital', 'doctor', 'health',
+    'pharmacy', 'dentist', 'physiotherapist',
+    'veterinary_care', 'beauty_salon',
+    'spa', 'gym', 'school', 'university',
+  ];
+
+  if (types.some((t: string) => excludedTypes.includes(t))) {
+    if (!name.includes('ambulanz') &&
+        !name.includes('croce') &&
+        !name.includes('soccorso') &&
+        !name.includes('misericordia') &&
+        !name.includes('pubblica assistenza') &&
+        !name.includes('anpas')) {
+      return false;
+    }
+  }
+
+  const excludedWords = [
+    'ospedale', 'hospital', 'clinica',
+    'poliambulatorio', 'farmacia', 'pharmacy',
+    'dentista', 'ortodonzia', 'dermatologia',
+    'cardiologia', 'ortopedia', 'oculista',
+    'veterinari', 'beauty', 'estetica',
+    'palestra', 'fitness', 'scuola', 'liceo',
+    'università', 'istituto scolastico',
+    'ristorante', 'hotel', 'bar ',
+    'pizzeria', 'parrucchiere', 'barbiere',
+    'supermercato', 'banca', 'assicurazione',
+  ];
+
+  if (excludedWords.some(w => name.includes(w))) {
+    if (!name.includes('ambulanz') &&
+        !name.includes('croce') &&
+        !name.includes('soccorso') &&
+        !name.includes('misericordia') &&
+        !name.includes('anpas')) {
+      return false;
+    }
+  }
+
+  const includedWords = [
+    'croce', 'ambulanza', 'ambulanze',
+    'soccorso', 'misericordia',
+    'pubblica assistenza', 'pubbliche assistenze',
+    'trasporto sanitario', 'trasporto infermi',
+    'volontari', 'anpas', 'cri',
+    'protezione civile', '118',
+    'nucleo soccorso', 'gruppo soccorso',
+    'avs', 'avis soccorso',
+  ];
+
+  return includedWords.some(w => name.includes(w));
 }
 
 function detectOrgType(name: string): string {
@@ -247,6 +303,11 @@ export async function runGooglePlacesDiscovery(
         );
 
         for (const place of results) {
+          if (!isRelevantOrganization(place)) {
+            console.log('[Filter] Scartato:', place.name);
+            continue;
+          }
+
           const existing = await pool.query(
             "SELECT id FROM crm_organizations WHERE google_place_id = $1",
             [place.place_id]
