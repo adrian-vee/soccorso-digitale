@@ -3374,11 +3374,12 @@ function switchCrmTab(tab) {
 let _campaignPollingInterval = null;
 
 const CAMPAIGN_STATUS_MAP = {
-  draft:   { bg: '#F1F5F9', text: '#64748B', label: 'Bozza' },
-  sending: { bg: '#DBEAFE', text: '#1E3A8A', label: 'In invio…' },
-  paused:  { bg: '#FEF3C7', text: '#92400E', label: 'In pausa' },
-  sent:    { bg: '#DCFCE7', text: '#166534', label: 'Completata' },
-  error:   { bg: '#FEE2E2', text: '#991B1B', label: 'Errore' },
+  draft:     { bg: '#F1F5F9', text: '#64748B', label: 'Bozza' },
+  scheduled: { bg: '#FEF3C7', text: '#92400E', label: '⏰ Schedulata' },
+  sending:   { bg: '#DBEAFE', text: '#1E3A8A', label: '⚡ In invio…' },
+  paused:    { bg: '#FEF9C3', text: '#854D0E', label: '⏸ In pausa' },
+  sent:      { bg: '#DCFCE7', text: '#166534', label: '✅ Completata' },
+  error:     { bg: '#FEE2E2', text: '#991B1B', label: '❌ Errore' },
 };
 
 async function loadCrmCampaigns() {
@@ -3410,6 +3411,7 @@ async function loadCrmCampaigns() {
               <span style="background:${sc.bg};color:${sc.text};font-size:10px;font-weight:700;padding:2px 9px;border-radius:20px;">${sc.label}</span>
             </div>
             <div style="font-size:12px;color:#64748B;">Template: ${escapeHtml(c.template_name || '—')}</div>
+            ${c.status === 'scheduled' && c.scheduled_at ? `<div style="font-size:11px;color:#92400E;margin-top:4px;">📅 ${new Date(c.scheduled_at).toLocaleString('it-IT')}</div>` : ''}
           </div>
           <div style="display:flex;gap:20px;text-align:center;">
             <div><div style="font-size:20px;font-weight:800;color:#0B2347;">${c.total_sent || 0}</div><div style="font-size:10px;color:#94A3B8;text-transform:uppercase;">Inviati</div></div>
@@ -3419,6 +3421,7 @@ async function loadCrmCampaigns() {
           </div>
           <div style="display:flex;gap:6px;flex-shrink:0;">
             ${c.status === 'draft' ? `<button onclick="launchCampaign('${c.id}')" style="background:#1E3A8A;color:#fff;border:none;padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">▶ Avvia</button>` : ''}
+            ${c.status === 'scheduled' ? `<button onclick="launchCampaign('${c.id}')" style="background:#92400E;color:#fff;border:none;padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">▶ Avvia ora</button>` : ''}
             ${c.status === 'sending' ? `<button onclick="pauseCampaignUI('${c.id}')" style="background:#F59E0B;color:#fff;border:none;padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">⏸ Pausa</button>` : ''}
             ${c.status === 'paused' ? `<button onclick="resumeCampaignUI('${c.id}')" style="background:#10B981;color:#fff;border:none;padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">▶ Riprendi</button>` : ''}
             ${c.status === 'sending' ? `<button onclick="stopCampaignUI('${c.id}')" style="background:#FEF2F2;border:1px solid #FECACA;color:#dc2626;padding:7px 12px;border-radius:8px;font-size:12px;cursor:pointer;">■ Stop</button>` : ''}
@@ -3608,6 +3611,25 @@ function wizardStep1HTML() {
           <option value="">Caricamento…</option>
         </select>
       </div>
+      <div>
+        <label style="font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:8px;">Invio</label>
+        <div style="display:flex;gap:16px;align-items:center;">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:#0B2347;">
+            <input type="radio" name="send_timing" value="now" ${!_wizardData.scheduled_at ? 'checked' : ''} onchange="toggleScheduleField(this)">
+            Invia subito quando avvio
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:#0B2347;">
+            <input type="radio" name="send_timing" value="scheduled" ${_wizardData.scheduled_at ? 'checked' : ''} onchange="toggleScheduleField(this)">
+            Pianifica per dopo
+          </label>
+        </div>
+        <div id="schedule-datetime-field" style="display:${_wizardData.scheduled_at ? 'block' : 'none'};margin-top:12px;">
+          <input type="datetime-local" id="campaign-scheduled-at"
+            value="${_wizardData.scheduled_at || ''}"
+            style="padding:10px 14px;border:1px solid #E2E8F0;border-radius:8px;font-size:13px;color:#0B2347;width:100%;outline:none;box-sizing:border-box;">
+          <div style="font-size:11px;color:#94A3B8;margin-top:4px;">L'invio partirà automaticamente all'orario indicato.</div>
+        </div>
+      </div>
     </div>`;
 }
 
@@ -3616,6 +3638,19 @@ function wizardToggleSmtp() {
   const row = document.getElementById('wiz-smtp-row');
   if (row) row.style.display = method === 'smtp' ? 'block' : 'none';
   if (method === 'smtp') wizardLoadSmtpOptions();
+}
+
+function toggleScheduleField(radio) {
+  const field = document.getElementById('schedule-datetime-field');
+  if (!field) return;
+  field.style.display = radio.value === 'scheduled' ? 'block' : 'none';
+  if (radio.value === 'scheduled') {
+    const now = new Date(Date.now() + 5 * 60_000);
+    const pad = n => String(n).padStart(2, '0');
+    const minVal = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+    const input = document.getElementById('campaign-scheduled-at');
+    if (input) { input.min = minVal; if (!input.value) input.value = minVal; }
+  }
 }
 
 async function wizardLoadSmtpOptions() {
@@ -3739,6 +3774,7 @@ async function wizardLoadConfirm() {
         send_method: _wizardData.send_method || 'resend',
         smtp_config_id: _wizardData.smtp_config_id || null,
         filters: _wizardData.filters || {},
+        scheduled_at: _wizardData.scheduled_at || null,
       }),
     });
     if (!res.ok) {
@@ -3767,6 +3803,7 @@ async function wizardLoadConfirm() {
         <div style="font-size:13px;color:#374151;margin-top:4px;"><strong>Template:</strong> ${escapeHtml(tpl?.name || '—')}</div>
         <div style="font-size:13px;color:#374151;margin-top:4px;"><strong>Metodo:</strong> ${_wizardData.send_method === 'smtp' ? 'SMTP personalizzato' : 'Resend'}</div>
         <div style="font-size:13px;color:#374151;margin-top:4px;"><strong>Oggetto:</strong> ${escapeHtml(tpl?.subject || '—')}</div>
+        ${_wizardData.scheduled_at ? `<div style="font-size:13px;color:#92400E;margin-top:4px;font-weight:600;">⏰ Pianificata: ${new Date(_wizardData.scheduled_at).toLocaleString('it-IT')}</div>` : '<div style="font-size:13px;color:#374151;margin-top:4px;"><strong>Invio:</strong> Manuale (avvia dalla lista campagne)</div>'}
       </div>
       <div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:10px;padding:16px;">
         <div style="font-size:20px;font-weight:800;color:#15803d;">${preview.total} organizzazioni</div>
@@ -3787,6 +3824,10 @@ async function wizardNext() {
     _wizardData.description = document.getElementById('wiz-description')?.value.trim() || '';
     _wizardData.send_method = document.getElementById('wiz-send-method')?.value || 'resend';
     _wizardData.smtp_config_id = document.getElementById('wiz-smtp-id')?.value || null;
+    const timing = document.querySelector('input[name="send_timing"]:checked')?.value;
+    _wizardData.scheduled_at = timing === 'scheduled'
+      ? (document.getElementById('campaign-scheduled-at')?.value || null)
+      : null;
     _wizardStep = 2;
   } else if (_wizardStep === 2) {
     if (!_wizardData.template_id) { alert('Seleziona un template'); return; }

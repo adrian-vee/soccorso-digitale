@@ -59,7 +59,67 @@ function decryptPassword(encrypted: string): string {
   ]).toString("utf8");
 }
 
+async function recoverStuckCampaigns(): Promise<void> {
+  try {
+    const result = await pool.query(`
+      UPDATE crm_campaigns
+      SET status = 'paused', error_message = 'Ripristinato dopo riavvio server'
+      WHERE status = 'sending'
+      RETURNING id, name
+    `);
+    if (result.rows.length > 0) {
+      console.log(
+        `[Recovery] Ripristinate ${result.rows.length} campagne bloccate:`,
+        result.rows.map((r) => r.name).join(", ")
+      );
+    }
+  } catch (err: any) {
+    console.error("[Recovery] Errore:", err.message);
+  }
+}
+
+function startCampaignScheduler(): void {
+  setInterval(async () => {
+    try {
+      const result = await pool.query(`
+        SELECT id, name FROM crm_campaigns
+        WHERE status = 'scheduled'
+          AND scheduled_at IS NOT NULL
+          AND scheduled_at <= NOW()
+        ORDER BY scheduled_at ASC
+        LIMIT 5
+      `);
+
+      for (const campaign of result.rows) {
+        console.log(
+          `[Scheduler] Avvio campagna schedulata: ${campaign.name} (${campaign.id})`
+        );
+        // Aggiorna status prima dell'avvio per prevenire doppi avvii
+        const updated = await pool.query(
+          `UPDATE crm_campaigns SET status = 'sending' WHERE id = $1 AND status = 'scheduled' RETURNING id`,
+          [campaign.id]
+        );
+        if (!updated.rows.length) continue; // già avviata da altra istanza
+        startCampaign(campaign.id).catch((err) => {
+          console.error(`[Scheduler] Errore campagna ${campaign.id}:`, err.message);
+          pool.query(
+            `UPDATE crm_campaigns SET status = 'error', error_message = $1 WHERE id = $2`,
+            [err.message, campaign.id]
+          );
+        });
+      }
+    } catch (err: any) {
+      console.error("[Scheduler] Errore check:", err.message);
+    }
+  }, 60_000);
+
+  console.log("[Scheduler] Campaign scheduler avviato");
+}
+
 export function registerCrmRoutes(app: Express) {
+  // Recovery campagne bloccate + scheduler schedulazione
+  recoverStuckCampaigns();
+  startCampaignScheduler();
 
   // ── TRACKING: Pixel apertura 1×1 GIF ─────────────────────
 
@@ -709,10 +769,12 @@ export function registerCrmRoutes(app: Express) {
       const { name, description, template_id, send_method, smtp_config_id, filters, scheduled_at, send_speed } = req.body;
       if (!name || !template_id) return res.status(400).json({ error: "name e template_id obbligatori" });
 
+      const status = scheduled_at ? "scheduled" : "draft";
+
       const result = await pool.query(
         `INSERT INTO crm_campaigns
-           (name, description, template_id, send_method, smtp_config_id, filters, scheduled_at, send_speed)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`,
+           (name, description, template_id, send_method, smtp_config_id, filters, scheduled_at, send_speed, status)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *`,
         [
           name,
           description || null,
@@ -722,7 +784,36 @@ export function registerCrmRoutes(app: Express) {
           JSON.stringify(filters || {}),
           scheduled_at || null,
           send_speed || 1,
+          status,
         ]
+      );
+      res.json(result.rows[0]);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.put("/api/crm/campaigns/:id", requireSuperAdmin, async (req, res) => {
+    try {
+      const { name, description, scheduled_at, send_speed } = req.body;
+      const camp = await pool.query("SELECT status FROM crm_campaigns WHERE id = $1", [req.params.id]);
+      if (!camp.rows.length) return res.status(404).json({ error: "Campagna non trovata" });
+
+      const currentStatus = camp.rows[0].status;
+      let newStatus = currentStatus;
+      if (currentStatus === "draft" && scheduled_at) newStatus = "scheduled";
+      if (currentStatus === "scheduled" && !scheduled_at) newStatus = "draft";
+
+      const result = await pool.query(
+        `UPDATE crm_campaigns
+         SET name = COALESCE($1, name),
+             description = COALESCE($2, description),
+             scheduled_at = $3,
+             send_speed = COALESCE($4, send_speed),
+             status = $5,
+             updated_at = NOW()
+         WHERE id = $6 RETURNING *`,
+        [name || null, description || null, scheduled_at || null, send_speed || null, newStatus, req.params.id]
       );
       res.json(result.rows[0]);
     } catch (err: any) {
