@@ -9425,13 +9425,21 @@
                 style="padding:8px 18px;border:none;background:none;font-size:13px;font-weight:600;color:#1E3A8A;border-bottom:2px solid #1E3A8A;margin-bottom:-2px;cursor:pointer;">
                 Organizzazioni
               </button>
+              <button id="crm-tab-campaigns" onclick="switchCrmTab('campaigns')"
+                style="padding:8px 18px;border:none;background:none;font-size:13px;font-weight:500;color:#6B7280;border-bottom:2px solid transparent;margin-bottom:-2px;cursor:pointer;">
+                Campagne
+              </button>
+              <button id="crm-tab-analytics" onclick="switchCrmTab('analytics')"
+                style="padding:8px 18px;border:none;background:none;font-size:13px;font-weight:500;color:#6B7280;border-bottom:2px solid transparent;margin-bottom:-2px;cursor:pointer;">
+                Analytics
+              </button>
               <button id="crm-tab-templates" onclick="switchCrmTab('templates')"
                 style="padding:8px 18px;border:none;background:none;font-size:13px;font-weight:500;color:#6B7280;border-bottom:2px solid transparent;margin-bottom:-2px;cursor:pointer;">
-                Template Email
+                Template
               </button>
               <button id="crm-tab-settings" onclick="switchCrmTab('settings')"
                 style="padding:8px 18px;border:none;background:none;font-size:13px;font-weight:500;color:#6B7280;border-bottom:2px solid transparent;margin-bottom:-2px;cursor:pointer;">
-                Impostazioni SMTP
+                SMTP
               </button>
             </div>
 
@@ -9491,6 +9499,24 @@
                   </table>
                 </div>
                 <div id="crm-pagination" style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-top:1px solid #F0F4FF;font-size:13px;color:#6B7280;"></div>
+              </div>
+            </div>
+
+            <!-- Panel: Campagne -->
+            <div id="crm-panel-campaigns" style="display:none;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+                <h3 style="font-size:15px;font-weight:700;color:#0B2347;">Campagne Email</h3>
+                <button onclick="showNewCampaignWizard()" style="height:36px;padding:0 16px;background:#1E3A8A;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">+ Nuova Campagna</button>
+              </div>
+              <div id="crm-campaigns-list">
+                <div style="padding:40px;text-align:center;color:#9CA3AF;">Caricamento…</div>
+              </div>
+            </div>
+
+            <!-- Panel: Analytics -->
+            <div id="crm-panel-analytics" style="display:none;">
+              <div id="crm-analytics-container">
+                <div style="padding:40px;text-align:center;color:#9CA3AF;">Caricamento analytics…</div>
               </div>
             </div>
 

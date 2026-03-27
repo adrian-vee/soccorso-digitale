@@ -7,6 +7,13 @@ import crypto from "crypto";
 import nodemailer from "nodemailer";
 import { pool } from "../db";
 import { requireSuperAdmin } from "../auth-middleware";
+import {
+  startCampaign,
+  pauseCampaign,
+  resumeCampaign,
+  stopCampaign,
+  getCampaignStatus,
+} from "../utils/campaign-queue";
 
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -623,6 +630,241 @@ export function registerCrmRoutes(app: Express) {
     try {
       await pool.query("DELETE FROM crm_smtp_configs WHERE id = $1", [req.params.id]);
       res.json({ success: true });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // ── CAMPAGNE ───────────────────────────────────────────────
+
+  app.get("/api/crm/campaigns", requireSuperAdmin, async (_req, res) => {
+    try {
+      const result = await pool.query(`
+        SELECT c.*,
+          t.name AS template_name,
+          t.subject AS template_subject
+        FROM crm_campaigns c
+        LEFT JOIN crm_email_templates t ON c.template_id = t.id
+        ORDER BY c.created_at DESC
+      `);
+      res.json(result.rows);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.post("/api/crm/campaigns", requireSuperAdmin, async (req, res) => {
+    try {
+      const { name, description, template_id, send_method, smtp_config_id, filters, scheduled_at, send_speed } = req.body;
+      if (!name || !template_id) return res.status(400).json({ error: "name e template_id obbligatori" });
+
+      const result = await pool.query(
+        `INSERT INTO crm_campaigns
+           (name, description, template_id, send_method, smtp_config_id, filters, scheduled_at, send_speed)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`,
+        [
+          name,
+          description || null,
+          template_id,
+          send_method || "resend",
+          smtp_config_id || null,
+          JSON.stringify(filters || {}),
+          scheduled_at || null,
+          send_speed || 1,
+        ]
+      );
+      res.json(result.rows[0]);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // Specific sub-routes must come before /:id
+
+  app.post("/api/crm/campaigns/:id/send", requireSuperAdmin, async (req, res) => {
+    try {
+      const camp = await pool.query("SELECT * FROM crm_campaigns WHERE id = $1", [req.params.id]);
+      if (!camp.rows.length) return res.status(404).json({ error: "Campagna non trovata" });
+      if (camp.rows[0].status === "sending") return res.status(400).json({ error: "Campagna già in invio" });
+      if (camp.rows[0].status === "sent") return res.status(400).json({ error: "Campagna già completata" });
+
+      // Risponde subito, poi avvia in background
+      res.json({ success: true, message: "Campagna avviata" });
+      startCampaign(req.params.id).catch((err) =>
+        console.error("[Campaign] Error:", err.message)
+      );
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.post("/api/crm/campaigns/:id/pause", requireSuperAdmin, async (req, res) => {
+    try {
+      pauseCampaign(req.params.id);
+      await pool.query(
+        `UPDATE crm_campaigns SET status = 'paused', paused_at = NOW() WHERE id = $1`,
+        [req.params.id]
+      );
+      res.json({ success: true });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.post("/api/crm/campaigns/:id/resume", requireSuperAdmin, async (req, res) => {
+    try {
+      await pool.query(
+        `UPDATE crm_campaigns SET status = 'sending', paused_at = NULL WHERE id = $1`,
+        [req.params.id]
+      );
+      resumeCampaign(req.params.id);
+      res.json({ success: true });
+      // Se il processo in-memory non è più attivo (server riavviato), rilancia
+      if (!getCampaignStatus(req.params.id)) {
+        startCampaign(req.params.id).catch((err) =>
+          console.error("[Campaign resume] Error:", err.message)
+        );
+      }
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.post("/api/crm/campaigns/:id/stop", requireSuperAdmin, async (req, res) => {
+    try {
+      stopCampaign(req.params.id);
+      await pool.query(
+        `UPDATE crm_campaigns SET status = 'draft' WHERE id = $1`,
+        [req.params.id]
+      );
+      res.json({ success: true });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.get("/api/crm/campaigns/:id/stats", requireSuperAdmin, async (req, res) => {
+    try {
+      const [campResult, logsResult] = await Promise.all([
+        pool.query("SELECT * FROM crm_campaigns WHERE id = $1", [req.params.id]),
+        pool.query(
+          `SELECT status, COUNT(*) AS count FROM crm_email_logs
+           WHERE campaign_id = $1 GROUP BY status`,
+          [req.params.id]
+        ),
+      ]);
+      if (!campResult.rows.length) return res.status(404).json({ error: "Campagna non trovata" });
+      const camp = campResult.rows[0];
+
+      const statusCounts = logsResult.rows.reduce((acc: any, row: any) => {
+        acc[row.status] = parseInt(row.count);
+        return acc;
+      }, {});
+
+      const total = camp.total_sent || 0;
+      const inMemoryState = getCampaignStatus(req.params.id);
+
+      res.json({
+        ...camp,
+        status_counts: statusCounts,
+        open_rate: total > 0 ? ((camp.total_opened / total) * 100).toFixed(1) : "0",
+        click_rate: total > 0 ? ((camp.total_clicked / total) * 100).toFixed(1) : "0",
+        bounce_rate: total > 0 ? ((camp.total_bounced / total) * 100).toFixed(1) : "0",
+        in_progress: inMemoryState?.running || false,
+        progress_pct: inMemoryState
+          ? Math.round((inMemoryState.processed / Math.max(1, inMemoryState.total)) * 100)
+          : camp.status === "sent" ? 100 : 0,
+      });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.get("/api/crm/campaigns/:id/preview", requireSuperAdmin, async (req, res) => {
+    try {
+      const camp = await pool.query("SELECT * FROM crm_campaigns WHERE id = $1", [req.params.id]);
+      if (!camp.rows.length) return res.status(404).json({ error: "Campagna non trovata" });
+
+      const filters = camp.rows[0].filters || {};
+      const whereConditions: string[] = [
+        "email IS NOT NULL",
+        "status != 'bounced'",
+        "status != 'not_interested'",
+      ];
+      const params: any[] = [];
+      let paramIdx = 1;
+
+      if (filters.region?.length > 0) {
+        whereConditions.push(`region = ANY($${paramIdx})`);
+        params.push(filters.region);
+        paramIdx++;
+      }
+      if (filters.type?.length > 0) {
+        whereConditions.push(`type = ANY($${paramIdx})`);
+        params.push(filters.type);
+        paramIdx++;
+      }
+      if (filters.status?.length > 0) {
+        whereConditions.push(`status = ANY($${paramIdx})`);
+        params.push(filters.status);
+        paramIdx++;
+      }
+
+      const where = `WHERE ${whereConditions.join(" AND ")}`;
+      const [countResult, sampleResult] = await Promise.all([
+        pool.query(`SELECT COUNT(*) FROM crm_organizations ${where}`, params),
+        pool.query(
+          `SELECT name, email, city, region, type FROM crm_organizations ${where} LIMIT 5`,
+          params
+        ),
+      ]);
+
+      res.json({
+        total: parseInt(countResult.rows[0].count),
+        sample: sampleResult.rows,
+      });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // ── ANALYTICS ─────────────────────────────────────────────
+
+  app.get("/api/crm/analytics", requireSuperAdmin, async (_req, res) => {
+    try {
+      const [globalStats, recentCampaigns, topRegions] = await Promise.all([
+        pool.query(`
+          SELECT
+            COUNT(*) AS total_campaigns,
+            COALESCE(SUM(total_sent), 0) AS total_sent,
+            COALESCE(SUM(total_opened), 0) AS total_opened,
+            COALESCE(SUM(total_clicked), 0) AS total_clicked,
+            COALESCE(SUM(total_bounced), 0) AS total_bounced,
+            ROUND(AVG(CASE WHEN total_sent > 0 THEN (total_opened::float / total_sent * 100) END)::numeric, 1) AS avg_open_rate,
+            ROUND(AVG(CASE WHEN total_sent > 0 THEN (total_clicked::float / total_sent * 100) END)::numeric, 1) AS avg_click_rate
+          FROM crm_campaigns WHERE status = 'sent'
+        `),
+        pool.query(`
+          SELECT id, name, status, total_sent, total_opened, total_clicked, total_bounced,
+            ROUND(CASE WHEN total_sent > 0 THEN (total_opened::float / total_sent * 100) END::numeric, 1) AS open_rate,
+            sent_at
+          FROM crm_campaigns WHERE status = 'sent'
+          ORDER BY sent_at DESC LIMIT 10
+        `),
+        pool.query(`
+          SELECT region, COUNT(*) AS count,
+            COUNT(CASE WHEN status = 'customer' THEN 1 END) AS customers
+          FROM crm_organizations
+          WHERE region IS NOT NULL
+          GROUP BY region ORDER BY count DESC LIMIT 10
+        `),
+      ]);
+
+      res.json({
+        global: globalStats.rows[0],
+        recent_campaigns: recentCampaigns.rows,
+        top_regions: topRegions.rows,
+      });
     } catch (err: any) {
       res.status(500).json({ error: err.message });
     }

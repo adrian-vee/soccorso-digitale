@@ -3349,7 +3349,7 @@ function crmHandleDrop(event) {
 // ── Tab switching ──────────────────────────────────────────
 
 function switchCrmTab(tab) {
-  const tabs = ['orgs', 'templates', 'settings'];
+  const tabs = ['orgs', 'campaigns', 'analytics', 'templates', 'settings'];
   tabs.forEach(t => {
     const btn = document.getElementById(`crm-tab-${t}`);
     const panel = document.getElementById(`crm-panel-${t}`);
@@ -3362,8 +3362,530 @@ function switchCrmTab(tab) {
     if (panel) panel.style.display = active ? 'block' : 'none';
   });
   if (tab === 'orgs') loadCrmPage();
+  else if (tab === 'campaigns') loadCrmCampaigns();
+  else if (tab === 'analytics') loadCrmAnalytics();
   else if (tab === 'templates') loadCrmTemplates();
   else if (tab === 'settings') loadCrmSmtpList();
+}
+
+// ── Campagne ──────────────────────────────────────────────
+
+let _campaignPollingInterval = null;
+
+const CAMPAIGN_STATUS_MAP = {
+  draft:   { bg: '#F1F5F9', text: '#64748B', label: 'Bozza' },
+  sending: { bg: '#DBEAFE', text: '#1E3A8A', label: 'In invio…' },
+  paused:  { bg: '#FEF3C7', text: '#92400E', label: 'In pausa' },
+  sent:    { bg: '#DCFCE7', text: '#166534', label: 'Completata' },
+  error:   { bg: '#FEE2E2', text: '#991B1B', label: 'Errore' },
+};
+
+async function loadCrmCampaigns() {
+  const list = document.getElementById('crm-campaigns-list');
+  if (!list) return;
+  list.innerHTML = '<div style="padding:40px;text-align:center;color:#9CA3AF;">Caricamento…</div>';
+
+  const res = await adminFetch('/api/crm/campaigns');
+  if (!res.ok) { list.innerHTML = '<div style="padding:40px;text-align:center;color:#dc2626;">Errore caricamento</div>'; return; }
+  const campaigns = await res.json();
+
+  if (!campaigns.length) {
+    list.innerHTML = `<div style="padding:60px;text-align:center;color:#9CA3AF;">Nessuna campagna ancora. <button onclick="showNewCampaignWizard()" style="color:#1E3A8A;background:none;border:none;cursor:pointer;font-weight:600;">Crea la prima campagna →</button></div>`;
+    return;
+  }
+
+  list.innerHTML = campaigns.map(c => {
+    const sc = CAMPAIGN_STATUS_MAP[c.status] || CAMPAIGN_STATUS_MAP.draft;
+    const openRate = c.total_sent > 0 ? ((c.total_opened / c.total_sent) * 100).toFixed(1) : '—';
+    const clickRate = c.total_sent > 0 ? ((c.total_clicked / c.total_sent) * 100).toFixed(1) : '—';
+    const isActive = c.status === 'sending';
+
+    return `
+      <div style="background:#fff;border:1px solid #E2E8F0;border-radius:12px;padding:18px 20px;margin-bottom:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
+          <div style="flex:1;min-width:200px;">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
+              <span style="font-size:15px;font-weight:700;color:#0B2347;">${escapeHtml(c.name)}</span>
+              <span style="background:${sc.bg};color:${sc.text};font-size:10px;font-weight:700;padding:2px 9px;border-radius:20px;">${sc.label}</span>
+            </div>
+            <div style="font-size:12px;color:#64748B;">Template: ${escapeHtml(c.template_name || '—')}</div>
+          </div>
+          <div style="display:flex;gap:20px;text-align:center;">
+            <div><div style="font-size:20px;font-weight:800;color:#0B2347;">${c.total_sent || 0}</div><div style="font-size:10px;color:#94A3B8;text-transform:uppercase;">Inviati</div></div>
+            <div><div style="font-size:20px;font-weight:800;color:#10B981;">${openRate}${openRate !== '—' ? '%' : ''}</div><div style="font-size:10px;color:#94A3B8;text-transform:uppercase;">Apertura</div></div>
+            <div><div style="font-size:20px;font-weight:800;color:#1E3A8A;">${clickRate}${clickRate !== '—' ? '%' : ''}</div><div style="font-size:10px;color:#94A3B8;text-transform:uppercase;">Click</div></div>
+            <div><div style="font-size:20px;font-weight:800;color:#dc2626;">${c.total_bounced || 0}</div><div style="font-size:10px;color:#94A3B8;text-transform:uppercase;">Bounce</div></div>
+          </div>
+          <div style="display:flex;gap:6px;flex-shrink:0;">
+            ${c.status === 'draft' ? `<button onclick="launchCampaign('${c.id}')" style="background:#1E3A8A;color:#fff;border:none;padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">▶ Avvia</button>` : ''}
+            ${c.status === 'sending' ? `<button onclick="pauseCampaignUI('${c.id}')" style="background:#F59E0B;color:#fff;border:none;padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">⏸ Pausa</button>` : ''}
+            ${c.status === 'paused' ? `<button onclick="resumeCampaignUI('${c.id}')" style="background:#10B981;color:#fff;border:none;padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">▶ Riprendi</button>` : ''}
+            ${c.status === 'sending' ? `<button onclick="stopCampaignUI('${c.id}')" style="background:#FEF2F2;border:1px solid #FECACA;color:#dc2626;padding:7px 12px;border-radius:8px;font-size:12px;cursor:pointer;">■ Stop</button>` : ''}
+            <button onclick="viewCampaignStats('${c.id}')" style="background:#F0F4FF;border:1px solid #E2E8F0;padding:7px 12px;border-radius:8px;font-size:12px;cursor:pointer;" title="Statistiche">📊</button>
+          </div>
+        </div>
+        ${isActive ? `
+        <div style="margin-top:12px;">
+          <div style="height:5px;background:#E2E8F0;border-radius:3px;overflow:hidden;">
+            <div id="cprog-${c.id}" style="height:100%;background:linear-gradient(90deg,#1E3A8A,#3b82f6);border-radius:3px;transition:width .5s;width:0%;"></div>
+          </div>
+          <div id="cprog-txt-${c.id}" style="font-size:11px;color:#64748B;margin-top:4px;">Inizializzazione…</div>
+        </div>` : ''}
+      </div>`;
+  }).join('');
+
+  // Avvia polling per campagne in corso
+  const activeCamp = campaigns.find(c => c.status === 'sending');
+  if (activeCamp) startCampaignPolling(activeCamp.id);
+}
+
+function startCampaignPolling(campaignId) {
+  if (_campaignPollingInterval) clearInterval(_campaignPollingInterval);
+  _campaignPollingInterval = setInterval(async () => {
+    const res = await adminFetch(`/api/crm/campaigns/${campaignId}/stats`);
+    if (!res.ok) return;
+    const stats = await res.json();
+
+    const bar = document.getElementById(`cprog-${campaignId}`);
+    const txt = document.getElementById(`cprog-txt-${campaignId}`);
+    if (bar) bar.style.width = `${stats.progress_pct || 0}%`;
+    if (txt) txt.textContent = `${stats.total_sent || 0} / ${stats.total_recipients || '?'} email inviate · ${stats.open_rate || 0}% aperture`;
+
+    if (stats.status === 'sent' || stats.status === 'draft' || stats.status === 'error') {
+      clearInterval(_campaignPollingInterval);
+      _campaignPollingInterval = null;
+      loadCrmCampaigns();
+    }
+  }, 3000);
+}
+
+async function launchCampaign(id) {
+  if (!confirm('Avviare l\'invio della campagna? Le email verranno inviate immediatamente.')) return;
+  const res = await adminFetch(`/api/crm/campaigns/${id}/send`, { method: 'POST' });
+  if (res.ok) {
+    showNotification('Campagna avviata!', 'success');
+    loadCrmCampaigns();
+    startCampaignPolling(id);
+  } else {
+    const e = await res.json();
+    showNotification('Errore: ' + e.error, 'error');
+  }
+}
+
+async function pauseCampaignUI(id) {
+  const res = await adminFetch(`/api/crm/campaigns/${id}/pause`, { method: 'POST' });
+  if (res.ok) { showNotification('Campagna in pausa', 'success'); loadCrmCampaigns(); }
+  else { const e = await res.json(); showNotification('Errore: ' + e.error, 'error'); }
+}
+
+async function resumeCampaignUI(id) {
+  const res = await adminFetch(`/api/crm/campaigns/${id}/resume`, { method: 'POST' });
+  if (res.ok) { showNotification('Campagna ripresa!', 'success'); loadCrmCampaigns(); startCampaignPolling(id); }
+  else { const e = await res.json(); showNotification('Errore: ' + e.error, 'error'); }
+}
+
+async function stopCampaignUI(id) {
+  if (!confirm('Fermare la campagna? Potrà essere riavviata.')) return;
+  const res = await adminFetch(`/api/crm/campaigns/${id}/stop`, { method: 'POST' });
+  if (res.ok) {
+    if (_campaignPollingInterval) { clearInterval(_campaignPollingInterval); _campaignPollingInterval = null; }
+    showNotification('Campagna fermata', 'success');
+    loadCrmCampaigns();
+  }
+  else { const e = await res.json(); showNotification('Errore: ' + e.error, 'error'); }
+}
+
+async function viewCampaignStats(id) {
+  const res = await adminFetch(`/api/crm/campaigns/${id}/stats`);
+  if (!res.ok) return;
+  const s = await res.json();
+  const total = s.total_sent || 0;
+  showModal({
+    title: `Statistiche — ${s.name}`,
+    size: 'lg',
+    content: `
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">
+        <div style="background:#EFF6FF;border-radius:10px;padding:14px;text-align:center;"><div style="font-size:24px;font-weight:800;color:#1E3A8A;">${total}</div><div style="font-size:11px;color:#64748B;margin-top:3px;">Inviati</div></div>
+        <div style="background:#F0FDF4;border-radius:10px;padding:14px;text-align:center;"><div style="font-size:24px;font-weight:800;color:#15803d;">${s.open_rate}%</div><div style="font-size:11px;color:#64748B;margin-top:3px;">Open rate</div></div>
+        <div style="background:#EFF6FF;border-radius:10px;padding:14px;text-align:center;"><div style="font-size:24px;font-weight:800;color:#1E3A8A;">${s.click_rate}%</div><div style="font-size:11px;color:#64748B;margin-top:3px;">Click rate</div></div>
+        <div style="background:#FEF2F2;border-radius:10px;padding:14px;text-align:center;"><div style="font-size:24px;font-weight:800;color:#dc2626;">${s.bounce_rate}%</div><div style="font-size:11px;color:#64748B;margin-top:3px;">Bounce rate</div></div>
+      </div>
+      <div style="font-size:12px;color:#64748B;">
+        Totale destinatari: <strong>${s.total_recipients || '—'}</strong> ·
+        Completamento: <strong>${s.progress_pct || 0}%</strong> ·
+        Aperti: <strong>${s.total_opened || 0}</strong> ·
+        Cliccati: <strong>${s.total_clicked || 0}</strong>
+      </div>`,
+    onSave: async () => {},
+    saveLabel: 'Chiudi',
+  });
+}
+
+// ── Wizard Nuova Campagna ─────────────────────────────────
+
+let _wizardStep = 1;
+let _wizardData = {};
+let _wizardCampaignId = null;
+
+async function showNewCampaignWizard() {
+  _wizardStep = 1;
+  _wizardData = {};
+  _wizardCampaignId = null;
+  renderWizardStep();
+}
+
+function renderWizardStep() {
+  const existing = document.getElementById('crm-wizard-overlay');
+  if (existing) existing.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'crm-wizard-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:3000;display:flex;align-items:center;justify-content:center;padding:20px;';
+
+  const stepTitles = ['Dettagli', 'Template', 'Destinatari', 'Conferma'];
+  const stepsBar = stepTitles.map((t, i) => {
+    const active = i + 1 === _wizardStep;
+    const done = i + 1 < _wizardStep;
+    const color = done ? '#10B981' : active ? '#1E3A8A' : '#CBD5E1';
+    return `<div style="display:flex;align-items:center;gap:6px;">
+      <div style="width:24px;height:24px;border-radius:50%;background:${color};color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;">${done ? '✓' : i+1}</div>
+      <span style="font-size:12px;font-weight:${active?'700':'500'};color:${color};">${t}</span>
+      ${i < 3 ? `<div style="width:24px;height:2px;background:${done?'#10B981':'#E2E8F0'};margin:0 4px;"></div>` : ''}
+    </div>`;
+  }).join('');
+
+  let stepContent = '';
+  if (_wizardStep === 1) stepContent = wizardStep1HTML();
+  else if (_wizardStep === 2) stepContent = '<div id="wizard-tpl-loading" style="padding:40px;text-align:center;color:#9CA3AF;">Caricamento template…</div>';
+  else if (_wizardStep === 3) stepContent = wizardStep3HTML();
+  else if (_wizardStep === 4) stepContent = '<div id="wizard-confirm-loading" style="padding:40px;text-align:center;color:#9CA3AF;">Caricamento anteprima…</div>';
+
+  overlay.innerHTML = `
+    <div style="background:#fff;border-radius:16px;width:680px;max-width:100%;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
+      <div style="padding:20px 24px;border-bottom:1px solid #F0F4FF;flex-shrink:0;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+          <h3 style="margin:0;font-size:16px;font-weight:700;color:#0B2347;">Nuova Campagna</h3>
+          <button onclick="document.getElementById('crm-wizard-overlay').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#94A3B8;">×</button>
+        </div>
+        <div style="display:flex;align-items:center;">${stepsBar}</div>
+      </div>
+      <div id="wizard-step-body" style="padding:24px;overflow-y:auto;flex:1;">${stepContent}</div>
+      <div style="padding:16px 24px;border-top:1px solid #F0F4FF;display:flex;justify-content:space-between;flex-shrink:0;">
+        <button onclick="wizardBack()" style="padding:9px 18px;border:1px solid #E2E8F0;border-radius:8px;background:#fff;font-size:14px;color:#374151;cursor:pointer;">${_wizardStep > 1 ? '← Indietro' : 'Annulla'}</button>
+        <button onclick="wizardNext()" style="padding:9px 22px;background:#1E3A8A;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">${_wizardStep === 4 ? '🚀 Crea Campagna' : 'Avanti →'}</button>
+      </div>
+    </div>`;
+
+  document.body.appendChild(overlay);
+
+  // Load async content
+  if (_wizardStep === 2) wizardLoadTemplates();
+  if (_wizardStep === 4) wizardLoadConfirm();
+}
+
+function wizardStep1HTML() {
+  return `
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div>
+        <label style="font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:5px;">Nome campagna *</label>
+        <input id="wiz-name" type="text" value="${escapeHtml(_wizardData.name || '')}" placeholder="es. Presentazione Marzo 2026" style="width:100%;padding:10px 12px;border:1px solid #E2E8F0;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box;">
+      </div>
+      <div>
+        <label style="font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:5px;">Descrizione</label>
+        <textarea id="wiz-description" rows="2" placeholder="Campagna di presentazione per organizzazioni del Nord Italia" style="width:100%;padding:10px 12px;border:1px solid #E2E8F0;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box;resize:vertical;">${escapeHtml(_wizardData.description || '')}</textarea>
+      </div>
+      <div>
+        <label style="font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:5px;">Metodo di invio</label>
+        <select id="wiz-send-method" onchange="wizardToggleSmtp()" style="width:100%;height:40px;padding:0 12px;border:1px solid #E2E8F0;border-radius:8px;font-size:14px;outline:none;">
+          <option value="resend" ${_wizardData.send_method !== 'smtp' ? 'selected' : ''}>Resend (consigliato)</option>
+          <option value="smtp" ${_wizardData.send_method === 'smtp' ? 'selected' : ''}>SMTP personalizzato</option>
+        </select>
+      </div>
+      <div id="wiz-smtp-row" style="${_wizardData.send_method === 'smtp' ? '' : 'display:none;'}">
+        <label style="font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:5px;">Account SMTP</label>
+        <select id="wiz-smtp-id" style="width:100%;height:40px;padding:0 12px;border:1px solid #E2E8F0;border-radius:8px;font-size:14px;outline:none;">
+          <option value="">Caricamento…</option>
+        </select>
+      </div>
+    </div>`;
+}
+
+function wizardToggleSmtp() {
+  const method = document.getElementById('wiz-send-method')?.value;
+  const row = document.getElementById('wiz-smtp-row');
+  if (row) row.style.display = method === 'smtp' ? 'block' : 'none';
+  if (method === 'smtp') wizardLoadSmtpOptions();
+}
+
+async function wizardLoadSmtpOptions() {
+  const sel = document.getElementById('wiz-smtp-id');
+  if (!sel) return;
+  const res = await adminFetch('/api/crm/smtp');
+  if (res.ok) {
+    const configs = await res.json();
+    sel.innerHTML = configs.map(c => `<option value="${c.id}">${escapeHtml(c.name)} (${escapeHtml(c.from_email)})</option>`).join('') || '<option value="">Nessun account configurato</option>';
+  }
+}
+
+async function wizardLoadTemplates() {
+  const body = document.getElementById('wizard-step-body');
+  const res = await adminFetch('/api/crm/templates');
+  const templates = res.ok ? await res.json() : [];
+
+  const catLabel = { intro: 'Presentazione', followup: 'Follow-up', demo_invite: 'Demo', promo: 'Promozione', custom: 'Personalizzato' };
+  body.innerHTML = `
+    <p style="font-size:13px;color:#6B7280;margin:0 0 14px;">Seleziona il template per questa campagna.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;" id="wiz-tpl-grid">
+      ${templates.map(tpl => {
+        const selected = _wizardData.template_id === tpl.id;
+        return `<div onclick="selectWizardTemplate('${tpl.id}')" id="wtpl-${tpl.id}" style="border:2px solid ${selected?'#1E3A8A':'#E2E8F0'};border-radius:10px;padding:12px;cursor:pointer;background:${selected?'#EFF6FF':'#fff'};">
+          <div style="font-size:13px;font-weight:700;color:#0B2347;margin-bottom:3px;">${escapeHtml(tpl.name)}</div>
+          <div style="font-size:11px;color:#94A3B8;">${catLabel[tpl.category] || tpl.category}</div>
+          <div style="font-size:12px;color:#6B7280;margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(tpl.subject)}</div>
+        </div>`;
+      }).join('') || '<div style="padding:40px;text-align:center;color:#9CA3AF;grid-column:1/-1;">Nessun template disponibile. <a href="#" onclick="switchCrmTab(\'templates\');document.getElementById(\'crm-wizard-overlay\').remove();" style="color:#1E3A8A;">Creane uno prima.</a></div>'}
+    </div>`;
+}
+
+function selectWizardTemplate(id) {
+  _wizardData.template_id = id;
+  document.querySelectorAll('[id^="wtpl-"]').forEach(el => {
+    const selected = el.id === `wtpl-${id}`;
+    el.style.borderColor = selected ? '#1E3A8A' : '#E2E8F0';
+    el.style.background = selected ? '#EFF6FF' : '#fff';
+  });
+}
+
+function wizardStep3HTML() {
+  const f = _wizardData.filters || {};
+  const regions = ['Abruzzo','Basilicata','Calabria','Campania','Emilia-Romagna','Friuli-Venezia Giulia','Lazio','Liguria','Lombardia','Marche','Molise','Piemonte','Puglia','Sardegna','Sicilia','Toscana','Trentino-Alto Adige','Umbria','Valle d\'Aosta','Veneto'];
+  const types = [{v:'ambulanza',l:'Ambulanza'},{v:'volontariato',l:'Volontariato'},{v:'cooperativa',l:'Cooperativa'},{v:'croce_rossa',l:'Croce Rossa'},{v:'misericordia',l:'Misericordia'},{v:'altro',l:'Altro'}];
+  const statuses = [{v:'new',l:'Nuovo'},{v:'contacted',l:'Contattato'},{v:'interested',l:'Interessato'}];
+
+  return `
+    <div style="display:flex;flex-direction:column;gap:18px;">
+      <div>
+        <label style="font-size:12px;font-weight:700;color:#374151;display:block;margin-bottom:8px;">Regioni (lascia vuoto per tutte)</label>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;" id="wiz-regions">
+          ${regions.map(r => {
+            const chk = (f.region||[]).includes(r);
+            return `<label style="display:flex;align-items:center;gap:4px;padding:4px 10px;border:1px solid ${chk?'#1E3A8A':'#E2E8F0'};border-radius:6px;cursor:pointer;background:${chk?'#EFF6FF':'#fff'};font-size:12px;">
+              <input type="checkbox" value="${r}" ${chk?'checked':''} onchange="updateWizFilters()" style="margin:0;"> ${r}
+            </label>`;
+          }).join('')}
+        </div>
+      </div>
+      <div>
+        <label style="font-size:12px;font-weight:700;color:#374151;display:block;margin-bottom:8px;">Tipo organizzazione</label>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          ${types.map(t => {
+            const chk = (f.type||[]).includes(t.v);
+            return `<label style="display:flex;align-items:center;gap:4px;padding:4px 10px;border:1px solid ${chk?'#1E3A8A':'#E2E8F0'};border-radius:6px;cursor:pointer;background:${chk?'#EFF6FF':'#fff'};font-size:12px;">
+              <input type="checkbox" value="${t.v}" ${chk?'checked':''} onchange="updateWizFilters()" style="margin:0;"> ${t.l}
+            </label>`;
+          }).join('')}
+        </div>
+      </div>
+      <div>
+        <label style="font-size:12px;font-weight:700;color:#374151;display:block;margin-bottom:8px;">Status organizzazione</label>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          ${statuses.map(s => {
+            const chk = (f.status||[]).includes(s.v);
+            return `<label style="display:flex;align-items:center;gap:4px;padding:4px 10px;border:1px solid ${chk?'#1E3A8A':'#E2E8F0'};border-radius:6px;cursor:pointer;background:${chk?'#EFF6FF':'#fff'};font-size:12px;">
+              <input type="checkbox" value="${s.v}" ${chk?'checked':''} onchange="updateWizFilters()" style="margin:0;"> ${s.l}
+            </label>`;
+          }).join('')}
+        </div>
+      </div>
+      <div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:10px;padding:14px;">
+        <div style="font-size:13px;font-weight:700;color:#15803d;" id="wiz-est-count">Calcolo destinatari…</div>
+        <div style="font-size:12px;color:#166534;margin-top:3px;" id="wiz-est-detail"></div>
+      </div>
+    </div>`;
+}
+
+function updateWizFilters() {
+  const regions = [...document.querySelectorAll('#wiz-regions input:checked')].map(i => i.value);
+  const types = [...document.querySelectorAll('#wizard-step-body input[type=checkbox][value^="ambulanza"], #wizard-step-body input[type=checkbox][value="volontariato"], #wizard-step-body input[type=checkbox][value="cooperativa"], #wizard-step-body input[type=checkbox][value="croce_rossa"], #wizard-step-body input[type=checkbox][value="misericordia"], #wizard-step-body input[type=checkbox][value="altro"]')].filter(i=>i.checked).map(i=>i.value);
+  const statuses = [...document.querySelectorAll('#wizard-step-body input[type=checkbox][value="new"], #wizard-step-body input[type=checkbox][value="contacted"], #wizard-step-body input[type=checkbox][value="interested"]')].filter(i=>i.checked).map(i=>i.value);
+
+  _wizardData.filters = { region: regions, type: types, status: statuses };
+
+  // Stima destinatari — usa campaign esistente se già creata
+  if (_wizardCampaignId) {
+    adminFetch(`/api/crm/campaigns/${_wizardCampaignId}/preview`)
+      .then(r => r.json()).then(data => {
+        const el = document.getElementById('wiz-est-count');
+        const det = document.getElementById('wiz-est-detail');
+        if (el) el.textContent = `✓ ${data.total} organizzazioni stimate`;
+        if (det && data.sample?.length) det.textContent = `es. ${data.sample.map(s => s.name).join(', ')}…`;
+      }).catch(() => {});
+  }
+}
+
+async function wizardLoadConfirm() {
+  const body = document.getElementById('wizard-step-body');
+
+  // Crea campagna se non ancora creata
+  if (!_wizardCampaignId) {
+    const res = await adminFetch('/api/crm/campaigns', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: _wizardData.name,
+        description: _wizardData.description,
+        template_id: _wizardData.template_id,
+        send_method: _wizardData.send_method || 'resend',
+        smtp_config_id: _wizardData.smtp_config_id || null,
+        filters: _wizardData.filters || {},
+      }),
+    });
+    if (!res.ok) {
+      const e = await res.json();
+      body.innerHTML = `<div style="padding:40px;text-align:center;color:#dc2626;">Errore: ${e.error}</div>`;
+      return;
+    }
+    const camp = await res.json();
+    _wizardCampaignId = camp.id;
+  }
+
+  // Carica preview destinatari
+  const [previewRes, tplRes] = await Promise.all([
+    adminFetch(`/api/crm/campaigns/${_wizardCampaignId}/preview`),
+    adminFetch('/api/crm/templates'),
+  ]);
+  const preview = previewRes.ok ? await previewRes.json() : { total: 0, sample: [] };
+  const templates = tplRes.ok ? await tplRes.json() : [];
+  const tpl = templates.find(t => t.id === _wizardData.template_id);
+
+  body.innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:16px;">
+      <div style="background:#F8FAFF;border:1px solid #DBEAFE;border-radius:10px;padding:16px;">
+        <div style="font-size:13px;font-weight:700;color:#0B2347;margin-bottom:8px;">Riepilogo campagna</div>
+        <div style="font-size:13px;color:#374151;"><strong>Nome:</strong> ${escapeHtml(_wizardData.name)}</div>
+        <div style="font-size:13px;color:#374151;margin-top:4px;"><strong>Template:</strong> ${escapeHtml(tpl?.name || '—')}</div>
+        <div style="font-size:13px;color:#374151;margin-top:4px;"><strong>Metodo:</strong> ${_wizardData.send_method === 'smtp' ? 'SMTP personalizzato' : 'Resend'}</div>
+        <div style="font-size:13px;color:#374151;margin-top:4px;"><strong>Oggetto:</strong> ${escapeHtml(tpl?.subject || '—')}</div>
+      </div>
+      <div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:10px;padding:16px;">
+        <div style="font-size:20px;font-weight:800;color:#15803d;">${preview.total} organizzazioni</div>
+        <div style="font-size:12px;color:#166534;margin-top:4px;">riceveranno questa email</div>
+        ${preview.sample?.length ? `<div style="font-size:12px;color:#166534;margin-top:6px;">Esempi: ${preview.sample.map(s => escapeHtml(s.name)).join(', ')}…</div>` : ''}
+      </div>
+      <div style="background:#FFFBEB;border:1px solid #FDE68A;border-radius:10px;padding:12px;font-size:12px;color:#92400E;">
+        ⚠ Una volta avviata, la campagna invierà email reali. Verifica i filtri prima di procedere.
+      </div>
+    </div>`;
+}
+
+async function wizardNext() {
+  if (_wizardStep === 1) {
+    const name = document.getElementById('wiz-name')?.value.trim();
+    if (!name) { alert('Inserisci un nome per la campagna'); return; }
+    _wizardData.name = name;
+    _wizardData.description = document.getElementById('wiz-description')?.value.trim() || '';
+    _wizardData.send_method = document.getElementById('wiz-send-method')?.value || 'resend';
+    _wizardData.smtp_config_id = document.getElementById('wiz-smtp-id')?.value || null;
+    _wizardStep = 2;
+  } else if (_wizardStep === 2) {
+    if (!_wizardData.template_id) { alert('Seleziona un template'); return; }
+    _wizardStep = 3;
+  } else if (_wizardStep === 3) {
+    updateWizFilters();
+    _wizardStep = 4;
+  } else if (_wizardStep === 4) {
+    // Avvia campagna
+    if (!_wizardCampaignId) { alert('Errore: campagna non creata'); return; }
+    document.getElementById('crm-wizard-overlay')?.remove();
+    showNotification('Campagna creata! Vai su "Campagne" per avviarla.', 'success');
+    loadCrmCampaigns();
+    return;
+  }
+  renderWizardStep();
+}
+
+function wizardBack() {
+  if (_wizardStep <= 1) {
+    document.getElementById('crm-wizard-overlay')?.remove();
+    return;
+  }
+  _wizardStep--;
+  renderWizardStep();
+}
+
+// ── Analytics ─────────────────────────────────────────────
+
+async function loadCrmAnalytics() {
+  const container = document.getElementById('crm-analytics-container');
+  if (!container) return;
+  container.innerHTML = '<div style="padding:40px;text-align:center;color:#9CA3AF;">Caricamento analytics…</div>';
+
+  const res = await adminFetch('/api/crm/analytics');
+  if (!res.ok) { container.innerHTML = '<div style="padding:40px;text-align:center;color:#dc2626;">Errore caricamento analytics</div>'; return; }
+  const data = await res.json();
+  const g = data.global || {};
+  const maxCount = data.top_regions?.[0]?.count || 1;
+
+  container.innerHTML = `
+    <!-- KPI globali -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">
+      <div style="background:#fff;border-radius:12px;padding:18px;border:1px solid #E2E8F0;">
+        <div style="font-size:26px;font-weight:800;color:#0B2347;">${g.total_sent || 0}</div>
+        <div style="font-size:12px;color:#64748B;margin-top:4px;">Email totali inviate</div>
+      </div>
+      <div style="background:#fff;border-radius:12px;padding:18px;border:1px solid #E2E8F0;">
+        <div style="font-size:26px;font-weight:800;color:#10B981;">${g.avg_open_rate || 0}%</div>
+        <div style="font-size:12px;color:#64748B;margin-top:4px;">Open rate medio</div>
+      </div>
+      <div style="background:#fff;border-radius:12px;padding:18px;border:1px solid #E2E8F0;">
+        <div style="font-size:26px;font-weight:800;color:#1E3A8A;">${g.avg_click_rate || 0}%</div>
+        <div style="font-size:12px;color:#64748B;margin-top:4px;">Click rate medio</div>
+      </div>
+      <div style="background:#fff;border-radius:12px;padding:18px;border:1px solid #E2E8F0;">
+        <div style="font-size:26px;font-weight:800;color:#F59E0B;">${g.total_campaigns || 0}</div>
+        <div style="font-size:12px;color:#64748B;margin-top:4px;">Campagne completate</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:2fr 1fr;gap:16px;">
+      <!-- Campagne recenti -->
+      <div style="background:#fff;border-radius:12px;padding:20px;border:1px solid #E2E8F0;">
+        <h4 style="font-size:14px;font-weight:700;color:#0B2347;margin:0 0 14px;">Campagne completate</h4>
+        ${!data.recent_campaigns?.length ? '<div style="padding:20px;text-align:center;color:#9CA3AF;font-size:13px;">Nessuna campagna completata</div>' :
+        `<table style="width:100%;border-collapse:collapse;">
+          <thead><tr style="border-bottom:1px solid #F0F4FF;">
+            <th style="text-align:left;padding:7px 0;font-size:11px;color:#94A3B8;font-weight:600;text-transform:uppercase;">Campagna</th>
+            <th style="text-align:right;padding:7px 0;font-size:11px;color:#94A3B8;font-weight:600;text-transform:uppercase;">Inv.</th>
+            <th style="text-align:right;padding:7px 0;font-size:11px;color:#94A3B8;font-weight:600;text-transform:uppercase;">Open</th>
+            <th style="text-align:right;padding:7px 0;font-size:11px;color:#94A3B8;font-weight:600;text-transform:uppercase;">Click</th>
+          </tr></thead>
+          <tbody>${data.recent_campaigns.map(c => `
+            <tr style="border-bottom:1px solid #F8FAFF;">
+              <td style="padding:9px 0;font-size:12px;font-weight:600;color:#0B2347;">${escapeHtml(c.name)}</td>
+              <td style="padding:9px 0;font-size:12px;color:#64748B;text-align:right;">${c.total_sent || 0}</td>
+              <td style="padding:9px 0;font-size:12px;font-weight:600;color:#10B981;text-align:right;">${c.open_rate || 0}%</td>
+              <td style="padding:9px 0;font-size:12px;font-weight:600;color:#1E3A8A;text-align:right;">${c.total_sent > 0 ? ((c.total_clicked/c.total_sent)*100).toFixed(1) : 0}%</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>`}
+      </div>
+
+      <!-- Top regioni -->
+      <div style="background:#fff;border-radius:12px;padding:20px;border:1px solid #E2E8F0;">
+        <h4 style="font-size:14px;font-weight:700;color:#0B2347;margin:0 0 14px;">Top regioni</h4>
+        ${!data.top_regions?.length ? '<div style="padding:20px;text-align:center;color:#9CA3AF;font-size:13px;">Nessun dato</div>' :
+        data.top_regions.map(r => `
+          <div style="margin-bottom:10px;">
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;">
+              <span style="font-weight:600;color:#374151;">${r.region}</span>
+              <span style="color:#6B7280;">${r.count}</span>
+            </div>
+            <div style="background:#F0F4FF;border-radius:3px;height:6px;overflow:hidden;">
+              <div style="height:100%;background:#1E3A8A;border-radius:3px;width:${Math.min(100,(r.count/maxCount)*100)}%;"></div>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>`;
 }
 
 // ── Template management ────────────────────────────────────
