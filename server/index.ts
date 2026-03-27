@@ -502,10 +502,9 @@ function setupErrorHandler(app: express.Application) {
   log("Starting Express server...");
 
   // Security headers — first middleware
-  // CSP allows existing CDN dependencies (chart.js, leaflet, d3, jspdf, Google Fonts)
-  // while blocking scripts from unknown origins and preventing clickjacking/object injection.
-  // 'unsafe-inline' for scripts is required by the vanilla JS dashboard (no build/nonce step).
-  // Key security gains: frame-ancestors, object-src none, base-uri, connect-src whitelist.
+  // CSP: key gains are frame-ancestors (clickjacking), object-src none (plugins),
+  // base-uri (base-tag injection), and connect-src whitelist (data exfiltration).
+  // 'unsafe-inline' is required by the vanilla JS dashboard (onclick handlers, no nonce/build step).
   app.use(helmet({
     contentSecurityPolicy: {
       directives: {
@@ -517,8 +516,17 @@ function setupErrorHandler(app: express.Application) {
           "unpkg.com",
           "cdnjs.cloudflare.com",
         ],
-        styleSrc: ["'self'", "'unsafe-inline'", "fonts.googleapis.com"],
-        fontSrc: ["'self'", "fonts.gstatic.com"],
+        styleSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          "fonts.googleapis.com",
+          "unpkg.com",
+        ],
+        fontSrc: [
+          "'self'",
+          "fonts.googleapis.com",
+          "fonts.gstatic.com",
+        ],
         imgSrc: ["'self'", "data:", "blob:", "https:"],
         mediaSrc: ["'self'", "blob:", "https:"],
         connectSrc: [
@@ -529,6 +537,9 @@ function setupErrorHandler(app: express.Application) {
           "https://app.posthog.com",
           "https://nominatim.openstreetmap.org",
           "https://*.basemaps.cartocdn.com",
+          "https://*.openstreetmap.org",
+          "https://unpkg.com",
+          "https://cdnjs.cloudflare.com",
         ],
         frameSrc: ["'self'", "https://cdn.embedly.com", "https://www.youtube.com", "https://js.stripe.com"],
         objectSrc: ["'none'"],
