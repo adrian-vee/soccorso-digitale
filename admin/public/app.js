@@ -465,7 +465,8 @@ function downloadLocationCredentialsPDF(locationName) {
 window.downloadLocationCredentialsPDF = downloadLocationCredentialsPDF;
 
 function openCredentialModal() {
-  document.getElementById('credential-modal-title').textContent = 'Nuovo Account Veicolo';
+  const credModalTitle = document.getElementById('credential-modal-title');
+  if (credModalTitle) credModalTitle.textContent = 'Nuovo Account Veicolo';
   document.getElementById('cred-email').value = '';
   document.getElementById('cred-password').value = '';
   document.getElementById('cred-name').value = '';
@@ -483,7 +484,8 @@ function openCredentialModal() {
 window.openCredentialModal = openCredentialModal;
 
 function openEditCredentialModal(userId, vehicleId, email, password, name) {
-  document.getElementById('credential-modal-title').textContent = 'Modifica Account';
+  const credModalTitleEdit = document.getElementById('credential-modal-title');
+  if (credModalTitleEdit) credModalTitleEdit.textContent = 'Modifica Account';
   document.getElementById('cred-email').value = email;
   document.getElementById('cred-password').value = password;
   document.getElementById('cred-name').value = name;
@@ -2121,7 +2123,8 @@ async function refreshData() {
 function updateLastUpdate() {
   const now = new Date();
   const time = now.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
-  document.getElementById('last-update').textContent = `Ultimo aggiornamento: ${time}`;
+  const lastUpdateEl = document.getElementById('last-update');
+  if (lastUpdateEl) lastUpdateEl.textContent = `Ultimo aggiornamento: ${time}`;
 }
 
 function navigateTo(page) {
@@ -2430,8 +2433,10 @@ function buildFleetTree() {
     `;
   }).join('');
   
-  document.getElementById('active-count').textContent = activeCount;
-  document.getElementById('idle-count').textContent = idleCount;
+  const activeCountEl = document.getElementById('active-count');
+  if (activeCountEl) activeCountEl.textContent = activeCount;
+  const idleCountEl = document.getElementById('idle-count');
+  if (idleCountEl) idleCountEl.textContent = idleCount;
   
   container.querySelectorAll('.fleet-location-header').forEach(header => {
     header.addEventListener('click', () => {
@@ -2586,14 +2591,18 @@ async function loadDashboardMetrics() {
     const avgDurationDisplay = data.kpis.avgDuration > 0 
       ? `${Math.floor(data.kpis.avgDuration / 60)}:${String(data.kpis.avgDuration % 60).padStart(2, '0')}`
       : '00:00';
-    document.getElementById('kpi-avg-duration').textContent = avgDurationDisplay;
+    const kpiAvgDur = document.getElementById('kpi-avg-duration');
+    if (kpiAvgDur) kpiAvgDur.textContent = avgDurationDisplay;
     updateKpiTrend('kpi-duration-trend', data.kpis.durationChange);
-    
-    document.getElementById('kpi-avg-km').textContent = data.kpis.avgKmPerService.toFixed(1);
+
+    const kpiAvgKm = document.getElementById('kpi-avg-km');
+    if (kpiAvgKm) kpiAvgKm.textContent = data.kpis.avgKmPerService.toFixed(1);
     updateKpiTrend('kpi-avgkm-trend', data.kpis.avgKmChange);
-    
-    document.getElementById('kpi-active-vehicles').textContent = data.kpis.activeVehicles;
-    document.getElementById('kpi-active-crews').textContent = data.kpis.activeCrews;
+
+    const kpiActiveVeh = document.getElementById('kpi-active-vehicles');
+    if (kpiActiveVeh) kpiActiveVeh.textContent = data.kpis.activeVehicles;
+    const kpiActiveCrews = document.getElementById('kpi-active-crews');
+    if (kpiActiveCrews) kpiActiveCrews.textContent = data.kpis.activeCrews;
     
     // Store and update trend chart
     dashboardDailyData = data.dailyTrend;
@@ -2609,10 +2618,14 @@ async function loadDashboardMetrics() {
     renderLocationChart(data.locationPerformance);
     
     // Update data quality metrics
-    document.getElementById('quality-complete').textContent = `${data.dataQuality.completionRate}%`;
-    document.getElementById('quality-missing').textContent = `${data.dataQuality.missingRate}%`;
-    document.getElementById('quality-anomalies').textContent = data.dataQuality.anomalyCount;
-    document.getElementById('quality-avg-time').textContent = data.dataQuality.avgEntryTime;
+    const qComplete = document.getElementById('quality-complete');
+    if (qComplete) qComplete.textContent = `${data.dataQuality.completionRate}%`;
+    const qMissing = document.getElementById('quality-missing');
+    if (qMissing) qMissing.textContent = `${data.dataQuality.missingRate}%`;
+    const qAnomalies = document.getElementById('quality-anomalies');
+    if (qAnomalies) qAnomalies.textContent = data.dataQuality.anomalyCount;
+    const qAvgTime = document.getElementById('quality-avg-time');
+    if (qAvgTime) qAvgTime.textContent = data.dataQuality.avgEntryTime;
     
     // Update new quality score elements if they exist
     const overallScoreEl = document.getElementById('quality-overall-score');
@@ -2621,9 +2634,12 @@ async function loadDashboardMetrics() {
     if (coherenceScoreEl) coherenceScoreEl.textContent = `${data.dataQuality.coherenceScore || 0}%`;
     
     // Update KPIs in location panel
-    document.getElementById('kpi-completion-rate').textContent = `+${data.dataQuality.completionRate}%`;
-    document.getElementById('kpi-missing-rate').textContent = `-${data.dataQuality.missingRate}%`;
-    document.getElementById('kpi-anomaly-rate').textContent = 
+    const kpiCompRate = document.getElementById('kpi-completion-rate');
+    if (kpiCompRate) kpiCompRate.textContent = `+${data.dataQuality.completionRate}%`;
+    const kpiMissRate = document.getElementById('kpi-missing-rate');
+    if (kpiMissRate) kpiMissRate.textContent = `-${data.dataQuality.missingRate}%`;
+    const kpiAnomalyRate = document.getElementById('kpi-anomaly-rate');
+    if (kpiAnomalyRate) kpiAnomalyRate.textContent =
       data.dataQuality.anomalyCount === 0 ? '+100%' : `-${Math.min(data.dataQuality.anomalyCount * 5, 100)}%`;
     
     // Update last update time
@@ -2919,6 +2935,78 @@ function renderSaasAdoption(orgs) {
     </div>`;
   });
   listEl.innerHTML = items.join('');
+}
+
+// ============================================================
+// MODAL HELPER (usato da CRM e altri moduli)
+// ============================================================
+
+/**
+ * Apre un modale generico.
+ * @param {Object} opts
+ * @param {string} opts.title - Titolo del modale
+ * @param {string} opts.content - HTML del corpo
+ * @param {Function} opts.onSave - async callback chiamata al click "Salva"; lancia Error per bloccare la chiusura
+ * @param {string} [opts.saveLabel] - Etichetta del bottone salva
+ * @param {'sm'|'md'|'lg'|'xl'} [opts.size] - Larghezza: sm=400 md=520 lg=640 xl=800
+ * @returns {HTMLElement} - L'elemento overlay del modale
+ */
+function showModal({ title, content, onSave, saveLabel = 'Salva', size = 'md' }) {
+  const widths = { sm: '400px', md: '520px', lg: '640px', xl: '800px' };
+  const w = widths[size] || widths.md;
+
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:2000;display:flex;align-items:center;justify-content:center;padding:20px;';
+
+  const closeModal = () => overlay.remove();
+
+  overlay.innerHTML = `
+    <div id="_modal-box" style="background:#fff;border-radius:16px;width:${w};max-width:100%;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:20px 24px;border-bottom:1px solid #F0F4FF;flex-shrink:0;">
+        <h3 style="margin:0;font-size:17px;font-weight:700;color:#0B2347;">${title}</h3>
+        <button id="_modal-close" style="background:none;border:none;font-size:22px;cursor:pointer;color:#94A3B8;line-height:1;">×</button>
+      </div>
+      <div style="padding:20px 24px;overflow-y:auto;flex:1;">${content}</div>
+      <div style="padding:16px 24px;border-top:1px solid #F0F4FF;display:flex;justify-content:flex-end;gap:8px;flex-shrink:0;">
+        <button id="_modal-cancel" style="padding:9px 18px;border:1px solid #E2E8F0;border-radius:8px;background:#fff;font-size:14px;color:#374151;cursor:pointer;">Annulla</button>
+        <button id="_modal-save" style="padding:9px 22px;background:#1E3A8A;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">${saveLabel}</button>
+      </div>
+    </div>`;
+
+  overlay.querySelector('#_modal-close').addEventListener('click', closeModal);
+  overlay.querySelector('#_modal-cancel').addEventListener('click', closeModal);
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
+
+  overlay.querySelector('#_modal-save').addEventListener('click', async () => {
+    const btn = overlay.querySelector('#_modal-save');
+    const origLabel = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Salvataggio…';
+    try {
+      await onSave();
+      closeModal();
+    } catch (err) {
+      btn.disabled = false;
+      btn.textContent = origLabel;
+      const errDiv = overlay.querySelector('#_modal-err');
+      if (errDiv) {
+        errDiv.textContent = err.message;
+        errDiv.style.display = 'block';
+      } else {
+        alert(err.message);
+      }
+    }
+  });
+
+  // Slot opzionale per messaggi di errore inline — inserito prima del footer
+  const footer = overlay.querySelector('#_modal-save').parentElement;
+  const errEl = document.createElement('div');
+  errEl.id = '_modal-err';
+  errEl.style.cssText = 'display:none;color:#dc2626;font-size:13px;margin-right:auto;align-self:center;';
+  footer.insertBefore(errEl, footer.firstChild);
+
+  document.body.appendChild(overlay);
+  return overlay;
 }
 
 // ============================================================
