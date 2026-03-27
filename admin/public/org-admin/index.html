@@ -349,6 +349,7 @@ const FREE_MODULES = [
   { id: 'flotta', label: 'Flotta', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M5 17H3v-4m0-2V6h9l4 5h1a3 3 0 0 1 3 3v3h-2"/><path d="M9 17h6"/></svg>' },
   { id: 'anagrafica', label: 'Anagrafica Personale', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>' },
   { id: 'strutture', label: 'Strutture Sanitarie', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/><path d="M9 9v.01"/><path d="M9 12v.01"/><path d="M9 15v.01"/><path d="M9 18v.01"/></svg>' },
+  { id: 'hub_prenotazioni', label: 'Hub Prenotazioni', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/></svg>' },
   { id: 'analytics', label: 'Analytics Operative', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M7 16V8"/><path d="M11 16V11"/><path d="M15 16V14"/><path d="M19 16V10"/></svg>' },
   { id: 'impostazioni', label: 'Impostazioni', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1.08-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1.08 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1.08 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.604.852.997 1.51 1.08H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1.08z"/></svg>' },
 ];
@@ -392,7 +393,7 @@ const SIDEBAR_SECTIONS = [
     label: 'Operativo',
     color: '#3b82f6',
     icon: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg>',
-    freeIds: ['servizi', 'flotta'],
+    freeIds: ['servizi', 'flotta', 'hub_prenotazioni'],
     paidIds: ['gps_live', 'controlli_operativi', 'consegne_digitali', 'registro_sanificazioni']
   },
   {
@@ -700,6 +701,7 @@ function navigate(page) {
     case 'dashboard': loadDashboard(); break;
     case 'servizi': loadServizi(); break;
     case 'flotta': loadFlotta(); break;
+    case 'hub_prenotazioni': loadHubPrenotazioni(); break;
     case 'anagrafica': loadAnagrafica(); break;
     case 'strutture': loadStrutture(); break;
     case 'analytics': loadAnalytics(); break;
@@ -1313,6 +1315,140 @@ async function loadImpostazioni() {
       document.getElementById('s-msg').innerHTML = `<div class="alert alert-error">${err.message}</div>`;
     }
   });
+}
+
+async function loadHubPrenotazioni() {
+  document.getElementById('page-title').textContent = 'Hub Prenotazioni';
+  document.getElementById('page-body').innerHTML = '<p style="color:var(--text-muted);padding:20px;">Caricamento...</p>';
+
+  let bookings = [];
+  try {
+    bookings = await apiFetch('/api/admin/hub/bookings');
+  } catch (err) {
+    document.getElementById('page-body').innerHTML = `<div class="alert alert-error">${err.message}</div>`;
+    return;
+  }
+
+  const pending = bookings.filter(b => b.status === 'pending');
+  const confirmed = bookings.filter(b => b.status === 'confirmed');
+  const rejected = bookings.filter(b => b.status === 'rejected');
+  const completed = bookings.filter(b => b.status === 'completed');
+
+  const statusLabel = { pending: 'In attesa', confirmed: 'Confermata', rejected: 'Rifiutata', cancelled: 'Annullata', completed: 'Completata' };
+  const statusColor = { pending: '#f59e0b', confirmed: '#22c55e', rejected: '#ef4444', cancelled: '#86868b', completed: '#3b82f6' };
+  const statusBg = { pending: '#fffbeb', confirmed: '#f0fdf4', rejected: '#fef2f2', cancelled: '#f5f5f7', completed: '#eff6ff' };
+
+  function fmtDate(d) {
+    if (!d) return '-';
+    return new Intl.DateTimeFormat('it-IT', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(d));
+  }
+  function fmtClient(b) {
+    if (!b.client) return '—';
+    const name = [b.client.firstName, b.client.lastName].filter(Boolean).join(' ');
+    return name || b.client.email || '—';
+  }
+
+  let rows = '';
+  if (bookings.length === 0) {
+    rows = `<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted);">Nessuna prenotazione ricevuta</td></tr>`;
+  } else {
+    bookings.forEach(b => {
+      const st = b.status || 'pending';
+      const actions = st === 'pending' ? `
+        <button class="btn btn-sm" style="background:#f0fdf4;color:#166534;border:1px solid #bbf7d0;font-size:11px;padding:4px 10px;border-radius:6px;cursor:pointer;" onclick="hubConfirm('${b.id}')">✓ Conferma</button>
+        <button class="btn btn-sm" style="background:#fef2f2;color:#991b1b;border:1px solid #fecaca;font-size:11px;padding:4px 10px;border-radius:6px;cursor:pointer;margin-left:4px;" onclick="hubReject('${b.id}')">✕ Rifiuta</button>
+      ` : `<span style="font-size:11px;color:var(--text-muted);">${statusLabel[st] || st}</span>`;
+
+      rows += `<tr style="border-bottom:1px solid var(--border);">
+        <td style="padding:12px 14px;">
+          <div style="font-size:12px;font-weight:600;color:var(--text-primary);">${b.bookingNumber || b.id.slice(0,8)}</div>
+          <div style="font-size:11px;color:var(--text-muted);">${fmtDate(b.createdAt)}</div>
+        </td>
+        <td style="padding:12px 14px;">
+          <div style="font-size:13px;font-weight:500;">${fmtClient(b)}</div>
+          <div style="font-size:11px;color:var(--text-muted);">${b.client?.email || ''}</div>
+        </td>
+        <td style="padding:12px 14px;">
+          <div style="font-size:13px;">${fmtDate(b.requestedDate)}</div>
+          <div style="font-size:11px;color:var(--text-muted);">${b.requestedTimeStart || ''}</div>
+        </td>
+        <td style="padding:12px 14px;">
+          <div style="font-size:12px;line-height:1.4;">
+            <span style="color:var(--text-muted);font-size:10px;text-transform:uppercase;letter-spacing:.04em;">Da</span><br>
+            ${b.pickupAddress || '-'}<br>
+            <span style="color:var(--text-muted);font-size:10px;text-transform:uppercase;letter-spacing:.04em;margin-top:4px;display:block;">A</span><br>
+            ${b.dropoffAddress || '-'}
+          </div>
+        </td>
+        <td style="padding:12px 14px;">
+          <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:${statusBg[st] || '#f5f5f7'};color:${statusColor[st] || '#555'};">
+            <span style="width:5px;height:5px;border-radius:50%;background:${statusColor[st] || '#555'};flex-shrink:0;"></span>
+            ${statusLabel[st] || st}
+          </span>
+        </td>
+        <td style="padding:12px 14px;white-space:nowrap;">${actions}</td>
+      </tr>`;
+    });
+  }
+
+  const orgSlug = currentOrg?.slug || '';
+
+  document.getElementById('page-body').innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">
+      <div class="stat-card"><div class="stat-value" style="color:#f59e0b">${pending.length}</div><div class="stat-label">In attesa</div></div>
+      <div class="stat-card"><div class="stat-value" style="color:#22c55e">${confirmed.length}</div><div class="stat-label">Confermate</div></div>
+      <div class="stat-card"><div class="stat-value" style="color:#3b82f6">${completed.length}</div><div class="stat-label">Completate</div></div>
+      <div class="stat-card"><div class="stat-value" style="color:#ef4444">${rejected.length}</div><div class="stat-label">Rifiutate</div></div>
+    </div>
+
+    ${orgSlug ? `<div class="alert" style="background:#f0f9ff;border:1px solid #bae6fd;color:#0c4a6e;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;">
+      <span style="font-size:13px;">Link pubblico prenotazioni:</span>
+      <a href="/hub/${orgSlug}" target="_blank" style="font-size:13px;font-weight:600;color:#0c4a6e;">/hub/${orgSlug} ↗</a>
+    </div>` : ''}
+
+    <div style="background:var(--surface);border-radius:var(--radius-lg);border:1px solid var(--border);overflow:hidden;">
+      <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:14px;font-weight:600;">Tutte le prenotazioni</span>
+        <button class="btn btn-sm btn-outline" onclick="loadHubPrenotazioni()" style="font-size:12px;">↺ Aggiorna</button>
+      </div>
+      <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;">
+          <thead>
+            <tr style="background:var(--background);">
+              <th style="padding:10px 14px;text-align:left;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;">N° / Data</th>
+              <th style="padding:10px 14px;text-align:left;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;">Cliente</th>
+              <th style="padding:10px 14px;text-align:left;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;">Data Trasporto</th>
+              <th style="padding:10px 14px;text-align:left;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;">Percorso</th>
+              <th style="padding:10px 14px;text-align:left;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;">Stato</th>
+              <th style="padding:10px 14px;text-align:left;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;">Azioni</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+async function hubConfirm(id) {
+  if (!confirm('Confermi questa prenotazione? Verrà inviata email al cliente.')) return;
+  try {
+    await apiFetch(`/api/admin/hub/bookings/${id}/confirm`, { method: 'PUT', body: JSON.stringify({}) });
+    loadHubPrenotazioni();
+  } catch (err) {
+    alert('Errore: ' + err.message);
+  }
+}
+
+async function hubReject(id) {
+  const reason = prompt('Motivo del rifiuto (opzionale):') ?? null;
+  if (reason === null) return; // utente ha premuto Cancel
+  try {
+    await apiFetch(`/api/admin/hub/bookings/${id}/reject`, { method: 'PUT', body: JSON.stringify({ rejectReason: reason }) });
+    loadHubPrenotazioni();
+  } catch (err) {
+    alert('Errore: ' + err.message);
+  }
 }
 
 function showModal(title, content, onSave) {

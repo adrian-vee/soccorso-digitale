@@ -588,16 +588,9 @@ function setupErrorHandler(app: express.Application) {
     serveSaasLandingPage(res);
   });
 
-  // Booking Hub Directory - list all organizations with booking_hub enabled
+  // Hub directory blocked — nessun listing pubblico delle org
   app.get("/hub", (_req, res) => {
-    const hubDirPath = path.resolve(process.cwd(), "server", "templates", "hub-directory.html");
-    if (!fs.existsSync(hubDirPath)) {
-      return res.status(404).send("Pagina non trovata");
-    }
-    const html = fs.readFileSync(hubDirPath, "utf-8");
-    res.setHeader("Content-Type", "text/html; charset=utf-8");
-    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-    res.status(200).send(html);
+    res.status(404).send("Pagina non trovata");
   });
 
   // Booking Hub Portal - public pages for each organization
