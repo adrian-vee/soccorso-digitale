@@ -73,14 +73,34 @@ const PROVINCE_COORDS: Record<
 };
 
 const SEARCH_KEYWORDS = [
-  "croce verde",
-  "croce bianca",
-  "pubblica assistenza",
-  "ambulanza",
-  "trasporto sanitario",
-  "misericordia",
-  "volontari soccorso",
-  "pronto soccorso volontari",
+  // Cattura TUTTE le croci (rossa, verde, bianca, azzurra, viola, gialla, ecc.)
+  'croce',
+
+  // Cattura tutte le misericordie
+  'misericordia',
+
+  // Cattura pubblica assistenza e varianti
+  'pubblica assistenza',
+
+  // Ambulanze private e cooperative
+  'ambulanza',
+  'trasporto sanitario',
+  'trasporto infermi',
+  'trasporto disabili',
+  'trasporto dialisi',
+
+  // Volontariato sanitario generico
+  'soccorso volontari',
+  'associazione soccorso',
+  'volontariato sanitario',
+
+  // Cooperative sociali sanitarie
+  'cooperativa sociale sanitaria',
+  'cooperativa trasporto sanitario',
+
+  // Emergenza
+  'emergenza urgenza',
+  'pronto soccorso volontari',
 ];
 
 async function searchPlacesInArea(
