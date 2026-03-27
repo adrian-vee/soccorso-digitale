@@ -12,6 +12,8 @@ import { pool } from "./db";
 import { logger } from "./logger";
 import { setupSwagger } from "./swagger";
 import { globalLimiter, loginLimiter, publicApiLimiter } from "./rate-limit";
+import { apiVersionRewrite, apiVersionHeaders } from "./middleware/api-version";
+import { stagingBanner } from "./middleware/staging-banner";
 import * as fs from "fs";
 import * as path from "path";
 import { UPLOADS_DIR } from "./uploads-dir";
@@ -127,8 +129,13 @@ function setupSession(app: express.Application) {
 
 function setupRequestLogging(app: express.Application) {
   const isProduction = process.env.NODE_ENV === "production";
-  
-  app.use((req, res, next) => {
+
+  app.use((req: Request, res, next) => {
+    // Correlation ID: use X-Request-ID from client or generate a new one
+    const requestId = (req.headers["x-request-id"] as string) || crypto.randomUUID();
+    (req as any).requestId = requestId;
+    res.setHeader("X-Request-ID", requestId);
+
     const start = Date.now();
     const reqPath = req.path;
 
@@ -136,7 +143,7 @@ function setupRequestLogging(app: express.Application) {
       res.on("finish", () => {
         if (!reqPath.startsWith("/api")) return;
         const duration = Date.now() - start;
-        log(`${req.method} ${reqPath} ${res.statusCode} in ${duration}ms`);
+        logger.info({ requestId, method: req.method, path: reqPath, status: res.statusCode, duration }, `${req.method} ${reqPath} ${res.statusCode}`);
       });
     } else {
       let capturedJsonResponse: Record<string, unknown> | undefined = undefined;
@@ -500,6 +507,13 @@ function setupErrorHandler(app: express.Application) {
   // Global rate limiting
   app.use(globalLimiter);
 
+  // API v1 URL rewrite (/api/v1/* → /api/*) and version headers
+  app.use(apiVersionRewrite);
+  app.use("/api", apiVersionHeaders);
+
+  // Staging environment banner
+  app.use(stagingBanner);
+
   setupCors(app);
   setupBodyParsing(app);
   setupSession(app);
@@ -606,6 +620,9 @@ function setupErrorHandler(app: express.Application) {
   // Rate limiting for login and public API
   app.use("/api/auth/login", loginLimiter);
   app.use("/api/hub", publicApiLimiter);
+  // v1 paths inherit the rewrite above — these are kept for clarity
+  app.use("/api/v1/auth/login", loginLimiter);
+  app.use("/api/v1/hub", publicApiLimiter);
 
   // API Documentation
   setupSwagger(app);

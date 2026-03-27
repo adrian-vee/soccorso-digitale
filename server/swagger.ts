@@ -7,15 +7,17 @@ const options: swaggerJsdoc.Options = {
     openapi: "3.0.0",
     info: {
       title: "Soccorso Digitale API",
-      version: "2.0.0",
-      description: "API per la gestione dei servizi di trasporto sanitario",
+      version: "2.1.0",
+      description: "API per la gestione dei servizi di trasporto sanitario programmati. Supporta sia /api/v1/* (versioned) che /api/* (legacy).",
       contact: {
-        name: "Soccorso Digitale Support",
-        email: "support@soccorsodigitale.it",
+        name: "Soccorso Digitale",
+        url: "https://soccorsodigitale.app",
+        email: "hello@soccorsodigitale.app",
       },
     },
     servers: [
-      { url: "/api", description: "API Server" },
+      { url: "/api/v1", description: "API v1 (corrente)" },
+      { url: "/api", description: "API legacy (alias di v1)" },
     ],
     components: {
       securitySchemes: {
