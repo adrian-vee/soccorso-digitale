@@ -35913,6 +35913,10 @@ function exportScoreCard() {
 }
 
 // === SAAS METRICS ===
+function loadSaasMetrics() {
+  renderSampleSaasMetrics();
+}
+
 async function calculateSaasMetrics() {
   showNotification('Calcolo metriche SaaS...', 'info');
   try {

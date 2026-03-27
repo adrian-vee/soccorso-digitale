@@ -540,6 +540,7 @@ function setupErrorHandler(app: express.Application) {
           "https://*.openstreetmap.org",
           "https://unpkg.com",
           "https://cdnjs.cloudflare.com",
+          "https://cdn.jsdelivr.net",
         ],
         frameSrc: ["'self'", "https://cdn.embedly.com", "https://www.youtube.com", "https://js.stripe.com"],
         objectSrc: ["'none'"],
