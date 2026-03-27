@@ -474,6 +474,16 @@ export function registerAuthRoutes(app: Express) {
   });
 
   // Update user settings
+  const userSettingsUpdateSchema = z.object({
+    notificationsEnabled: z.boolean().optional(),
+    soundEnabled: z.boolean().optional(),
+    vibrationEnabled: z.boolean().optional(),
+    checklistReminderEnabled: z.boolean().optional(),
+    checklistReminderTime: z.string().regex(/^\d{2}:\d{2}$/).optional(),
+    expiryAlertsEnabled: z.boolean().optional(),
+    scadenzeReminderEnabled: z.boolean().optional(),
+  });
+
   app.put("/api/user-settings", requireAuth, async (req, res) => {
     try {
       const userId = getUserId(req);
@@ -481,7 +491,12 @@ export function registerAuthRoutes(app: Express) {
         return res.status(401).json({ error: "Non autenticato" });
       }
 
-      const settings = await storage.updateUserSettings(userId, req.body);
+      const parsed = userSettingsUpdateSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: parsed.error.errors });
+      }
+
+      const settings = await storage.updateUserSettings(userId, parsed.data);
       res.json(settings);
     } catch (error) {
       console.error("Error updating user settings:", error);
