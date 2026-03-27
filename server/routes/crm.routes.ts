@@ -35,10 +35,9 @@ function replaceTplVars(text: string, org: any): string {
 }
 
 function getSmtpKey(): Buffer {
-  return Buffer.from(
-    process.env.SESSION_SECRET || "soccorsodigitale2026secretkey!!!",
-    "utf8"
-  ).slice(0, 32);
+  const secret = process.env.SESSION_SECRET;
+  if (!secret) throw new Error("FATAL: SESSION_SECRET environment variable is required for SMTP encryption");
+  return Buffer.from(secret, "utf8").slice(0, 32);
 }
 
 function encryptPassword(password: string): string {

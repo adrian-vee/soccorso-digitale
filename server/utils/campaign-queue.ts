@@ -28,10 +28,9 @@ function sleep(ms: number): Promise<void> {
 }
 
 function decryptSmtpPassword(encrypted: string): string {
-  const key = Buffer.from(
-    process.env.SESSION_SECRET || "soccorsodigitale2026secretkey!!!",
-    "utf8"
-  ).slice(0, 32);
+  const secret = process.env.SESSION_SECRET;
+  if (!secret) throw new Error("FATAL: SESSION_SECRET environment variable is required for SMTP decryption");
+  const key = Buffer.from(secret, "utf8").slice(0, 32);
   const [ivHex, encHex] = encrypted.split(":");
   const iv = Buffer.from(ivHex, "hex");
   const decipher = crypto.createDecipheriv("aes-256-cbc", key, iv);
