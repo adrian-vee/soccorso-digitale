@@ -34918,7 +34918,7 @@ function fmtCur(v) { return new Intl.NumberFormat('it-IT', { style: 'currency', 
 
 const statusLabels = { new: 'Nuovo', evaluating: 'In Valutazione', bidding: 'In Gara', won: 'Aggiudicato', lost: 'Non Aggiudicato', expired: 'Scaduto', archived: 'Archiviato' };
 const priorityLabels = { low: 'Bassa', medium: 'Media', high: 'Alta', critical: 'Critica' };
-const serviceLabels = { emergenza_118: 'Emergenza 118', trasporto_dialisi: 'Trasporto Dialisi', trasporto_ordinario: 'Trasporto Ordinario', eventi: 'Eventi', altro: 'Altro' };
+const serviceLabels = { emergenza_118: 'Emergenza 118', trasporto_dialisi: 'Trasporto Dialisi', trasporto_ordinario: 'Trasporto Ordinario', trasporto_disabili: 'Trasporto Disabili', eventi: 'Eventi', altro: 'Altro' };
 
 function renderTendersList(tenders) {
   const c = document.getElementById('tenders-list');
@@ -34928,7 +34928,7 @@ function renderTendersList(tenders) {
   }
   c.innerHTML = tenders.map(t => {
     const daysLeft = t.deadline ? Math.ceil((new Date(t.deadline) - Date.now()) / (1000*60*60*24)) : null;
-    const deadlineClass = daysLeft !== null ? (daysLeft < 15 ? 'color:#ef4444;font-weight:600;' : daysLeft < 30 ? 'color:#f59e0b;' : 'color:#10b981;') : '';
+    const deadlineClass = daysLeft === null ? '' : daysLeft <= 0 ? 'color:#94a3b8;font-weight:600;' : daysLeft < 7 ? 'color:#ef4444;font-weight:700;' : daysLeft <= 30 ? 'color:#f59e0b;font-weight:600;' : 'color:#10b981;';
     return `<div class="tender-card">
       <div class="tender-card-header">
         <div class="tender-card-title">${t.title || 'Bando senza titolo'}</div>
@@ -34981,50 +34981,93 @@ function renderTendersTimeline(tenders) {
 
 function renderTendersMap(tenders) {
   const mapEl = document.getElementById('tenders-veneto-map');
-  const venetoCoords = {
-    'Padova': [45.4064, 11.8768], 'Venezia': [45.4408, 12.3155], 'Verona': [45.4384, 10.9916],
-    'Vicenza': [45.5455, 11.5354], 'Treviso': [45.6669, 12.2430], 'Rovigo': [45.0699, 11.7902],
-    'Belluno': [46.1404, 12.2167]
-  };
-  mapEl.innerHTML = `<div style="padding:40px;text-align:center;">
-    <h3 style="margin-bottom:16px;color:var(--text-primary);">Distribuzione Bandi - Regione Veneto</h3>
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;">
-      ${Object.entries(venetoCoords).map(([prov, coords]) => {
-        const provTenders = tenders.filter(t => (t.province || '').toLowerCase().includes(prov.toLowerCase()));
-        const total = provTenders.length;
-        const value = provTenders.reduce((s, t) => s + (parseFloat(t.estimatedValue) || 0), 0);
-        return `<div style="padding:16px;background:var(--surface);border:1px solid var(--border);border-radius:12px;text-align:center;${total > 0 ? 'border-color:var(--primary);' : ''}">
-          <div style="font-size:24px;font-weight:700;color:${total > 0 ? 'var(--primary)' : 'var(--text-secondary)'};">${total}</div>
-          <div style="font-size:14px;font-weight:600;color:var(--text-primary);margin-top:4px;">${prov}</div>
-          ${value > 0 ? `<div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">${fmtCur(value)}</div>` : '<div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">Nessun bando</div>'}
-        </div>`;
-      }).join('')}
-    </div>
-  </div>`;
+  const regions = ['Abruzzo','Basilicata','Calabria','Campania','Emilia-Romagna','Friuli-Venezia Giulia','Lazio','Liguria','Lombardia','Marche','Molise','Piemonte','Puglia','Sardegna','Sicilia','Toscana','Trentino-Alto Adige','Umbria','Valle d\'Aosta','Veneto'];
+  const regionData = regions.map(r => {
+    const rt = tenders.filter(t => (t.region || '').toLowerCase() === r.toLowerCase());
+    const value = rt.reduce((s, t) => s + (parseFloat(t.estimatedValue) || 0), 0);
+    return { region: r, count: rt.length, value };
+  }).filter(d => d.count > 0).sort((a, b) => b.count - a.count);
+
+  const maxCount = regionData.length ? Math.max(...regionData.map(d => d.count)) : 1;
+
+  if (!regionData.length) {
+    mapEl.innerHTML = '<div style="padding:60px;text-align:center;color:#64748b;">Nessun bando con regione assegnata.<br>Modifica i bandi e imposta la regione.</div>';
+    return;
+  }
+
+  const totalValue = tenders.reduce((s, t) => s + (parseFloat(t.estimatedValue) || 0), 0);
+
+  mapEl.innerHTML = `
+    <div style="padding:24px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:8px;">
+        <h3 style="margin:0;font-size:16px;font-weight:700;color:var(--text-primary);">Distribuzione Bandi — Italia</h3>
+        <div style="font-size:13px;color:#64748b;">${tenders.length} bandi totali · ${fmtCur(totalValue)} valore complessivo</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        ${regionData.map(d => {
+          const pct = Math.round((d.count / maxCount) * 100);
+          const barColor = d.count >= 3 ? '#1E3A8A' : d.count === 2 ? '#3b82f6' : '#93c5fd';
+          return `<div style="display:flex;align-items:center;gap:12px;">
+            <div style="min-width:160px;font-size:13px;font-weight:600;color:var(--text-primary);text-align:right;">${d.region}</div>
+            <div style="flex:1;background:#f1f5f9;border-radius:6px;height:28px;position:relative;overflow:hidden;">
+              <div style="width:${pct}%;height:100%;background:${barColor};border-radius:6px;transition:width .3s;display:flex;align-items:center;padding:0 10px;min-width:32px;">
+                <span style="font-size:12px;font-weight:700;color:#fff;">${d.count}</span>
+              </div>
+            </div>
+            <div style="min-width:110px;font-size:12px;color:#64748b;">${d.value > 0 ? fmtCur(d.value) : ''}</div>
+          </div>`;
+        }).join('')}
+      </div>
+      ${regionData.length < regions.length ? `<div style="margin-top:16px;font-size:12px;color:#94a3b8;">${regions.length - regionData.length} regioni senza bandi attivi</div>` : ''}
+    </div>`;
 }
 
 function showAddTenderModal() {
+  const allRegions = ['Abruzzo','Basilicata','Calabria','Campania','Emilia-Romagna','Friuli-Venezia Giulia','Lazio','Liguria','Lombardia','Marche','Molise','Piemonte','Puglia','Sardegna','Sicilia','Toscana','Trentino-Alto Adige','Umbria','Valle d\'Aosta','Veneto'];
+  const regionOptions = allRegions.map(r => `<option value="${r}">${r}</option>`).join('');
+  const fieldStyle = 'width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text-primary);box-sizing:border-box;';
+  const labelStyle = 'display:block;font-size:13px;font-weight:500;margin-bottom:4px;color:var(--text-primary);';
+
   const modal = document.createElement('div');
   modal.className = 'modal-overlay';
   modal.id = 'tender-modal';
   modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
-  modal.innerHTML = `<div class="modal-content modal-lg">
+  modal.innerHTML = `<div class="modal-content modal-lg" style="max-height:90vh;overflow-y:auto;">
     <div class="modal-header"><h3>Nuovo Bando</h3><button class="modal-close" onclick="document.getElementById('tender-modal').remove()">&times;</button></div>
     <div class="modal-body" style="padding:20px;">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-        <div style="grid-column:1/-1;"><label style="display:block;font-size:13px;font-weight:500;margin-bottom:4px;">Titolo Bando *</label><input type="text" id="new-tender-title" placeholder="Es. Servizio Trasporto Sanitario ULSS 6" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text-primary);"></div>
-        <div><label style="display:block;font-size:13px;font-weight:500;margin-bottom:4px;">Stazione Appaltante</label><input type="text" id="new-tender-station" placeholder="Es. ULSS 6 Euganea" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text-primary);"></div>
-        <div><label style="display:block;font-size:13px;font-weight:500;margin-bottom:4px;">Codice CIG</label><input type="text" id="new-tender-cig" placeholder="Es. Z123456789" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text-primary);"></div>
-        <div><label style="display:block;font-size:13px;font-weight:500;margin-bottom:4px;">Regione</label><select id="new-tender-region" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text-primary);"><option value="Veneto">Veneto</option><option value="Lombardia">Lombardia</option><option value="Emilia-Romagna">Emilia-Romagna</option><option value="Friuli-Venezia Giulia">Friuli-Venezia Giulia</option><option value="Trentino-Alto Adige">Trentino-Alto Adige</option></select></div>
-        <div><label style="display:block;font-size:13px;font-weight:500;margin-bottom:4px;">Provincia</label><select id="new-tender-province" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text-primary);"><option value="">Seleziona</option><option value="Padova">Padova</option><option value="Venezia">Venezia</option><option value="Verona">Verona</option><option value="Vicenza">Vicenza</option><option value="Treviso">Treviso</option><option value="Rovigo">Rovigo</option><option value="Belluno">Belluno</option></select></div>
-        <div><label style="display:block;font-size:13px;font-weight:500;margin-bottom:4px;">Valore Stimato (EUR)</label><input type="number" id="new-tender-value" placeholder="1000000" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text-primary);"></div>
-        <div><label style="display:block;font-size:13px;font-weight:500;margin-bottom:4px;">Scadenza</label><input type="date" id="new-tender-deadline" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text-primary);"></div>
-        <div><label style="display:block;font-size:13px;font-weight:500;margin-bottom:4px;">Tipo Servizio</label><select id="new-tender-service" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text-primary);"><option value="emergenza_118">Emergenza 118</option><option value="trasporto_dialisi">Trasporto Dialisi</option><option value="trasporto_ordinario">Trasporto Ordinario</option><option value="eventi">Eventi</option><option value="altro">Altro</option></select></div>
-        <div><label style="display:block;font-size:13px;font-weight:500;margin-bottom:4px;">Priorita</label><select id="new-tender-priority" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text-primary);"><option value="medium">Media</option><option value="low">Bassa</option><option value="high">Alta</option><option value="critical">Critica</option></select></div>
-        <div><label style="display:block;font-size:13px;font-weight:500;margin-bottom:4px;">Durata (mesi)</label><input type="number" id="new-tender-duration" value="24" min="1" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text-primary);"></div>
-        <div><label style="display:block;font-size:13px;font-weight:500;margin-bottom:4px;">CPV</label><input type="text" id="new-tender-cpv" value="85143000" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text-primary);"></div>
-        <div style="grid-column:1/-1;"><label style="display:block;font-size:13px;font-weight:500;margin-bottom:4px;">URL Fonte</label><input type="text" id="new-tender-url" placeholder="https://..." style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text-primary);"></div>
-        <div style="grid-column:1/-1;"><label style="display:block;font-size:13px;font-weight:500;margin-bottom:4px;">Note</label><textarea id="new-tender-notes" rows="3" placeholder="Note aggiuntive..." style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text-primary);resize:vertical;"></textarea></div>
+        <div style="grid-column:1/-1;"><label style="${labelStyle}">Titolo Bando *</label><input type="text" id="new-tender-title" placeholder="Es. Servizio Trasporto Sanitario ULSS 6" style="${fieldStyle}"></div>
+        <div><label style="${labelStyle}">Ente Appaltante *</label><input type="text" id="new-tender-station" placeholder="Es. ULSS 6 Euganea" style="${fieldStyle}"></div>
+        <div><label style="${labelStyle}">Codice CIG</label><input type="text" id="new-tender-cig" placeholder="Es. Z123456789" style="${fieldStyle}"></div>
+        <div><label style="${labelStyle}">Città *</label><input type="text" id="new-tender-city" placeholder="Es. Padova" style="${fieldStyle}"></div>
+        <div><label style="${labelStyle}">Regione *</label><select id="new-tender-region" style="${fieldStyle}"><option value="">— seleziona —</option>${regionOptions}</select></div>
+        <div><label style="${labelStyle}">Valore Stimato (€) *</label><input type="number" id="new-tender-value" placeholder="1000000" min="0" style="${fieldStyle}"></div>
+        <div><label style="${labelStyle}">Data Scadenza *</label><input type="date" id="new-tender-deadline" style="${fieldStyle}"></div>
+        <div><label style="${labelStyle}">CPV</label><input type="text" id="new-tender-cpv" value="85143000" style="${fieldStyle}"></div>
+        <div><label style="${labelStyle}">Tipo Servizio</label><select id="new-tender-service" style="${fieldStyle}">
+          <option value="emergenza_118">Emergenza 118</option>
+          <option value="trasporto_ordinario">Trasporto Ordinario</option>
+          <option value="trasporto_dialisi">Dialisi</option>
+          <option value="trasporto_disabili">Trasporto Disabili</option>
+          <option value="eventi">Eventi</option>
+          <option value="altro">Altro</option>
+        </select></div>
+        <div><label style="${labelStyle}">Durata (mesi)</label><input type="number" id="new-tender-duration" value="24" min="1" style="${fieldStyle}"></div>
+        <div><label style="${labelStyle}">Priorità</label><select id="new-tender-priority" style="${fieldStyle}">
+          <option value="low">Bassa</option>
+          <option value="medium" selected>Media</option>
+          <option value="high">Alta</option>
+          <option value="critical">Critica</option>
+        </select></div>
+        <div><label style="${labelStyle}">Stato</label><select id="new-tender-status" style="${fieldStyle}">
+          <option value="new" selected>Nuovo</option>
+          <option value="evaluating">In Valutazione</option>
+          <option value="bidding">Offerta Inviata</option>
+          <option value="won">Aggiudicato</option>
+          <option value="lost">Perso</option>
+        </select></div>
+        <div style="grid-column:1/-1;"><label style="${labelStyle}">Link Fonte ANAC (opzionale)</label><input type="url" id="new-tender-url" placeholder="https://..." style="${fieldStyle}"></div>
+        <div style="grid-column:1/-1;"><label style="${labelStyle}">Note (opzionale)</label><textarea id="new-tender-notes" rows="3" placeholder="Note aggiuntive..." style="${fieldStyle}resize:vertical;"></textarea></div>
       </div>
     </div>
     <div class="modal-footer" style="padding:16px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px;">
@@ -35037,23 +35080,24 @@ function showAddTenderModal() {
 
 async function saveTender() {
   const data = {
-    title: document.getElementById('new-tender-title')?.value,
-    stationeName: document.getElementById('new-tender-station')?.value,
-    cigCode: document.getElementById('new-tender-cig')?.value,
+    title: document.getElementById('new-tender-title')?.value?.trim(),
+    stationeName: document.getElementById('new-tender-station')?.value?.trim(),
+    cigCode: document.getElementById('new-tender-cig')?.value?.trim(),
     region: document.getElementById('new-tender-region')?.value,
-    province: document.getElementById('new-tender-province')?.value,
+    province: document.getElementById('new-tender-city')?.value?.trim(),
     estimatedValue: document.getElementById('new-tender-value')?.value,
     deadline: document.getElementById('new-tender-deadline')?.value ? new Date(document.getElementById('new-tender-deadline').value) : null,
     serviceType: document.getElementById('new-tender-service')?.value,
     priority: document.getElementById('new-tender-priority')?.value,
     durationMonths: parseInt(document.getElementById('new-tender-duration')?.value) || null,
     cpvCode: document.getElementById('new-tender-cpv')?.value,
-    sourceUrl: document.getElementById('new-tender-url')?.value,
-    notes: document.getElementById('new-tender-notes')?.value,
+    sourceUrl: document.getElementById('new-tender-url')?.value?.trim(),
+    notes: document.getElementById('new-tender-notes')?.value?.trim(),
     source: 'Manuale',
-    status: 'new'
+    status: document.getElementById('new-tender-status')?.value || 'new',
   };
-  if (!data.title) { showNotification('Il titolo e obbligatorio', 'error'); return; }
+  if (!data.title) { showNotification('Il titolo è obbligatorio', 'error'); return; }
+  if (!data.region) { showNotification('Seleziona la regione', 'error'); return; }
   try {
     const res = await adminFetch(`${API_BASE}/api/tenders`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
     if (res.ok) {
@@ -35130,6 +35174,78 @@ async function deleteTender(id) {
   } catch (e) { showNotification('Errore', 'error'); }
 }
 
+function exportTendersPDF() {
+  const tenders = allTendersCache;
+  if (!tenders.length) { showNotification('Nessun bando da esportare', 'error'); return; }
+
+  const totalValue = tenders.reduce((s, t) => s + (parseFloat(t.estimatedValue) || 0), 0);
+  const sorted = [...tenders].filter(t => t.deadline).sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
+
+  const rows = sorted.map(t => {
+    const daysLeft = t.deadline ? Math.ceil((new Date(t.deadline) - Date.now()) / (1000*60*60*24)) : null;
+    const dColor = daysLeft === null ? '' : daysLeft <= 0 ? 'color:#94a3b8' : daysLeft < 7 ? 'color:#dc2626;font-weight:bold' : daysLeft <= 30 ? 'color:#d97706' : 'color:#15803d';
+    return `<tr>
+      <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-weight:600;">${escapeHtml(t.title || '—')}</td>
+      <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;color:#64748b;">${escapeHtml(t.stationeName || '—')}</td>
+      <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;color:#64748b;">${escapeHtml(t.region || '—')}</td>
+      <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;text-align:right;">${t.estimatedValue ? fmtCur(parseFloat(t.estimatedValue)) : '—'}</td>
+      <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;${dColor};">${t.deadline ? new Date(t.deadline).toLocaleDateString('it-IT') + (daysLeft !== null ? ` (${daysLeft > 0 ? daysLeft + 'gg' : 'SCADUTO'})` : '') : '—'}</td>
+      <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;">${statusLabels[t.status] || t.status || '—'}</td>
+      <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;">${priorityLabels[t.priority] || t.priority || '—'}</td>
+    </tr>`;
+  }).join('');
+
+  const noDeadline = tenders.filter(t => !t.deadline).map(t => `<tr>
+    <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-weight:600;">${escapeHtml(t.title || '—')}</td>
+    <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;color:#64748b;">${escapeHtml(t.stationeName || '—')}</td>
+    <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;color:#64748b;">${escapeHtml(t.region || '—')}</td>
+    <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;text-align:right;">${t.estimatedValue ? fmtCur(parseFloat(t.estimatedValue)) : '—'}</td>
+    <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;color:#94a3b8;">—</td>
+    <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;">${statusLabels[t.status] || t.status || '—'}</td>
+    <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;">${priorityLabels[t.priority] || t.priority || '—'}</td>
+  </tr>`).join('');
+
+  const html = `<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8">
+  <title>Report Gare d'Appalto — Soccorso Digitale</title>
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; color: #0f172a; padding: 32px; font-size: 13px; }
+    h1 { font-size: 22px; font-weight: 700; color: #1e3a8a; margin-bottom: 4px; }
+    .subtitle { color: #64748b; font-size: 13px; margin-bottom: 24px; }
+    .kpi-row { display: flex; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
+    .kpi { padding: 14px 20px; background: #eff6ff; border-radius: 10px; border: 1px solid #bfdbfe; }
+    .kpi-val { font-size: 22px; font-weight: 700; color: #1e3a8a; }
+    .kpi-lbl { font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: .05em; margin-top: 2px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    thead th { background: #1e3a8a; color: #fff; padding: 10px 12px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; text-align: left; }
+    tr:hover td { background: #f8fafc; }
+    .footer { margin-top: 32px; font-size: 11px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 12px; }
+    @media print { body { padding: 16px; } button { display: none; } }
+  </style>
+  </head><body>
+  <h1>📋 Report Gare d'Appalto Intelligence</h1>
+  <div class="subtitle">Generato il ${new Date().toLocaleDateString('it-IT', { day: '2-digit', month: 'long', year: 'numeric' })} · Soccorso Digitale</div>
+  <div class="kpi-row">
+    <div class="kpi"><div class="kpi-val">${tenders.length}</div><div class="kpi-lbl">Bandi totali</div></div>
+    <div class="kpi"><div class="kpi-val">${fmtCur(totalValue)}</div><div class="kpi-lbl">Valore complessivo</div></div>
+    <div class="kpi"><div class="kpi-val">${tenders.filter(t=>t.status==='won').length}</div><div class="kpi-lbl">Aggiudicati</div></div>
+    <div class="kpi"><div class="kpi-val">${tenders.filter(t=>t.status==='evaluating'||t.status==='bidding').length}</div><div class="kpi-lbl">In lavorazione</div></div>
+  </div>
+  <button onclick="window.print()" style="margin-bottom:16px;padding:8px 20px;background:#1e3a8a;color:#fff;border:none;border-radius:8px;font-size:13px;cursor:pointer;">🖨 Stampa / Salva PDF</button>
+  <table>
+    <thead><tr>
+      <th>Titolo</th><th>Ente</th><th>Regione</th>
+      <th style="text-align:right;">Valore</th><th>Scadenza</th><th>Stato</th><th>Priorità</th>
+    </tr></thead>
+    <tbody>${rows}${noDeadline}</tbody>
+  </table>
+  <div class="footer">Soccorso Digitale · Gare d'Appalto Intelligence · ${new Date().toLocaleDateString('it-IT')}</div>
+  </body></html>`;
+
+  const w = window.open('', '_blank');
+  if (w) { w.document.write(html); w.document.close(); }
+  else { showNotification('Blocco popup: consenti i popup per esportare', 'error'); }
+}
+
 async function runTenderSimulation() {
   const vehicles = parseInt(document.getElementById('sim-vehicles')?.value) || 1;
   const personnel = parseInt(document.getElementById('sim-personnel')?.value) || 2;
@@ -35141,6 +35257,9 @@ async function runTenderSimulation() {
   const medicCost = parseFloat(document.getElementById('sim-medic-cost')?.value) || 22;
   const vehicleCost = parseFloat(document.getElementById('sim-vehicle-cost')?.value) || 2500;
   const overhead = parseFloat(document.getElementById('sim-overhead')?.value) || 12;
+  const basePrice = parseFloat(document.getElementById('sim-base-price')?.value) || 0;
+  const kmCost = parseFloat(document.getElementById('sim-km-cost')?.value) || 1.80;
+
   const avgHourlyCost = (driverCost + medicCost * (personnel - 1)) / personnel;
   const monthlyLabor = avgHourlyCost * hours * days * personnel * vehicles;
   const monthlyVehicles = vehicleCost * vehicles;
@@ -35152,35 +35271,70 @@ async function runTenderSimulation() {
   const monthlyPrice = offerPrice / duration;
   const profitTotal = offerPrice - totalCost;
   const pricePerHour = monthlyPrice / (hours * days * vehicles);
+
+  // Competitività vs base d'asta
+  let competitivitaHTML = '';
+  if (basePrice > 0) {
+    const ratio = offerPrice / basePrice;
+    const saving = basePrice - offerPrice;
+    const pctVsBase = ((offerPrice - basePrice) / basePrice * 100).toFixed(1);
+    let compColor, compLabel, compBg;
+    if (ratio < 0.90) {
+      compColor = '#15803d'; compBg = '#F0FDF4'; compLabel = '🟢 Molto competitiva';
+    } else if (ratio <= 1.05) {
+      compColor = '#d97706'; compBg = '#FFFBEB'; compLabel = '🟡 Nella norma';
+    } else {
+      compColor = '#dc2626'; compBg = '#FEF2F2'; compLabel = '🔴 Sopra base d\'asta';
+    }
+    competitivitaHTML = `
+      <div style="padding:16px;background:${compBg};border:2px solid ${compColor}33;border-radius:12px;margin-bottom:12px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+          <div>
+            <div style="font-size:13px;font-weight:700;color:${compColor};">${compLabel}</div>
+            <div style="font-size:12px;color:#64748b;margin-top:2px;">Offerta ${pctVsBase > 0 ? '+' : ''}${pctVsBase}% rispetto alla base d'asta</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:11px;color:#64748b;">Base d'asta</div>
+            <div style="font-size:18px;font-weight:700;color:var(--text-primary);">${fmtCur(basePrice)}</div>
+            ${saving > 0 ? `<div style="font-size:11px;color:#15803d;">Risparmio: ${fmtCur(saving)}</div>` : `<div style="font-size:11px;color:#dc2626;">Eccedenza: ${fmtCur(-saving)}</div>`}
+          </div>
+        </div>
+      </div>`;
+  }
+
   const r = document.getElementById('simulation-results');
   r.style.display = 'block';
   r.innerHTML = `<div style="margin-top:20px;">
     <h4 style="margin-bottom:16px;color:var(--text-primary);">Risultati Simulazione</h4>
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:16px;">
+    ${competitivitaHTML}
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;margin-bottom:16px;">
       <div style="padding:16px;background:rgba(59,130,246,0.05);border:1px solid rgba(59,130,246,0.2);border-radius:12px;text-align:center;">
-        <div style="font-size:12px;color:#3b82f6;text-transform:uppercase;font-weight:500;">Costo Totale</div>
+        <div style="font-size:11px;color:#3b82f6;text-transform:uppercase;font-weight:600;letter-spacing:.05em;">Costo Totale</div>
         <div style="font-size:24px;font-weight:700;color:var(--text-primary);margin-top:4px;">${fmtCur(totalCost)}</div>
       </div>
       <div style="padding:16px;background:rgba(16,185,129,0.05);border:1px solid rgba(16,185,129,0.2);border-radius:12px;text-align:center;">
-        <div style="font-size:12px;color:#10b981;text-transform:uppercase;font-weight:500;">Prezzo Offerta</div>
+        <div style="font-size:11px;color:#10b981;text-transform:uppercase;font-weight:600;letter-spacing:.05em;">Prezzo Offerta</div>
         <div style="font-size:24px;font-weight:700;color:var(--text-primary);margin-top:4px;">${fmtCur(offerPrice)}</div>
       </div>
       <div style="padding:16px;background:rgba(139,92,246,0.05);border:1px solid rgba(139,92,246,0.2);border-radius:12px;text-align:center;">
-        <div style="font-size:12px;color:#8b5cf6;text-transform:uppercase;font-weight:500;">Margine Totale</div>
+        <div style="font-size:11px;color:#8b5cf6;text-transform:uppercase;font-weight:600;letter-spacing:.05em;">Margine (${margin}%)</div>
         <div style="font-size:24px;font-weight:700;color:#10b981;margin-top:4px;">${fmtCur(profitTotal)}</div>
       </div>
       <div style="padding:16px;background:rgba(245,158,11,0.05);border:1px solid rgba(245,158,11,0.2);border-radius:12px;text-align:center;">
-        <div style="font-size:12px;color:#f59e0b;text-transform:uppercase;font-weight:500;">Prezzo/Ora</div>
+        <div style="font-size:11px;color:#f59e0b;text-transform:uppercase;font-weight:600;letter-spacing:.05em;">Costo/Ora Servizio</div>
         <div style="font-size:24px;font-weight:700;color:var(--text-primary);margin-top:4px;">${fmtCur(pricePerHour)}</div>
       </div>
     </div>
     <div style="padding:16px;background:var(--surface);border:1px solid var(--border);border-radius:12px;">
-      <h5 style="margin:0 0 12px 0;font-size:14px;">Dettaglio Costi Mensili</h5>
+      <h5 style="margin:0 0 12px 0;font-size:14px;font-weight:700;">Dettaglio Costi Mensili</h5>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px;">
-        <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);"><span>Personale</span><span style="font-weight:600;">${fmtCur(monthlyLabor)}</span></div>
-        <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);"><span>Veicoli</span><span style="font-weight:600;">${fmtCur(monthlyVehicles)}</span></div>
+        <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);"><span>Personale (${personnel}×${vehicles} mezzi)</span><span style="font-weight:600;">${fmtCur(monthlyLabor)}</span></div>
+        <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);"><span>Veicoli (${vehicles} mezzi)</span><span style="font-weight:600;">${fmtCur(monthlyVehicles)}</span></div>
         <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);"><span>Costi Generali (${overhead}%)</span><span style="font-weight:600;">${fmtCur(monthlyOverhead)}</span></div>
-        <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);"><span style="font-weight:700;">TOTALE MENSILE</span><span style="font-weight:700;">${fmtCur(monthlyCost)}</span></div>
+        <div style="display:flex;justify-content:space-between;padding:8px 0;"><span style="font-weight:700;color:var(--text-primary);">TOTALE MENSILE</span><span style="font-weight:700;font-size:15px;">${fmtCur(monthlyCost)}</span></div>
+      </div>
+      <div style="margin-top:8px;font-size:12px;color:#64748b;border-top:1px solid var(--border);padding-top:8px;">
+        Durata contratto: <strong>${duration} mesi</strong> · Costo/km stimato: <strong>${fmtCur(kmCost)}/km</strong> · ${vehicles} mezzo/i · ${personnel} pers./mezzo · ${hours}h/giorno
       </div>
     </div>
   </div>`;

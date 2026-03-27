@@ -8179,9 +8179,13 @@
             <div class="section-header-row">
               <div class="section-title-group">
                 <h2>Gare d'Appalto Intelligence</h2>
-                <p class="section-subtitle">Monitoraggio bandi ANAC, simulazioni offerta e profili competitivi - Regione Veneto</p>
+                <p class="section-subtitle">Monitoraggio bandi ANAC, simulazioni offerta e profili competitivi — Italia</p>
               </div>
               <div class="section-actions" style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button class="btn btn-outline" onclick="exportTendersPDF()">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                  Esporta PDF
+                </button>
                 <button class="btn btn-outline" id="anac-sync-btn" onclick="syncAnacTenders()">
                   <div class="sync-progress-fill"></div>
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
@@ -8260,7 +8264,7 @@
               </button>
               <button class="tender-tab" data-tab="map" onclick="switchTenderTab('map')">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
-                Mappa Veneto
+                Mappa Italia
               </button>
               <button class="tender-tab" data-tab="simulator" onclick="switchTenderTab('simulator')">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
@@ -8295,11 +8299,26 @@
               </select>
               <select id="tender-region-filter" onchange="loadTenders()">
                 <option value="">Tutte le regioni</option>
-                <option value="Veneto" selected>Veneto</option>
-                <option value="Lombardia">Lombardia</option>
+                <option value="Abruzzo">Abruzzo</option>
+                <option value="Basilicata">Basilicata</option>
+                <option value="Calabria">Calabria</option>
+                <option value="Campania">Campania</option>
                 <option value="Emilia-Romagna">Emilia-Romagna</option>
                 <option value="Friuli-Venezia Giulia">Friuli-Venezia Giulia</option>
+                <option value="Lazio">Lazio</option>
+                <option value="Liguria">Liguria</option>
+                <option value="Lombardia">Lombardia</option>
+                <option value="Marche">Marche</option>
+                <option value="Molise">Molise</option>
+                <option value="Piemonte">Piemonte</option>
+                <option value="Puglia">Puglia</option>
+                <option value="Sardegna">Sardegna</option>
+                <option value="Sicilia">Sicilia</option>
+                <option value="Toscana">Toscana</option>
                 <option value="Trentino-Alto Adige">Trentino-Alto Adige</option>
+                <option value="Umbria">Umbria</option>
+                <option value="Valle d'Aosta">Valle d'Aosta</option>
+                <option value="Veneto">Veneto</option>
               </select>
             </div>
 
@@ -8315,9 +8334,10 @@
               <div class="tender-map-container">
                 <div id="tenders-veneto-map" style="width:100%; height:500px; border-radius: 12px; border: 1px solid var(--border);"></div>
                 <div id="tenders-map-legend" class="map-legend">
-                  <div class="legend-item"><span class="legend-dot" style="background:#ef4444;"></span> Scadenza &lt; 15 gg</div>
-                  <div class="legend-item"><span class="legend-dot" style="background:#f59e0b;"></span> Scadenza &lt; 30 gg</div>
+                  <div class="legend-item"><span class="legend-dot" style="background:#ef4444;"></span> Scadenza &lt; 7 gg</div>
+                  <div class="legend-item"><span class="legend-dot" style="background:#f59e0b;"></span> Scadenza 8–30 gg</div>
                   <div class="legend-item"><span class="legend-dot" style="background:#10b981;"></span> Scadenza &gt; 30 gg</div>
+                  <div class="legend-item"><span class="legend-dot" style="background:#94a3b8;"></span> Scaduto</div>
                 </div>
               </div>
             </div>
@@ -8360,7 +8380,18 @@
                     </div>
                   </div>
                   <div class="sim-cost-fields">
-                    <h4>Costi Unitari (opzionale)</h4>
+                    <h4>Confronto con Gara</h4>
+                    <div class="sim-grid">
+                      <div class="sim-field">
+                        <label>Valore base d'asta (€)</label>
+                        <input type="number" id="sim-base-price" placeholder="Es. 2000000" min="0" step="1000">
+                      </div>
+                      <div class="sim-field">
+                        <label>Costo per KM (€)</label>
+                        <input type="number" id="sim-km-cost" value="1.80" min="0" step="0.05">
+                      </div>
+                    </div>
+                    <h4>Costi Unitari</h4>
                     <div class="sim-grid">
                       <div class="sim-field">
                         <label>Costo Orario Autista</label>
