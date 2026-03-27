@@ -41876,25 +41876,159 @@ function loadDiscoveryTab() {
       </div>
       <div style="margin-bottom:16px;">
         <label style="font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:8px;">Province da scansionare</label>
-        <select id="discovery-provinces" multiple style="width:100%;height:120px;padding:8px;border:1px solid #E2E8F0;border-radius:8px;font-size:13px;outline:none;">
-          <option value="MI">Milano (Lombardia)</option>
-          <option value="RM">Roma (Lazio)</option>
-          <option value="NA">Napoli (Campania)</option>
-          <option value="TO">Torino (Piemonte)</option>
-          <option value="VR" selected>Verona (Veneto)</option>
-          <option value="VE">Venezia (Veneto)</option>
-          <option value="PD">Padova (Veneto)</option>
-          <option value="BS">Brescia (Lombardia)</option>
-          <option value="BG">Bergamo (Lombardia)</option>
-          <option value="BO">Bologna (Emilia-Romagna)</option>
-          <option value="FI">Firenze (Toscana)</option>
-          <option value="PA">Palermo (Sicilia)</option>
-          <option value="BA">Bari (Puglia)</option>
+        <select id="discovery-provinces" multiple style="width:100%;height:160px;padding:8px;border:1px solid #E2E8F0;border-radius:8px;font-size:13px;outline:none;">
+          <optgroup label="Abruzzo">
+            <option value="AQ">L'Aquila</option>
+            <option value="CH">Chieti</option>
+            <option value="PE">Pescara</option>
+            <option value="TE">Teramo</option>
+          </optgroup>
+          <optgroup label="Basilicata">
+            <option value="MT">Matera</option>
+            <option value="PZ">Potenza</option>
+          </optgroup>
+          <optgroup label="Calabria">
+            <option value="CS">Cosenza</option>
+            <option value="CZ">Catanzaro</option>
+            <option value="KR">Crotone</option>
+            <option value="RC">Reggio Calabria</option>
+            <option value="VV">Vibo Valentia</option>
+          </optgroup>
+          <optgroup label="Campania">
+            <option value="AV">Avellino</option>
+            <option value="BN">Benevento</option>
+            <option value="CE">Caserta</option>
+            <option value="NA">Napoli</option>
+            <option value="SA">Salerno</option>
+          </optgroup>
+          <optgroup label="Emilia-Romagna">
+            <option value="BO">Bologna</option>
+            <option value="FC">Forlì-Cesena</option>
+            <option value="FE">Ferrara</option>
+            <option value="MO">Modena</option>
+            <option value="PC">Piacenza</option>
+            <option value="PR">Parma</option>
+            <option value="RA">Ravenna</option>
+            <option value="RE">Reggio Emilia</option>
+            <option value="RN">Rimini</option>
+          </optgroup>
+          <optgroup label="Friuli-Venezia Giulia">
+            <option value="GO">Gorizia</option>
+            <option value="PN">Pordenone</option>
+            <option value="TS">Trieste</option>
+            <option value="UD">Udine</option>
+          </optgroup>
+          <optgroup label="Lazio">
+            <option value="FR">Frosinone</option>
+            <option value="LT">Latina</option>
+            <option value="RI">Rieti</option>
+            <option value="RM">Roma</option>
+            <option value="VT">Viterbo</option>
+          </optgroup>
+          <optgroup label="Liguria">
+            <option value="GE">Genova</option>
+            <option value="IM">Imperia</option>
+            <option value="SP">La Spezia</option>
+            <option value="SV">Savona</option>
+          </optgroup>
+          <optgroup label="Lombardia">
+            <option value="BG">Bergamo</option>
+            <option value="BS">Brescia</option>
+            <option value="CO">Como</option>
+            <option value="CR">Cremona</option>
+            <option value="LC">Lecco</option>
+            <option value="LO">Lodi</option>
+            <option value="MB">Monza</option>
+            <option value="MI">Milano</option>
+            <option value="MN">Mantova</option>
+            <option value="PV">Pavia</option>
+            <option value="SO">Sondrio</option>
+            <option value="VA">Varese</option>
+          </optgroup>
+          <optgroup label="Marche">
+            <option value="AN">Ancona</option>
+            <option value="AP">Ascoli Piceno</option>
+            <option value="FM">Fermo</option>
+            <option value="MC">Macerata</option>
+            <option value="PS">Pesaro-Urbino</option>
+          </optgroup>
+          <optgroup label="Molise">
+            <option value="CB">Campobasso</option>
+            <option value="IS">Isernia</option>
+          </optgroup>
+          <optgroup label="Piemonte">
+            <option value="AL">Alessandria</option>
+            <option value="AT">Asti</option>
+            <option value="BI">Biella</option>
+            <option value="CN">Cuneo</option>
+            <option value="NO">Novara</option>
+            <option value="TO">Torino</option>
+            <option value="VB">Verbania</option>
+            <option value="VC">Vercelli</option>
+          </optgroup>
+          <optgroup label="Puglia">
+            <option value="BA">Bari</option>
+            <option value="BR">Brindisi</option>
+            <option value="BT">Barletta-Andria-Trani</option>
+            <option value="FG">Foggia</option>
+            <option value="LE">Lecce</option>
+            <option value="TA">Taranto</option>
+          </optgroup>
+          <optgroup label="Sardegna">
+            <option value="CA">Cagliari</option>
+            <option value="NU">Nuoro</option>
+            <option value="OR">Oristano</option>
+            <option value="SS">Sassari</option>
+            <option value="SU">Sud Sardegna</option>
+          </optgroup>
+          <optgroup label="Sicilia">
+            <option value="AG">Agrigento</option>
+            <option value="CL">Caltanissetta</option>
+            <option value="CT">Catania</option>
+            <option value="EN">Enna</option>
+            <option value="ME">Messina</option>
+            <option value="PA">Palermo</option>
+            <option value="RG">Ragusa</option>
+            <option value="SR">Siracusa</option>
+            <option value="TP">Trapani</option>
+          </optgroup>
+          <optgroup label="Toscana">
+            <option value="AR">Arezzo</option>
+            <option value="FI">Firenze</option>
+            <option value="GR">Grosseto</option>
+            <option value="LI">Livorno</option>
+            <option value="LU">Lucca</option>
+            <option value="MS">Massa-Carrara</option>
+            <option value="PI">Pisa</option>
+            <option value="PO">Prato</option>
+            <option value="PT">Pistoia</option>
+            <option value="SI">Siena</option>
+          </optgroup>
+          <optgroup label="Trentino-Alto Adige">
+            <option value="BZ">Bolzano</option>
+            <option value="TN">Trento</option>
+          </optgroup>
+          <optgroup label="Umbria">
+            <option value="PG">Perugia</option>
+            <option value="TR">Terni</option>
+          </optgroup>
+          <optgroup label="Valle d'Aosta">
+            <option value="AO">Aosta</option>
+          </optgroup>
+          <optgroup label="Veneto">
+            <option value="BL">Belluno</option>
+            <option value="PD">Padova</option>
+            <option value="RO">Rovigo</option>
+            <option value="TV">Treviso</option>
+            <option value="VE">Venezia</option>
+            <option value="VI">Vicenza</option>
+            <option value="VR" selected>Verona</option>
+          </optgroup>
         </select>
         <div style="font-size:11px;color:#94A3B8;margin-top:4px;">Tieni premuto Ctrl per selezionare più province. Nessuna selezione = tutte le province.</div>
       </div>
       <div style="background:#FFFBEB;border:1px solid #FDE68A;border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:12px;color:#92400E;">
-        ⚠️ Costo stimato: ~$0.032 per query. Con 5 province e 8 keyword = ~$1.28
+        ⚠️ Costo stimato: ~$0.032 per query × 15 keyword. Seleziona province specifiche per contenere i costi (tutte = ~$51).
       </div>
       <button onclick="startGoogleDiscovery()" style="width:100%;background:#1E3A8A;color:#fff;border:none;padding:12px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">
         🔍 Avvia Discovery
