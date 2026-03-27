@@ -395,24 +395,6 @@ function configureExpoAndLanding(app: express.Application) {
     res.sendFile(path.join(adminPath, "index.html"));
   });
 
-  // Serve React dashboard (Next.js static export) at /dashboard
-  const dashboardPath = path.resolve(process.cwd(), "dashboard-static");
-  if (fs.existsSync(dashboardPath)) {
-    app.use("/dashboard", express.static(dashboardPath, { maxAge: "1h" }));
-    // Per-route HTML files exist (trailingSlash: true), but add fallback for direct nav
-    app.get("/dashboard", (_req, res) => res.sendFile(path.join(dashboardPath, "index.html")));
-    app.get("/dashboard/*", (req, res) => {
-      // Try the pre-rendered HTML for the route, fall back to index
-      const routeFile = path.join(dashboardPath, req.path.replace("/dashboard", ""), "index.html");
-      if (fs.existsSync(routeFile)) {
-        res.sendFile(routeFile);
-      } else {
-        res.sendFile(path.join(dashboardPath, "index.html"));
-      }
-    });
-    log("React dashboard: /dashboard → dashboard-static/");
-  }
-
   app.use((req: Request, res: Response, next: NextFunction) => {
     if (req.path.startsWith("/api")) {
       return next();
