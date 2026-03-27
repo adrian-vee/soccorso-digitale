@@ -36,19 +36,10 @@ export function registerAuthRoutes(app: Express) {
         const { data, error } = await supabaseAdmin.auth.signInWithPassword({ email, password });
 
         if (error) {
-          // "Email not confirmed", "Invalid login credentials" → wrong password
-          // "User not found" or any other → might not be in Supabase yet, fall through to bcrypt
-          const notInSupabase =
-            error.message?.toLowerCase().includes("user not found") ||
-            error.message?.toLowerCase().includes("not registered");
-
-          if (!notInSupabase) {
-            console.log(`[auth/supabase] Login failed for ${email}:`, error.message);
-            await auditLog.login("", email, req.ip || "unknown");
-            return res.status(401).json({ error: "Credenziali non valide" });
-          }
-          // User not in Supabase yet → fall through to bcrypt below
-          console.log(`[auth/supabase] ${email} not in Supabase, falling back to bcrypt`);
+          // Any Supabase error: fall through to bcrypt.
+          // This handles users not yet migrated to Supabase (e.g. super_admin)
+          // as well as Supabase outages. Bcrypt still validates the password.
+          console.log(`[auth/supabase] ${email} Supabase error (${error.message}), falling back to bcrypt`);
         } else if (data.session) {
           // Supabase login OK — look up our DB user for full profile
           const user = await storage.getUserByEmail(email);
