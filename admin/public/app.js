@@ -2296,7 +2296,7 @@ function navigateTo(page) {
   if (page === 'emergency-alerts') { loadEmergencyAlerts(); }
   if (page === 'notif-config') { loadNotifConfig(); }
   if (page === 'security-center') { loadSecurityCenter(); }
-  if (page === 'crm') { loadCrmPage(); }
+  if (page === 'crm') { switchCrmTab('orgs'); }
   if (page === 'saas-dashboard') { loadSaasDashboard(); }
   if (page === 'client-overview') { loadClientOverview(); }
   if (page === 'onboarding-pipeline') { loadOnboardingPipeline(); }
@@ -3344,6 +3344,384 @@ function crmHandleDrop(event) {
   event.preventDefault();
   const file = event.dataTransfer.files[0];
   crmHandleFileSelect(file);
+}
+
+// ── Tab switching ──────────────────────────────────────────
+
+function switchCrmTab(tab) {
+  const tabs = ['orgs', 'templates', 'settings'];
+  tabs.forEach(t => {
+    const btn = document.getElementById(`crm-tab-${t}`);
+    const panel = document.getElementById(`crm-panel-${t}`);
+    const active = t === tab;
+    if (btn) {
+      btn.style.color = active ? '#1E3A8A' : '#6B7280';
+      btn.style.borderBottomColor = active ? '#1E3A8A' : 'transparent';
+      btn.style.fontWeight = active ? '600' : '500';
+    }
+    if (panel) panel.style.display = active ? 'block' : 'none';
+  });
+  if (tab === 'orgs') loadCrmPage();
+  else if (tab === 'templates') loadCrmTemplates();
+  else if (tab === 'settings') loadCrmSmtpList();
+}
+
+// ── Template management ────────────────────────────────────
+
+async function loadCrmTemplates() {
+  const grid = document.getElementById('crm-templates-grid');
+  const count = document.getElementById('crm-tpl-count');
+  if (!grid) return;
+  grid.innerHTML = '<div style="padding:40px;text-align:center;color:#9CA3AF;">Caricamento…</div>';
+
+  const res = await adminFetch('/api/crm/templates');
+  if (!res.ok) { grid.innerHTML = '<div style="padding:40px;text-align:center;color:#dc2626;">Errore caricamento template</div>'; return; }
+  const templates = await res.json();
+
+  if (count) count.textContent = `${templates.length} template`;
+
+  const catLabel = { intro: 'Presentazione', followup: 'Follow-up', demo_invite: 'Demo', promo: 'Promozione', custom: 'Personalizzato' };
+  const catColor = { intro: '#1E3A8A', followup: '#7c3aed', demo_invite: '#d97706', promo: '#15803d', custom: '#64748B' };
+
+  if (!templates.length) {
+    grid.innerHTML = '<div style="padding:60px;text-align:center;color:#9CA3AF;grid-column:1/-1;">Nessun template. Creane uno nuovo.</div>';
+    return;
+  }
+
+  grid.innerHTML = templates.map(tpl => {
+    const cat = tpl.category || 'custom';
+    const color = catColor[cat] || '#64748B';
+    const label = catLabel[cat] || cat;
+    return `
+      <div style="background:#fff;border:1px solid #E2E8F0;border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">
+          <div style="font-size:14px;font-weight:700;color:#0B2347;flex:1;">${escapeHtml(tpl.name)}</div>
+          <span style="background:${color}15;color:${color};font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;white-space:nowrap;">${label}</span>
+        </div>
+        <div style="font-size:12px;color:#6B7280;line-height:1.4;">${escapeHtml(tpl.subject)}</div>
+        <div style="display:flex;gap:6px;margin-top:4px;">
+          <button onclick="openTemplateEditor(${JSON.stringify(JSON.stringify(tpl))})" style="flex:1;height:30px;background:#EFF6FF;border:1px solid #DBEAFE;border-radius:6px;font-size:11px;font-weight:600;color:#1E3A8A;cursor:pointer;">✏ Modifica</button>
+          <button onclick="duplicateTemplate('${tpl.id}')" style="height:30px;padding:0 10px;background:#F8FAFF;border:1px solid #E2E8F0;border-radius:6px;font-size:11px;color:#374151;cursor:pointer;" title="Duplica">⎘</button>
+          <button onclick="deleteTemplate('${tpl.id}','${escapeHtml(tpl.name).replace(/'/g,"\\'")}')}" style="height:30px;padding:0 10px;background:#FEF2F2;border:1px solid #FECACA;border-radius:6px;font-size:11px;color:#dc2626;cursor:pointer;" title="Elimina">✕</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// Template editor — overlay full-screen
+
+let _editingTemplateId = null;
+
+function openTemplateEditor(tplJson = null) {
+  const tpl = tplJson ? JSON.parse(tplJson) : null;
+  _editingTemplateId = tpl?.id || null;
+
+  const vars = ['{{org_name}}', '{{city}}', '{{region}}', '{{org_type}}', '{{unsubscribe_url}}'];
+
+  const overlay = document.createElement('div');
+  overlay.id = 'crm-tpl-editor';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:3000;display:grid;grid-template-columns:1fr 1fr;background:#F0F4FF;';
+
+  overlay.innerHTML = `
+    <!-- EDITOR SINISTRA -->
+    <div style="background:#fff;border-right:1px solid #E2E8F0;overflow-y:auto;display:flex;flex-direction:column;">
+      <div style="padding:16px 24px;border-bottom:1px solid #F0F4FF;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+        <h2 style="font-size:16px;font-weight:700;color:#0B2347;margin:0;">${tpl ? 'Modifica Template' : 'Nuovo Template'}</h2>
+        <div style="display:flex;gap:8px;">
+          <button onclick="closeTemplateEditor()" style="padding:7px 14px;border:1px solid #E2E8F0;border-radius:8px;background:#fff;font-size:13px;cursor:pointer;color:#374151;">Annulla</button>
+          <button onclick="saveTemplate()" id="crm-tpl-save-btn" style="padding:7px 18px;background:#1E3A8A;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">Salva Template</button>
+        </div>
+      </div>
+      <div style="padding:20px 24px;flex:1;display:flex;flex-direction:column;gap:14px;">
+        <div>
+          <label style="font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:5px;">Nome template *</label>
+          <input id="tpl-name" type="text" value="${tpl ? escapeHtml(tpl.name) : ''}" placeholder="es. Presentazione iniziale" style="width:100%;padding:9px 12px;border:1px solid #E2E8F0;border-radius:8px;font-size:13px;outline:none;box-sizing:border-box;">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div>
+            <label style="font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:5px;">Categoria</label>
+            <select id="tpl-category" style="width:100%;height:38px;padding:0 10px;border:1px solid #E2E8F0;border-radius:8px;font-size:13px;outline:none;">
+              <option value="intro" ${tpl?.category==='intro'?'selected':''}>Presentazione</option>
+              <option value="followup" ${tpl?.category==='followup'?'selected':''}>Follow-up</option>
+              <option value="demo_invite" ${tpl?.category==='demo_invite'?'selected':''}>Invito Demo</option>
+              <option value="promo" ${tpl?.category==='promo'?'selected':''}>Promozione</option>
+              <option value="custom" ${(!tpl||tpl.category==='custom')?'selected':''}>Personalizzato</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:5px;">Preview text</label>
+            <input id="tpl-preview-text" type="text" value="${tpl?.preview_text ? escapeHtml(tpl.preview_text) : ''}" placeholder="Testo anteprima email…" style="width:100%;padding:9px 12px;border:1px solid #E2E8F0;border-radius:8px;font-size:13px;outline:none;box-sizing:border-box;">
+          </div>
+        </div>
+        <div>
+          <label style="font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:5px;">Oggetto email *</label>
+          <input id="tpl-subject" type="text" value="${tpl ? escapeHtml(tpl.subject) : ''}" placeholder="es. {{org_name}}: scopri Soccorso Digitale" style="width:100%;padding:9px 12px;border:1px solid #E2E8F0;border-radius:8px;font-size:13px;outline:none;box-sizing:border-box;">
+        </div>
+        <div>
+          <label style="font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:5px;">Variabili disponibili</label>
+          <div style="display:flex;flex-wrap:wrap;gap:5px;">
+            ${vars.map(v => `<button onclick="insertTplVariable('${v}')" style="background:#EFF6FF;color:#1E3A8A;border:1px solid #DBEAFE;padding:3px 9px;border-radius:5px;font-size:11px;font-family:monospace;cursor:pointer;">${v}</button>`).join('')}
+          </div>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;">
+          <label style="font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:5px;">Corpo HTML *</label>
+          <textarea id="tpl-body" oninput="updateTplPreview()" style="flex:1;min-height:300px;padding:10px 12px;border:1px solid #E2E8F0;border-radius:8px;font-size:12px;font-family:monospace;resize:vertical;outline:none;line-height:1.5;box-sizing:border-box;">${tpl ? tpl.body_html.replace(/</g,'&lt;').replace(/>/g,'&gt;') : ''}</textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- PREVIEW DESTRA -->
+    <div style="background:#F0F4FF;overflow:hidden;display:flex;flex-direction:column;">
+      <div style="padding:12px 20px;background:#fff;border-bottom:1px solid #E2E8F0;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+        <span style="font-size:13px;font-weight:600;color:#0B2347;">Preview live</span>
+        <div style="display:flex;gap:6px;">
+          <button onclick="setTplPreviewWidth('580px')" style="padding:5px 12px;background:#1E3A8A;color:#fff;border:none;border-radius:6px;font-size:12px;cursor:pointer;">Desktop</button>
+          <button onclick="setTplPreviewWidth('375px')" style="padding:5px 12px;background:#F0F4FF;border:1px solid #E2E8F0;border-radius:6px;font-size:12px;cursor:pointer;">Mobile</button>
+        </div>
+      </div>
+      <div style="flex:1;overflow:auto;padding:20px;display:flex;justify-content:center;align-items:flex-start;">
+        <iframe id="tpl-preview-iframe" style="width:580px;max-width:100%;min-height:400px;border:none;border-radius:10px;background:#fff;box-shadow:0 2px 12px rgba(0,0,0,0.08);" srcdoc="<p style='padding:40px;color:#9CA3AF;font-family:sans-serif;text-align:center;'>Inizia a scrivere l'HTML…</p>"></iframe>
+      </div>
+    </div>`;
+
+  document.body.appendChild(overlay);
+
+  // Render preview if editing existing template
+  if (tpl) {
+    // Decode HTML entities for textarea content
+    const ta = document.getElementById('tpl-body');
+    if (ta) {
+      ta.value = tpl.body_html;
+      updateTplPreview();
+    }
+  }
+}
+
+function closeTemplateEditor() {
+  document.getElementById('crm-tpl-editor')?.remove();
+  _editingTemplateId = null;
+}
+
+function insertTplVariable(v) {
+  const ta = document.getElementById('tpl-body');
+  if (!ta) return;
+  const start = ta.selectionStart;
+  const before = ta.value.substring(0, start);
+  const after = ta.value.substring(ta.selectionEnd);
+  ta.value = before + v + after;
+  ta.selectionStart = ta.selectionEnd = start + v.length;
+  ta.focus();
+  updateTplPreview();
+}
+
+function updateTplPreview() {
+  const body = document.getElementById('tpl-body')?.value || '';
+  const preview = body
+    .replace(/{{org_name}}/g, 'Croce Verde Milano')
+    .replace(/{{city}}/g, 'Milano')
+    .replace(/{{region}}/g, 'Lombardia')
+    .replace(/{{org_type}}/g, 'Pubblica Assistenza')
+    .replace(/{{unsubscribe_url}}/g, '#');
+  const iframe = document.getElementById('tpl-preview-iframe');
+  if (iframe) iframe.srcdoc = preview;
+}
+
+function setTplPreviewWidth(w) {
+  const iframe = document.getElementById('tpl-preview-iframe');
+  if (iframe) iframe.style.width = w;
+}
+
+async function saveTemplate() {
+  const btn = document.getElementById('crm-tpl-save-btn');
+  const name = document.getElementById('tpl-name')?.value.trim();
+  const subject = document.getElementById('tpl-subject')?.value.trim();
+  const body_html = document.getElementById('tpl-body')?.value.trim();
+  const category = document.getElementById('tpl-category')?.value;
+  const preview_text = document.getElementById('tpl-preview-text')?.value.trim() || null;
+
+  if (!name || !subject || !body_html) {
+    alert('Nome, Oggetto e Corpo HTML sono obbligatori');
+    return;
+  }
+
+  if (btn) { btn.disabled = true; btn.textContent = 'Salvataggio…'; }
+
+  try {
+    const method = _editingTemplateId ? 'PUT' : 'POST';
+    const url = _editingTemplateId ? `/api/crm/templates/${_editingTemplateId}` : '/api/crm/templates';
+
+    const res = await adminFetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, subject, body_html, category, preview_text }),
+    });
+
+    if (!res.ok) { const e = await res.json(); throw new Error(e.error); }
+
+    showNotification(_editingTemplateId ? 'Template aggiornato!' : 'Template creato!', 'success');
+    closeTemplateEditor();
+    loadCrmTemplates();
+  } catch (err) {
+    alert('Errore: ' + err.message);
+    if (btn) { btn.disabled = false; btn.textContent = 'Salva Template'; }
+  }
+}
+
+async function deleteTemplate(id, name) {
+  if (!confirm(`Eliminare il template "${name}"?`)) return;
+  const res = await adminFetch(`/api/crm/templates/${id}`, { method: 'DELETE' });
+  if (res.ok) { showNotification('Template eliminato', 'success'); loadCrmTemplates(); }
+  else { const e = await res.json(); showNotification('Errore: ' + e.error, 'error'); }
+}
+
+async function duplicateTemplate(id) {
+  const res = await adminFetch('/api/crm/templates');
+  if (!res.ok) return;
+  const templates = await res.json();
+  const tpl = templates.find(t => t.id === id);
+  if (!tpl) return;
+
+  const dup = await adminFetch('/api/crm/templates', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      name: tpl.name + ' (copia)',
+      subject: tpl.subject,
+      body_html: tpl.body_html,
+      body_text: tpl.body_text || '',
+      category: tpl.category,
+      preview_text: tpl.preview_text || null,
+    }),
+  });
+  if (dup.ok) { showNotification('Template duplicato!', 'success'); loadCrmTemplates(); }
+  else { const e = await dup.json(); showNotification('Errore: ' + e.error, 'error'); }
+}
+
+// ── SMTP Config ───────────────────────────────────────────
+
+async function loadCrmSmtpList() {
+  const list = document.getElementById('crm-smtp-list');
+  if (!list) return;
+  list.innerHTML = '<div style="padding:30px;text-align:center;color:#9CA3AF;">Caricamento…</div>';
+
+  const res = await adminFetch('/api/crm/smtp');
+  if (!res.ok) { list.innerHTML = '<div style="padding:30px;text-align:center;color:#dc2626;">Errore caricamento</div>'; return; }
+  const configs = await res.json();
+
+  if (!configs.length) {
+    list.innerHTML = '<div style="padding:30px;text-align:center;color:#9CA3AF;">Nessun account SMTP configurato. Aggiungi un account o usa Resend (default).</div>';
+    return;
+  }
+
+  list.innerHTML = configs.map(cfg => `
+    <div style="background:#fff;border:1px solid ${cfg.is_default ? '#DBEAFE' : '#E2E8F0'};border-radius:12px;padding:16px 20px;display:flex;align-items:center;gap:16px;">
+      <div style="flex:1;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+          <span style="font-size:14px;font-weight:700;color:#0B2347;">${escapeHtml(cfg.name)}</span>
+          ${cfg.is_default ? '<span style="background:#EFF6FF;color:#1E3A8A;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;">DEFAULT</span>' : ''}
+        </div>
+        <div style="font-size:12px;color:#64748B;">${escapeHtml(cfg.host)}:${cfg.port} · da: ${escapeHtml(cfg.from_email)} · limite: ${cfg.daily_limit}/giorno</div>
+      </div>
+      <div style="display:flex;gap:6px;flex-shrink:0;">
+        <button onclick="testSmtp('${cfg.id}')" style="height:32px;padding:0 12px;background:#F0FDF4;border:1px solid #BBF7D0;border-radius:7px;font-size:12px;font-weight:600;color:#15803d;cursor:pointer;">▶ Testa</button>
+        <button onclick="deleteSmtp('${cfg.id}','${escapeHtml(cfg.name).replace(/'/g,"\\'")}')}" style="height:32px;padding:0 10px;background:#FEF2F2;border:1px solid #FECACA;border-radius:7px;font-size:12px;color:#dc2626;cursor:pointer;">✕</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function showCrmAddSmtpModal() {
+  showModal({
+    title: 'Aggiungi Account Email SMTP',
+    size: 'lg',
+    content: `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div style="grid-column:1/-1;">
+          <label style="font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:5px;">Nome account *</label>
+          <input id="smtp-name" type="text" placeholder="es. Gmail Adrian" style="width:100%;padding:9px 12px;border:1px solid #E2E8F0;border-radius:8px;font-size:13px;outline:none;box-sizing:border-box;">
+        </div>
+        <div>
+          <label style="font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:5px;">Host SMTP *</label>
+          <input id="smtp-host" type="text" placeholder="smtp.gmail.com" style="width:100%;padding:9px 12px;border:1px solid #E2E8F0;border-radius:8px;font-size:13px;outline:none;box-sizing:border-box;">
+        </div>
+        <div>
+          <label style="font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:5px;">Porta *</label>
+          <select id="smtp-port" style="width:100%;height:38px;padding:0 10px;border:1px solid #E2E8F0;border-radius:8px;font-size:13px;outline:none;">
+            <option value="587">587 (TLS — consigliato)</option>
+            <option value="465">465 (SSL)</option>
+            <option value="25">25</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:5px;">Username *</label>
+          <input id="smtp-username" type="text" placeholder="la-tua-email@gmail.com" style="width:100%;padding:9px 12px;border:1px solid #E2E8F0;border-radius:8px;font-size:13px;outline:none;box-sizing:border-box;">
+        </div>
+        <div>
+          <label style="font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:5px;">Password / App Password *</label>
+          <input id="smtp-password" type="password" placeholder="••••••••••••••••" style="width:100%;padding:9px 12px;border:1px solid #E2E8F0;border-radius:8px;font-size:13px;outline:none;box-sizing:border-box;">
+        </div>
+        <div>
+          <label style="font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:5px;">Nome mittente</label>
+          <input id="smtp-from-name" type="text" placeholder="Soccorso Digitale" style="width:100%;padding:9px 12px;border:1px solid #E2E8F0;border-radius:8px;font-size:13px;outline:none;box-sizing:border-box;">
+        </div>
+        <div>
+          <label style="font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:5px;">Email mittente *</label>
+          <input id="smtp-from-email" type="email" placeholder="info@soccorsodigitale.app" style="width:100%;padding:9px 12px;border:1px solid #E2E8F0;border-radius:8px;font-size:13px;outline:none;box-sizing:border-box;">
+        </div>
+        <div>
+          <label style="font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:5px;">Limite giornaliero</label>
+          <input id="smtp-daily-limit" type="number" value="200" min="1" max="2000" style="width:100%;padding:9px 12px;border:1px solid #E2E8F0;border-radius:8px;font-size:13px;outline:none;box-sizing:border-box;">
+        </div>
+        <div style="grid-column:1/-1;display:flex;align-items:center;gap:8px;margin-top:4px;">
+          <input type="checkbox" id="smtp-is-default" style="width:15px;height:15px;cursor:pointer;">
+          <label for="smtp-is-default" style="font-size:13px;color:#374151;cursor:pointer;">Imposta come account default per invii</label>
+        </div>
+      </div>`,
+    onSave: async () => {
+      const name = document.getElementById('smtp-name')?.value.trim();
+      const host = document.getElementById('smtp-host')?.value.trim();
+      const port = document.getElementById('smtp-port')?.value;
+      const username = document.getElementById('smtp-username')?.value.trim();
+      const password = document.getElementById('smtp-password')?.value;
+      const from_name = document.getElementById('smtp-from-name')?.value.trim();
+      const from_email = document.getElementById('smtp-from-email')?.value.trim();
+      const daily_limit = parseInt(document.getElementById('smtp-daily-limit')?.value) || 200;
+      const is_default = document.getElementById('smtp-is-default')?.checked || false;
+
+      if (!name || !host || !username || !password || !from_email) throw new Error('Compila tutti i campi obbligatori');
+
+      const res = await adminFetch('/api/crm/smtp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, host, port, username, password, from_name, from_email, daily_limit, is_default }),
+      });
+      if (!res.ok) { const e = await res.json(); throw new Error(e.error); }
+      showNotification('Account SMTP aggiunto!', 'success');
+      loadCrmSmtpList();
+    },
+    saveLabel: 'Salva Account',
+  });
+}
+
+async function testSmtp(id) {
+  const testEmail = prompt('Indirizzo email per il test:');
+  if (!testEmail) return;
+
+  const res = await adminFetch('/api/crm/smtp/test', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ smtp_id: id, test_email: testEmail }),
+  });
+  const data = await res.json();
+  if (res.ok) showNotification(data.message || 'Email di test inviata!', 'success');
+  else showNotification('Errore: ' + data.error, 'error');
+}
+
+async function deleteSmtp(id, name) {
+  if (!confirm(`Eliminare l'account "${name}"?`)) return;
+  const res = await adminFetch(`/api/crm/smtp/${id}`, { method: 'DELETE' });
+  if (res.ok) { showNotification('Account eliminato', 'success'); loadCrmSmtpList(); }
+  else { const e = await res.json(); showNotification('Errore: ' + e.error, 'error'); }
 }
 
 // ============================================================
