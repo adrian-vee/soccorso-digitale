@@ -2308,16 +2308,7 @@ function navigateTo(page) {
   if (page === 'notif-config') { loadNotifConfig(); }
   if (page === 'security-center') { loadSecurityCenter(); }
   if (page === 'crm') { switchCrmTab('orgs'); }
-  if (page === 'saas-dashboard') {
-    // React gestisce questa pagina — nessuna azione vanilla necessaria
-    // Il mount point #react-saas-root è dentro #saas-dashboard-section
-    // React si è già montato al caricamento della pagina
-    const reactRoot = document.getElementById('react-saas-root');
-    if (reactRoot) {
-      // Dispatch evento per segnalare navigazione (per futuri listener React)
-      window.dispatchEvent(new CustomEvent('sd-navigate', { detail: { page: 'saas-dashboard' } }));
-    }
-  }
+  if (page === 'saas-dashboard') { loadSaasDashboard(); }
   if (page === 'client-overview') { loadClientOverview(); }
   if (page === 'onboarding-pipeline') { loadOnboardingPipeline(); }
   if (page === 'plans-billing') { loadPlansBilling(); }
