@@ -3181,14 +3181,14 @@ function crmPreviewTemplate() {
   if (!sel || !preview) return;
   const opt = sel.options[sel.selectedIndex];
   if (opt && opt.dataset.html) {
-    const html = decodeURIComponent(opt.dataset.html);
-    const iframe = document.createElement('iframe');
-    iframe.style.cssText = 'width:100%;height:280px;border:none;';
-    preview.innerHTML = '';
-    preview.appendChild(iframe);
-    iframe.contentDocument.open();
-    iframe.contentDocument.write(html.replace(/{{org_name}}/g,'[Nome Org]').replace(/{{region}}/g,'[Regione]').replace(/{{city}}/g,'[Città]').replace(/{{unsubscribe_url}}/g,'#'));
-    iframe.contentDocument.close();
+    const rawHtml = decodeURIComponent(opt.dataset.html);
+    const html = rawHtml.replace(/{{org_name}}/g,'[Nome Org]').replace(/{{region}}/g,'[Regione]').replace(/{{city}}/g,'[Città]').replace(/{{unsubscribe_url}}/g,'#');
+    if (html.trim().startsWith('<')) {
+      preview.innerHTML = `<div style="height:280px;overflow:hidden;pointer-events:none;"><div style="transform-origin:top left;transform:scale(0.6);width:167%;pointer-events:none;">${html}</div></div>`;
+    } else {
+      const text = html || '';
+      preview.innerHTML = `<div style="font-family:sans-serif;padding:16px;font-size:13px;color:#374151;line-height:1.6;">${escapeHtml(text)}</div>`;
+    }
     if (subjectInput && opt.dataset.subject && !subjectInput.value) {
       subjectInput.value = decodeURIComponent(opt.dataset.subject);
     }
@@ -3965,23 +3965,26 @@ async function loadCrmTemplates() {
         <div style="font-size:12px;color:#6B7280;line-height:1.4;">${escapeHtml(tpl.subject)}</div>
         <div id="tpl-preview-${tpl.id}" style="height:200px;overflow:hidden;pointer-events:none;border-radius:8px;border:1px solid #E2E8F0;background:#FAFAFA;"></div>
         <div style="display:flex;gap:6px;margin-top:4px;">
-          <button onclick="openTemplateEditor(${JSON.stringify(JSON.stringify(tpl))})" style="flex:1;height:30px;background:#EFF6FF;border:1px solid #DBEAFE;border-radius:6px;font-size:11px;font-weight:600;color:#1E3A8A;cursor:pointer;">✏ Modifica</button>
+          <button data-edit-tpl="${tpl.id}" style="flex:1;height:30px;background:#EFF6FF;border:1px solid #DBEAFE;border-radius:6px;font-size:11px;font-weight:600;color:#1E3A8A;cursor:pointer;">✏ Modifica</button>
           <button onclick="duplicateTemplate('${tpl.id}')" style="height:30px;padding:0 10px;background:#F8FAFF;border:1px solid #E2E8F0;border-radius:6px;font-size:11px;color:#374151;cursor:pointer;" title="Duplica">⎘</button>
           <button onclick="deleteTemplate('${tpl.id}','${escapeHtml(tpl.name).replace(/'/g,"\\'")}')}" style="height:30px;padding:0 10px;background:#FEF2F2;border:1px solid #FECACA;border-radius:6px;font-size:11px;color:#dc2626;cursor:pointer;" title="Elimina">✕</button>
         </div>
       </div>`;
   }).join('');
 
-  // Inject HTML previews after DOM is set (avoids attribute-escaping issues)
+  // Inject HTML previews and wire edit buttons after DOM is set (avoids attribute-escaping issues)
   templates.forEach(tpl => {
     const el = document.getElementById(`tpl-preview-${tpl.id}`);
-    if (!el) return;
-    if (tpl.body_html && tpl.body_html.trim().startsWith('<')) {
-      el.innerHTML = `<div style="transform-origin:top left;transform:scale(0.6);width:167%;pointer-events:none;">${tpl.body_html}</div>`;
-    } else {
-      const text = tpl.body_text || tpl.body_html || '';
-      el.innerHTML = `<div style="font-family:sans-serif;padding:16px;font-size:13px;color:#374151;line-height:1.6;">${escapeHtml(text)}</div>`;
+    if (el) {
+      if (tpl.body_html && tpl.body_html.trim().startsWith('<')) {
+        el.innerHTML = `<div style="transform-origin:top left;transform:scale(0.6);width:167%;pointer-events:none;">${tpl.body_html}</div>`;
+      } else {
+        const text = tpl.body_text || tpl.body_html || '';
+        el.innerHTML = `<div style="font-family:sans-serif;padding:16px;font-size:13px;color:#374151;line-height:1.6;">${escapeHtml(text)}</div>`;
+      }
     }
+    const editBtn = grid.querySelector(`[data-edit-tpl="${tpl.id}"]`);
+    if (editBtn) editBtn.addEventListener('click', () => openTemplateEditor(tpl));
   });
 }
 
@@ -3989,8 +3992,8 @@ async function loadCrmTemplates() {
 
 let _editingTemplateId = null;
 
-function openTemplateEditor(tplJson = null) {
-  const tpl = tplJson ? JSON.parse(tplJson) : null;
+function openTemplateEditor(tplOrNull = null) {
+  const tpl = (typeof tplOrNull === 'string') ? JSON.parse(tplOrNull) : tplOrNull;
   _editingTemplateId = tpl?.id || null;
 
   const vars = ['{{org_name}}', '{{city}}', '{{region}}', '{{org_type}}', '{{unsubscribe_url}}'];
@@ -4100,7 +4103,12 @@ function updateTplPreview() {
     .replace(/{{org_type}}/g, 'Pubblica Assistenza')
     .replace(/{{unsubscribe_url}}/g, '#');
   const iframe = document.getElementById('tpl-preview-iframe');
-  if (iframe) iframe.srcdoc = preview;
+  if (!iframe) return;
+  if (preview.trim().startsWith('<')) {
+    iframe.srcdoc = preview;
+  } else {
+    iframe.srcdoc = `<div style="font-family:sans-serif;padding:16px;font-size:13px;color:#374151;line-height:1.6;white-space:pre-wrap;">${preview.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>`;
+  }
 }
 
 function setTplPreviewWidth(w) {
