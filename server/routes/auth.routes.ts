@@ -281,30 +281,6 @@ export function registerAuthRoutes(app: Express) {
     }
   });
 
-  // TEMPORARY: one-time super admin password reset endpoint
-  // Protected by RESET_SECRET env var — remove after use
-  app.post("/api/auth/reset-superadmin", async (req, res) => {
-    const secret = process.env.RESET_SECRET;
-    if (!secret || req.body.secret !== secret) {
-      return res.status(403).json({ error: "Forbidden" });
-    }
-    try {
-      const newHash = "$2b$12$J07aLS/xMV3QTFgbVgPSwujpEfMxquZ86FaABVLVDsKrKt8w9rNAq";
-      const [updated] = await db.update(users)
-        .set({ password: newHash, isActive: true })
-        .where(eq(users.email, "superadmin@soccorsodigitale.app"))
-        .returning({ id: users.id, email: users.email, role: users.role });
-      if (!updated) {
-        return res.status(404).json({ error: "Super admin not found" });
-      }
-      console.log("[reset-superadmin] Password reset for", updated.email);
-      res.json({ success: true, user: updated });
-    } catch (err) {
-      console.error("[reset-superadmin] Error:", err);
-      res.status(500).json({ error: "Server error" });
-    }
-  });
-
   app.post("/api/auth/logout", async (req, res) => {
     let userId = req.session?.userId || null;
 
