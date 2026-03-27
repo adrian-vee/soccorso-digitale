@@ -512,10 +512,11 @@ function setupErrorHandler(app: express.Application) {
         scriptSrc: [
           "'self'",
           "'unsafe-inline'",
-          "cdn.jsdelivr.net",
-          "unpkg.com",
-          "cdnjs.cloudflare.com",
+          "https://cdn.jsdelivr.net",
+          "https://unpkg.com",
+          "https://cdnjs.cloudflare.com",
         ],
+        scriptSrcAttr: ["'self'", "'unsafe-inline'"],
         styleSrc: [
           "'self'",
           "'unsafe-inline'",
