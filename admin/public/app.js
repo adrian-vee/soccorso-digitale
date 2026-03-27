@@ -1854,7 +1854,9 @@ async function loadInitialData() {
     if (!locRes.ok || !vehRes.ok || !tripRes.ok) {
       console.error('[ADMIN DEBUG] Auth failed on data load, re-checking session...');
       if (locRes.status === 401 || vehRes.status === 401 || tripRes.status === 401) {
-        showNotification('Sessione scaduta. Effettua nuovamente il login.', 'error');
+        if (localStorage.getItem('adminAuthToken')) {
+          showNotification('Sessione scaduta. Effettua nuovamente il login.', 'error');
+        }
         logout();
         return;
       }
