@@ -3,333 +3,184 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Richiedi Demo Gratuita — Soccorso Digitale</title>
-  <meta name="description" content="Prova gratuitamente SOCCORSO DIGITALE per 7 giorni. Tutti i moduli attivi. Attivo in meno di 48 ore.">
+  <title>Prenota una demo gratuita — Soccorso Digitale</title>
+  <meta name="description" content="Prenota una demo gratuita di Soccorso Digitale. Ti mostriamo la piattaforma configurata per la tua organizzazione di trasporto sanitario.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    *, *::before, *::after {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --purple: #c9aaff;
-      --yellow: #feffbc;
-      --pink: #ffcdfd;
-      --blue: #b3e2ff;
-      --indigo: #839aff;
-      --bg: #0f0f0f;
-      --surface: #161616;
-      --surface2: #1e1e1e;
-      --border: rgba(255,255,255,0.08);
-      --text: #f0f0f0;
-      --muted: #888;
-      --radius: 16px;
+      --navy:   #1E3A8A;
+      --ink:    #0C1A2E;
+      --slate:  #64748B;
+      --border: #E2E8F0;
+      --snow:   #F0F4FF;
+      --white:  #FFFFFF;
+      --green:  #10B981;
+      --red:    #EF4444;
     }
 
-    html, body {
-      min-height: 100%;
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
-      line-height: 1.6;
+    body {
+      font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+      background: #F0F2F5;
+      color: var(--ink);
+      min-height: 100vh;
       -webkit-font-smoothing: antialiased;
     }
 
-    /* Dot-grid background */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image: radial-gradient(circle, rgba(255,255,255,0.065) 1px, transparent 1px);
-      background-size: 28px 28px;
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    .page-wrapper {
-      position: relative;
-      z-index: 1;
-      min-height: 100vh;
+    /* ── TOP NAV ── */
+    .top-nav {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      height: 56px;
       display: flex;
-      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
     }
-
-    /* ── NAV ── */
-    .nav {
-      padding: 20px 40px;
+    .nav-brand {
       display: flex;
       align-items: center;
       gap: 10px;
-      border-bottom: 1px solid var(--border);
-      background: rgba(15,15,15,0.8);
-      backdrop-filter: blur(12px);
-      position: sticky;
-      top: 0;
-      z-index: 100;
+      text-decoration: none;
     }
-
-    .brand-icon {
-      width: 36px;
-      height: 36px;
-      background: linear-gradient(135deg, var(--purple), var(--indigo));
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
+    .nav-brand img {
+      width: 32px;
+      height: 32px;
+      border-radius: 7px;
+      display: block;
     }
-
-    .brand-name {
-      font-size: 14px;
+    .nav-brand-name {
+      font-size: 15px;
       font-weight: 700;
-      letter-spacing: 1px;
-      color: #fff;
+      color: var(--ink);
+      letter-spacing: -0.2px;
     }
-
     .nav-back {
-      margin-left: auto;
-      color: var(--muted);
       font-size: 13px;
+      color: var(--slate);
       text-decoration: none;
       display: flex;
       align-items: center;
-      gap: 5px;
-      transition: color 0.2s;
+      gap: 4px;
+      transition: color 0.15s;
+    }
+    .nav-back:hover { color: var(--navy); }
+
+    /* ── PAGE WRAPPER ── */
+    .page-wrap {
+      max-width: 560px;
+      margin: 48px auto;
+      padding: 0 20px 64px;
     }
 
-    .nav-back:hover { color: var(--text); }
-
-    /* ── MAIN GRID ── */
-    .main {
-      flex: 1;
-      max-width: 1280px;
-      margin: 0 auto;
-      width: 100%;
-      padding: 60px 40px 80px;
-      display: grid;
-      grid-template-columns: 1fr 480px;
-      gap: 64px;
-      align-items: start;
+    /* ── PAGE HEADER ── */
+    .page-header {
+      text-align: center;
+      margin-bottom: 36px;
     }
-
-    /* ── LEFT COLUMN ── */
-    .left-col {
-      padding-top: 8px;
-    }
-
-    .badge {
+    .page-header .badge {
       display: inline-flex;
       align-items: center;
-      gap: 7px;
-      background: rgba(201,170,255,0.1);
-      border: 1px solid rgba(201,170,255,0.25);
-      color: var(--purple);
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-      padding: 5px 12px;
-      border-radius: 100px;
-      margin-bottom: 24px;
-    }
-
-    .badge::before {
-      content: '';
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--purple);
-      animation: pulse 2s ease-in-out infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(0.8); }
-    }
-
-    .headline {
-      font-size: clamp(32px, 4vw, 52px);
-      font-weight: 900;
-      line-height: 1.1;
-      letter-spacing: -1.5px;
-      margin-bottom: 20px;
-      color: #fff;
-    }
-
-    .headline .accent {
-      background: linear-gradient(135deg, var(--purple), var(--indigo));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .subheadline {
-      font-size: 17px;
-      color: var(--muted);
-      line-height: 1.7;
-      max-width: 520px;
-      margin-bottom: 40px;
-    }
-
-    /* Stats row */
-    .stats-row {
-      display: flex;
-      gap: 32px;
-      margin-bottom: 48px;
-      flex-wrap: wrap;
-    }
-
-    .stat-item {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .stat-number {
-      font-size: 28px;
-      font-weight: 800;
-      color: #fff;
-      line-height: 1;
-    }
-
-    .stat-label {
-      font-size: 12px;
-      color: var(--muted);
-      font-weight: 500;
-    }
-
-    /* Features grid */
-    .features-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-bottom: 40px;
-    }
-
-    .feature-item {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 18px 20px;
-      transition: border-color 0.2s, transform 0.2s;
-    }
-
-    .feature-item:hover {
-      border-color: rgba(201,170,255,0.3);
-      transform: translateY(-2px);
-    }
-
-    .feature-icon {
-      width: 36px;
-      height: 36px;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 12px;
-      font-size: 18px;
-    }
-
-    .feature-title {
-      font-size: 14px;
-      font-weight: 700;
-      color: #fff;
-      margin-bottom: 4px;
-    }
-
-    .feature-desc {
-      font-size: 12px;
-      color: var(--muted);
-      line-height: 1.5;
-    }
-
-    /* Trust badges */
-    .trust-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    .trust-badge {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 100px;
-      padding: 7px 14px;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--muted);
-    }
-
-    .trust-badge .dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-
-    /* ── RIGHT COLUMN — FORM ── */
-    .form-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
+      gap: 6px;
+      background: var(--snow);
+      border: 1px solid #BFDBFE;
       border-radius: 20px;
-      overflow: hidden;
-      position: sticky;
-      top: 88px;
-    }
-
-    .form-header {
-      background: linear-gradient(135deg, rgba(201,170,255,0.12), rgba(131,154,255,0.12));
-      border-bottom: 1px solid var(--border);
-      padding: 28px 32px 24px;
-    }
-
-    .form-header h2 {
-      font-size: 20px;
-      font-weight: 800;
-      color: #fff;
-      margin-bottom: 6px;
-    }
-
-    .form-header p {
-      font-size: 13px;
-      color: var(--muted);
-    }
-
-    .form-body {
-      padding: 28px 32px 32px;
-    }
-
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-
-    .form-group {
+      padding: 5px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--navy);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
       margin-bottom: 16px;
     }
-
-    .form-group:last-child {
-      margin-bottom: 0;
+    .page-header .badge svg { width: 12px; height: 12px; }
+    .page-header h1 {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--ink);
+      letter-spacing: -0.5px;
+      line-height: 1.2;
+      margin-bottom: 10px;
     }
+    .page-header p {
+      font-size: 15px;
+      color: var(--slate);
+      line-height: 1.6;
+    }
+
+    /* ── TRUST STRIP ── */
+    .trust-strip {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      flex-wrap: wrap;
+      margin: 0 0 32px;
+    }
+    .trust-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--slate);
+      font-weight: 500;
+    }
+    .trust-item svg { width: 14px; height: 14px; stroke: var(--green); }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 36px 40px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+
+    /* ── FORM ── */
+    .form-section-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--slate);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin: 0 0 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .field-group {
+      margin-bottom: 28px;
+    }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 500px) {
+      .field-row { grid-template-columns: 1fr; }
+      .card { padding: 24px 20px; }
+      .page-wrap { margin: 24px auto; }
+      .page-header h1 { font-size: 22px; }
+    }
+
+    .field {
+      margin-bottom: 16px;
+    }
+    .field:last-child { margin-bottom: 0; }
 
     label {
       display: block;
-      font-size: 12px;
-      font-weight: 600;
-      color: #aaa;
-      letter-spacing: 0.3px;
-      margin-bottom: 7px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #374151;
+      margin-bottom: 6px;
     }
-
     label .req {
-      color: var(--purple);
+      color: var(--navy);
+      margin-left: 2px;
     }
 
     input[type="text"],
@@ -339,42 +190,30 @@
     select,
     textarea {
       width: 100%;
-      background: var(--bg);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 10px;
-      color: var(--text);
-      font-family: inherit;
+      padding: 10px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
       font-size: 14px;
-      padding: 11px 14px;
+      font-family: inherit;
+      color: var(--ink);
+      background: #FAFAFA;
+      transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
       outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
       appearance: none;
       -webkit-appearance: none;
     }
-
-    input::placeholder,
-    textarea::placeholder {
-      color: rgba(255,255,255,0.2);
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--navy);
+      background: var(--white);
+      box-shadow: 0 0 0 3px rgba(30,58,138,0.08);
     }
-
-    input:focus,
-    select:focus,
-    textarea:focus {
-      border-color: rgba(201,170,255,0.5);
-      box-shadow: 0 0 0 3px rgba(201,170,255,0.1);
-    }
+    input::placeholder, textarea::placeholder { color: #9CA3AF; }
 
     select {
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%2364748B' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E");
       background-repeat: no-repeat;
       background-position: right 12px center;
       padding-right: 36px;
-      cursor: pointer;
-    }
-
-    select option {
-      background: #1e1e1e;
-      color: var(--text);
     }
 
     textarea {
@@ -383,518 +222,326 @@
       line-height: 1.5;
     }
 
-    .submit-btn {
-      width: 100%;
-      padding: 14px 24px;
-      background: linear-gradient(135deg, var(--purple), var(--indigo));
-      color: #000;
-      font-family: inherit;
-      font-size: 15px;
-      font-weight: 800;
-      border: none;
-      border-radius: 100px;
-      cursor: pointer;
-      margin-top: 20px;
-      letter-spacing: 0.3px;
-      position: relative;
-      overflow: hidden;
-      transition: opacity 0.2s, transform 0.15s;
-    }
-
-    .submit-btn:hover:not(:disabled) {
-      opacity: 0.9;
-      transform: translateY(-1px);
-    }
-
-    .submit-btn:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-
-    .submit-btn .btn-text { transition: opacity 0.2s; }
-    .submit-btn.loading .btn-text { opacity: 0; }
-
-    .btn-spinner {
+    /* ── ERROR / ALERTS ── */
+    .alert {
       display: none;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 22px;
-      height: 22px;
-      margin: -11px 0 0 -11px;
-      border: 3px solid rgba(0,0,0,0.2);
-      border-top-color: #000;
-      border-radius: 50%;
-      animation: spin 0.6s linear infinite;
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 13px;
+      margin-bottom: 20px;
+      align-items: flex-start;
+      gap: 10px;
     }
-
-    .submit-btn.loading .btn-spinner { display: block; }
-
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    .form-footer-note {
-      margin-top: 14px;
-      text-align: center;
-      font-size: 11px;
-      color: rgba(255,255,255,0.25);
-      line-height: 1.6;
+    .alert.visible { display: flex; }
+    .alert-error {
+      background: #FEF2F2;
+      border: 1px solid #FECACA;
+      color: #991B1B;
     }
+    .alert svg { width: 16px; height: 16px; flex-shrink: 0; margin-top: 1px; }
 
-    .form-footer-note a {
-      color: var(--indigo);
-      text-decoration: none;
+    /* ── SUBMIT BUTTON ── */
+    .btn-submit {
+      width: 100%;
+      height: 48px;
+      background: var(--navy);
+      color: var(--white);
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.15s, opacity 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 8px;
     }
+    .btn-submit:hover { background: #1e40af; }
+    .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
 
     /* ── SUCCESS STATE ── */
     .success-state {
       display: none;
-      padding: 40px 32px;
       text-align: center;
+      padding: 16px 0;
     }
-
+    .success-state.visible { display: block; }
     .success-icon {
-      width: 64px;
-      height: 64px;
-      background: linear-gradient(135deg, var(--purple), var(--indigo));
+      width: 56px;
+      height: 56px;
+      background: #DCFCE7;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       margin: 0 auto 20px;
     }
-
-    .success-title {
-      font-size: 22px;
-      font-weight: 800;
-      color: #fff;
+    .success-icon svg { width: 24px; height: 24px; stroke: #16A34A; }
+    .success-state h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--ink);
       margin-bottom: 10px;
     }
-
-    .success-body {
+    .success-state p {
       font-size: 14px;
-      color: var(--muted);
-      line-height: 1.7;
-      margin-bottom: 28px;
+      color: var(--slate);
+      line-height: 1.6;
     }
 
-    .next-steps {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 20px;
-      text-align: left;
-      margin-bottom: 24px;
-    }
-
-    .next-steps-title {
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.8px;
-      color: var(--muted);
-      text-transform: uppercase;
-      margin-bottom: 14px;
-    }
-
-    .next-step {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      margin-bottom: 12px;
-    }
-
-    .next-step:last-child { margin-bottom: 0; }
-
-    .step-num {
-      width: 22px;
-      height: 22px;
-      background: linear-gradient(135deg, var(--purple), var(--indigo));
+    /* ── SPINNER ── */
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: #fff;
       border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 11px;
-      font-weight: 700;
-      color: #000;
-      flex-shrink: 0;
-      margin-top: 1px;
+      animation: spin 0.7s linear infinite;
     }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-    .step-text {
-      font-size: 13px;
-      color: var(--muted);
+    /* ── FOOTER NOTE ── */
+    .footer-note {
+      text-align: center;
+      font-size: 12px;
+      color: #9CA3AF;
+      margin-top: 24px;
       line-height: 1.5;
     }
-
-    .success-cta {
-      display: inline-block;
-      background: linear-gradient(135deg, var(--purple), var(--indigo));
-      color: #000;
-      font-weight: 700;
-      font-size: 14px;
-      text-decoration: none;
-      padding: 12px 28px;
-      border-radius: 100px;
-    }
-
-    /* ── ERROR TOAST ── */
-    .error-msg {
-      display: none;
-      margin-top: 14px;
-      padding: 12px 16px;
-      background: rgba(239,68,68,0.1);
-      border: 1px solid rgba(239,68,68,0.3);
-      border-radius: 10px;
-      font-size: 13px;
-      color: #f87171;
-      text-align: center;
-    }
-
-    /* ── FOOTER ── */
-    .footer {
-      text-align: center;
-      padding: 28px 40px;
-      border-top: 1px solid var(--border);
-      font-size: 12px;
-      color: rgba(255,255,255,0.2);
-    }
-
-    .footer a { color: rgba(255,255,255,0.35); text-decoration: none; }
-    .footer a:hover { color: rgba(255,255,255,0.6); }
-
-    /* ── RESPONSIVE ── */
-    @media (max-width: 900px) {
-      .main {
-        grid-template-columns: 1fr;
-        padding: 40px 24px 60px;
-        gap: 40px;
-      }
-
-      .form-card {
-        position: static;
-      }
-
-      .nav {
-        padding: 16px 24px;
-      }
-
-      .features-grid {
-        grid-template-columns: 1fr 1fr;
-      }
-
-      .stats-row {
-        gap: 24px;
-      }
-    }
-
-    @media (max-width: 540px) {
-      .features-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .form-row {
-        grid-template-columns: 1fr;
-      }
-
-      .form-header,
-      .form-body {
-        padding-left: 20px;
-        padding-right: 20px;
-      }
-
-      .success-state {
-        padding: 28px 20px;
-      }
-    }
+    .footer-note a { color: var(--slate); text-decoration: none; }
+    .footer-note a:hover { color: var(--navy); }
   </style>
 </head>
 <body>
-<div class="page-wrapper">
 
-  <!-- Nav -->
-  <nav class="nav">
-    <div class="brand-icon">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-        <path d="M12 2L4 7v5c0 5.25 3.5 10.15 8 11.35C16.5 22.15 20 17.25 20 12V7l-8-5z" fill="white"/>
+<!-- TOP NAV -->
+<nav class="top-nav">
+  <a href="https://soccorsodigitale.app" class="nav-brand" target="_blank" rel="noopener">
+    <img src="/images/69abbc521cae938069a3fb46_Webclip.png" alt="Soccorso Digitale">
+    <span class="nav-brand-name">Soccorso Digitale</span>
+  </a>
+  <a href="https://soccorsodigitale.app" class="nav-back" target="_blank" rel="noopener">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" width="14" height="14">
+      <path d="M10 12l-4-4 4-4"/>
+    </svg>
+    Torna al sito
+  </a>
+</nav>
+
+<!-- PAGE -->
+<div class="page-wrap">
+
+  <!-- HEADER -->
+  <div class="page-header">
+    <div class="badge">
+      <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+        <path d="M6 1v4l2.5 2.5"/>
+        <circle cx="6" cy="6" r="5"/>
       </svg>
+      Demo gratuita · 30 minuti
     </div>
-    <span class="brand-name">SOCCORSO DIGITALE</span>
-    <a href="/" class="nav-back">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-      Torna al sito
-    </a>
-  </nav>
+    <h1>Prenota una demo gratuita</h1>
+    <p>Ti mostriamo Soccorso Digitale configurato<br>per la tua organizzazione di trasporto sanitario.</p>
+  </div>
 
-  <!-- Main content -->
-  <main class="main">
+  <!-- TRUST STRIP -->
+  <div class="trust-strip">
+    <div class="trust-item">
+      <svg viewBox="0 0 14 14" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7l3 3 7-7"/></svg>
+      Nessuna carta di credito
+    </div>
+    <div class="trust-item">
+      <svg viewBox="0 0 14 14" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7l3 3 7-7"/></svg>
+      Online · 30 minuti
+    </div>
+    <div class="trust-item">
+      <svg viewBox="0 0 14 14" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7l3 3 7-7"/></svg>
+      Piattaforma italiana
+    </div>
+  </div>
 
-    <!-- Left column: benefits -->
-    <div class="left-col">
-      <div class="badge">7 giorni gratuiti · Tutti i moduli attivi</div>
+  <!-- FORM CARD -->
+  <div class="card">
 
-      <h1 class="headline">
-        Gestisci la tua<br>
-        flotta con <span class="accent">intelligenza</span>
-      </h1>
-
-      <p class="subheadline">
-        La piattaforma italiana per Croce Rossa, Misericordie e associazioni 118.
-        Turni, missioni, UTIF e statistiche in un'unica soluzione.
-        Attivo in meno di 48 ore, senza impegno.
-      </p>
-
-      <!-- Stats -->
-      <div class="stats-row">
-        <div class="stat-item">
-          <span class="stat-number" style="color:var(--purple);">500+</span>
-          <span class="stat-label">ore risparmiate / anno</span>
-        </div>
-        <div class="stat-item">
-          <span class="stat-number" style="color:var(--indigo);">80%</span>
-          <span class="stat-label">più efficienza operativa</span>
-        </div>
-        <div class="stat-item">
-          <span class="stat-number" style="color:var(--blue);">&lt;48h</span>
-          <span class="stat-label">per essere operativi</span>
-        </div>
+    <!-- SUCCESS STATE (hidden initially) -->
+    <div class="success-state" id="success-state">
+      <div class="success-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12l5 5L20 7"/>
+        </svg>
       </div>
-
-      <!-- Features -->
-      <div class="features-grid">
-        <div class="feature-item">
-          <div class="feature-icon" style="background:rgba(201,170,255,0.12);">🗓️</div>
-          <div class="feature-title">Turni e Pianificazione</div>
-          <div class="feature-desc">Gestione turni del personale con vista settimanale e notifiche automatiche</div>
-        </div>
-        <div class="feature-item">
-          <div class="feature-icon" style="background:rgba(131,154,255,0.12);">🚑</div>
-          <div class="feature-title">Missioni e Flotta</div>
-          <div class="feature-desc">Tracciamento missioni, veicoli e chilometraggio in tempo reale</div>
-        </div>
-        <div class="feature-item">
-          <div class="feature-icon" style="background:rgba(179,226,255,0.12);">📊</div>
-          <div class="feature-title">Report UTIF</div>
-          <div class="feature-desc">Compliance accise carburante e audit trail crittografico automatico</div>
-        </div>
-        <div class="feature-item">
-          <div class="feature-icon" style="background:rgba(255,205,253,0.12);">📈</div>
-          <div class="feature-title">Statistiche ESG</div>
-          <div class="feature-desc">Dashboard carbon footprint, analisi economica e impatto sociale</div>
-        </div>
-        <div class="feature-item">
-          <div class="feature-icon" style="background:rgba(254,255,188,0.1);">✅</div>
-          <div class="feature-title">Checklist Operative</div>
-          <div class="feature-desc">Ispezioni pre-servizio digitali, consegne e registro sanificazioni</div>
-        </div>
-        <div class="feature-item">
-          <div class="feature-icon" style="background:rgba(201,170,255,0.08);">🤝</div>
-          <div class="feature-title">Registro Volontari</div>
-          <div class="feature-desc">Art. 17 CTS con firma HMAC-SHA256 e Registro Elettronico</div>
-        </div>
-      </div>
-
-      <!-- Trust -->
-      <div class="trust-row">
-        <div class="trust-badge">
-          <span class="dot" style="background:var(--purple);"></span>
-          Nessuna carta di credito
-        </div>
-        <div class="trust-badge">
-          <span class="dot" style="background:var(--indigo);"></span>
-          Dati sicuri su server EU
-        </div>
-        <div class="trust-badge">
-          <span class="dot" style="background:var(--blue);"></span>
-          Supporto italiano incluso
-        </div>
-        <div class="trust-badge">
-          <span class="dot" style="background:var(--pink);"></span>
-          Attivo entro 48 ore
-        </div>
-      </div>
+      <h2>Richiesta ricevuta!</h2>
+      <p>Grazie <strong id="success-name"></strong>.<br>
+      Ti contatteremo entro 24 ore per confermare il giorno e l'orario della demo.</p>
     </div>
 
-    <!-- Right column: form -->
-    <div class="form-card" id="form-card">
+    <!-- FORM (shown initially) -->
+    <form id="demo-form" novalidate>
 
-      <!-- Form state -->
-      <div id="form-state">
-        <div class="form-header">
-          <h2>Richiedi la tua Demo</h2>
-          <p>Compila il modulo e ti contatteremo entro 24 ore lavorative con le credenziali di accesso.</p>
+      <div class="alert alert-error" id="form-error" role="alert">
+        <svg viewBox="0 0 16 16" fill="none" stroke="#991B1B" stroke-width="1.5" stroke-linecap="round">
+          <circle cx="8" cy="8" r="7"/><path d="M8 5v3M8 11h.01"/>
+        </svg>
+        <span id="error-text"></span>
+      </div>
+
+      <!-- SEZIONE 1: Organizzazione -->
+      <p class="form-section-label">La tua organizzazione</p>
+      <div class="field-group">
+        <div class="field">
+          <label for="organizationName">Nome organizzazione <span class="req">*</span></label>
+          <input type="text" id="organizationName" name="organizationName"
+            placeholder="Es. Croce Verde di Milano"
+            autocomplete="organization" required>
         </div>
-
-        <div class="form-body">
-          <form id="demo-form" novalidate>
-
-            <div class="form-group">
-              <label for="organizationName">Nome organizzazione <span class="req">*</span></label>
-              <input type="text" id="organizationName" name="organizationName" placeholder="Es. Croce Rossa Italiana — Comitato di Milano" autocomplete="organization" required>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label for="contactName">Nome referente <span class="req">*</span></label>
-                <input type="text" id="contactName" name="contactName" placeholder="Es. Mario Rossi" autocomplete="name" required>
-              </div>
-              <div class="form-group">
-                <label for="contactEmail">Email <span class="req">*</span></label>
-                <input type="email" id="contactEmail" name="contactEmail" placeholder="mario@tuaorg.it" autocomplete="email" required>
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label for="contactPhone">Telefono</label>
-                <input type="tel" id="contactPhone" name="contactPhone" placeholder="+39 333 000 0000" autocomplete="tel">
-              </div>
-              <div class="form-group">
-                <label for="vehicleCount">Numero mezzi</label>
-                <input type="number" id="vehicleCount" name="vehicleCount" placeholder="Es. 12" min="1" max="9999">
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label for="city">Città</label>
-                <input type="text" id="city" name="city" placeholder="Es. Milano" autocomplete="address-level2">
-              </div>
-              <div class="form-group">
-                <label for="province">Provincia</label>
-                <input type="text" id="province" name="province" placeholder="MI" maxlength="2" style="text-transform:uppercase;">
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label for="orgType">Tipologia organizzazione</label>
-              <select id="orgType" name="orgType">
-                <option value="">— Seleziona —</option>
-                <option value="Croce Rossa">Croce Rossa</option>
-                <option value="Misericordia">Misericordia</option>
-                <option value="Associazione 118">Associazione 118</option>
-                <option value="Protezione Civile">Protezione Civile</option>
-                <option value="Cooperativa Ambulanze">Cooperativa Ambulanze</option>
-                <option value="Altro">Altro</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label for="notes">Note o messaggio</label>
-              <textarea id="notes" name="notes" placeholder="Descrivici le tue esigenze specifiche, il numero di sedi, esperienze con altri software..."></textarea>
-            </div>
-
-            <button type="submit" class="submit-btn" id="submit-btn">
-              <span class="btn-text">Richiedi Demo Gratuita →</span>
-              <span class="btn-spinner"></span>
-            </button>
-
-            <div class="error-msg" id="error-msg"></div>
-
-          </form>
-
-          <p class="form-footer-note">
-            Inviando il modulo accetti i nostri <a href="https://soccorsodigitale.app/privacy" target="_blank">termini e la privacy policy</a>.<br>
-            Nessuna carta di credito richiesta. I dati sono trattati ai sensi del GDPR.
-          </p>
+        <div class="field-row">
+          <div class="field">
+            <label for="city">Città</label>
+            <input type="text" id="city" name="city"
+              placeholder="Es. Milano"
+              autocomplete="address-level2">
+          </div>
+          <div class="field">
+            <label for="province">Provincia</label>
+            <input type="text" id="province" name="province"
+              placeholder="MI" maxlength="2"
+              style="text-transform:uppercase;">
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="orgType">Tipo organizzazione</label>
+            <select id="orgType" name="orgType">
+              <option value="">— Seleziona —</option>
+              <option value="croce_rossa">Croce Rossa Italiana</option>
+              <option value="pubblica_assistenza">Pubblica Assistenza</option>
+              <option value="misericordia">Misericordia</option>
+              <option value="croce_verde">Croce Verde</option>
+              <option value="ambulanza_privata">Ambulanza Privata</option>
+              <option value="altro">Altro</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="vehicleCount">N° veicoli</label>
+            <input type="number" id="vehicleCount" name="vehicleCount"
+              placeholder="Es. 12" min="1" max="9999">
+          </div>
         </div>
       </div>
 
-      <!-- Success state -->
-      <div class="success-state" id="success-state">
-        <div class="success-icon">
-          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="20 6 9 17 4 12"/>
-          </svg>
+      <!-- SEZIONE 2: Referente -->
+      <p class="form-section-label">Referente</p>
+      <div class="field-group">
+        <div class="field">
+          <label for="contactName">Nome e cognome <span class="req">*</span></label>
+          <input type="text" id="contactName" name="contactName"
+            placeholder="Es. Mario Rossi"
+            autocomplete="name" required>
         </div>
-        <h3 class="success-title">Richiesta inviata!</h3>
-        <p class="success-body">
-          Grazie, <strong id="success-name"></strong>! Abbiamo ricevuto la richiesta per <strong id="success-org"></strong>.<br>
-          Controlla la tua casella email — ti abbiamo inviato una conferma.
-        </p>
-
-        <div class="next-steps">
-          <div class="next-steps-title">Cosa succede ora</div>
-          <div class="next-step">
-            <div class="step-num">1</div>
-            <div class="step-text">Il team verifica la tua richiesta e predispone l'ambiente demo personalizzato</div>
+        <div class="field-row">
+          <div class="field">
+            <label for="contactEmail">Email <span class="req">*</span></label>
+            <input type="email" id="contactEmail" name="contactEmail"
+              placeholder="mario@tuaorg.it"
+              autocomplete="email" required>
           </div>
-          <div class="next-step">
-            <div class="step-num">2</div>
-            <div class="step-text">Ricevi via email le credenziali di accesso con tutti i moduli attivi</div>
-          </div>
-          <div class="next-step">
-            <div class="step-num">3</div>
-            <div class="step-text">Esplori la piattaforma liberamente per 7 giorni — supporto incluso</div>
+          <div class="field">
+            <label for="contactPhone">Telefono</label>
+            <input type="tel" id="contactPhone" name="contactPhone"
+              placeholder="+39 333 000 0000"
+              autocomplete="tel">
           </div>
         </div>
-
-        <a href="https://soccorsodigitale.app" class="success-cta">Visita il sito →</a>
+        <div class="field">
+          <label for="source">Come ci hai conosciuto?</label>
+          <select id="source" name="source">
+            <option value="">— Seleziona —</option>
+            <option value="email">Email</option>
+            <option value="passaparola">Passaparola</option>
+            <option value="web">Web / Ricerca online</option>
+            <option value="social">Social media</option>
+            <option value="altro">Altro</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="notes">Cosa gestisci? (opzionale)</label>
+          <textarea id="notes" name="notes"
+            placeholder="Raccontaci brevemente la tua realtà operativa: turni, veicoli, pazienti..."></textarea>
+        </div>
       </div>
 
-    </div>
+      <button type="submit" class="btn-submit" id="submit-btn">
+        <span id="btn-text">Richiedi la demo gratuita</span>
+        <div class="spinner" id="btn-spinner" style="display:none;"></div>
+      </button>
 
-  </main>
+    </form>
+  </div>
 
-  <!-- Footer -->
-  <footer class="footer">
-    <p>© 2026 Soccorso Digitale in Cloud &nbsp;·&nbsp; <a href="https://soccorsodigitale.app/privacy">Privacy</a> &nbsp;·&nbsp; <a href="mailto:info@soccorsodigitale.app">info@soccorsodigitale.app</a></p>
-  </footer>
+  <p class="footer-note">
+    Inviando il modulo accetti la nostra
+    <a href="https://soccorsodigitale.app/privacy" target="_blank">Privacy Policy</a>.
+    Risponderemo entro 24 ore.
+  </p>
 
 </div>
 
 <script>
   (function () {
     const form = document.getElementById('demo-form');
+    const errorBox = document.getElementById('form-error');
+    const errorText = document.getElementById('error-text');
+    const btnText = document.getElementById('btn-text');
+    const btnSpinner = document.getElementById('btn-spinner');
     const submitBtn = document.getElementById('submit-btn');
-    const errorMsg = document.getElementById('error-msg');
-    const formState = document.getElementById('form-state');
     const successState = document.getElementById('success-state');
+    const successName = document.getElementById('success-name');
 
     function showError(msg) {
-      errorMsg.textContent = msg;
-      errorMsg.style.display = 'block';
+      errorText.textContent = msg;
+      errorBox.classList.add('visible');
+      errorBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
     function hideError() {
-      errorMsg.style.display = 'none';
-      errorMsg.textContent = '';
+      errorBox.classList.remove('visible');
     }
 
-    function setLoading(loading) {
-      submitBtn.disabled = loading;
-      if (loading) {
-        submitBtn.classList.add('loading');
-      } else {
-        submitBtn.classList.remove('loading');
-      }
+    function setLoading(on) {
+      submitBtn.disabled = on;
+      btnText.style.display = on ? 'none' : 'inline';
+      btnSpinner.style.display = on ? 'block' : 'none';
     }
 
-    function showSuccess(contactName, organizationName) {
-      document.getElementById('success-name').textContent = contactName;
-      document.getElementById('success-org').textContent = organizationName;
-      formState.style.display = 'none';
-      successState.style.display = 'block';
-      document.getElementById('form-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    function showSuccess(name, orgName) {
+      form.style.display = 'none';
+      successName.textContent = name;
+      successState.classList.add('visible');
     }
 
-    function getField(id) {
-      return document.getElementById(id).value.trim();
-    }
+    // Province: auto-uppercase
+    document.getElementById('province').addEventListener('input', function () {
+      this.value = this.value.toUpperCase().slice(0, 2);
+    });
 
     form.addEventListener('submit', async function (e) {
       e.preventDefault();
       hideError();
 
-      const organizationName = getField('organizationName');
-      const contactName = getField('contactName');
-      const contactEmail = getField('contactEmail');
-      const contactPhone = getField('contactPhone');
-      const vehicleCountRaw = getField('vehicleCount');
-      const city = getField('city');
-      const province = getField('province').toUpperCase();
-      const orgType = getField('orgType');
-      const notes = getField('notes');
+      const organizationName = document.getElementById('organizationName').value.trim();
+      const contactName      = document.getElementById('contactName').value.trim();
+      const contactEmail     = document.getElementById('contactEmail').value.trim();
+      const contactPhone     = document.getElementById('contactPhone').value.trim();
+      const vehicleCountRaw  = document.getElementById('vehicleCount').value.trim();
+      const city             = document.getElementById('city').value.trim();
+      const province         = document.getElementById('province').value.trim();
+      const orgType          = document.getElementById('orgType').value;
+      const source           = document.getElementById('source').value;
+      const notes            = document.getElementById('notes').value.trim();
 
-      // Validation
       if (!organizationName) {
         showError('Il nome dell\'organizzazione è obbligatorio.');
         document.getElementById('organizationName').focus();
@@ -910,8 +557,7 @@
         document.getElementById('contactEmail').focus();
         return;
       }
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(contactEmail)) {
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactEmail)) {
         showError('Inserisci un indirizzo email valido.');
         document.getElementById('contactEmail').focus();
         return;
@@ -926,35 +572,28 @@
         city: city || undefined,
         province: province || undefined,
         orgType: orgType || undefined,
+        source: source || undefined,
         notes: notes || undefined,
       };
 
       setLoading(true);
-
       try {
         const response = await fetch('/api/public/demo-request', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
         });
-
         const data = await response.json();
-
         if (response.ok && data.success) {
           showSuccess(contactName, organizationName);
         } else {
           showError(data.error || 'Si è verificato un errore. Riprova tra qualche minuto.');
         }
-      } catch (err) {
+      } catch {
         showError('Errore di connessione. Controlla la tua rete e riprova.');
       } finally {
         setLoading(false);
       }
-    });
-
-    // Province: auto-uppercase
-    document.getElementById('province').addEventListener('input', function () {
-      this.value = this.value.toUpperCase();
     });
   })();
 </script>
