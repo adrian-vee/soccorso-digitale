@@ -4263,8 +4263,10 @@ blockquote {
   border-radius: var(--_radius---radius-5xl);
   background-color: var(--_color---grey--08);
   justify-content: center;
+  align-items: flex-start;
   padding: 1.5rem;
   display: flex;
+  flex-wrap: nowrap;
   overflow: hidden;
 }
 
