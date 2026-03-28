@@ -1632,7 +1632,7 @@ function applyRoleBasedAccess() {
       // Personale
       'staff-members', 'volunteer-registry',
       // Turni
-      'scheduling', 'monthly-scheduling', 'staff-availability', 'shift-statistics', 'shift-settings',
+      'scheduling', 'monthly-scheduling', 'staff-availability', 'realtime-availability', 'shift-statistics', 'shift-settings',
       // Inventario e sede
       'inventory', 'scadenze', 'sedi', 'branch-managers', 'structures', 'structure-requests',
       // Report
