@@ -175,7 +175,10 @@ export function getManagedLocationIds(req: Request): string[] {
 
 export function isFullAdmin(req: Request): boolean {
   const role = getUserRole(req);
-  return role === 'super_admin' || role === 'admin' || role === 'director';
+  const orgId = getOrganizationId(req);
+  // Platform-level admins have no organization (Soccorso Digitale staff).
+  // Users with an organizationId are org-scoped, never platform admins.
+  return (role === 'super_admin' || role === 'admin' || role === 'director') && !orgId;
 }
 
 export function isOrgAdmin(req: Request): boolean {

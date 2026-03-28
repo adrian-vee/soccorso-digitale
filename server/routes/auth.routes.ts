@@ -432,7 +432,9 @@ export function registerAuthRoutes(app: Express) {
           organization,
           permissions,
           customRoleName,
-          isFullAdmin: user.role === 'super_admin' || user.role === 'admin' || user.role === 'director'
+          // isFullAdmin = true ONLY for platform-level staff (no organizationId).
+          // Org-scoped users (admin/director with an org) are never platform admins.
+          isFullAdmin: (user.role === 'super_admin' || user.role === 'admin' || user.role === 'director') && !user.organizationId
         }
       });
     } catch (error) {

@@ -2139,6 +2139,15 @@ function updateLastUpdate() {
 }
 
 function navigateTo(page) {
+  // Security guard: saas-dashboard and platform-only pages require isFullAdmin.
+  // This prevents org-scoped users (demo/trial) from ever reaching the superadmin view,
+  // even if isFullAdmin is somehow true client-side (defense-in-depth).
+  const PLATFORM_ONLY_PAGES = new Set(['saas-dashboard', 'crm', 'client-overview', 'onboarding-pipeline']);
+  if (PLATFORM_ONLY_PAGES.has(page) && !currentUserInfo?.isFullAdmin) {
+    console.warn(`[ADMIN] Access denied to platform-only page "${page}", redirecting to dashboard`);
+    page = 'dashboard';
+  }
+
   // Validate that the target section exists, fallback to dashboard if not
   const targetSection = document.getElementById(`${page}-section`);
   if (!targetSection) {
