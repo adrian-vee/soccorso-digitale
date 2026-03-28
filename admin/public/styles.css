@@ -22991,7 +22991,16 @@ tr.selected-row:hover {
   transition: background 0.1s;
 }
 .schedule-grid-body td:not(.tg-day-cell):hover { background: #f0f0f0 !important; }
-.tg-day-cell:hover { background: inherit !important; }
+/* Day cell: keeps dark background on direct hover AND when the parent tr is hovered */
+.schedule-grid-body tr:hover .tg-day-cell,
+.tg-day-cell:hover {
+  background: #2c2c2c !important;
+}
+/* Today row: keeps blue even on hover */
+.schedule-grid-body .tg-today-row:hover .tg-day-cell,
+.tg-today-row .tg-day-cell:hover {
+  background: #1a4a8a !important;
+}
 .schedule-grid-body td.tg-group-start { border-left: 2px solid #d0d0d0; }
 .schedule-grid-body td.tg-col-alt { background: #fafafa; }
 
