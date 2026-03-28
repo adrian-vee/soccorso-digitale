@@ -19,16 +19,18 @@ FROM node:22-alpine AS runtime
 
 WORKDIR /app
 
-# Install wget for the HEALTHCHECK command
-RUN apk add --no-cache wget
+# Install wget (HEALTHCHECK) + Python3 + pdfplumber (PDF table extraction)
+RUN apk add --no-cache wget python3 py3-pip && \
+    pip install pdfplumber --break-system-packages --quiet
 
 # Copy only production artifacts
 COPY --from=builder /app/server_dist ./server_dist
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./
 
-# Copy server-side templates and static assets needed at runtime
+# Copy server-side templates, scripts and static assets needed at runtime
 COPY --from=builder /app/server/templates ./server/templates
+COPY --from=builder /app/server/scripts ./server/scripts
 COPY --from=builder /app/admin/public ./admin/public
 COPY --from=builder /app/assets ./assets
 COPY --from=builder /app/site ./site
