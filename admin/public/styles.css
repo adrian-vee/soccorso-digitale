@@ -22991,6 +22991,7 @@ tr.selected-row:hover {
   transition: background 0.1s;
 }
 .schedule-grid-body td:not(.tg-day-cell):hover { background: #f0f0f0 !important; }
+.tg-day-cell:hover { background: inherit !important; }
 .schedule-grid-body td.tg-group-start { border-left: 2px solid #d0d0d0; }
 .schedule-grid-body td.tg-col-alt { background: #fafafa; }
 
