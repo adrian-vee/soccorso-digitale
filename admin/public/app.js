@@ -2311,7 +2311,7 @@ function navigateTo(page) {
   if (page === 'dashboard') updateDashboard();
   if (page === 'trips') updateTripsTable(trips);
   if (page === 'vehicles') updateVehiclesGrid();
-  if (page === 'gps-tracking') { initGpsMap(); setupGpsAutoRefresh(); initGpsHistoryDate(); }
+  if (page === 'gps-tracking') { gpsHasFitBounds = false; initGpsMap(); setupGpsAutoRefresh(); initGpsHistoryDate(); }
   if (page === 'coverage-map') { initCoverageMap(); }
   if (page === 'emergency-alerts') { loadEmergencyAlerts(); }
   if (page === 'notif-config') { loadNotifConfig(); }
@@ -14270,6 +14270,7 @@ if (originalLoadComplianceData) {
 
 let gpsMap = null;
 let gpsMarkers = {};
+let gpsHasFitBounds = false; // FIX5: auto-fit only on first load
 let gpsHistoryMap = null;
 let gpsHistoryPolyline = null;
 let gpsHistoryMarkers = [];
@@ -14503,6 +14504,18 @@ async function loadGpsData() {
     updateGpsMarkers(vehiclePositions);
     renderGpsVehicleList(vehiclePositions);
     populateHistoryVehicleSelector();
+
+    // FIX5: auto-fit mappa su tutti i marker al primo caricamento
+    if (!gpsHasFitBounds && gpsMap) {
+      const validMarkers = Object.values(gpsMarkers);
+      if (validMarkers.length > 0) {
+        try {
+          const group = L.featureGroup(validMarkers);
+          gpsMap.fitBounds(group.getBounds().pad(0.15));
+        } catch (_) {}
+        gpsHasFitBounds = true;
+      }
+    }
     
     if (gpsSelectedVehicleId) {
       const updatedVehicle = vehiclePositions.find(v => v.vehicleId === gpsSelectedVehicleId);
@@ -14551,7 +14564,7 @@ function updateGpsMarkers(vehiclePositions) {
       m.setIcon(createAmbulanceSvgIcon(vehicle));
     } else {
       const marker = L.marker([vehicle.latitude, vehicle.longitude], { icon: createAmbulanceSvgIcon(vehicle) });
-      marker.bindTooltip(vehicle.vehicleCode, { permanent: true, direction: 'top', className: 'vehicle-label', offset: [0, -14] });
+      marker.bindTooltip(vehicle.vehicleCode, { permanent: true, direction: 'top', className: 'vehicle-label', offset: [0, -20] });
       marker.on('click', () => {
         showGpsInfoCard(vehicle);
         gpsSelectedVehicleId = vehicle.vehicleId;
@@ -14594,34 +14607,32 @@ function createVehicleIcon(vehicle) {
 function createAmbulanceSvgIcon(vehicle) {
   const heading = vehicle.heading ?? 0;
 
-  // Nordic Rescue palette by status
-  let color;
-  const isActive = vehicle.isOnService && !vehicle.isWaitingForVisit;
-  if (isActive) {
-    color = '#10B981';  // verde — in servizio/missione attiva
-  } else if (vehicle.isWaitingForVisit) {
-    color = '#EF4444';  // rosso — fermo per visita
-  } else if (vehicle.isTracking) {
-    color = '#1E3A8A';  // blu — tracking attivo disponibile
+  // FIX4: isTracking takes priority over isOnService (aligns with stat card counting)
+  let color, showPulse;
+  if (vehicle.isWaitingForVisit) {
+    color = '#EF4444'; showPulse = false; // rosso — fermo per visita
+  } else if (vehicle.isTracking && !vehicle.isOnService) {
+    color = '#1E3A8A'; showPulse = false; // blu — tracking attivo
   } else if (vehicle.isOnService) {
-    color = '#F59E0B';  // ambra — in sede/standby
+    color = '#10B981'; showPulse = true;  // verde — in servizio/missione
+  } else if (vehicle.isTracking) {
+    color = '#1E3A8A'; showPulse = false; // blu — tracking senza servizio
   } else {
-    color = '#64748B';  // grigio — offline
+    color = '#64748B'; showPulse = false; // grigio — offline/in sede
   }
 
-  // Pulse ring HTML (only for active service)
-  const pulseHtml = isActive
+  const pulseHtml = showPulse
     ? `<div class="amb-pulse-ring" style="border-color:${color}"></div>`
     : '';
 
-  // Top-down ambulance SVG (40×40 viewBox, rotated via wrapper div)
-  const svgHtml = `<svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" style="display:block;filter:drop-shadow(0 2px 5px rgba(0,0,0,0.28))">
-    <rect x="10" y="4" width="20" height="32" rx="4" fill="${color}" stroke="white" stroke-width="1.5"/>
-    <rect x="16" y="12" width="8" height="2.5" rx="0.5" fill="white"/>
-    <rect x="18.75" y="9.5" width="2.5" height="8" rx="0.5" fill="white"/>
-    <polygon points="20,1 25,7 15,7" fill="white" opacity="0.9"/>
-    <rect x="12" y="33" width="4" height="2" rx="1" fill="#EF4444" opacity="0.8"/>
-    <rect x="24" y="33" width="4" height="2" rx="1" fill="#EF4444" opacity="0.8"/>
+  // FIX1: 56×56 rendered (viewBox stays 0 0 40 40 — scales proportionally)
+  const svgHtml = `<svg width="56" height="56" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" style="display:block;filter:drop-shadow(0 3px 7px rgba(0,0,0,0.32))">
+    <rect x="10" y="4" width="20" height="32" rx="4" fill="${color}" stroke="white" stroke-width="2"/>
+    <rect x="16" y="12" width="8" height="3" rx="0.8" fill="white"/>
+    <rect x="18.5" y="9.5" width="3" height="8.5" rx="0.8" fill="white"/>
+    <polygon points="20,1 26,8 14,8" fill="white" opacity="0.95"/>
+    <rect x="12" y="33" width="4.5" height="2.5" rx="1.2" fill="#FCA5A5" opacity="0.9"/>
+    <rect x="23.5" y="33" width="4.5" height="2.5" rx="1.2" fill="#FCA5A5" opacity="0.9"/>
   </svg>`;
 
   const html = `<div class="amb-wrap-v3" style="transform:rotate(${heading}deg)">${pulseHtml}${svgHtml}</div>`;
@@ -14629,10 +14640,10 @@ function createAmbulanceSvgIcon(vehicle) {
   return L.divIcon({
     html,
     className: 'amb-divicon-v3',
-    iconSize:    [40, 40],
-    iconAnchor:  [20, 20],
-    popupAnchor: [0, -24],
-    tooltipAnchor: [0, -22]
+    iconSize:    [56, 56],
+    iconAnchor:  [28, 28],
+    popupAnchor: [0, -32],
+    tooltipAnchor: [0, -30]
   });
 }
 
@@ -14868,16 +14879,18 @@ function renderGpsVehicleList(vehiclePositions) {
 
   const sorted = [...filtered].sort((a, b) => {
     // Priority: waiting > in service > tracking > idle
-    const rank = v => v.isWaitingForVisit ? 0 : (v.isOnService && !v.isWaitingForVisit) ? 1 : v.isTracking ? 2 : 3;
+    // FIX4: priority aligns with stat card counting (isTracking before isOnService)
+    const rank = v => v.isWaitingForVisit ? 0 : v.isOnService ? 1 : v.isTracking ? 2 : 3;
     const diff = rank(a) - rank(b);
     return diff !== 0 ? diff : (a.vehicleCode || '').localeCompare(b.vehicleCode || '');
   });
 
   container.innerHTML = sorted.map(vehicle => {
+    // FIX4: match stat card counting — isTracking is the base state, isOnService = active mission
     const statusClass = vehicle.isWaitingForVisit ? 'waiting' :
-                        vehicle.isOnService ? 'service' :
-                        vehicle.isTracking  ? 'tracking' : 'idle';
-    const statusLabel = vehicle.isWaitingForVisit ? 'Fermo per Visita' :
+                        vehicle.isOnService  ? 'service' :
+                        vehicle.isTracking   ? 'tracking' : 'idle';
+    const statusLabel = vehicle.isWaitingForVisit ? 'Fermo' :
                         vehicle.isOnService  ? 'In Servizio' :
                         vehicle.isTracking   ? 'Tracking' : 'In Sede';
     const isSelected = vehicle.vehicleId === gpsSelectedVehicleId;
@@ -15093,20 +15106,20 @@ function calcBearing(lat1, lng1, lat2, lng2) {
 
 function createReplayIcon(heading) {
   const h = heading ?? 0;
-  const color = '#E74C3C'; // replay: rosso distinto
-  const svgHtml = `<svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" style="display:block;filter:drop-shadow(0 2px 5px rgba(0,0,0,0.28))">
-    <rect x="10" y="4" width="20" height="32" rx="4" fill="${color}" stroke="white" stroke-width="1.5"/>
-    <rect x="16" y="12" width="8" height="2.5" rx="0.5" fill="white"/>
-    <rect x="18.75" y="9.5" width="2.5" height="8" rx="0.5" fill="white"/>
-    <polygon points="20,1 25,7 15,7" fill="white" opacity="0.9"/>
-    <rect x="12" y="33" width="4" height="2" rx="1" fill="#FCD34D" opacity="0.9"/>
-    <rect x="24" y="33" width="4" height="2" rx="1" fill="#FCD34D" opacity="0.9"/>
+  const color = '#E74C3C';
+  const svgHtml = `<svg width="56" height="56" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" style="display:block;filter:drop-shadow(0 3px 7px rgba(0,0,0,0.32))">
+    <rect x="10" y="4" width="20" height="32" rx="4" fill="${color}" stroke="white" stroke-width="2"/>
+    <rect x="16" y="12" width="8" height="3" rx="0.8" fill="white"/>
+    <rect x="18.5" y="9.5" width="3" height="8.5" rx="0.8" fill="white"/>
+    <polygon points="20,1 26,8 14,8" fill="white" opacity="0.95"/>
+    <rect x="12" y="33" width="4.5" height="2.5" rx="1.2" fill="#FCD34D" opacity="0.9"/>
+    <rect x="23.5" y="33" width="4.5" height="2.5" rx="1.2" fill="#FCD34D" opacity="0.9"/>
   </svg>`;
   return L.divIcon({
     html: `<div class="amb-wrap-v3" style="transform:rotate(${h}deg)">${svgHtml}</div>`,
     className: 'amb-divicon-v3',
-    iconSize:   [40, 40],
-    iconAnchor: [20, 20]
+    iconSize:   [56, 56],
+    iconAnchor: [28, 28]
   });
 }
 
@@ -15212,15 +15225,16 @@ function setGpsLiveBadge(connected) {
   gpsWsConnected = connected;
   const badge = document.getElementById('gps-live-badge');
   if (!badge) return;
+  // FIX2: pill design per entrambi gli stati — no inline red background
+  badge.style.background = '';
+  badge.style.color = '';
   if (connected) {
-    badge.textContent = 'LIVE';
-    badge.style.background = '';
-    badge.style.color = '';
+    badge.innerHTML = '<span class="gps-live-dot"></span>LIVE';
+    badge.classList.remove('offline');
     badge.classList.add('gps-live-pulse');
   } else {
-    badge.textContent = 'OFFLINE';
-    badge.style.background = '#ef4444';
-    badge.style.color = '#fff';
+    badge.innerHTML = '<span class="gps-live-dot"></span>OFFLINE';
+    badge.classList.add('offline');
     badge.classList.remove('gps-live-pulse');
   }
 }

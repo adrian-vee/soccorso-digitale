@@ -34514,23 +34514,38 @@ td.tg-cell-uncovered {
   color: #be185d;
 }
 
-.leaflet-tooltip.vehicle-label,
+/* FIX3: vehicle-label — dark navy pill, no arrow */
+.leaflet-tooltip.vehicle-label {
+  background: #0C1A2E;
+  border: none;
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  color: white;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.22);
+}
+.leaflet-tooltip.vehicle-label::before {
+  display: none;
+}
+
 .leaflet-tooltip.sede-label,
 .leaflet-tooltip.territory-label {
-  background: rgba(255,255,255,0.9);
-  border: 1px solid rgba(0,0,0,0.15);
+  background: rgba(255,255,255,0.92);
+  border: 1px solid rgba(0,0,0,0.12);
   border-radius: 4px;
   padding: 2px 6px;
   font-size: 11px;
   font-weight: 600;
   font-family: 'Inter', sans-serif;
   color: #333;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.12);
 }
 .leaflet-tooltip.sede-label {
   font-size: 10px;
   font-weight: 700;
-  color: #0066CC;
+  color: #1E3A8A;
 }
 
 
@@ -35002,31 +35017,31 @@ td.tg-cell-uncovered {
   overflow: visible !important;
 }
 
-/* Inner wrapper: holds pulse ring + svg, rotated by heading */
+/* Inner wrapper: holds pulse ring + svg, rotated by heading — matches iconSize [56,56] */
 .amb-wrap-v3 {
   position: relative;
-  width: 40px;
-  height: 40px;
+  width: 56px;
+  height: 56px;
   transition: transform 0.5s ease;
 }
 
-/* Pulse ring for active vehicles */
+/* Pulse ring for active vehicles — sized to match 56×56 marker */
 .amb-pulse-ring {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 40px;
-  height: 40px;
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
-  border: 2px solid;
+  border: 2.5px solid;
   animation: ambPulseRing 2s ease-out infinite;
   pointer-events: none;
   z-index: -1;
 }
 
 @keyframes ambPulseRing {
-  0%   { transform: translate(-50%, -50%) scale(1);   opacity: 0.8; }
-  100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; }
+  0%   { transform: translate(-50%, -50%) scale(1);   opacity: 0.75; }
+  100% { transform: translate(-50%, -50%) scale(2.2); opacity: 0; }
 }
 
 /* Cluster markers */
