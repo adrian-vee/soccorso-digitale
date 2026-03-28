@@ -11,7 +11,13 @@
  */
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const { PDFParse } = require("pdf-parse") as { PDFParse: new (options: { data: Buffer | Uint8Array }) => { getText(): Promise<{ text: string }> } };
+const { PDFParse } = require("pdf-parse") as {
+  PDFParse: new (options: { data: Buffer | Uint8Array }) => {
+    getText(): Promise<{ text: string }>;
+    getTable(): Promise<{ mergedTables: string[][][] }>;
+    destroy?(): Promise<void>;
+  };
+};
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -159,12 +165,55 @@ function detectTable(rawText: string): { headers: string[]; rows: string[][] } {
 /**
  * Parse a PDF buffer and detect the tabular structure inside it.
  * Returns the first 5 rows as a sample (admin uses this to configure the mapping).
+ *
+ * Strategy 1: coordinate-based table extraction via getTable()
+ *   Works with ReportLab, Word-generated, and other positional PDFs.
+ * Strategy 2: whitespace-gap text analysis via getText() (fallback)
+ *   Works with fixed-width text PDFs where columns are separated by spaces.
  */
 export async function parseSampleTable(buffer: Buffer): Promise<SampleTableResult> {
-  const parser = new PDFParse({ data: buffer });
-  const parsed = await parser.getText();
-  const rawText = parsed.text || "";
+  // Strategy 1: coordinate-based (getTable)
+  try {
+    const tableParser = new PDFParse({ data: Buffer.from(buffer) });
+    const tableResult = await tableParser.getTable();
+    await tableParser.destroy?.();
 
+    if (tableResult.mergedTables?.length > 0) {
+      const firstTable = tableResult.mergedTables[0];
+      if (firstTable.length >= 2) {
+        const headers = (firstTable[0] || []).map(h => String(h ?? "").trim());
+        const dataRows = firstTable.slice(1).map(row =>
+          row.map(cell => String(cell ?? "").trim())
+        );
+        if (headers.some(h => h.length > 0)) {
+          // Also grab raw text for rawTextPreview in error cases
+          let rawText = "";
+          try {
+            const textParser = new PDFParse({ data: Buffer.from(buffer) });
+            const textResult = await textParser.getText();
+            await textParser.destroy?.();
+            rawText = textResult.text || "";
+          } catch {
+            // rawText is optional — swallow
+          }
+          return {
+            headers,
+            rows: dataRows.slice(0, 5),
+            totalRows: dataRows.length,
+            rawText,
+          };
+        }
+      }
+    }
+  } catch (tableErr) {
+    console.warn("[pdf-table-parser] getTable() failed, falling back to getText():", (tableErr as Error).message);
+  }
+
+  // Strategy 2: whitespace-gap text fallback
+  const textParser = new PDFParse({ data: Buffer.from(buffer) });
+  const textResult = await textParser.getText();
+  await textParser.destroy?.();
+  const rawText = textResult.text || "";
   const { headers, rows } = detectTable(rawText);
 
   return {
