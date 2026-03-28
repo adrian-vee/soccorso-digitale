@@ -50,25 +50,35 @@
           {
             "@type": "Offer",
             "name": "Base",
-            "price": "0",
-            "priceCurrency": "EUR",
-            "description": "Piano gratuito per piccole organizzazioni fino a 10 operatori"
-          },
-          {
-            "@type": "Offer",
-            "name": "Pro",
             "price": "79",
             "priceCurrency": "EUR",
             "priceSpecification": {
               "@type": "UnitPriceSpecification",
               "billingDuration": "P1M"
             },
-            "description": "Piano completo per cooperative operative"
+            "description": "Piano base per piccole organizzazioni. Trial gratuito 7 giorni."
+          },
+          {
+            "@type": "Offer",
+            "name": "Pro",
+            "price": "149",
+            "priceCurrency": "EUR",
+            "priceSpecification": {
+              "@type": "UnitPriceSpecification",
+              "billingDuration": "P1M"
+            },
+            "description": "Piano completo per cooperative operative. Trial gratuito 7 giorni."
           },
           {
             "@type": "Offer",
             "name": "Enterprise",
-            "description": "Piano personalizzato per grandi organizzazioni"
+            "price": "299",
+            "priceCurrency": "EUR",
+            "priceSpecification": {
+              "@type": "UnitPriceSpecification",
+              "billingDuration": "P1M"
+            },
+            "description": "Piano enterprise per grandi organizzazioni multi-sede. Trial gratuito 7 giorni."
           }
         ],
         "aggregateRating": {
@@ -109,7 +119,7 @@
             "name": "Quanto costa Soccorso Digitale?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Il piano Base è gratuito per organizzazioni fino a 10 operatori. Il piano Pro è disponibile da €79/mese e include tutte le funzionalità operative. Il piano Enterprise è personalizzabile per grandi organizzazioni."
+              "text": "Il piano Base è disponibile da €79/mese (€790/anno). Il piano Pro è €149/mese (€1.490/anno) e include tutte le funzionalità operative. Il piano Enterprise è €299/mese (€2.990/anno) per grandi organizzazioni multi-sede. Tutti i piani includono un trial gratuito di 7 giorni."
             }
           }
         ]
@@ -351,11 +361,20 @@
       font-family: var(--font-heading);
       font-size: 17px;
       font-weight: 600;
-      color: var(--color-navy);
+      color: var(--color-white);
       letter-spacing: -0.01em;
+      transition: color var(--transition-base);
     }
 
     .navbar__logo-text span {
+      color: var(--color-teal-light);
+    }
+
+    .navbar.scrolled .navbar__logo-text {
+      color: var(--color-navy);
+    }
+
+    .navbar.scrolled .navbar__logo-text span {
       color: var(--color-teal-dark);
     }
 
@@ -368,11 +387,19 @@
     .navbar__nav a {
       font-size: 14px;
       font-weight: 500;
-      color: var(--color-ink);
+      color: rgba(255,255,255,0.85);
       transition: color var(--transition-base);
     }
 
     .navbar__nav a:hover {
+      color: var(--color-white);
+    }
+
+    .navbar.scrolled .navbar__nav a {
+      color: var(--color-ink);
+    }
+
+    .navbar.scrolled .navbar__nav a:hover {
       color: var(--color-teal-dark);
     }
 
@@ -385,11 +412,19 @@
     .navbar__cta {
       font-size: 14px;
       font-weight: 600;
-      color: var(--color-teal-dark);
+      color: rgba(255,255,255,0.85);
       transition: color var(--transition-base);
     }
 
     .navbar__cta:hover {
+      color: var(--color-white);
+    }
+
+    .navbar.scrolled .navbar__cta {
+      color: var(--color-teal-dark);
+    }
+
+    .navbar.scrolled .navbar__cta:hover {
       color: var(--color-navy);
     }
 
@@ -404,9 +439,13 @@
       display: block;
       width: 22px;
       height: 2px;
-      background: var(--color-navy);
+      background: rgba(255,255,255,0.85);
       border-radius: 2px;
       transition: all var(--transition-base);
+    }
+
+    .navbar.scrolled .navbar__mobile-toggle span {
+      background: var(--color-navy);
     }
 
     @media (max-width: 768px) {
@@ -1378,6 +1417,11 @@
     .logo-svg {
       display: block;
     }
+
+    /* Logo cross color adapts to dark/light context */
+    :root { --logo-fg: var(--color-white); }
+    .navbar.scrolled { --logo-fg: #1D1D1F; }
+    .footer { --logo-fg: var(--color-white); }
   </style>
 </head>
 <body>
@@ -1389,15 +1433,11 @@
     <div class="container">
       <div class="navbar__inner">
         <a href="/" class="navbar__logo" aria-label="Soccorso Digitale — Homepage">
-          <!-- Logo SVG inline — Cross + Signal concept -->
-          <svg class="navbar__logo-icon logo-svg" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <rect width="36" height="36" rx="8" fill="#0B2E50"/>
-            <!-- Cross shape with rounded arms -->
-            <rect x="14" y="7" width="8" height="22" rx="2.5" fill="white"/>
-            <rect x="7" y="14" width="22" height="8" rx="2.5" fill="white"/>
-            <!-- Signal arcs (top-right) -->
-            <path d="M24 10 Q28 10 28 14" stroke="#5EB0BB" stroke-width="1.8" stroke-linecap="round" fill="none"/>
-            <path d="M24 7 Q32 7 32 16" stroke="#5EB0BB" stroke-width="1.8" stroke-linecap="round" fill="none" opacity="0.7"/>
+          <!-- Logo SVG — same as admin/public/images/logo.svg -->
+          <svg class="navbar__logo-icon logo-svg" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect x="26" y="8" width="12" height="48" rx="3" fill="var(--logo-fg, #1D1D1F)"/>
+            <rect x="8" y="26" width="48" height="12" rx="3" fill="var(--logo-fg, #1D1D1F)"/>
+            <path d="M 10 50 Q 32 32 54 50" stroke="#32D74B" stroke-width="4" fill="none" stroke-linecap="round"/>
           </svg>
           <span class="navbar__logo-text">Soccorso <span>Digitale</span></span>
         </a>
@@ -1410,7 +1450,7 @@
         </nav>
 
         <div class="navbar__actions">
-          <a href="/hub" class="navbar__cta">Accedi</a>
+          <a href="/admin" class="navbar__cta">Accedi</a>
           <a href="/demo" class="btn btn--primary">Richiedi Demo</a>
         </div>
 
@@ -1532,37 +1572,49 @@
 
         <div class="features__grid">
           <article class="feature-card fade-in">
-            <div class="feature-card__icon" aria-hidden="true">📅</div>
+            <div class="feature-card__icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5EB0BB" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="14" x2="8" y2="14"/><line x1="12" y1="14" x2="12" y2="14"/><line x1="16" y1="14" x2="16" y2="14"/></svg>
+            </div>
             <h3 class="feature-card__title">Gestione Turni</h3>
             <p class="feature-card__desc">Pianifica i turni degli operatori con vista settimanale e mensile. Gestisci disponibilità, sostituzioni e straordinari senza fogli Excel.</p>
           </article>
 
           <article class="feature-card fade-in fade-in-delay-1">
-            <div class="feature-card__icon" aria-hidden="true">🚑</div>
+            <div class="feature-card__icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5EB0BB" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </div>
             <h3 class="feature-card__title">Tracciamento Missioni</h3>
             <p class="feature-card__desc">Registra ogni trasporto sanitario con dettaglio completo: paziente, mezzo, operatori, percorso e note cliniche — in tempo reale.</p>
           </article>
 
           <article class="feature-card fade-in fade-in-delay-2">
-            <div class="feature-card__icon" aria-hidden="true">📄</div>
+            <div class="feature-card__icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5EB0BB" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            </div>
             <h3 class="feature-card__title">Documenti Digitali</h3>
             <p class="feature-card__desc">Archivia e accedi a verbali, certificati di idoneità, manuali dei mezzi e modulistica ANAC direttamente dalla dashboard.</p>
           </article>
 
           <article class="feature-card fade-in fade-in-delay-3">
-            <div class="feature-card__icon" aria-hidden="true">📊</div>
+            <div class="feature-card__icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5EB0BB" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            </div>
             <h3 class="feature-card__title">Reportistica Avanzata</h3>
             <p class="feature-card__desc">Report automatici per il CDA, statistiche operative per ANAC e analisi dei costi per mezzo. Esporta in PDF o Excel in un clic.</p>
           </article>
 
           <article class="feature-card fade-in fade-in-delay-4">
-            <div class="feature-card__icon" aria-hidden="true">📱</div>
+            <div class="feature-card__icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5EB0BB" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+            </div>
             <h3 class="feature-card__title">App Mobile Operatori</h3>
             <p class="feature-card__desc">Gli autisti vedono turni e missioni direttamente sullo smartphone. Firma digitale a bordo mezzo. Funziona anche offline.</p>
           </article>
 
           <article class="feature-card fade-in fade-in-delay-5">
-            <div class="feature-card__icon" aria-hidden="true">✅</div>
+            <div class="feature-card__icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5EB0BB" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+            </div>
             <h3 class="feature-card__title">Compliance ANAC</h3>
             <p class="feature-card__desc">Audit trail completo di ogni operazione, versionamento documenti e reportistica strutturata pronta per le verifiche ispettive.</p>
           </article>
@@ -1623,8 +1675,8 @@
               <footer class="testimonial-card__author">
                 <div class="testimonial-card__avatar" aria-hidden="true">CE</div>
                 <div>
-                  <p class="testimonial-card__name">Marco Ferretti</p>
-                  <p class="testimonial-card__org">Direttore Operativo — Croce Europa, Emilia-Romagna</p>
+                  <p class="testimonial-card__name">Croce Europa</p>
+                  <p class="testimonial-card__org">Verona (VR)</p>
                 </div>
               </footer>
             </blockquote>
@@ -1639,8 +1691,8 @@
               <footer class="testimonial-card__author">
                 <div class="testimonial-card__avatar" aria-hidden="true">AS</div>
                 <div>
-                  <p class="testimonial-card__name">Claudia Rizzo</p>
-                  <p class="testimonial-card__org">Coordinatrice — ALS Soccorso, Lombardia</p>
+                  <p class="testimonial-card__name">ALS Soccorso</p>
+                  <p class="testimonial-card__org">Cologna Veneta (VR)</p>
                 </div>
               </footer>
             </blockquote>
@@ -1666,13 +1718,13 @@
             <p class="pricing-card__name">Base</p>
             <p class="pricing-card__desc">Per piccole organizzazioni che vogliono iniziare a digitalizzarsi.</p>
             <div class="pricing-card__price">
-              <p class="pricing-card__amount"><span class="pricing-card__currency">€</span>0</p>
-              <p class="pricing-card__period">Gratuito per sempre, fino a 10 operatori</p>
+              <p class="pricing-card__amount"><span class="pricing-card__currency">€</span>79</p>
+              <p class="pricing-card__period">al mese &middot; €790/anno &middot; trial 7 giorni</p>
             </div>
             <ul class="pricing-card__features">
               <li class="pricing-card__feature">
                 <span class="pricing-card__check" aria-hidden="true">✓</span>
-                Fino a 10 operatori
+                Fino a 25 operatori
               </li>
               <li class="pricing-card__feature">
                 <span class="pricing-card__check" aria-hidden="true">✓</span>
@@ -1691,7 +1743,7 @@
                 Supporto email
               </li>
             </ul>
-            <a href="/demo" class="btn btn--outline">Inizia Gratis</a>
+            <a href="/demo" class="btn btn--outline">Inizia il trial</a>
           </div>
 
           <!-- PRO (FEATURED) -->
@@ -1700,8 +1752,8 @@
             <p class="pricing-card__name">Pro</p>
             <p class="pricing-card__desc">La piattaforma completa per cooperative operative.</p>
             <div class="pricing-card__price">
-              <p class="pricing-card__amount"><span class="pricing-card__currency">€</span>79</p>
-              <p class="pricing-card__period">al mese · operatori illimitati</p>
+              <p class="pricing-card__amount"><span class="pricing-card__currency">€</span>149</p>
+              <p class="pricing-card__period">al mese &middot; €1.490/anno &middot; trial 7 giorni</p>
             </div>
             <ul class="pricing-card__features">
               <li class="pricing-card__feature">
@@ -1718,7 +1770,7 @@
               </li>
               <li class="pricing-card__feature">
                 <span class="pricing-card__check" aria-hidden="true">✓</span>
-                Report ANAC automatici
+                Report automatici
               </li>
               <li class="pricing-card__feature">
                 <span class="pricing-card__check" aria-hidden="true">✓</span>
@@ -1729,7 +1781,7 @@
                 Supporto prioritario
               </li>
             </ul>
-            <a href="/demo" class="btn btn--outline">Richiedi Demo</a>
+            <a href="/demo" class="btn btn--outline">Inizia il trial</a>
           </div>
 
           <!-- ENTERPRISE -->
@@ -1737,8 +1789,8 @@
             <p class="pricing-card__name">Enterprise</p>
             <p class="pricing-card__desc">Per grandi organizzazioni con esigenze personalizzate e multi-sede.</p>
             <div class="pricing-card__price">
-              <p class="pricing-card__amount" style="font-size:32px; padding-top: 8px;">Su misura</p>
-              <p class="pricing-card__period">Preventivo personalizzato</p>
+              <p class="pricing-card__amount"><span class="pricing-card__currency">€</span>299</p>
+              <p class="pricing-card__period">al mese &middot; €2.990/anno &middot; trial 7 giorni</p>
             </div>
             <ul class="pricing-card__features">
               <li class="pricing-card__feature">
@@ -1785,7 +1837,7 @@
             <a href="#contact" class="btn btn--ghost btn--lg">Parla con noi</a>
           </div>
           <p class="cta-finale__note fade-in fade-in-delay-3">
-            Nessun contratto. Nessuna carta di credito per iniziare. Setup in 24 ore.
+            Trial gratuito 7 giorni. Nessun contratto a lungo termine. Setup in 24 ore.
           </p>
         </div>
       </div>
@@ -1804,15 +1856,21 @@
 
             <div class="contact__bullets">
               <div class="contact__bullet">
-                <div class="contact__bullet-icon" aria-hidden="true">⚡</div>
+                <div class="contact__bullet-icon" aria-hidden="true">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1F6583" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                </div>
                 <p class="contact__bullet-text"><strong>Risposta in 24 ore</strong> — Il nostro team ti contatta entro un giorno lavorativo</p>
               </div>
               <div class="contact__bullet">
-                <div class="contact__bullet-icon" aria-hidden="true">🎯</div>
+                <div class="contact__bullet-icon" aria-hidden="true">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1F6583" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                </div>
                 <p class="contact__bullet-text"><strong>Demo personalizzata</strong> — Ti mostriamo la piattaforma sulla base della tua realtà operativa</p>
               </div>
               <div class="contact__bullet">
-                <div class="contact__bullet-icon" aria-hidden="true">🔒</div>
+                <div class="contact__bullet-icon" aria-hidden="true">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1F6583" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                </div>
                 <p class="contact__bullet-text"><strong>Nessun impegno</strong> — Esplori la piattaforma senza pressione commerciale</p>
               </div>
             </div>
@@ -1855,7 +1913,9 @@
             </form>
 
             <div class="form-success" id="form-success" role="alert">
-              <div class="form-success__icon" aria-hidden="true">✅</div>
+              <div class="form-success__icon" aria-hidden="true">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#1F6583" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg>
+              </div>
               <p class="form-success__title">Richiesta inviata!</p>
               <p class="form-success__text">Ti contatteremo entro un giorno lavorativo per organizzare la demo.</p>
             </div>
@@ -1875,22 +1935,19 @@
         <!-- Brand -->
         <div>
           <div class="footer__brand-logo">
-            <svg width="28" height="28" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <rect width="36" height="36" rx="8" fill="#1F6583"/>
-              <rect x="14" y="7" width="8" height="22" rx="2.5" fill="white"/>
-              <rect x="7" y="14" width="22" height="8" rx="2.5" fill="white"/>
-              <path d="M24 10 Q28 10 28 14" stroke="#5EB0BB" stroke-width="1.8" stroke-linecap="round" fill="none"/>
-              <path d="M24 7 Q32 7 32 16" stroke="#5EB0BB" stroke-width="1.8" stroke-linecap="round" fill="none" opacity="0.7"/>
+            <svg width="28" height="28" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <rect x="26" y="8" width="12" height="48" rx="3" fill="var(--logo-fg, white)"/>
+              <rect x="8" y="26" width="48" height="12" rx="3" fill="var(--logo-fg, white)"/>
+              <path d="M 10 50 Q 32 32 54 50" stroke="#32D74B" stroke-width="4" fill="none" stroke-linecap="round"/>
             </svg>
             <span class="footer__brand-name">Soccorso <span>Digitale</span></span>
           </div>
           <p class="footer__brand-desc">
             Software gestionale in cloud per cooperative di trasporto sanitario e organizzazioni di volontariato italiane.
           </p>
-          <div class="footer__cert">
-            <span class="footer__cert-badge">🇮🇹 Made in Italy</span>
-            <span class="footer__cert-badge">ANAC Ready</span>
-          </div>
+          <p class="footer__brand-desc" style="margin-top:12px; font-size:12px; opacity:0.5;">
+            Progettato e sviluppato in Italia.
+          </p>
         </div>
 
         <!-- Prodotto -->
@@ -1910,7 +1967,7 @@
           <p class="footer__col-title">Azienda</p>
           <ul class="footer__links">
             <li><a href="#contact" class="footer__link">Contatti</a></li>
-            <li><a href="/hub" class="footer__link">Accesso Dashboard</a></li>
+            <li><a href="/admin" class="footer__link">Accesso Dashboard</a></li>
             <li><a href="mailto:info@soccorsodigitale.app" class="footer__link">info@soccorsodigitale.app</a></li>
           </ul>
         </div>
