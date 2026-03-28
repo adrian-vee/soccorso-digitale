@@ -45,8 +45,8 @@ export function templateCredenzialiDemo(params: {
       <tr><td style="padding:40px 44px;">
         ${credsBox(loginEmail, password)}
         ${ctaButton('Accedi al Pannello di Controllo', loginUrl)}
-        ${noticeBox(`<strong style="color:#1D1D1F;">Demo attiva fino al ${expiry}.</strong> Contattaci per estendere o attivare il piano completo.`, 'info')}
-        <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:32px;"><tr><td style="height:1px;background:#E5E5EA;"></td></tr></table>
+        ${noticeBox(`<strong style="color:#1A2B32;">Demo attiva fino al ${expiry}.</strong> Contattaci per estendere o attivare il piano completo.`, 'info')}
+        <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;"><tr><td style="height:1px;background:#C4C8C7;"></td></tr></table>
         ${upgradeBanner()}
         ${modulesGrid(modules)}
       </td></tr>
@@ -79,14 +79,14 @@ export function templateBenvenutoOrg(params: {
     )}
     <table width="100%" cellpadding="0" cellspacing="0">
       <tr><td style="padding:40px 44px;">
-        <p style="font-size:15px;color:#1D1D1F;line-height:1.6;margin:0 0 28px;">
+        <p style="font-size:15px;color:#1A2B32;line-height:1.6;margin:0 0 28px;">
           Ciao <strong>${recipientName}</strong>,
           ${roleName ? `il tuo account <strong>${roleName}</strong> è pronto.` : 'il tuo account è pronto.'}
         </p>
         ${credsBox(loginEmail, password)}
         ${ctaButton('Accedi ora', loginUrl)}
-        ${noticeBox(`Per sicurezza, cambia la password al primo accesso dalla sezione <strong style="color:#1D1D1F;">Impostazioni</strong>.`, 'warning')}
-        ${modules ? `<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:32px;"><tr><td style="height:1px;background:#E5E5EA;"></td></tr></table>${modulesGrid(modules)}` : ''}
+        ${noticeBox(`Per sicurezza, cambia la password al primo accesso dalla sezione <strong style="color:#1A2B32;">Impostazioni</strong>.`, 'warning')}
+        ${modules ? `<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;"><tr><td style="height:1px;background:#C4C8C7;"></td></tr></table>${modulesGrid(modules)}` : ''}
       </td></tr>
     </table>
     ${cardFooter()}`;
@@ -112,7 +112,7 @@ export function templateRichiestaRicevuta(params: {
     )}
     <table width="100%" cellpadding="0" cellspacing="0">
       <tr><td style="padding:40px 44px;">
-        ${noticeBox(`Il nostro team verificherà la richiesta per <strong style="color:#1D1D1F;">${orgName}</strong> e attiverà l'accesso demo entro <strong style="color:#1D1D1F;">24 ore</strong>. Riceverai un'email con le credenziali di accesso.`, 'success')}
+        ${noticeBox(`Il nostro team verificherà la richiesta per <strong style="color:#1A2B32;">${orgName}</strong> e attiverà l'accesso demo entro <strong style="color:#1A2B32;">24 ore</strong>. Riceverai un'email con le credenziali di accesso.`, 'success')}
         ${ctaButton('Scopri la piattaforma', SITE_URL)}
       </td></tr>
     </table>
@@ -162,8 +162,8 @@ export function templateNotificaAdmin(params: {
     )}
     <table width="100%" cellpadding="0" cellspacing="0">
       <tr><td style="padding:40px 44px;">
-        <div style="font-size:11px;font-weight:700;color:#86868B;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:16px;">Dettagli richiesta</div>
-        <table width="100%" cellpadding="0" cellspacing="0" style="background:#F5F5F7;border-radius:16px;padding:24px;margin-bottom:32px;border:1px solid #E5E5EA;">
+        <div style="font-size:11px;font-weight:700;color:#808976;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:16px;">Dettagli richiesta</div>
+        <table width="100%" cellpadding="0" cellspacing="0" style="background:#F4F8F8;border-radius:8px;padding:20px;margin-bottom:28px;border:1px solid #C4C8C7;">
           <tr><td><table width="100%" cellpadding="0" cellspacing="0">${rows}</table></td></tr>
         </table>
         ${ctaButton('Gestisci nella Dashboard', dashboardUrl)}
@@ -195,12 +195,12 @@ export function templateResetPassword(params: {
     )}
     <table width="100%" cellpadding="0" cellspacing="0">
       <tr><td style="padding:40px 44px;">
-        <p style="font-size:15px;color:#1D1D1F;line-height:1.6;margin:0 0 28px;">
+        <p style="font-size:15px;color:#1A2B32;line-height:1.6;margin:0 0 28px;">
           Ciao <strong>${recipientName}</strong>, la tua password è stata aggiornata.
         </p>
         ${credsBox(loginEmail, newPassword)}
         ${ctaButton('Accedi ora', loginUrl)}
-        ${noticeBox(`Se non hai richiesto questa modifica, contatta subito <a href="mailto:info@soccorsodigitale.app" style="color:#2997FF;text-decoration:none;">info@soccorsodigitale.app</a>`, 'warning')}
+        ${noticeBox(`Se non hai richiesto questa modifica, contatta subito <a href="mailto:hello@soccorsodigitale.app" style="color:#1F6583;text-decoration:none;">hello@soccorsodigitale.app</a>`, 'warning')}
       </td></tr>
     </table>
     ${cardFooter()}`;
@@ -231,12 +231,12 @@ export function templateTrialBenvenuto(params: {
     )}
     <table width="100%" cellpadding="0" cellspacing="0">
       <tr><td style="padding:40px 44px;">
-        <p style="font-size:15px;color:#1D1D1F;line-height:1.6;margin:0 0 28px;">
+        <p style="font-size:15px;color:#1A2B32;line-height:1.6;margin:0 0 28px;">
           Ciao <strong>${adminName}</strong>, il tuo account trial è pronto. Hai tempo fino al <strong>${expiry}</strong> per esplorare la piattaforma.
         </p>
         ${credsBox(loginEmail, password)}
         ${ctaButton('Accedi al Pannello', loginUrl)}
-        ${noticeBox(`Il trial scade il <strong style="color:#1D1D1F;">${expiry}</strong>. Al termine, contattaci per attivare il piano completo.`, 'info')}
+        ${noticeBox(`Il trial scade il <strong style="color:#1A2B32;">${expiry}</strong>. Al termine, contattaci per attivare il piano completo.`, 'info')}
       </td></tr>
     </table>
     ${cardFooter()}`;
@@ -266,10 +266,10 @@ export function templateTrialInScadenza(params: {
     )}
     <table width="100%" cellpadding="0" cellspacing="0">
       <tr><td style="padding:40px 44px;">
-        <p style="font-size:15px;color:#1D1D1F;line-height:1.6;margin:0 0 28px;">
+        <p style="font-size:15px;color:#1A2B32;line-height:1.6;margin:0 0 28px;">
           Ciao <strong>${adminName}</strong>, il trial di <strong>${orgName}</strong> scade tra 2 giorni. Per continuare ad usare la piattaforma senza interruzioni, attiva il piano <strong>${planName}</strong>.
         </p>
-        ${noticeBox(`Trial scade il <strong style="color:#1D1D1F;">${expiry}</strong>. Attiva il piano ora per non perdere i tuoi dati.`, 'warning')}
+        ${noticeBox(`Trial scade il <strong style="color:#1A2B32;">${expiry}</strong>. Attiva il piano ora per non perdere i tuoi dati.`, 'warning')}
         ${upgradeBanner()}
         ${ctaButton('Attiva il Piano', upgradeUrl)}
       </td></tr>
