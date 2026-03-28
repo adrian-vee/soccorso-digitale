@@ -14607,16 +14607,14 @@ function createVehicleIcon(vehicle) {
 function createAmbulanceSvgIcon(vehicle) {
   const heading = vehicle.heading ?? 0;
 
-  // FIX4: isTracking takes priority over isOnService (aligns with stat card counting)
+  // Priorità stato: waiting > service > tracking > idle (allineato a showGpsInfoCard + renderGpsVehicleList)
   let color, showPulse;
   if (vehicle.isWaitingForVisit) {
     color = '#EF4444'; showPulse = false; // rosso — fermo per visita
-  } else if (vehicle.isTracking && !vehicle.isOnService) {
-    color = '#1E3A8A'; showPulse = false; // blu — tracking attivo
   } else if (vehicle.isOnService) {
     color = '#10B981'; showPulse = true;  // verde — in servizio/missione
   } else if (vehicle.isTracking) {
-    color = '#1E3A8A'; showPulse = false; // blu — tracking senza servizio
+    color = '#1E3A8A'; showPulse = false; // blu — tracking attivo
   } else {
     color = '#64748B'; showPulse = false; // grigio — offline/in sede
   }
@@ -14717,11 +14715,11 @@ function showGpsInfoCard(vehicle) {
   if (!card) return;
   
   const status = vehicle.isWaitingForVisit ? 'Fermo per Visita' :
-                 vehicle.isTracking ? 'Tracking Attivo' : 
-                 vehicle.isOnService ? 'In Servizio' : 'In Sede';
+                 vehicle.isOnService ? 'In Servizio' :
+                 vehicle.isTracking ? 'Tracking Attivo' : 'In Sede';
   const statusClass = vehicle.isWaitingForVisit ? 'waiting' :
-                      vehicle.isTracking ? 'tracking' : 
-                      vehicle.isOnService ? 'service' : 'idle';
+                      vehicle.isOnService ? 'service' :
+                      vehicle.isTracking ? 'tracking' : 'idle';
   const gpsQuality = vehicle.hasRealGps ? 'GPS Reale' : 'Posizione Sede';
   const gpsQualityClass = vehicle.hasRealGps ? 'real' : 'sede';
   const svc = vehicle.activeService;

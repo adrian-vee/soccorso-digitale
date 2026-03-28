@@ -67,6 +67,7 @@ export function GpsTrackingProvider({ children }: { children: ReactNode }) {
   const sessionIdRef = useRef<string | null>(null);
   const lastVehicleIdRef = useRef<string | null>(null);
   const backgroundTrackingActive = useRef(false);
+  const isSyncing = useRef(false); // guard contro sync concorrenti
 
   useEffect(() => {
     loadBuffer();
@@ -291,12 +292,19 @@ export function GpsTrackingProvider({ children }: { children: ReactNode }) {
       return;
     }
 
+    // Guard: evita sync concorrenti (race condition → punti duplicati)
+    if (isSyncing.current) {
+      return;
+    }
+    isSyncing.current = true;
+
     // Check network connectivity before attempting sync
     try {
       const netState = await NetInfo.fetch();
       if (!netState.isConnected || !netState.isInternetReachable) {
         // Silently skip sync when offline - points are safely buffered locally
         console.log(`[GPS] Offline - ${gpsBuffer.current.length} points buffered locally`);
+        isSyncing.current = false;
         return;
       }
     } catch (netError) {
@@ -333,6 +341,8 @@ export function GpsTrackingProvider({ children }: { children: ReactNode }) {
     } catch (e) {
       // Network error - silently buffer points, will sync when back online
       console.log(`[GPS] Sync failed, ${gpsBuffer.current.length} points buffered locally`);
+    } finally {
+      isSyncing.current = false;
     }
   }, [selectedVehicle]);
 

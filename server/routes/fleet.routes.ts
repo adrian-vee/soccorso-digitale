@@ -652,55 +652,42 @@ export function registerFleetRoutes(app: Express) {
       // Update session points count
       let newPointsCount = 0;
 
-      // Handle batch of points
+      // Handle batch of points — always saved (tripId nullable for pre-trip points)
       if (points && Array.isArray(points) && points.length > 0) {
-        if (effectiveTripId) {
-          const insertedPoints = await storage.addGpsPointsBatch(
-            points.map((p: any) => ({
-              tripId: effectiveTripId,
-              vehicleId,
-              latitude: p.latitude,
-              longitude: p.longitude,
-              accuracy: p.accuracy,
-              speed: p.speed,
-              heading: p.heading,
-              altitude: p.altitude,
-              timestamp: p.timestamp ? new Date(p.timestamp) : new Date()
-            }))
-          );
-          newPointsCount = insertedPoints.length;
-        } else {
-          newPointsCount = points.length;
-        }
-
-        // Update session points count
-        await db.update(activeTrackingSessions)
-          .set({ pointsCount: sql`${activeTrackingSessions.pointsCount} + ${newPointsCount}`, lastUpdateAt: new Date() })
-          .where(eq(activeTrackingSessions.id, session.id));
-
-        res.json({ success: true, pointsCount: newPointsCount, stored: !!effectiveTripId });
-      } 
-      // Handle single point
-      else if (latitude && longitude) {
-        if (effectiveTripId) {
-          const point = await storage.addGpsPoint({
-            tripId: effectiveTripId,
+        const insertedPoints = await storage.addGpsPointsBatch(
+          points.map((p: any) => ({
+            tripId: effectiveTripId,   // null OK: salvati come pre-trip, linkati al viaggio dopo
             vehicleId,
-            latitude,
-            longitude,
-            accuracy,
-            speed,
-            heading,
-            altitude
-          });
-          newPointsCount = 1;
-        }
+            latitude: p.latitude,
+            longitude: p.longitude,
+            accuracy: p.accuracy,
+            speed: p.speed,
+            heading: p.heading,
+            altitude: p.altitude,
+            timestamp: p.timestamp ? new Date(p.timestamp) : new Date()
+          }))
+        );
+        newPointsCount = insertedPoints.length;
+        // NB: addGpsPointsBatch aggiorna già activeTrackingSessions.pointsCount internamente
 
-        await db.update(activeTrackingSessions)
-          .set({ pointsCount: sql`${activeTrackingSessions.pointsCount} + 1`, lastUpdateAt: new Date() })
-          .where(eq(activeTrackingSessions.id, session.id));
+        res.json({ success: true, pointsCount: newPointsCount, stored: true });
+      }
+      // Handle single point — always saved
+      else if (latitude && longitude) {
+        await storage.addGpsPoint({
+          tripId: effectiveTripId,     // null OK: pre-trip point
+          vehicleId,
+          latitude,
+          longitude,
+          accuracy,
+          speed,
+          heading,
+          altitude
+        });
+        newPointsCount = 1;
+        // NB: addGpsPoint aggiorna già activeTrackingSessions.pointsCount internamente
 
-        res.json({ success: true, pointsCount: 1, stored: !!effectiveTripId });
+        res.json({ success: true, pointsCount: 1, stored: true });
       } else {
         return res.status(400).json({ error: "Coordinate GPS richieste" });
       }
