@@ -45,37 +45,6 @@ function restoreSidebarSections() {
   } catch(e) {}
 }
 
-// === Sidebar V2 — Toggle & Init ===
-function toggleSidebar() {
-  const sidebar = document.getElementById('main-sidebar');
-  if (!sidebar) return;
-  const isCollapsed = sidebar.classList.toggle('collapsed');
-  document.body.classList.toggle('sidebar-collapsed', isCollapsed);
-  try { localStorage.setItem('sd-sidebar-collapsed', isCollapsed); } catch(e) {}
-}
-
-function initSidebar() {
-  // Populate data-tooltip on each nav item from its span text
-  document.querySelectorAll('.sd-sidebar-nav .nav-item[data-page]').forEach(item => {
-    if (!item.dataset.tooltip) {
-      const span = item.querySelector('span');
-      if (span) item.dataset.tooltip = span.textContent.trim();
-    }
-  });
-
-  // Clear legacy collapse key from V1 to avoid conflicts
-  try { localStorage.removeItem('sidebarCollapsed'); } catch(e) {}
-
-  // Restore collapsed state from V3 key
-  try {
-    if (localStorage.getItem('sd-sidebar-collapsed') === 'true') {
-      const sidebar = document.getElementById('main-sidebar');
-      if (sidebar) sidebar.classList.add('collapsed');
-      document.body.classList.add('sidebar-collapsed');
-    }
-  } catch(e) {}
-}
-
 // === Sidebar Search ===
 function initSidebarSearch() {
   const searchInput = document.getElementById('sidebar-search');
@@ -884,10 +853,9 @@ function setupEventListeners() {
   document.getElementById('logout-btn').addEventListener('click', handleLogout);
   document.getElementById('refresh-btn').addEventListener('click', refreshData);
   
-  // Restore collapsible sidebar sections, search, and sidebar state
+  // Restore collapsible sidebar sections and search
   restoreSidebarSections();
   initSidebarSearch();
-  initSidebar();
   
   // New sidebar navigation
   document.querySelectorAll('.nav-item').forEach(item => {

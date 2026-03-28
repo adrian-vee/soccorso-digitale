@@ -130,32 +130,42 @@
 
     <div id="dashboard-page" class="page hidden">
       <div class="enterprise-layout">
-        <aside class="sd-sidebar" id="main-sidebar">
-          <div class="sd-sidebar-header">
-            <div class="sd-sidebar-logo">
-              <img src="/admin/images/webclip.png" alt="SD" width="32" height="32" style="border-radius:8px;">
-              <span class="sd-sidebar-brand" id="brand-subtitle-wrapper">Soccorso Digitale<br><span id="brand-subtitle" style="font-size:10px;font-weight:500;color:#94A3B8;letter-spacing:0.05em;text-transform:uppercase;">Platform Admin</span></span>
+        <aside class="main-sidebar" id="main-sidebar">
+          <div class="sidebar-brand">
+            <div style="padding:20px 16px 16px;text-align:center;border-bottom:1px solid #E2E8F0;width:100%;">
+              <img src="/admin/images/webclip.png" width="44" height="44" style="border-radius:10px;display:block;margin:0 auto 10px;">
+              <div style="font-size:15px;font-weight:800;color:#0C1A2E;letter-spacing:-0.3px;">Soccorso Digitale</div>
+              <div id="brand-subtitle" style="font-size:10px;color:#64748B;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;margin-top:2px;">Platform Admin</div>
             </div>
-            <button class="sd-sidebar-toggle" id="sidebar-collapse-btn" onclick="toggleSidebar()" title="Comprimi sidebar">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-            </button>
           </div>
 
-          <div id="org-filter-container" class="hidden" style="padding: 8px 16px; border-bottom: 1px solid #E2E8F0;">
-            <label style="display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #64748B; margin-bottom: 4px; font-weight: 600;">Organizzazione</label>
-            <select id="org-filter-select" onchange="onOrgFilterChange()" style="width: 100%; padding: 7px 10px; border-radius: 8px; border: 1px solid #E2E8F0; background: #F8FAFC; color: #0C1A2E; font-size: 13px; font-weight: 500; cursor: pointer; outline: none; transition: border-color 0.2s;">
+          <div id="org-filter-container" class="hidden" style="padding: 8px 16px; border-bottom: 1px solid rgba(255,255,255,0.08);">
+            <label style="display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.85); margin-bottom: 4px; font-weight: 600;">Organizzazione</label>
+            <select id="org-filter-select" onchange="onOrgFilterChange()" style="width: 100%; padding: 7px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.06); color: #fff; font-size: 13px; font-weight: 500; cursor: pointer; outline: none; transition: border-color 0.2s;">
               <option value="">Tutte le organizzazioni</option>
             </select>
           </div>
 
-          <div class="sd-sidebar-search" id="sidebar-search-wrapper">
-            <div class="sd-search-inner">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              <input type="text" placeholder="Cerca funzione..." id="sidebar-search" autocomplete="off">
+          <div style="padding:8px 12px;margin-bottom:4px;">
+            <div style="position:relative;">
+              <svg style="position:absolute;left:10px;top:50%;transform:translateY(-50%);width:13px;height:13px;pointer-events:none;" viewBox="0 0 24 24" fill="none">
+                <circle cx="11" cy="11" r="8" stroke="#94A3B8" stroke-width="1.5"/>
+                <path d="M21 21l-4.35-4.35" stroke="#94A3B8" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+              <input
+                type="text"
+                placeholder="Cerca funzione..."
+                id="sidebar-search"
+                autocomplete="off"
+                style="width:100%;padding:7px 10px 7px 30px;font-size:12px;color:#0C1A2E;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:8px;outline:none;box-sizing:border-box;transition:border-color 0.15s,background 0.15s;"
+                onfocus="this.style.borderColor='#1E3A8A';this.style.background='#ffffff'"
+                onblur="this.style.borderColor='#E2E8F0';this.style.background='#F8FAFC'"
+              >
+              <span style="position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:10px;color:#CBD5E1;background:#F1F5F9;padding:1px 5px;border-radius:3px;font-family:monospace;pointer-events:none;">/</span>
             </div>
           </div>
 
-          <nav class="sd-sidebar-nav" id="sd-sidebar-nav">
+          <nav class="sidebar-nav">
             <!-- Operational Nav Wrapper (org admin view + super admin support mode) -->
             <div id="operational-nav">
 
@@ -632,17 +642,44 @@
             </div>
           </nav>
 
-          <div class="sd-sidebar-footer" id="sd-sidebar-footer">
-            <div id="footer-user-name" style="display:none;"></div>
-            <div class="sd-sidebar-footer-banner">
-              <div class="sd-sidebar-footer-role" id="footer-role-label">Admin</div>
-              <div class="sd-sidebar-footer-org" id="footer-org-name">Organizzazione</div>
+          <div class="sidebar-footer" style="margin-top:auto;flex-shrink:0;">
+            <div style="padding:12px 12px 16px;border-top:1px solid #E2E8F0;">
+              <div style="background:#1E3A8A;border-radius:10px;padding:10px 14px;text-align:center;margin-bottom:10px;">
+                <div id="footer-user-name" style="display:none;"></div>
+                <div style="font-size:10px;font-weight:700;color:#93C5FD;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px;">ADMIN</div>
+                <div id="footer-org-name" style="font-size:13px;font-weight:700;color:#ffffff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Organizzazione</div>
+              </div>
+              <button id="logout-btn" onclick="handleLogout()" style="width:100%;background:#1E3A8A;border:none;border-radius:8px;padding:10px;font-size:13px;font-weight:600;color:#ffffff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-family:'DM Sans',sans-serif;transition:all 0.15s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Esci
+              </button>
             </div>
-            <button class="sd-sidebar-footer-logout" id="logout-btn" onclick="handleLogout()">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-              <span>Esci</span>
-            </button>
           </div>
+        </aside>
+
+        <div class="main-wrapper">
+          <header class="top-header">
+            <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Menu">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <div class="header-title">
+              <h1 id="page-title">Dashboard</h1>
+              <span class="last-update" id="last-update">Ultimo aggiornamento: --</span>
+            </div>
+            <div class="header-actions">
+              <div class="notification-wrapper" id="notification-wrapper">
+                <button class="btn-icon" id="notification-btn" title="Notifiche">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+                  <span class="notification-badge hidden" id="notification-badge">0</span>
+                </button>
+                <div class="notification-dropdown hidden" id="notification-dropdown">
+                  <div class="notification-header">
+                    <h4>Notifiche</h4>
+                    <span class="notification-subtitle">Inserimenti manuali dall'app</span>
+                  </div>
+                  <div class="notification-list" id="notification-list">
+                    <div class="notification-empty">Nessuna notifica</div>
+
         </aside>
 
         <div class="main-wrapper">
