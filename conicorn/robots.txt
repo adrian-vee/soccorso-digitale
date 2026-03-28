@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /hub/
+
+Sitemap: https://soccorsodigitale.app/sitemap.xml
