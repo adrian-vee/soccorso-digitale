@@ -3,9 +3,11 @@
    Single source of truth. Loads last. Wins all.
    ═══════════════════════════════════════════════════════ */
 
-/* ── LOGIN PAGE — Light Split Design v3 ─────────────── */
+/* ── LOGIN PAGE — SD Brand Design ───────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=Inter:wght@400;500;600&display=swap');
+
 #login-page.page:not(.hidden) {
-  background: #F2F2F7 !important;
+  background: #0B2E50 !important;
   min-height: 100vh !important;
   display: flex !important;
   align-items: stretch !important;
@@ -18,46 +20,52 @@
   min-height: 100vh !important;
 }
 
-/* ── LEFT PANEL ──────────────────────────────────────── */
+/* ── LEFT PANEL — Navy brand ──────────────────────────── */
 .lp-left {
   flex: 1 !important;
-  background: #F8FAFF !important;
+  background: #0B2E50 !important;
   display: flex !important;
   flex-direction: column !important;
-  padding: 40px 48px !important;
+  padding: 56px 56px !important;
   position: relative !important;
   overflow: hidden !important;
-  border-right: 1px solid #E2E8F0 !important;
 }
 
+/* Horizontal logo at top */
 .lp-left-top {
-  position: absolute !important;
-  top: 50% !important;
-  left: 50% !important;
-  transform: translate(-50%, -50%) !important;
+  position: relative !important;
   z-index: 2 !important;
   display: flex !important;
-  flex-direction: column !important;
+  flex-direction: row !important;
   align-items: center !important;
-  gap: 14px !important;
-  white-space: nowrap !important;
+  gap: 10px !important;
 }
 
+/* Hide old webclip image — SVG logo is now inline in HTML */
 .lp-logo-img {
-  width: 52px !important;
-  height: 52px !important;
-  border-radius: 12px !important;
-  object-fit: cover !important;
+  display: none !important;
+}
+
+/* Logo icon dimensions (SVG element added to HTML) */
+.lp-logo-icon {
+  width: 36px !important;
+  height: 36px !important;
+  flex-shrink: 0 !important;
 }
 
 .lp-logo-text {
-  font-size: 22px !important;
-  font-weight: 800 !important;
-  color: #000000 !important;
-  font-family: 'DM Sans', system-ui, sans-serif !important;
-  letter-spacing: -0.02em !important;
+  font-size: 18px !important;
+  font-weight: 600 !important;
+  color: #ffffff !important;
+  font-family: 'Sora', system-ui, sans-serif !important;
+  letter-spacing: -0.01em !important;
 }
 
+.lp-logo-text span {
+  color: #5EB0BB !important;
+}
+
+/* Decorative animated paths — visible on dark bg */
 .lp-paths-wrap {
   position: absolute !important;
   inset: 0 !important;
@@ -70,22 +78,26 @@
   height: 100% !important;
 }
 
-/* Floating path animations */
+/* Override path stroke color for navy background */
+.lp-paths-svg path {
+  stroke: rgba(94,176,187,0.18) !important;
+}
+
 @keyframes lp-flow-a {
-  0%,100% { stroke-dashoffset: 0; opacity: 0.35; }
-  50% { stroke-dashoffset: -0.5; opacity: 0.1; }
+  0%,100% { stroke-dashoffset: 0; opacity: 1; }
+  50% { stroke-dashoffset: -0.5; opacity: 0.35; }
 }
 @keyframes lp-flow-b {
-  0%,100% { stroke-dashoffset: -0.2; opacity: 0.25; }
-  50% { stroke-dashoffset: -0.7; opacity: 0.07; }
+  0%,100% { stroke-dashoffset: -0.2; opacity: 0.85; }
+  50% { stroke-dashoffset: -0.7; opacity: 0.28; }
 }
 @keyframes lp-flow-c {
-  0%,100% { stroke-dashoffset: -0.1; opacity: 0.3; }
-  50% { stroke-dashoffset: -0.6; opacity: 0.08; }
+  0%,100% { stroke-dashoffset: -0.1; opacity: 0.9; }
+  50% { stroke-dashoffset: -0.6; opacity: 0.3; }
 }
 @keyframes lp-flow-d {
-  0%,100% { stroke-dashoffset: -0.3; opacity: 0.2; }
-  50% { stroke-dashoffset: -0.8; opacity: 0.05; }
+  0%,100% { stroke-dashoffset: -0.3; opacity: 0.75; }
+  50% { stroke-dashoffset: -0.8; opacity: 0.22; }
 }
 
 .lp-p-0  { animation: lp-flow-a 22s 0s    infinite linear; }
@@ -105,38 +117,45 @@
 .lp-p-14 { animation: lp-flow-c 28s 3.2s  infinite linear; }
 .lp-p-15 { animation: lp-flow-d 26s 4.2s  infinite linear; }
 
+/* Tagline section — fills remaining space, centers content vertically */
 .lp-left-bottom {
-  margin-top: auto !important;
+  flex: 1 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
   position: relative !important;
   z-index: 2 !important;
+  margin-top: 0 !important;
 }
 
 .lp-tagline {
-  font-size: 32px !important;
-  font-weight: 900 !important;
-  color: #0B2347 !important;
-  line-height: 1.2 !important;
-  margin: 0 !important;
-  font-family: 'DM Sans', system-ui, sans-serif !important;
-  white-space: nowrap !important;
+  font-size: clamp(24px, 2.4vw, 32px) !important;
+  font-weight: 700 !important;
+  color: #ffffff !important;
+  line-height: 1.25 !important;
+  margin: 0 0 16px !important;
+  font-family: 'Sora', system-ui, sans-serif !important;
+  letter-spacing: -0.02em !important;
+  white-space: normal !important;
 }
 
 .lp-tagline-sub {
   font-size: 15px !important;
-  color: #334155 !important;
-  line-height: 1.5 !important;
-  margin: 10px 0 0 !important;
-  font-family: 'DM Sans', system-ui, sans-serif !important;
-  white-space: nowrap !important;
+  color: rgba(255,255,255,0.60) !important;
+  line-height: 1.6 !important;
+  margin: 0 !important;
+  font-family: 'Inter', system-ui, sans-serif !important;
+  white-space: normal !important;
+  max-width: 380px !important;
 }
 
-/* ── RIGHT PANEL ─────────────────────────────────────── */
+/* ── RIGHT PANEL — White form ─────────────────────────── */
 .lp-right {
   flex: 1 !important;
   background: #ffffff !important;
   display: flex !important;
   flex-direction: column !important;
-  padding: 40px 48px !important;
+  padding: 48px 56px !important;
 }
 
 .lp-right-top {
@@ -148,14 +167,15 @@
   align-items: center !important;
   gap: 6px !important;
   font-size: 13px !important;
-  color: #6B7280 !important;
+  font-weight: 500 !important;
+  color: #808976 !important;
   text-decoration: none !important;
-  font-family: 'DM Sans', system-ui, sans-serif !important;
+  font-family: 'Inter', system-ui, sans-serif !important;
   transition: color 0.15s !important;
 }
 
 .lp-back:hover {
-  color: #1E3A8A !important;
+  color: #1F6583 !important;
 }
 
 .lp-form-area {
@@ -163,7 +183,7 @@
   display: flex !important;
   flex-direction: column !important;
   justify-content: center !important;
-  max-width: 360px !important;
+  max-width: 380px !important;
   width: 100% !important;
   margin: 0 auto !important;
 }
@@ -171,17 +191,17 @@
 .lp-title {
   font-size: 28px !important;
   font-weight: 700 !important;
-  color: #111827 !important;
-  margin: 0 0 6px !important;
-  font-family: 'DM Sans', system-ui, sans-serif !important;
+  color: #0B2E50 !important;
+  margin: 0 0 8px !important;
+  font-family: 'Sora', system-ui, sans-serif !important;
   letter-spacing: -0.02em !important;
 }
 
 .lp-subtitle {
-  font-size: 14px !important;
-  color: #6B7280 !important;
+  font-size: 15px !important;
+  color: #808976 !important;
   margin: 0 0 32px !important;
-  font-family: 'DM Sans', system-ui, sans-serif !important;
+  font-family: 'Inter', system-ui, sans-serif !important;
   line-height: 1.5 !important;
 }
 
@@ -191,37 +211,37 @@
   gap: 8px !important;
   background: #FEF2F2 !important;
   border: 1px solid #FECACA !important;
-  border-radius: 10px !important;
-  padding: 10px 14px !important;
+  border-radius: 8px !important;
+  padding: 11px 14px !important;
   font-size: 13px !important;
-  color: #DC2626 !important;
+  color: #B91C1C !important;
   margin-bottom: 20px !important;
-  font-family: 'DM Sans', system-ui, sans-serif !important;
+  font-family: 'Inter', system-ui, sans-serif !important;
 }
 
 .lp-field {
-  margin-bottom: 18px !important;
+  margin-bottom: 20px !important;
 }
 
 .lp-label {
   display: block !important;
-  font-size: 13px !important;
-  font-weight: 500 !important;
-  color: #374151 !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: #1A2B32 !important;
   margin-bottom: 6px !important;
-  font-family: 'DM Sans', system-ui, sans-serif !important;
+  font-family: 'Inter', system-ui, sans-serif !important;
 }
 
 .lp-input {
   width: 100% !important;
   height: 46px !important;
   padding: 0 14px !important;
-  border: 1.5px solid #E5E7EB !important;
-  border-radius: 10px !important;
-  font-size: 14px !important;
-  font-family: 'DM Sans', system-ui, sans-serif !important;
-  color: #111827 !important;
-  background: #FAFAFA !important;
+  border: 1.5px solid #D4DCDA !important;
+  border-radius: 8px !important;
+  font-size: 15px !important;
+  font-family: 'Inter', system-ui, sans-serif !important;
+  color: #1A2B32 !important;
+  background: #F7F9F8 !important;
   transition: border-color 0.15s, box-shadow 0.15s !important;
   outline: none !important;
   box-shadow: none !important;
@@ -229,13 +249,13 @@
 }
 
 .lp-input::placeholder {
-  color: #9CA3AF !important;
+  color: #9EADA8 !important;
 }
 
 .lp-input:focus {
-  border-color: #1E3A8A !important;
+  border-color: #5EB0BB !important;
   background: #fff !important;
-  box-shadow: 0 0 0 3px rgba(30,58,138,0.08) !important;
+  box-shadow: 0 0 0 3px rgba(94,176,187,0.15) !important;
 }
 
 .lp-input-wrap {
@@ -255,26 +275,26 @@
   border: none !important;
   padding: 0 !important;
   cursor: pointer !important;
-  color: #9CA3AF !important;
+  color: #808976 !important;
   display: flex !important;
   align-items: center !important;
   transition: color 0.15s !important;
 }
 
 .lp-eye:hover {
-  color: #4B5563 !important;
+  color: #1A2B32 !important;
 }
 
 .lp-btn {
   width: 100% !important;
   height: 48px !important;
-  background: #1E3A8A !important;
+  background: #0B2E50 !important;
   color: #ffffff !important;
   border: none !important;
-  border-radius: 10px !important;
+  border-radius: 8px !important;
   font-size: 15px !important;
   font-weight: 600 !important;
-  font-family: 'DM Sans', system-ui, sans-serif !important;
+  font-family: 'Inter', system-ui, sans-serif !important;
   cursor: pointer !important;
   margin-top: 8px !important;
   display: flex !important;
@@ -282,13 +302,13 @@
   justify-content: center !important;
   gap: 8px !important;
   transition: background 0.15s, transform 0.12s, box-shadow 0.15s !important;
-  box-shadow: 0 4px 14px rgba(30,58,138,0.25) !important;
+  box-shadow: 0 4px 14px rgba(11,46,80,0.22) !important;
 }
 
 .lp-btn:hover:not(:disabled) {
-  background: #1e40af !important;
+  background: #1F6583 !important;
   transform: translateY(-1px) !important;
-  box-shadow: 0 6px 20px rgba(30,58,138,0.35) !important;
+  box-shadow: 0 6px 20px rgba(11,46,80,0.30) !important;
 }
 
 .lp-btn:active:not(:disabled) {
@@ -305,9 +325,9 @@
   text-align: center !important;
   margin-top: 16px !important;
   font-size: 13px !important;
-  color: #1E3A8A !important;
+  color: #1F6583 !important;
   text-decoration: none !important;
-  font-family: 'DM Sans', system-ui, sans-serif !important;
+  font-family: 'Inter', system-ui, sans-serif !important;
   transition: opacity 0.15s !important;
 }
 
@@ -316,25 +336,29 @@
   text-decoration: underline !important;
 }
 
+/* Footer — integrated, subtle separator */
 .lp-right-footer {
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
   gap: 12px !important;
   font-size: 12px !important;
-  color: #9CA3AF !important;
-  font-family: 'DM Sans', system-ui, sans-serif !important;
+  color: #C4C8C7 !important;
+  font-family: 'Inter', system-ui, sans-serif !important;
   flex-shrink: 0 !important;
+  padding-top: 24px !important;
+  border-top: 1px solid #EEF1F0 !important;
+  margin-top: 8px !important;
 }
 
 .lp-right-footer a {
-  color: #9CA3AF !important;
+  color: #808976 !important;
   text-decoration: none !important;
   transition: color 0.15s !important;
 }
 
 .lp-right-footer a:hover {
-  color: #1E3A8A !important;
+  color: #1F6583 !important;
 }
 
 /* Mobile */
@@ -343,24 +367,26 @@
     flex-direction: column !important;
   }
   .lp-left {
-    min-height: 220px !important;
+    min-height: 240px !important;
     flex: none !important;
-    padding: 32px 28px !important;
+    padding: 36px 28px !important;
   }
   .lp-right {
     flex: 1 !important;
-    padding: 32px 28px !important;
+    padding: 40px 28px !important;
   }
   .lp-form-area {
     margin: 0 !important;
     max-width: 100% !important;
   }
   .lp-tagline {
-    font-size: 18px !important;
+    font-size: 20px !important;
+  }
+  .lp-left-bottom {
+    justify-content: flex-start !important;
+    padding-top: 32px !important;
   }
 }
-
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
 /* ── TOKENS ──────────────────────────────────────────── */
 :root {

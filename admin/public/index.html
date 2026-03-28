@@ -37,8 +37,12 @@
         <!-- LEFT: brand + animated paths -->
         <div class="lp-left">
           <div class="lp-left-top">
-            <img src="/images/69abbc521cae938069a3fb46_Webclip.png" class="lp-logo-img" alt="Soccorso Digitale">
-            <span class="lp-logo-text">Soccorso Digitale</span>
+            <svg class="lp-logo-icon" viewBox="0 0 64 64" width="36" height="36" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <rect x="26" y="8" width="12" height="48" rx="3" fill="white"/>
+              <rect x="8" y="26" width="48" height="12" rx="3" fill="white"/>
+              <path d="M 10 50 Q 32 32 54 50" stroke="#32D74B" stroke-width="4" fill="none" stroke-linecap="round"/>
+            </svg>
+            <span class="lp-logo-text">Soccorso <span>Digitale</span></span>
           </div>
 
           <div class="lp-paths-wrap" aria-hidden="true">
@@ -113,11 +117,11 @@
           </div>
 
           <div class="lp-right-footer">
-            <a href="#">Termini di Servizio</a>
+            <a href="/terms.html">Termini</a>
             <span>·</span>
-            <a href="#">Privacy Policy</a>
+            <a href="/privacy-policy.html">Privacy</a>
             <span>·</span>
-            <a href="#">Supporto</a>
+            <a href="mailto:hello@soccorsodigitale.app">Supporto</a>
           </div>
         </div>
 
@@ -4229,12 +4233,12 @@
                   <span class="gps-stat-label-v3">In Sede</span>
                 </div>
               </div>
-              <div class="gps-stat-card-v3 gps-stat-waiting" style="border-left:3px solid #3b82f6;">
-                <div class="gps-stat-icon-v3" style="color:#3b82f6;">
+              <div class="gps-stat-card-v3 gps-stat-waiting">
+                <div class="gps-stat-icon-v3">
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                 </div>
                 <div class="gps-stat-content-v3">
-                  <span class="gps-stat-value-v3" id="gps-waiting-visit" style="color:#3b82f6;">0</span>
+                  <span class="gps-stat-value-v3" id="gps-waiting-visit">0</span>
                   <span class="gps-stat-label-v3">Fermo per Visita</span>
                 </div>
               </div>
@@ -4273,6 +4277,10 @@
                     <option value="tracking">Tracking</option>
                     <option value="idle">In Sede</option>
                   </select>
+                  <div class="gps-sidebar-search-v3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                    <input type="text" id="gps-vehicle-search" placeholder="Cerca veicolo..." oninput="filterGpsVehicles()">
+                  </div>
                 </div>
                 <div class="gps-vehicle-list-v3" id="gps-vehicles-list">
                   <div class="gps-vehicle-empty-v3">
@@ -4296,10 +4304,22 @@
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a7 7 0 0 1 0 14 7 7 0 0 0 0 6"/><path d="M12 12a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/></svg>
                         Heatmap
                       </button>
-                      <button class="flt-btn" id="flt-rain" onclick="toggleFleetLayer('rain')" title="Radar precipitazioni RainViewer">🌧 Pioggia</button>
-                      <button class="flt-btn" id="flt-iso" onclick="toggleFleetLayer('isochrone')" title="Isocrona 5/10/20 min dalla HQ">⏱ Isocrona</button>
-                      <button class="flt-btn" id="flt-pciv" onclick="toggleFleetLayer('pciv')" title="Alert Protezione Civile su mappa">⚠ Alert PC</button>
-                      <button class="flt-btn" id="flt-traf" onclick="toggleFleetLayer('traffic')" title="Overlay traffico strade">🚦 Traffico</button>
+                      <button class="flt-btn" id="flt-rain" onclick="toggleFleetLayer('rain')" title="Radar precipitazioni RainViewer">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 17.58A5 5 0 0 0 18 8h-1.26A8 8 0 1 0 4 16.25"/><line x1="8" y1="19" x2="8" y2="21"/><line x1="8" y1="13" x2="8" y2="15"/><line x1="16" y1="19" x2="16" y2="21"/><line x1="16" y1="13" x2="16" y2="15"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="12" y1="15" x2="12" y2="17"/></svg>
+                        Pioggia
+                      </button>
+                      <button class="flt-btn" id="flt-iso" onclick="toggleFleetLayer('isochrone')" title="Isocrona 5/10/20 min dalla HQ">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                        Isocrona
+                      </button>
+                      <button class="flt-btn" id="flt-pciv" onclick="toggleFleetLayer('pciv')" title="Alert Protezione Civile su mappa">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                        Alert PC
+                      </button>
+                      <button class="flt-btn" id="flt-traf" onclick="toggleFleetLayer('traffic')" title="Overlay traffico strade">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="7"/><circle cx="12" cy="7" r="1.5" fill="#EF4444" stroke="none"/><circle cx="12" cy="12" r="1.5" fill="#F59E0B" stroke="none"/><circle cx="12" cy="17" r="1.5" fill="#10B981" stroke="none"/></svg>
+                        Traffico
+                      </button>
                     </div>
                     <div class="gps-map-loading" id="map-loading">
                       <div class="gps-map-spinner-v2"></div>
