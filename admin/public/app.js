@@ -1639,6 +1639,8 @@ function applyRoleBasedAccess() {
       'statistics', 'reports', 'finance',
       // Comunicazioni
       'announcements',
+      // Archivio Documenti — visibile per tutte le org (trial e attive)
+      'archivio-documenti',
     ]);
 
     // GOVERNANCE (Compliance e Audit, Qualità del Dato) — solo per org con piano attivo
@@ -2286,7 +2288,8 @@ function navigateTo(page) {
     'security-center': 'Centro Sicurezza',
     'notif-config': 'Configurazione Notifiche',
     'coverage-map': 'Mappa Copertura',
-    'emergency-alerts': 'Allerte Emergenza'
+    'emergency-alerts': 'Allerte Emergenza',
+    'archivio-documenti': 'Archivio Documenti'
   };
   const titleEl = document.getElementById('page-title');
   if (titleEl) titleEl.textContent = pageTitles[page] || page;
@@ -2315,6 +2318,7 @@ function navigateTo(page) {
   if (page === 'statistics') updateStatistics();
   if (page === 'structures') updateStructuresTable();
   if (page === 'announcements') updateAnnouncementsTable();
+  if (page === 'archivio-documenti') loadArchivioDocumenti();
   if (page === 'sedi') updateSediTable();
   if (page === 'finance') updateFinanceSection();
   if (page === 'checklists') { loadChecklistTemplates(); loadChecklistSubmissions(); }
@@ -43128,6 +43132,261 @@ async function startApolloEnrichment() {
   } catch (err) {
     alert('Errore avvio Apollo enrichment: ' + err.message);
   }
+}
+
+// ── ARCHIVIO DOCUMENTI ────────────────────────────────────────────────────────
+
+let _archivioDocs = [];
+
+const AD_CATEGORIES = [
+  'Visura Camerale','Statuto','Accreditamento Regionale','Convenzione ULSS/ASL',
+  'Polizza Assicurativa','Certificazione ISO','Autorizzazione Sanitaria','DURC','Altro'
+];
+
+async function loadArchivioDocumenti() {
+  const tbody = document.getElementById('ad-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:32px;color:#64748B">Caricamento...</td></tr>';
+  try {
+    const res = await adminFetch('/api/organization-documents');
+    if (!res.ok) throw new Error('API error');
+    const data = await res.json();
+    _archivioDocs = data.documents || [];
+    renderArchivioTable(_archivioDocs);
+    renderArchivioSummary(_archivioDocs);
+  } catch {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:32px;color:#DC2626">Errore nel caricamento</td></tr>';
+  }
+}
+
+function _expiryBadge(expiryDate) {
+  if (!expiryDate) return '<span style="background:#F1F5F9;color:#64748B;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:600">—</span>';
+  const d = new Date(expiryDate);
+  const now = new Date();
+  const days = Math.ceil((d - now) / 86400000);
+  const label = d.toLocaleDateString('it-IT');
+  if (days < 0) return `<span style="background:#FEE2E2;color:#EF4444;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:600">Scaduto ${label}</span>`;
+  if (days <= 30) return `<span style="background:#FEF3C7;color:#F59E0B;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:600">⚠ ${label}</span>`;
+  return `<span style="background:#DCFCE7;color:#16A34A;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:600">${label}</span>`;
+}
+
+function renderArchivioTable(docs) {
+  const tbody = document.getElementById('ad-tbody');
+  if (!tbody) return;
+  if (docs.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:#64748B">Nessun documento caricato. Clicca "Carica Documento" per iniziare.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = docs.map(doc => `<tr>
+    <td>
+      <div style="display:flex;align-items:center;gap:6px">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1E3A8A" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <span style="font-size:12px;color:#64748B">${escapeHtml(doc.category)}</span>
+      </div>
+    </td>
+    <td style="font-weight:600;font-size:13px">${escapeHtml(doc.document_name)}</td>
+    <td style="font-size:12px;color:#64748B">${new Date(doc.created_at).toLocaleDateString('it-IT')}</td>
+    <td>${_expiryBadge(doc.expiry_date)}</td>
+    <td>
+      <div style="display:flex;gap:6px">
+        <a href="/api/organization-documents/${doc.id}/download" target="_blank"
+           style="background:#EFF6FF;color:#1E3A8A;border:none;padding:5px 10px;border-radius:6px;font-size:12px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:4px" title="Download">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </a>
+        <button onclick="deleteOrgDoc('${doc.id}')"
+          style="background:#FEF2F2;color:#EF4444;border:none;padding:5px 10px;border-radius:6px;font-size:12px;cursor:pointer;display:inline-flex;align-items:center;gap:4px" title="Elimina">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+        </button>
+      </div>
+    </td>
+  </tr>`).join('');
+}
+
+function renderArchivioSummary(docs) {
+  const el = document.getElementById('ad-summary-content');
+  if (!el) return;
+  const now = new Date();
+  const total = docs.length;
+  const expiring = docs.filter(d => {
+    if (!d.expiry_date) return false;
+    const days = Math.ceil((new Date(d.expiry_date) - now) / 86400000);
+    return days >= 0 && days <= 30;
+  }).length;
+  const expired = docs.filter(d => d.expiry_date && new Date(d.expiry_date) < now).length;
+  el.innerHTML = `<div>${total} document${total === 1 ? 'o' : 'i'} caricati</div>
+    <div style="color:${expiring > 0 ? '#F59E0B' : '#64748B'}">${expiring} in scadenza entro 30 giorni</div>
+    <div style="color:${expired > 0 ? '#EF4444' : '#64748B'}">${expired} scadut${expired === 1 ? 'o' : 'i'}</div>`;
+
+  // Dashboard warning banner
+  const banner = document.getElementById('ad-expiry-banner');
+  const bannerText = document.getElementById('ad-expiry-text');
+  if (banner && bannerText) {
+    if (expiring > 0 || expired > 0) {
+      const msg = expiring > 0
+        ? `${expiring} document${expiring > 1 ? 'i' : 'o'} in scadenza entro 30 giorni`
+        : `${expired} document${expired > 1 ? 'i' : 'o'} scadut${expired > 1 ? 'i' : 'o'}`;
+      bannerText.innerHTML = `${msg} — <a href="#archivio-documenti" onclick="navigateTo('archivio-documenti')" style="color:#92400E;font-weight:600">Vai all'Archivio</a>`;
+      banner.style.display = 'flex';
+    } else {
+      banner.style.display = 'none';
+    }
+  }
+}
+
+function filterArchivio() {
+  const cat = document.getElementById('ad-filter-category')?.value || '';
+  const sort = document.getElementById('ad-sort')?.value || 'date_desc';
+  let docs = cat ? _archivioDocs.filter(d => d.category === cat) : [..._archivioDocs];
+  docs.sort((a, b) => {
+    if (sort === 'date_desc') return new Date(b.created_at) - new Date(a.created_at);
+    if (sort === 'date_asc') return new Date(a.created_at) - new Date(b.created_at);
+    if (sort === 'expiry_asc') {
+      const da = a.expiry_date ? new Date(a.expiry_date) : new Date('9999-12-31');
+      const db = b.expiry_date ? new Date(b.expiry_date) : new Date('9999-12-31');
+      return da - db;
+    }
+    if (sort === 'expiry_desc') {
+      const da = a.expiry_date ? new Date(a.expiry_date) : new Date('1970-01-01');
+      const db = b.expiry_date ? new Date(b.expiry_date) : new Date('1970-01-01');
+      return db - da;
+    }
+    return 0;
+  });
+  renderArchivioTable(docs);
+}
+
+async function deleteOrgDoc(docId) {
+  if (!confirm('Eliminare questo documento? L\'azione non è reversibile.')) return;
+  try {
+    const res = await adminFetch(`/api/organization-documents/${docId}`, { method: 'DELETE' });
+    if (!res.ok) { showNotification('Errore eliminazione', 'error'); return; }
+    showNotification('Documento eliminato', 'success');
+    loadArchivioDocumenti();
+  } catch { showNotification('Errore di rete', 'error'); }
+}
+
+function openUploadDocModal() {
+  _closeBillingModal(); // riusa il sistema modale esistente
+  const overlay = document.createElement('div');
+  overlay.id = 'billing-modal-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px';
+  overlay.innerHTML = `
+    <div style="background:#fff;border-radius:14px;max-width:520px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.2);overflow:hidden">
+      <div style="background:#1E3A8A;padding:18px 24px;display:flex;justify-content:space-between;align-items:center">
+        <h3 style="color:#fff;font-size:16px;font-weight:700;margin:0">Carica Documento</h3>
+        <button onclick="_closeBillingModal()" style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer;line-height:1">×</button>
+      </div>
+      <div style="padding:24px">
+        <div style="display:grid;gap:14px">
+          <div>
+            <label style="font-size:12px;font-weight:600;color:#64748B;display:block;margin-bottom:4px">Categoria *</label>
+            <select id="doc-category" style="width:100%;border:1px solid #E2E8F0;border-radius:8px;padding:9px 12px;font-size:13px;box-sizing:border-box">
+              <option value="">Seleziona categoria</option>
+              ${AD_CATEGORIES.map(c => `<option>${c}</option>`).join('')}
+            </select>
+          </div>
+          <div>
+            <label style="font-size:12px;font-weight:600;color:#64748B;display:block;margin-bottom:4px">Nome documento *</label>
+            <input id="doc-name" type="text" placeholder="es. Visura Camerale 2026"
+              style="width:100%;border:1px solid #E2E8F0;border-radius:8px;padding:9px 12px;font-size:13px;box-sizing:border-box">
+          </div>
+          <div>
+            <label style="font-size:12px;font-weight:600;color:#64748B;display:block;margin-bottom:4px">Data scadenza (opzionale)</label>
+            <input id="doc-expiry" type="date"
+              style="width:100%;border:1px solid #E2E8F0;border-radius:8px;padding:9px 12px;font-size:13px;box-sizing:border-box">
+          </div>
+          <div>
+            <label style="font-size:12px;font-weight:600;color:#64748B;display:block;margin-bottom:4px">File * <span style="font-weight:400">(PDF, DOC, DOCX, JPG, PNG — Max 10MB)</span></label>
+            <div id="doc-dropzone" onclick="document.getElementById('doc-file-input').click()"
+              style="border:2px dashed #CBD5E1;border-radius:10px;padding:24px;text-align:center;cursor:pointer;background:#F8FAFC;transition:all 0.15s"
+              ondragover="event.preventDefault();this.style.borderColor='#1E3A8A'"
+              ondragleave="this.style.borderColor='#CBD5E1'"
+              ondrop="handleDocDrop(event)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="1.5" style="margin-bottom:8px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              <div style="font-size:13px;color:#64748B" id="doc-dropzone-label">Clicca o trascina il file qui</div>
+            </div>
+            <input id="doc-file-input" type="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" style="display:none" onchange="handleDocFileSelect(this)">
+          </div>
+          <div>
+            <label style="font-size:12px;font-weight:600;color:#64748B;display:block;margin-bottom:4px">Note (opzionale)</label>
+            <textarea id="doc-notes" rows="2" style="width:100%;border:1px solid #E2E8F0;border-radius:8px;padding:9px 12px;font-size:13px;box-sizing:border-box;resize:vertical"></textarea>
+          </div>
+        </div>
+        <div id="doc-upload-progress" style="display:none;margin-top:12px">
+          <div style="background:#E2E8F0;border-radius:4px;height:6px"><div id="doc-progress-bar" style="background:#1E3A8A;height:6px;border-radius:4px;width:0%;transition:width 0.3s"></div></div>
+          <div style="font-size:12px;color:#64748B;margin-top:4px">Caricamento in corso...</div>
+        </div>
+        <div style="margin-top:20px;display:flex;justify-content:flex-end;gap:8px">
+          <button onclick="_closeBillingModal()" class="btn btn-outline">Annulla</button>
+          <button onclick="submitDocUpload()" class="btn btn-primary">Carica Documento</button>
+        </div>
+      </div>
+    </div>`;
+  overlay.addEventListener('click', e => { if (e.target === overlay) _closeBillingModal(); });
+  document.body.appendChild(overlay);
+}
+
+let _selectedDocFile = null;
+
+function handleDocFileSelect(input) {
+  const file = input.files[0];
+  if (!file) return;
+  _selectedDocFile = file;
+  const label = document.getElementById('doc-dropzone-label');
+  if (label) label.textContent = `✓ ${file.name} (${(file.size/1024/1024).toFixed(2)} MB)`;
+}
+
+function handleDocDrop(event) {
+  event.preventDefault();
+  const dz = document.getElementById('doc-dropzone');
+  if (dz) dz.style.borderColor = '#CBD5E1';
+  const file = event.dataTransfer?.files[0];
+  if (!file) return;
+  _selectedDocFile = file;
+  const label = document.getElementById('doc-dropzone-label');
+  if (label) label.textContent = `✓ ${file.name} (${(file.size/1024/1024).toFixed(2)} MB)`;
+}
+
+async function submitDocUpload() {
+  const category = document.getElementById('doc-category')?.value?.trim();
+  const docName  = document.getElementById('doc-name')?.value?.trim();
+  const expiry   = document.getElementById('doc-expiry')?.value;
+  const notes    = document.getElementById('doc-notes')?.value?.trim();
+
+  if (!category) { showNotification('Seleziona una categoria', 'error'); return; }
+  if (!docName)  { showNotification('Inserisci il nome del documento', 'error'); return; }
+  if (!_selectedDocFile) { showNotification('Seleziona un file da caricare', 'error'); return; }
+  if (_selectedDocFile.size > 10 * 1024 * 1024) { showNotification('File troppo grande (max 10MB)', 'error'); return; }
+
+  const progressWrap = document.getElementById('doc-upload-progress');
+  const progressBar  = document.getElementById('doc-progress-bar');
+  if (progressWrap) progressWrap.style.display = 'block';
+  if (progressBar) progressBar.style.width = '30%';
+
+  const form = new FormData();
+  form.append('file', _selectedDocFile);
+  form.append('category', category);
+  form.append('document_name', docName);
+  if (expiry) form.append('expiry_date', expiry);
+  if (notes) form.append('notes', notes);
+
+  try {
+    if (progressBar) progressBar.style.width = '60%';
+    const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken') || '';
+    const res = await fetch('/api/organization-documents', {
+      method: 'POST',
+      headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+      body: form,
+      credentials: 'include',
+    });
+    if (progressBar) progressBar.style.width = '100%';
+    const data = await res.json();
+    if (!res.ok) { showNotification(data.error || 'Errore upload', 'error'); return; }
+    _selectedDocFile = null;
+    _closeBillingModal();
+    showNotification('Documento caricato con successo', 'success');
+    loadArchivioDocumenti();
+  } catch { showNotification('Errore di rete durante l\'upload', 'error'); }
 }
 
 // ── BILLING MODALS ────────────────────────────────────────────────────────────

@@ -20135,6 +20135,157 @@ La violazione degli obblighi di riservatezza può comportare sanzioni disciplina
     }
   });
 
+  // ── ARCHIVIO DOCUMENTI ORGANIZZAZIONE ─────────────────────────────────────
+
+  const ORG_DOCS_DIR = path.join(UPLOADS_DIR, "org-documents");
+  if (!fs.existsSync(ORG_DOCS_DIR)) {
+    fs.mkdirSync(ORG_DOCS_DIR, { recursive: true });
+  }
+
+  const orgDocUpload = multer({
+    storage: multer.diskStorage({
+      destination: (_req, _file, cb) => {
+        const orgId = getEffectiveOrgId(_req as any) || 'unknown';
+        const orgDir = path.join(ORG_DOCS_DIR, orgId);
+        if (!fs.existsSync(orgDir)) fs.mkdirSync(orgDir, { recursive: true });
+        cb(null, orgDir);
+      },
+      filename: (_req, file, cb) => {
+        const uuid = crypto.randomUUID();
+        const ext = path.extname(file.originalname);
+        cb(null, `${uuid}${ext}`);
+      },
+    }),
+    limits: { fileSize: 10 * 1024 * 1024 },
+    fileFilter: (_req, file, cb) => {
+      const allowed = ['.pdf','.doc','.docx','.jpg','.jpeg','.png'];
+      const ext = path.extname(file.originalname).toLowerCase();
+      cb(null, allowed.includes(ext));
+    },
+  });
+
+  // GET — lista documenti org
+  app.get("/api/organization-documents", requireAdmin, async (req, res) => {
+    try {
+      const orgId = getEffectiveOrgId(req);
+      if (!orgId) return res.status(403).json({ error: "Org non trovata" });
+      const rows = await db.execute(sql`
+        SELECT id, organization_id, category, document_name, original_filename,
+               file_size, mime_type, expiry_date, notes, uploaded_by, created_at
+        FROM organization_documents
+        WHERE organization_id = ${orgId}
+        ORDER BY created_at DESC
+      `);
+      return res.json({ documents: rows.rows || [] });
+    } catch (err) {
+      console.error("Error fetching org documents:", err);
+      return res.status(500).json({ error: "Errore del server" });
+    }
+  });
+
+  // POST — upload documento
+  app.post("/api/organization-documents", requireAdmin, orgDocUpload.single("file"), async (req, res) => {
+    try {
+      const orgId = getEffectiveOrgId(req);
+      if (!orgId) return res.status(403).json({ error: "Org non trovata" });
+      const file = req.file;
+      if (!file) return res.status(400).json({ error: "File mancante o tipo non supportato" });
+
+      const { category, document_name, expiry_date, notes } = req.body;
+      if (!category || !document_name) {
+        fs.unlinkSync(file.path);
+        return res.status(400).json({ error: "Categoria e nome documento obbligatori" });
+      }
+
+      const userId = (req as any).user?.id || (req as any).session?.userId || null;
+      const filePath = path.relative(process.cwd(), file.path).replace(/\\/g, '/');
+
+      const rows = await db.execute(sql`
+        INSERT INTO organization_documents
+          (organization_id, category, document_name, original_filename, file_path, file_size, mime_type, expiry_date, notes, uploaded_by)
+        VALUES (
+          ${orgId},
+          ${category},
+          ${document_name},
+          ${file.originalname},
+          ${filePath},
+          ${file.size},
+          ${file.mimetype},
+          ${expiry_date || null},
+          ${notes || null},
+          ${userId}
+        )
+        RETURNING *
+      `);
+
+      return res.json({ success: true, document: rows.rows[0] });
+    } catch (err) {
+      console.error("Error uploading org document:", err);
+      return res.status(500).json({ error: "Errore del server" });
+    }
+  });
+
+  // GET — download documento
+  app.get("/api/organization-documents/:docId/download", requireAdmin, async (req, res) => {
+    try {
+      const orgId = getEffectiveOrgId(req);
+      const { docId } = req.params;
+
+      const rows = await db.execute(sql`
+        SELECT * FROM organization_documents WHERE id = ${docId}
+      `);
+      const doc = rows.rows[0] as any;
+      if (!doc) return res.status(404).json({ error: "Documento non trovato" });
+
+      // Multi-tenant security: verifica ownership
+      const isSuperAdm = (req as any).session?.userRole === 'super_admin' || (req as any).tokenUser?.role === 'super_admin';
+      if (!isSuperAdm && doc.organization_id !== orgId) {
+        return res.status(403).json({ error: "Accesso negato" });
+      }
+
+      const fullPath = path.join(process.cwd(), doc.file_path);
+      if (!fs.existsSync(fullPath)) return res.status(404).json({ error: "File non trovato su disco" });
+
+      res.setHeader('Content-Disposition', `attachment; filename="${doc.original_filename}"`);
+      if (doc.mime_type) res.setHeader('Content-Type', doc.mime_type);
+      return res.sendFile(fullPath);
+    } catch (err) {
+      console.error("Error downloading org document:", err);
+      return res.status(500).json({ error: "Errore del server" });
+    }
+  });
+
+  // DELETE — elimina documento
+  app.delete("/api/organization-documents/:docId", requireAdmin, async (req, res) => {
+    try {
+      const orgId = getEffectiveOrgId(req);
+      const { docId } = req.params;
+
+      const rows = await db.execute(sql`
+        SELECT * FROM organization_documents WHERE id = ${docId}
+      `);
+      const doc = rows.rows[0] as any;
+      if (!doc) return res.status(404).json({ error: "Documento non trovato" });
+
+      const isSuperAdm = (req as any).session?.userRole === 'super_admin' || (req as any).tokenUser?.role === 'super_admin';
+      if (!isSuperAdm && doc.organization_id !== orgId) {
+        return res.status(403).json({ error: "Accesso negato" });
+      }
+
+      // Elimina file fisico
+      const fullPath = path.join(process.cwd(), doc.file_path);
+      if (fs.existsSync(fullPath)) {
+        try { fs.unlinkSync(fullPath); } catch { /* ignore */ }
+      }
+
+      await db.execute(sql`DELETE FROM organization_documents WHERE id = ${docId}`);
+      return res.json({ success: true });
+    } catch (err) {
+      console.error("Error deleting org document:", err);
+      return res.status(500).json({ error: "Errore del server" });
+    }
+  });
+
   // ── BILLING PLAN MANAGEMENT ────────────────────────────────────────────────
 
   const PLAN_ORDER = ['base', 'pro', 'enterprise'] as const;

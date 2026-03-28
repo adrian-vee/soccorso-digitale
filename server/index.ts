@@ -736,6 +736,31 @@ function setupErrorHandler(app: express.Application) {
     // ignore
   }
 
+  // Auto-create organization_documents table
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS organization_documents (
+        id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
+        organization_id VARCHAR NOT NULL REFERENCES organizations(id),
+        category TEXT NOT NULL,
+        document_name TEXT NOT NULL,
+        original_filename TEXT NOT NULL,
+        file_path TEXT NOT NULL,
+        file_size INTEGER,
+        mime_type TEXT,
+        expiry_date DATE,
+        notes TEXT,
+        uploaded_by VARCHAR REFERENCES users(id),
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      );
+      CREATE INDEX IF NOT EXISTS idx_org_docs_org ON organization_documents(organization_id);
+      CREATE INDEX IF NOT EXISTS idx_org_docs_expiry ON organization_documents(expiry_date) WHERE expiry_date IS NOT NULL;
+    `);
+  } catch (e) {
+    // ignore
+  }
+
   // P0-2: rendi trip_id nullable su trip_gps_points per salvare punti pre-viaggio
   try {
     await pool.query(`

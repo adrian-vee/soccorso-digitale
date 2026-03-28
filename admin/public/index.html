@@ -434,6 +434,14 @@
               </button>
             </div>
 
+            <!-- Archivio Documenti — voce evidenziata -->
+            <div class="nav-section" id="archivio-documenti-nav" style="border-top:1px solid #E2E8F0;border-bottom:1px solid #E2E8F0;margin:4px 0;padding:4px 0;">
+              <button class="nav-item nav-item-archivio" data-page="archivio-documenti" style="background:#F0F4FF;border-left:3px solid #1E3A8A;font-weight:600;border-radius:0 8px 8px 0;margin-right:8px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><polyline points="12 11 12 17"/><polyline points="9 14 12 11 15 14"/></svg>
+                <span>Archivio Documenti</span>
+              </button>
+            </div>
+
             <div class="nav-section nav-section-standalone-settings" id="standalone-settings-nav" style="display:none;">
               <button class="nav-item" data-page="settings">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
@@ -9606,6 +9614,72 @@
                   <div class="env-loading-state">Caricamento log sicurezza...</div>
                 </div>
               </div>
+            </div>
+          </section>
+
+          <!-- ARCHIVIO DOCUMENTI -->
+          <section id="archivio-documenti-section" class="section hidden">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;flex-wrap:wrap;gap:12px">
+              <div>
+                <h2 style="font-size:20px;font-weight:700;color:#0D2440;margin:0">Archivio Documenti</h2>
+                <p style="font-size:13px;color:#64748B;margin:4px 0 0">Gestisci i documenti ufficiali della tua organizzazione</p>
+              </div>
+              <button class="btn btn-primary" onclick="openUploadDocModal()" style="display:flex;align-items:center;gap:8px">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                Carica Documento
+              </button>
+            </div>
+
+            <!-- Warning documenti in scadenza -->
+            <div id="ad-expiry-banner" style="display:none;background:#FEF3C7;border:1px solid #FDE68A;border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#92400E;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              <span id="ad-expiry-text"></span>
+            </div>
+
+            <!-- Filtri -->
+            <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center">
+              <select id="ad-filter-category" onchange="filterArchivio()" style="border:1px solid #E2E8F0;border-radius:8px;padding:8px 12px;font-size:13px;background:#fff;color:#1E293B">
+                <option value="">Tutte le categorie</option>
+                <option>Visura Camerale</option>
+                <option>Statuto</option>
+                <option>Accreditamento Regionale</option>
+                <option>Convenzione ULSS/ASL</option>
+                <option>Polizza Assicurativa</option>
+                <option>Certificazione ISO</option>
+                <option>Autorizzazione Sanitaria</option>
+                <option>DURC</option>
+                <option>Altro</option>
+              </select>
+              <select id="ad-sort" onchange="filterArchivio()" style="border:1px solid #E2E8F0;border-radius:8px;padding:8px 12px;font-size:13px;background:#fff;color:#1E293B">
+                <option value="date_desc">Data caricamento ↓</option>
+                <option value="date_asc">Data caricamento ↑</option>
+                <option value="expiry_asc">Scadenza ↑</option>
+                <option value="expiry_desc">Scadenza ↓</option>
+              </select>
+            </div>
+
+            <!-- Tabella documenti -->
+            <div class="org-table-wrap" style="margin-bottom:20px">
+              <table class="org-billing-table" style="width:100%">
+                <thead>
+                  <tr>
+                    <th>Categoria</th>
+                    <th>Nome documento</th>
+                    <th>Data caricamento</th>
+                    <th>Scadenza</th>
+                    <th>Azioni</th>
+                  </tr>
+                </thead>
+                <tbody id="ad-tbody">
+                  <tr><td colspan="5" style="text-align:center;padding:32px;color:#64748B">Caricamento documenti...</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Riepilogo -->
+            <div id="ad-summary" style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:10px;padding:16px;display:inline-block;min-width:260px">
+              <div style="font-weight:600;font-size:14px;color:#1E293B;margin-bottom:10px">Riepilogo</div>
+              <div id="ad-summary-content" style="font-size:13px;color:#64748B;line-height:2">—</div>
             </div>
           </section>
 
