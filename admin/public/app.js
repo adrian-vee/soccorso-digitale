@@ -14268,6 +14268,17 @@ let gpsAutoRefreshInterval = null;
 let gpsVehicleData = [];
 let gpsSelectedVehicleId = null;
 let gpsPreviousStatuses = {};
+// P2-3: dark map tile layer reference
+let gpsBaseTileLayer = null;
+let gpsMapDark = false;
+// P2-7: marker cluster group
+let gpsMarkerCluster = null;
+// P3-2: route replay state
+let gpsReplayPoints = [];
+let gpsReplayIndex = 0;
+let gpsReplayInterval = null;
+let gpsReplayMarker = null;
+let gpsReplayPlaying = false;
 
 function gpsRelativeTime(dateStr) {
   if (!dateStr) return '--';
@@ -14288,10 +14299,19 @@ async function initGpsMap() {
   if (!mapContainer) return;
   if (gpsMap) { if (loadingOverlay) loadingOverlay.classList.add('hidden'); await loadGpsData(); return; }
   gpsMap = L.map(mapContainer).setView([45.3836, 11.0397], 10);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+  gpsBaseTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
     maxZoom: 19
   }).addTo(gpsMap);
+  // P2-7: marker cluster group
+  gpsMarkerCluster = L.markerClusterGroup({
+    maxClusterRadius: 60,
+    showCoverageOnHover: false,
+    iconCreateFunction: function(cluster) {
+      return L.divIcon({ html: `<div class="amb-cluster">${cluster.getChildCount()}</div>`, className: '', iconSize: [40, 40] });
+    }
+  });
+  gpsMap.addLayer(gpsMarkerCluster);
   const sediLocations = [
     { name: 'San Giovanni Lupatoto', address: 'Via Forte Garofolo, 20', lat: 45.3836, lng: 11.0397, isPrimary: true },
     { name: 'Cologna Veneta', address: 'Via Rinascimento', lat: 45.3129, lng: 11.3835, isPrimary: false },
@@ -14323,8 +14343,8 @@ async function initGpsMap() {
 // FLEET COMMAND CENTER — MAP LAYERS
 // ============================================================
 
-const fleetLayers = { rain: null, isochrone: [], pciv: [], traffic: null };
-const fleetLayerActive = { rain: false, isochrone: false, pciv: false, traffic: false };
+const fleetLayers = { rain: null, isochrone: [], pciv: [], traffic: null, heatmap: null };
+const fleetLayerActive = { rain: false, isochrone: false, pciv: false, traffic: false, heatmap: false };
 const FLEET_HQ_COORDS = [[45.3836, 11.0397], [45.3129, 11.3835], [45.1863, 11.3151], [45.5003, 11.4213], [45.1790, 11.0637]];
 
 function initFleetMapLayers() {
@@ -14333,7 +14353,7 @@ function initFleetMapLayers() {
 
 async function toggleFleetLayer(name) {
   if (!gpsMap) return;
-  const btnIds = { rain: 'flt-rain', isochrone: 'flt-iso', pciv: 'flt-pciv', traffic: 'flt-traf' };
+  const btnIds = { rain: 'flt-rain', isochrone: 'flt-iso', pciv: 'flt-pciv', traffic: 'flt-traf', heatmap: 'flt-heat' };
   fleetLayerActive[name] = !fleetLayerActive[name];
   const btn = document.getElementById(btnIds[name]);
   if (btn) btn.classList.toggle('flt-btn-active', fleetLayerActive[name]);
@@ -14342,6 +14362,7 @@ async function toggleFleetLayer(name) {
   else if (name === 'isochrone') toggleIsochroneLayer(fleetLayerActive.isochrone);
   else if (name === 'pciv')  await togglePcivLayer(fleetLayerActive.pciv);
   else if (name === 'traffic') toggleTrafficLayer(fleetLayerActive.traffic);
+  else if (name === 'heatmap') toggleHeatmapLayer(fleetLayerActive.heatmap);
 }
 
 async function toggleRainLayer(show) {
@@ -14487,7 +14508,7 @@ async function loadGpsData() {
 }
 
 function updateGpsMarkers(vehiclePositions) {
-  if (!gpsMap) return;
+  if (!gpsMap || !gpsMarkerCluster) return;
   const filter = document.getElementById('gps-vehicle-filter')?.value || 'all';
   const filteredVehicles = vehiclePositions.filter(v => {
     if (filter === 'active') return v.isOnService && !v.isWaitingForVisit;
@@ -14497,25 +14518,28 @@ function updateGpsMarkers(vehiclePositions) {
     return true;
   });
   const currentIds = new Set(filteredVehicles.map(v => v.vehicleId));
+  // Remove stale markers from cluster
   Object.keys(gpsMarkers).forEach(id => {
     if (!currentIds.has(id)) {
-      gpsMap.removeLayer(gpsMarkers[id]);
+      gpsMarkerCluster.removeLayer(gpsMarkers[id]);
       delete gpsMarkers[id];
     }
   });
   filteredVehicles.forEach(vehicle => {
     if (!vehicle.latitude || !vehicle.longitude) return;
     if (gpsMarkers[vehicle.vehicleId]) {
+      // Update position and icon (heading may have changed)
       gpsMarkers[vehicle.vehicleId].setLatLng([vehicle.latitude, vehicle.longitude]);
+      gpsMarkers[vehicle.vehicleId].setIcon(createAmbulanceSvgIcon(vehicle));
     } else {
-      const gpsAmbIcon = L.icon({ iconUrl: '/admin/ambulance-marker.png', iconSize: [40, 40], iconAnchor: [20, 20], popupAnchor: [0, -20], tooltipAnchor: [0, -20] });
-      const marker = L.marker([vehicle.latitude, vehicle.longitude], { icon: gpsAmbIcon }).addTo(gpsMap);
-      marker.bindTooltip(vehicle.vehicleCode, { permanent: true, direction: 'top', className: 'vehicle-label', offset: [0, -10] });
+      const marker = L.marker([vehicle.latitude, vehicle.longitude], { icon: createAmbulanceSvgIcon(vehicle) });
+      marker.bindTooltip(vehicle.vehicleCode, { permanent: true, direction: 'top', className: 'vehicle-label', offset: [0, -14] });
       marker.on('click', () => {
         showGpsInfoCard(vehicle);
         gpsSelectedVehicleId = vehicle.vehicleId;
         highlightVehicleInList(vehicle.vehicleId);
       });
+      gpsMarkerCluster.addLayer(marker);
       gpsMarkers[vehicle.vehicleId] = marker;
     }
   });
@@ -14523,7 +14547,7 @@ function updateGpsMarkers(vehiclePositions) {
 
 function createVehicleIcon(vehicle) {
   let fillColor, radius, weight;
-  
+
   if (vehicle.isTracking) {
     fillColor = '#00A651';
     radius = 12;
@@ -14537,7 +14561,7 @@ function createVehicleIcon(vehicle) {
     radius = 8;
     weight = 2;
   }
-  
+
   return {
     radius: radius,
     fillColor: fillColor,
@@ -14545,6 +14569,99 @@ function createVehicleIcon(vehicle) {
     color: 'white',
     weight: weight
   };
+}
+
+// P2-1: SVG ambulance marker with heading rotation and status colors
+function createAmbulanceSvgIcon(vehicle) {
+  const heading = vehicle.heading ?? 0;
+  let color, glowColor;
+  if (vehicle.isTracking) {
+    color = '#00A651'; glowColor = 'rgba(0,166,81,0.28)';
+  } else if (vehicle.isWaitingForVisit) {
+    color = '#3b82f6'; glowColor = 'rgba(59,130,246,0.28)';
+  } else if (vehicle.isOnService) {
+    color = '#0066CC'; glowColor = 'rgba(0,102,204,0.2)';
+  } else {
+    color = '#A3ACB9'; glowColor = 'transparent';
+  }
+  const isActive = vehicle.isTracking || vehicle.isWaitingForVisit;
+  const pulseHtml = isActive
+    ? `<div class="amb-pulse-ring" style="--amb-glow:${glowColor}"></div>`
+    : '';
+  const svgHtml = `<svg width="36" height="36" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
+    <polygon points="18,2 28,14 8,14" fill="${color}" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
+    <rect x="6" y="12" width="24" height="18" rx="3" fill="${color}" stroke="white" stroke-width="1.5"/>
+    <rect x="11" y="18.5" width="14" height="3.5" rx="1.2" fill="white"/>
+    <rect x="15.5" y="15.5" width="5" height="9.5" rx="1.2" fill="white"/>
+  </svg>`;
+  return L.divIcon({
+    html: `<div class="amb-wrap" style="transform:rotate(${heading}deg)">${pulseHtml}${svgHtml}</div>`,
+    className: 'amb-divicon',
+    iconSize: [40, 40],
+    iconAnchor: [20, 20],
+    popupAnchor: [0, -22],
+    tooltipAnchor: [0, -24]
+  });
+}
+
+// P2-3: Toggle dark/light map tiles
+function toggleDarkMap() {
+  if (!gpsMap) return;
+  gpsMapDark = !gpsMapDark;
+  if (gpsBaseTileLayer) { gpsMap.removeLayer(gpsBaseTileLayer); }
+  if (gpsMapDark) {
+    gpsBaseTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; OpenStreetMap &copy; CARTO', maxZoom: 19
+    }).addTo(gpsMap);
+    // Ensure base layer is behind everything
+    gpsBaseTileLayer.bringToBack();
+    document.querySelector('#gps-tracking-section .gps-map-legend-v3')?.classList.add('dark-legend');
+  } else {
+    gpsBaseTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; OpenStreetMap &copy; CARTO', maxZoom: 19
+    }).addTo(gpsMap);
+    gpsBaseTileLayer.bringToBack();
+    document.querySelector('#gps-tracking-section .gps-map-legend-v3')?.classList.remove('dark-legend');
+  }
+  const btn = document.getElementById('flt-dark');
+  if (btn) btn.classList.toggle('flt-btn-active', gpsMapDark);
+}
+
+// P3-3: Heatmap density layer
+function toggleHeatmapLayer(show) {
+  if (fleetLayers.heatmap) { gpsMap.removeLayer(fleetLayers.heatmap); fleetLayers.heatmap = null; }
+  if (!show) return;
+  if (typeof L.heatLayer !== 'function') {
+    showNotification('Heatmap layer non disponibile', 'warning');
+    fleetLayerActive.heatmap = false;
+    document.getElementById('flt-heat')?.classList.remove('flt-btn-active');
+    return;
+  }
+  const heatData = gpsVehicleData
+    .filter(v => v.latitude && v.longitude)
+    .map(v => [parseFloat(v.latitude) || 0, parseFloat(v.longitude) || 0, 0.9]);
+  if (!heatData.length) {
+    showNotification('Nessuna posizione GPS disponibile per heatmap', 'info');
+    fleetLayerActive.heatmap = false;
+    document.getElementById('flt-heat')?.classList.remove('flt-btn-active');
+    return;
+  }
+  fleetLayers.heatmap = L.heatLayer(heatData, { radius: 30, blur: 20, maxZoom: 17,
+    gradient: { 0.35: '#0066CC', 0.6: '#00A651', 1: '#E74C3C' }
+  }).addTo(gpsMap);
+}
+
+// P3-4: OSRM real-time ETA
+async function fetchOsrmEta(fromLat, fromLng, toLat, toLng) {
+  try {
+    const url = `https://router.project-osrm.org/route/v1/driving/${fromLng},${fromLat};${toLng},${toLat}?overview=false`;
+    const resp = await fetch(url);
+    if (!resp.ok) return null;
+    const data = await resp.json();
+    const route = data.routes?.[0];
+    if (!route) return null;
+    return { durationMin: Math.round(route.duration / 60), distKm: (route.distance / 1000).toFixed(1) };
+  } catch (_e) { return null; }
 }
 
 function showGpsInfoCard(vehicle) {
@@ -14561,6 +14678,16 @@ function showGpsInfoCard(vehicle) {
   const gpsQualityClass = vehicle.hasRealGps ? 'real' : 'sede';
   const svc = vehicle.activeService;
   
+  // P2-4: speed / heading / crew info
+  const speedKmh = vehicle.speed ? Math.round(vehicle.speed) : null;
+  const headingDeg = vehicle.heading != null ? Math.round(vehicle.heading) : null;
+  const speedHtml = (speedKmh != null || headingDeg != null) ? `
+    <div class="gps-speed-row">
+      ${speedKmh != null ? `<span class="gps-speed-badge">${speedKmh} km/h</span>` : ''}
+      ${headingDeg != null ? `<span>${headingDeg}° <span style="font-size:10px;color:var(--text-muted)">direzione</span></span>` : ''}
+    </div>
+  ` : '';
+
   const activeServiceHtml = svc ? `
     <div style="margin-top:10px;padding:10px;background:${vehicle.isWaitingForVisit ? '#eff6ff' : '#fefce8'};border-radius:8px;border:1px solid ${vehicle.isWaitingForVisit ? '#bfdbfe' : '#fde68a'};">
       <div style="font-size:11px;font-weight:700;color:${vehicle.isWaitingForVisit ? '#1d4ed8' : '#92400e'};margin-bottom:4px;text-transform:uppercase;">
@@ -14572,9 +14699,10 @@ function showGpsInfoCard(vehicle) {
       </div>
       ${svc.serviceType ? `<div style="font-size:11px;color:#6b7280;margin-top:2px;">${svc.serviceType}</div>` : ''}
       ${svc.actualStartTime ? `<div style="font-size:11px;color:#6b7280;margin-top:2px;">Partenza: ${new Date(svc.actualStartTime).toLocaleTimeString('it-IT', {hour:'2-digit',minute:'2-digit'})}</div>` : ''}
+      ${vehicle.hasRealGps && svc.destLat && svc.destLng ? `<div id="gps-info-eta" class="gps-eta-chip"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> Calcolo ETA...</div>` : ''}
     </div>
   ` : '';
-  
+
   card.innerHTML = `
     <button class="gps-info-close-v3" onclick="closeGpsInfoCard()">
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
@@ -14604,6 +14732,7 @@ function showGpsInfoCard(vehicle) {
         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
         <span>${gpsQuality}</span>
       </div>
+      ${speedHtml}
     </div>
     ${activeServiceHtml}
     <div class="gps-info-actions-v3">
@@ -14617,8 +14746,20 @@ function showGpsInfoCard(vehicle) {
       </button>
     </div>
   `;
-  
+
   card.classList.remove('hidden');
+
+  // P3-4: async OSRM ETA fetch after card is in DOM
+  if (vehicle.hasRealGps && vehicle.latitude && vehicle.longitude && svc?.destLat && svc?.destLng) {
+    fetchOsrmEta(vehicle.latitude, vehicle.longitude, svc.destLat, svc.destLng).then(eta => {
+      const etaEl = document.getElementById('gps-info-eta');
+      if (etaEl && eta) {
+        etaEl.innerHTML = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> ETA ${eta.durationMin} min · ${eta.distKm} km`;
+      } else if (etaEl) {
+        etaEl.remove();
+      }
+    });
+  }
 }
 
 function closeGpsInfoCard() {
@@ -14893,6 +15034,130 @@ async function initHistoryMap(points, dayTrips, sedeLocation) {
   if (bounds.isValid()) {
     gpsHistoryMap.fitBounds(bounds, { padding: [30, 30] });
   }
+  // P3-2: set up route replay if GPS points are available
+  startReplaySetup(points || []);
+}
+
+// ============================================================
+// P3-2: ROUTE REPLAY
+// ============================================================
+
+function calcBearing(lat1, lng1, lat2, lng2) {
+  const toR = d => d * Math.PI / 180;
+  const dL = toR(lng2 - lng1);
+  const y = Math.sin(dL) * Math.cos(toR(lat2));
+  const x = Math.cos(toR(lat1)) * Math.sin(toR(lat2)) - Math.sin(toR(lat1)) * Math.cos(toR(lat2)) * Math.cos(dL);
+  return ((Math.atan2(y, x) * 180 / Math.PI) + 360) % 360;
+}
+
+function createReplayIcon(heading) {
+  const h = heading ?? 0;
+  const svg = `<svg width="36" height="36" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
+    <polygon points="18,2 28,14 8,14" fill="#E74C3C" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
+    <rect x="6" y="12" width="24" height="18" rx="3" fill="#E74C3C" stroke="white" stroke-width="1.5"/>
+    <rect x="11" y="18.5" width="14" height="3.5" rx="1.2" fill="white"/>
+    <rect x="15.5" y="15.5" width="5" height="9.5" rx="1.2" fill="white"/>
+  </svg>`;
+  return L.divIcon({
+    html: `<div class="replay-amb-wrap" style="transform:rotate(${h}deg)">${svg}</div>`,
+    className: 'replay-amb-icon',
+    iconSize: [40, 40],
+    iconAnchor: [20, 20]
+  });
+}
+
+function startReplaySetup(points) {
+  gpsReplayPoints = points;
+  gpsReplayIndex = 0;
+  gpsReplayPlaying = false;
+  if (gpsReplayInterval) { clearInterval(gpsReplayInterval); gpsReplayInterval = null; }
+
+  // Remove previous replay marker
+  if (gpsReplayMarker && gpsHistoryMap) { gpsHistoryMap.removeLayer(gpsReplayMarker); gpsReplayMarker = null; }
+
+  const controls = document.getElementById('gps-replay-controls');
+  if (!controls) return;
+
+  if (!points || points.length < 2) {
+    controls.classList.add('hidden');
+    return;
+  }
+
+  const firstPt = points[0];
+  gpsReplayMarker = L.marker(
+    [parseFloat(firstPt.latitude), parseFloat(firstPt.longitude)],
+    { icon: createReplayIcon(0) }
+  ).addTo(gpsHistoryMap);
+
+  controls.classList.remove('hidden');
+  const btn = document.getElementById('gps-replay-btn');
+  if (btn) {
+    btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg> Replay`;
+  }
+  updateReplayProgress();
+}
+
+function gpsReplayToggle() {
+  if (gpsReplayPlaying) {
+    gpsReplayPause();
+  } else {
+    gpsReplayPlay();
+  }
+}
+
+function gpsReplayPlay() {
+  if (!gpsReplayPoints.length) return;
+  if (gpsReplayIndex >= gpsReplayPoints.length - 1) { gpsReplayIndex = 0; }
+
+  gpsReplayPlaying = true;
+  const speedFactor = parseInt(document.getElementById('gps-replay-speed')?.value || '3');
+  const intervalMs = Math.max(50, Math.round(500 / speedFactor));
+
+  const btn = document.getElementById('gps-replay-btn');
+  if (btn) btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg> Pausa`;
+
+  gpsReplayInterval = setInterval(() => {
+    if (gpsReplayIndex >= gpsReplayPoints.length - 1) {
+      gpsReplayPause();
+      return;
+    }
+    gpsReplayIndex++;
+    const pt = gpsReplayPoints[gpsReplayIndex];
+    const prev = gpsReplayPoints[gpsReplayIndex - 1];
+    const newPos = L.latLng(parseFloat(pt.latitude), parseFloat(pt.longitude));
+    const bearing = calcBearing(
+      parseFloat(prev.latitude), parseFloat(prev.longitude),
+      parseFloat(pt.latitude), parseFloat(pt.longitude)
+    );
+    if (gpsReplayMarker) {
+      animateMarker(gpsReplayMarker, gpsReplayMarker.getLatLng(), newPos, intervalMs * 0.85);
+      gpsReplayMarker.setIcon(createReplayIcon(bearing));
+    }
+    updateReplayProgress();
+  }, intervalMs);
+}
+
+function gpsReplayPause() {
+  gpsReplayPlaying = false;
+  if (gpsReplayInterval) { clearInterval(gpsReplayInterval); gpsReplayInterval = null; }
+  const btn = document.getElementById('gps-replay-btn');
+  if (btn) btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg> Replay`;
+}
+
+function gpsReplayReset() {
+  gpsReplayPause();
+  gpsReplayIndex = 0;
+  if (gpsReplayMarker && gpsReplayPoints.length > 0) {
+    const p = gpsReplayPoints[0];
+    gpsReplayMarker.setLatLng([parseFloat(p.latitude), parseFloat(p.longitude)]);
+    gpsReplayMarker.setIcon(createReplayIcon(0));
+  }
+  updateReplayProgress();
+}
+
+function updateReplayProgress() {
+  const el = document.getElementById('gps-replay-progress');
+  if (el) el.textContent = `${gpsReplayIndex + 1} / ${gpsReplayPoints.length}`;
 }
 
 let gpsWebSocket = null;
@@ -14963,7 +15228,10 @@ function handleRealtimeGpsUpdate(data) {
       vData.latitude = latitude;
       vData.longitude = longitude;
       vData.speed = speed;
+      vData.heading = heading;
       vData.lastUpdate = timestamp;
+      // P2-1: update SVG icon with new heading
+      gpsMarkers[vehicleId].setIcon(createAmbulanceSvgIcon(vData));
     }
     const timeEl = document.querySelector(`[data-vehicle-gps-time="${vehicleId}"]`);
     if (timeEl) timeEl.textContent = 'Adesso';

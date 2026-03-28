@@ -542,6 +542,7 @@ function setupErrorHandler(app: express.Application) {
           "https://unpkg.com",
           "https://cdnjs.cloudflare.com",
           "https://cdn.jsdelivr.net",
+          "https://router.project-osrm.org",
         ],
         frameSrc: ["'self'", "https://cdn.embedly.com", "https://www.youtube.com", "https://js.stripe.com"],
         objectSrc: ["'none'"],
