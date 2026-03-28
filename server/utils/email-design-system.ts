@@ -6,7 +6,9 @@
 // Layout: table-based, CSS inline — compatibilità universale
 // ============================================================
 
-export const LOGO_URL = 'https://soccorsodigitale.app/images/logo.svg';
+// PNG — compatibile con tutti i client email incluso Outlook (SVG non supportato da Outlook)
+// logofooter.png = logo bianco per sfondi scuri (header navy)
+export const LOGO_URL = 'https://soccorsodigitale.app/images/69b0b9ed30b3db9a0f666b2b_logofooter.png';
 export const LOGIN_URL = 'https://soccorsodigitale.app/admin';
 export const SITE_URL  = 'https://soccorsodigitale.app';
 
@@ -42,16 +44,6 @@ export function emailWrap(content: string, preheaderText = 'Soccorso Digitale'):
 <tr><td align="center">
 <table width="600" cellpadding="0" cellspacing="0" role="presentation" style="max-width:600px;width:100%;">
 
-  <!-- PRE-HEADER WORDMARK -->
-  <tr><td align="center" style="padding:0 0 20px;">
-    <table cellpadding="0" cellspacing="0" role="presentation"><tr>
-      <td style="vertical-align:middle;padding-right:7px;">
-        <img src="${LOGO_URL}" alt="Soccorso Digitale" width="18" height="18" style="display:block;filter:grayscale(100%);opacity:0.45;">
-      </td>
-      <td style="font-size:11px;font-weight:700;color:${C.sageMuted};letter-spacing:0.08em;text-transform:uppercase;vertical-align:middle;font-family:${FONT};">Soccorso Digitale</td>
-    </tr></table>
-  </td></tr>
-
   <!-- CARD -->
   <tr><td style="background:${C.white};border-radius:12px;overflow:hidden;box-shadow:0 2px 16px rgba(11,46,80,0.08),0 1px 4px rgba(11,46,80,0.04);">
     ${content}
@@ -74,13 +66,12 @@ export function heroBand(badge: string, title: string, titleAccent: string, subt
   return `
   <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
     <tr><td style="background:linear-gradient(135deg,${C.navy} 0%,${C.tealDark} 100%);padding:40px 40px 36px;border-radius:12px 12px 0 0;">
-      <!-- Logo wordmark -->
+      <!-- Logo (PNG per compatibilità Outlook) -->
       <table cellpadding="0" cellspacing="0" role="presentation" style="margin-bottom:28px;">
         <tr>
-          <td style="vertical-align:middle;padding-right:8px;">
-            <img src="${LOGO_URL}" alt="Soccorso Digitale" width="24" height="24" style="display:block;filter:brightness(0) invert(1);">
+          <td style="vertical-align:middle;">
+            <img src="${LOGO_URL}" alt="Soccorso Digitale" height="28" style="display:block;border:0;height:28px;max-height:28px;">
           </td>
-          <td style="font-size:14px;font-weight:700;color:${C.white};letter-spacing:0.02em;vertical-align:middle;font-family:${FONT};">Soccorso Digitale</td>
         </tr>
       </table>
       <!-- Badge pill -->
@@ -110,18 +101,19 @@ export function credsBox(email: string, password: string): string {
   <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background:#F4F8F8;border-radius:8px;padding:20px;margin-bottom:28px;border:1px solid ${C.stone};">
     <tr><td>
       <div style="font-size:11px;font-weight:600;color:${C.sageMuted};margin-bottom:6px;font-family:${FONT};">Email</div>
-      <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin-bottom:16px;">
-        <tr><td style="background:${C.white};border:1px solid ${C.stone};border-radius:6px;padding:10px 14px;">
-          <span style="font-size:14px;color:${C.ink};font-family:'Courier New',Courier,monospace;">${email}</span>
+      <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin-bottom:4px;">
+        <tr><td style="background:${C.white};border:2px solid ${C.tealLight};border-radius:6px;padding:10px 14px;cursor:text;">
+          <span style="font-size:14px;color:${C.ink};font-family:'Courier New',Courier,monospace;user-select:all;">${email}</span>
         </td></tr>
       </table>
+      <div style="font-size:11px;color:${C.sageMuted};margin-bottom:14px;font-family:${FONT};">Tocca per selezionare e copiare</div>
       <div style="font-size:11px;font-weight:600;color:${C.sageMuted};margin-bottom:6px;font-family:${FONT};">Password temporanea</div>
-      <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin-bottom:6px;">
-        <tr><td style="background:${C.white};border:1px solid ${C.stone};border-radius:6px;padding:10px 14px;">
-          <span style="font-size:17px;font-weight:700;color:${C.navy};font-family:'Courier New',Courier,monospace;letter-spacing:0.04em;">${password}</span>
+      <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin-bottom:4px;">
+        <tr><td style="background:${C.white};border:2px solid ${C.tealLight};border-radius:6px;padding:10px 14px;cursor:text;">
+          <span style="font-size:17px;font-weight:700;color:${C.navy};font-family:'Courier New',Courier,monospace;letter-spacing:0.04em;user-select:all;">${password}</span>
         </td></tr>
       </table>
-      <div style="font-size:11px;color:${C.sageMuted};font-family:${FONT};">Tieni premuto per selezionare e copiare</div>
+      <div style="font-size:11px;color:${C.sageMuted};font-family:${FONT};">Tocca per selezionare e copiare</div>
     </td></tr>
   </table>`;
 }
@@ -215,15 +207,11 @@ export function cardFooter(replyTo = 'hello@soccorsodigitale.app'): string {
   return `
   <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="border-top:1px solid ${C.stone};background:#F4F8F8;">
     <tr><td style="padding:18px 40px;text-align:center;">
-      <img src="${LOGO_URL}" alt="" width="16" height="16" style="display:inline-block;filter:grayscale(100%);opacity:0.45;vertical-align:middle;margin-right:6px;">
       <span style="font-size:12px;font-weight:700;color:${C.sageMuted};vertical-align:middle;font-family:${FONT};">Soccorso Digitale</span>
       <span style="margin:0 10px;color:${C.stone};vertical-align:middle;">|</span>
       <a href="${SITE_URL}" style="font-size:12px;color:${C.sageMuted};text-decoration:none;vertical-align:middle;font-family:${FONT};">Sito web</a>
       <span style="margin:0 8px;color:${C.stone};vertical-align:middle;">&middot;</span>
       <a href="mailto:${replyTo}" style="font-size:12px;color:${C.sageMuted};text-decoration:none;vertical-align:middle;font-family:${FONT};">Supporto</a>
-    </td></tr>
-    <tr><td style="padding:0 40px 18px;text-align:center;">
-      <div style="font-size:11px;color:${C.stone};line-height:1.6;font-family:${FONT};">Email automatica &middot; Non rispondere &middot; &copy; 2026 Soccorso Digitale</div>
     </td></tr>
   </table>`;
 }

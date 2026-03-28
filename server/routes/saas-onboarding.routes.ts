@@ -624,7 +624,7 @@ export function registerSaasOnboardingRoutes(app: Express): void {
     }
 
     const limits = PLAN_LIMITS[plan];
-    const trialEndsAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
+    const trialEndsAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 giorni (pricing ufficiale)
 
     // Create organization
     const baseSlug = toSlug(orgName);
