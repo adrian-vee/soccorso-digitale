@@ -22764,8 +22764,15 @@ tr.selected-row:hover {
 
 .turnistica-actions {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
+  align-items: center;
+  min-width: 0;
+}
+
+.turnistica-actions .btn {
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .turnistica-controls {
