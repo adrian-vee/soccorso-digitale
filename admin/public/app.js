@@ -45,43 +45,30 @@ function restoreSidebarSections() {
   } catch(e) {}
 }
 
-// === Sidebar Collapse ===
-function toggleSidebarCollapse() {
+// === Sidebar V2 — Toggle & Init ===
+function toggleSidebar() {
   const sidebar = document.getElementById('main-sidebar');
-  const wrapper = document.querySelector('.main-wrapper');
-  const icon = document.getElementById('sidebar-collapse-icon');
   if (!sidebar) return;
-
   const isCollapsed = sidebar.classList.toggle('collapsed');
-  if (wrapper) wrapper.classList.toggle('sidebar-collapsed', isCollapsed);
-  if (icon) {
-    const polyline = icon.querySelector('polyline');
-    if (polyline) polyline.setAttribute('points', isCollapsed ? '9 18 15 12 9 6' : '15 18 9 12 15 6');
-  }
-  try { localStorage.setItem('sidebarCollapsed', isCollapsed ? '1' : '0'); } catch(e) {}
+  document.body.classList.toggle('sidebar-collapsed', isCollapsed);
+  try { localStorage.setItem('sd-sidebar-collapsed', isCollapsed); } catch(e) {}
 }
 
-function initSidebarCollapse() {
-  // Set data-tooltip from span text for all nav items
-  document.querySelectorAll('.nav-item[data-page]').forEach(item => {
+function initSidebar() {
+  // Populate data-tooltip on each nav item from its span text
+  document.querySelectorAll('.sd-sidebar-nav .nav-item[data-page]').forEach(item => {
     if (!item.dataset.tooltip) {
       const span = item.querySelector('span');
       if (span) item.dataset.tooltip = span.textContent.trim();
     }
   });
 
-  // Restore collapsed state from localStorage
+  // Restore collapsed state
   try {
-    if (localStorage.getItem('sidebarCollapsed') === '1') {
+    if (localStorage.getItem('sd-sidebar-collapsed') === 'true') {
       const sidebar = document.getElementById('main-sidebar');
-      const wrapper = document.querySelector('.main-wrapper');
-      const icon = document.getElementById('sidebar-collapse-icon');
       if (sidebar) sidebar.classList.add('collapsed');
-      if (wrapper) wrapper.classList.add('sidebar-collapsed');
-      if (icon) {
-        const polyline = icon.querySelector('polyline');
-        if (polyline) polyline.setAttribute('points', '9 18 15 12 9 6');
-      }
+      document.body.classList.add('sidebar-collapsed');
     }
   } catch(e) {}
 }
@@ -894,10 +881,10 @@ function setupEventListeners() {
   document.getElementById('logout-btn').addEventListener('click', handleLogout);
   document.getElementById('refresh-btn').addEventListener('click', refreshData);
   
-  // Restore collapsible sidebar sections, search, and collapse state
+  // Restore collapsible sidebar sections, search, and sidebar state
   restoreSidebarSections();
   initSidebarSearch();
-  initSidebarCollapse();
+  initSidebar();
   
   // New sidebar navigation
   document.querySelectorAll('.nav-item').forEach(item => {
