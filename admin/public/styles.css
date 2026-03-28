@@ -22918,13 +22918,13 @@ tr.selected-row:hover {
 .tg-vehicle-cell { min-width: 80px; }
 .tg-vehicle-cell.tg-vg-even { background: #334155; color: #fff; border-color: #475569; }
 .tg-vehicle-cell.tg-vg-odd { background: #1e293b; color: #fff; border-color: #475569; }
-.tg-nato { display: block; font-size: 12px; font-weight: 700; letter-spacing: 0.5px; color: #ffffff; }
-.tg-vcode { display: inline; font-size: 8px; font-weight: 400; color: #94a3b8; margin-right: 4px; }
-.tg-shift-time { display: inline; font-size: 10px; font-weight: 700; color: #93c5fd; letter-spacing: 0.3px; }
-.tg-vg-even .tg-vcode { color: #94a3b8; }
-.tg-vg-odd .tg-vcode { color: #94a3b8; }
-.tg-vg-even .tg-shift-time { color: #93c5fd; }
-.tg-vg-odd .tg-shift-time { color: #93c5fd; }
+.tg-nato { display: block; font-size: 15px; font-weight: 700; letter-spacing: 0.5px; color: #ffffff; }
+.tg-vcode { display: inline; font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.9); margin-right: 4px; }
+.tg-shift-time { display: inline; font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.8); letter-spacing: 0.3px; }
+.tg-vg-even .tg-vcode { color: rgba(255,255,255,0.9); }
+.tg-vg-odd .tg-vcode { color: rgba(255,255,255,0.9); }
+.tg-vg-even .tg-shift-time { color: rgba(255,255,255,0.8); }
+.tg-vg-odd .tg-shift-time { color: rgba(255,255,255,0.8); }
 
 /* Role sub-header row */
 .tg-role-header th {
@@ -22974,8 +22974,8 @@ tr.selected-row:hover {
   border-right: 2px solid #444;
   white-space: nowrap;
 }
-.tg-day-num { font-weight: 700; font-size: 12px; margin-right: 4px; }
-.tg-day-name { font-size: 9px; font-weight: 400; color: #ccc; text-transform: lowercase; }
+.tg-day-num { font-weight: 700; font-size: 13px; margin-right: 4px; color: #ffffff; }
+.tg-day-name { font-size: 9px; font-weight: 400; color: rgba(255,255,255,0.75); text-transform: lowercase; }
 .tg-weekend-label { color: #ffcc00 !important; font-weight: 600 !important; }
 
 /* Body cells */
@@ -22990,7 +22990,7 @@ tr.selected-row:hover {
   cursor: pointer;
   transition: background 0.1s;
 }
-.schedule-grid-body td:hover { background: #f0f0f0 !important; }
+.schedule-grid-body td:not(.tg-day-cell):hover { background: #f0f0f0 !important; }
 .schedule-grid-body td.tg-group-start { border-left: 2px solid #d0d0d0; }
 .schedule-grid-body td.tg-col-alt { background: #fafafa; }
 
