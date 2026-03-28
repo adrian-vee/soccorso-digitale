@@ -3,342 +3,868 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Scarica l'App - Soccorso Digitale</title>
+  <title>Scarica l'App — Soccorso Digitale</title>
+  <meta name="description" content="Scarica l'app Android di Soccorso Digitale per gli equipaggi. Registra servizi, checklist, GPS — funziona anche offline.">
+  <link rel="canonical" href="https://soccorsodigitale.app/download/SD2026APP">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+  <!-- Google Fonts — same as site -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    /* ── CSS CUSTOM PROPERTIES — SD Brand System ── */
+    :root {
+      --color-navy:       #0B2E50;
+      --color-ink:        #1A2B32;
+      --color-teal-dark:  #1F6583;
+      --color-teal-light: #5EB0BB;
+      --color-bg:         #DFEAE8;
+      --color-muted:      #808976;
+      --color-stone:      #C4C8C7;
+      --color-white:      #FFFFFF;
+
+      --font-heading: 'Sora', system-ui, -apple-system, sans-serif;
+      --font-body:    'Inter', system-ui, -apple-system, sans-serif;
+
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+
+      --shadow-card:     0 1px 3px rgba(11,46,80,0.08), 0 4px 16px rgba(11,46,80,0.06);
+      --shadow-elevated: 0 8px 32px rgba(11,46,80,0.12), 0 2px 8px rgba(11,46,80,0.06);
+      --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+
+      --logo-fg: var(--color-white);
+    }
+
+    /* ── RESET & BASE ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #f8fafc;
-      color: #1a1a1a;
-      min-height: 100vh;
+      font-family: var(--font-body);
+      font-size: 16px;
+      line-height: 1.6;
+      color: var(--color-ink);
+      background-color: var(--color-bg);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
-    .top-bar {
-      height: 6px;
-      background: #0066CC;
-    }
-    .top-bar-green {
-      height: 3px;
-      background: #00A651;
-    }
-    .header {
-      background: #fff;
-      border-bottom: 1px solid #e2e8f0;
-      padding: 16px 0;
-    }
-    .header-inner {
-      max-width: 800px;
+
+    img { max-width: 100%; height: auto; display: block; }
+    a { color: inherit; text-decoration: none; }
+    ul, ol { list-style: none; }
+    button { cursor: pointer; font: inherit; border: none; background: none; }
+
+    .container {
+      max-width: 1200px;
       margin: 0 auto;
       padding: 0 24px;
+    }
+
+    .container--narrow {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-body);
+      font-size: 15px;
+      font-weight: 600;
+      padding: 12px 24px;
+      border-radius: var(--radius-md);
+      transition: all var(--transition-base);
+      white-space: nowrap;
+    }
+
+    .btn--primary {
+      background: var(--color-teal-light);
+      color: var(--color-navy);
+    }
+
+    .btn--primary:hover {
+      background: var(--color-teal-dark);
+      color: var(--color-white);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(94,176,187,0.4);
+    }
+
+    .btn--ghost {
+      background: rgba(255,255,255,0.12);
+      color: var(--color-white);
+      border: 1px solid rgba(255,255,255,0.25);
+    }
+
+    .btn--ghost:hover {
+      background: rgba(255,255,255,0.20);
+      transform: translateY(-1px);
+    }
+
+    /* ── NAVBAR ── */
+    .navbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 20px 0;
+      transition: background var(--transition-base), padding var(--transition-base), box-shadow var(--transition-base);
+    }
+
+    /* On this page the bg is light, so always show scrolled style */
+    .navbar,
+    .navbar.scrolled {
+      background: rgba(223,234,232,0.95);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 12px 0;
+      box-shadow: 0 1px 0 rgba(11,46,80,0.08);
+    }
+
+    .navbar__inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .navbar__logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .navbar__logo-icon { width: 36px; height: 36px; flex-shrink: 0; }
+
+    .navbar__logo-text {
+      font-family: var(--font-heading);
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--color-navy);
+      letter-spacing: -0.01em;
+    }
+
+    .navbar__logo-text span { color: var(--color-teal-dark); }
+
+    .navbar__nav {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+
+    .navbar__nav a {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--color-ink);
+      transition: color var(--transition-base);
+    }
+
+    .navbar__nav a:hover { color: var(--color-teal-dark); }
+
+    .navbar__actions {
       display: flex;
       align-items: center;
       gap: 12px;
     }
-    .header-logo {
-      width: 40px;
-      height: 40px;
-    }
-    .header-title {
-      font-size: 18px;
-      font-weight: 700;
-      color: #0066CC;
-    }
-    .header-subtitle {
-      font-size: 12px;
-      color: #64748b;
-    }
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 40px 24px 60px;
-    }
-    .hero {
-      text-align: center;
-      margin-bottom: 48px;
-    }
-    .hero-icon {
-      width: 120px;
-      height: 120px;
-      margin: 0 auto 24px;
-    }
-    .hero h1 {
-      font-size: 32px;
-      font-weight: 800;
-      color: #0066CC;
-      margin-bottom: 8px;
-    }
-    .hero h2 {
-      font-size: 18px;
+
+    .navbar__cta {
+      font-size: 14px;
       font-weight: 600;
-      color: #00A651;
+      color: var(--color-teal-dark);
+      transition: color var(--transition-base);
+    }
+
+    .navbar__cta:hover { color: var(--color-navy); }
+
+    .navbar__mobile-toggle {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      padding: 4px;
+    }
+
+    .navbar__mobile-toggle span {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: var(--color-navy);
+      border-radius: 2px;
+      transition: all var(--transition-base);
+    }
+
+    /* Always show logo in dark mode on this light-bg page */
+    .navbar { --logo-fg: var(--color-navy); }
+
+    @media (max-width: 768px) {
+      .navbar__nav { display: none; }
+      .navbar__actions .btn { display: none; }
+      .navbar__mobile-toggle { display: flex; }
+    }
+
+    /* ── PAGE LAYOUT ── */
+    .page-wrapper {
+      padding-top: 72px; /* navbar height */
+    }
+
+    /* ── HERO SECTION ── */
+    .dl-hero {
+      padding: 72px 0 56px;
+      text-align: center;
+    }
+
+    .dl-hero__badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(94,176,187,0.12);
+      border: 1px solid rgba(94,176,187,0.30);
+      border-radius: 100px;
+      padding: 5px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--color-teal-dark);
+      margin-bottom: 24px;
+    }
+
+    .dl-hero__badge::before {
+      content: '';
+      width: 6px; height: 6px;
+      background: var(--color-teal-light);
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .dl-hero__icon {
+      width: 88px;
+      height: 88px;
+      background: var(--color-navy);
+      border-radius: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 28px;
+      box-shadow: var(--shadow-elevated);
+    }
+
+    .dl-hero__title {
+      font-family: var(--font-heading);
+      font-size: clamp(28px, 4vw, 40px);
+      font-weight: 700;
+      color: var(--color-navy);
+      letter-spacing: -0.02em;
+      line-height: 1.2;
       margin-bottom: 16px;
     }
-    .hero p {
-      font-size: 16px;
-      color: #64748b;
-      max-width: 500px;
+
+    .dl-hero__subtitle {
+      font-size: 17px;
+      color: var(--color-muted);
+      max-width: 520px;
       margin: 0 auto;
       line-height: 1.6;
     }
-    .download-card {
-      background: #fff;
-      border-radius: 16px;
-      border: 1px solid #e2e8f0;
-      padding: 32px;
+
+    /* ── DOWNLOAD CARD ── */
+    .dl-card {
+      background: var(--color-white);
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(11,46,80,0.08);
+      padding: 40px 40px 36px;
       text-align: center;
       margin-bottom: 32px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      box-shadow: var(--shadow-card);
     }
-    .download-card h3 {
-      font-size: 20px;
+
+    .dl-card__platform-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(94,176,187,0.10);
+      border: 1px solid rgba(94,176,187,0.25);
+      color: var(--color-teal-dark);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 6px;
+      margin-bottom: 16px;
+    }
+
+    .dl-card__title {
+      font-family: var(--font-heading);
+      font-size: 22px;
       font-weight: 700;
-      color: #1a1a1a;
-      margin-bottom: 8px;
+      color: var(--color-navy);
+      margin-bottom: 6px;
+      letter-spacing: -0.01em;
     }
-    .download-card .version {
+
+    .dl-card__version {
       font-size: 14px;
-      color: #64748b;
+      color: var(--color-muted);
       margin-bottom: 4px;
     }
-    .download-card .size {
+
+    .dl-card__size {
       font-size: 13px;
-      color: #94a3b8;
-      margin-bottom: 24px;
+      color: var(--color-stone);
+      margin-bottom: 28px;
     }
+
+    /* Download button */
     .download-btn {
       display: inline-flex;
       align-items: center;
       gap: 10px;
-      background: #00A651;
-      color: #fff;
-      font-size: 18px;
-      font-weight: 700;
-      padding: 16px 48px;
-      border-radius: 12px;
+      background: var(--color-navy);
+      color: var(--color-white);
+      font-family: var(--font-body);
+      font-size: 16px;
+      font-weight: 600;
+      padding: 15px 48px;
+      border-radius: var(--radius-md);
       text-decoration: none;
-      transition: background 0.2s, transform 0.1s;
       border: none;
       cursor: pointer;
+      transition: background var(--transition-base), transform var(--transition-base), box-shadow var(--transition-base);
+      box-shadow: 0 4px 16px rgba(11,46,80,0.22);
     }
+
     .download-btn:hover {
-      background: #008c44;
+      background: var(--color-teal-dark);
       transform: translateY(-1px);
+      box-shadow: 0 6px 24px rgba(11,46,80,0.30);
     }
-    .download-btn:active {
-      transform: translateY(0);
+
+    .download-btn:active { transform: translateY(0); }
+
+    .download-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
     }
-    .download-btn svg {
-      width: 22px;
-      height: 22px;
-    }
+
+    .download-btn svg { width: 20px; height: 20px; }
+
+    /* Download unavailable state */
     .download-unavailable {
-      background: #f1f5f9;
-      border-radius: 12px;
+      background: #F7F9F8;
+      border-radius: var(--radius-sm);
       padding: 24px;
       margin-top: 8px;
     }
+
     .download-unavailable p {
       font-size: 15px;
-      color: #64748b;
+      color: var(--color-muted);
       margin-bottom: 8px;
     }
+
     .download-unavailable .contact {
       font-size: 14px;
-      color: #0066CC;
+      color: var(--color-teal-dark);
       font-weight: 600;
     }
-    .features {
+
+    .download-unavailable .contact a {
+      color: var(--color-teal-dark);
+    }
+
+    /* Progress bar */
+    #dl-progress {
+      display: none;
+      margin-top: 20px;
+    }
+
+    .dl-progress__track {
+      background: rgba(11,46,80,0.08);
+      border-radius: 6px;
+      height: 6px;
+      overflow: hidden;
+    }
+
+    #dl-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--color-navy), var(--color-teal-dark));
+      border-radius: 6px;
+      transition: width 0.3s ease;
+    }
+
+    .dl-progress__labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--color-muted);
+    }
+
+    /* ── FEATURES GRID ── */
+    .dl-features {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
       gap: 16px;
-      margin-bottom: 40px;
+      margin-bottom: 32px;
     }
-    .feature {
-      background: #fff;
-      border-radius: 12px;
-      border: 1px solid #e2e8f0;
-      padding: 20px;
+
+    .dl-feature {
+      background: var(--color-white);
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(11,46,80,0.07);
+      padding: 24px;
+      box-shadow: var(--shadow-card);
     }
-    .feature-icon {
-      width: 40px;
-      height: 40px;
+
+    .dl-feature__icon {
+      width: 44px;
+      height: 44px;
       border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
     }
-    .feature-icon.blue { background: #e8f0fe; color: #0066CC; }
-    .feature-icon.green { background: #e6f7ed; color: #00A651; }
-    .feature-icon.orange { background: #fff3e0; color: #EA580C; }
-    .feature h4 {
+
+    .dl-feature__icon--navy    { background: rgba(11,46,80,0.08);   color: var(--color-navy); }
+    .dl-feature__icon--teal    { background: rgba(94,176,187,0.12); color: var(--color-teal-dark); }
+    .dl-feature__icon--accent  { background: rgba(31,101,131,0.10); color: var(--color-teal-dark); }
+
+    .dl-feature__title {
+      font-family: var(--font-heading);
       font-size: 15px;
+      font-weight: 600;
+      color: var(--color-navy);
+      margin-bottom: 6px;
+    }
+
+    .dl-feature__desc {
+      font-size: 14px;
+      color: var(--color-muted);
+      line-height: 1.55;
+    }
+
+    /* ── INSTRUCTIONS ── */
+    .dl-instructions {
+      background: var(--color-white);
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(11,46,80,0.07);
+      padding: 36px 40px;
+      margin-bottom: 90px;
+      box-shadow: var(--shadow-card);
+    }
+
+    .dl-instructions__title {
+      font-family: var(--font-heading);
+      font-size: 20px;
       font-weight: 700;
-      margin-bottom: 4px;
-      color: #1a1a1a;
+      color: var(--color-navy);
+      letter-spacing: -0.01em;
+      margin-bottom: 28px;
     }
-    .feature p {
-      font-size: 13px;
-      color: #64748b;
-      line-height: 1.5;
-    }
-    .instructions {
-      background: #fff;
-      border-radius: 16px;
-      border: 1px solid #e2e8f0;
-      padding: 32px;
-      margin-bottom: 32px;
-    }
-    .instructions h3 {
-      font-size: 18px;
-      font-weight: 700;
-      color: #0066CC;
-      margin-bottom: 20px;
-    }
-    .step {
+
+    .dl-step {
       display: flex;
-      gap: 14px;
-      margin-bottom: 16px;
+      gap: 16px;
+      margin-bottom: 20px;
       align-items: flex-start;
     }
-    .step:last-child { margin-bottom: 0; }
-    .step-num {
-      width: 28px;
-      height: 28px;
-      min-width: 28px;
+
+    .dl-step:last-child { margin-bottom: 0; }
+
+    .dl-step__num {
+      width: 30px;
+      height: 30px;
+      min-width: 30px;
       border-radius: 50%;
-      background: #0066CC;
-      color: #fff;
+      background: var(--color-navy);
+      color: var(--color-white);
       font-size: 13px;
       font-weight: 700;
       display: flex;
       align-items: center;
       justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
     }
-    .step p {
-      font-size: 14px;
-      color: #444;
+
+    .dl-step__text {
+      font-size: 15px;
+      color: var(--color-ink);
       line-height: 1.6;
       padding-top: 3px;
     }
+
+    .dl-step__text strong { color: var(--color-navy); font-weight: 600; }
+
+    /* ── FOOTER — same as conicorn pages ── */
     .footer {
-      text-align: center;
-      padding: 32px 24px;
-      border-top: 1px solid #e2e8f0;
-      background: #fff;
+      background: var(--color-navy);
+      padding: 72px 0 40px;
+      color: rgba(255,255,255,0.65);
     }
-    .footer-brand {
-      font-size: 14px;
-      font-weight: 700;
-      color: #0066CC;
-      margin-bottom: 4px;
+
+    .footer__grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 48px;
+      padding-bottom: 56px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
     }
-    .footer-text {
-      font-size: 12px;
-      color: #94a3b8;
-    }
-    .footer a {
-      color: #0066CC;
-      text-decoration: none;
-    }
-    .android-badge {
-      display: inline-flex;
+
+    .footer__brand-logo {
+      display: flex;
       align-items: center;
-      gap: 6px;
-      background: #e8f0fe;
-      color: #0066CC;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .footer__brand-name {
+      font-family: var(--font-heading);
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--color-white);
+    }
+
+    .footer__brand-name span { color: var(--color-teal-light); }
+
+    .footer__brand-desc {
+      font-size: 14px;
+      line-height: 1.65;
+      max-width: 280px;
+    }
+
+    .footer__col-title {
+      font-family: var(--font-heading);
       font-size: 13px;
       font-weight: 600;
-      padding: 6px 14px;
-      border-radius: 8px;
+      color: var(--color-white);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
       margin-bottom: 16px;
+    }
+
+    .footer__links {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .footer__link {
+      font-size: 14px;
+      color: rgba(255,255,255,0.55);
+      transition: color var(--transition-base);
+    }
+
+    .footer__link:hover { color: var(--color-white); }
+
+    .footer__bottom {
+      padding-top: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .footer__copy { font-size: 13px; }
+
+    .footer__legal { display: flex; gap: 24px; }
+
+    .footer__legal a {
+      font-size: 13px;
+      color: rgba(255,255,255,0.45);
+      transition: color var(--transition-base);
+    }
+
+    .footer__legal a:hover { color: var(--color-white); }
+
+    /* Logo SVG color context */
+    .footer { --logo-fg: var(--color-white); }
+
+    @media (max-width: 900px) {
+      .footer__grid { grid-template-columns: 1fr 1fr; gap: 40px; }
+    }
+
+    @media (max-width: 560px) {
+      .footer__grid { grid-template-columns: 1fr; }
+      .footer__bottom { flex-direction: column; align-items: flex-start; gap: 12px; }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 600px) {
+      .dl-hero { padding: 56px 0 40px; }
+      .dl-card { padding: 28px 24px; }
+      .dl-instructions { padding: 28px 24px; }
+      .dl-hero__title { font-size: 26px; }
+      .dl-instructions { margin-bottom: 60px; }
     }
   </style>
 </head>
 <body>
-  <div class="top-bar"></div>
-  <div class="top-bar-green"></div>
-  <div class="header">
-    <div class="header-inner">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="40" height="40"><defs><linearGradient id="cg1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#0066CC"/><stop offset="100%" style="stop-color:#0055AA"/></linearGradient><linearGradient id="rg1" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#00A651"/><stop offset="100%" style="stop-color:#00874A"/></linearGradient></defs><rect x="35" y="15" width="30" height="70" rx="4" fill="url(#cg1)"/><rect x="15" y="35" width="70" height="30" rx="4" fill="url(#cg1)"/><path d="M 20 75 Q 50 55 80 75" stroke="url(#rg1)" stroke-width="8" fill="none" stroke-linecap="round"/></svg>
-      <div>
-        <div class="header-title">SOCCORSO DIGITALE</div>
-        <div class="header-subtitle">Gestione Trasporti Sanitari</div>
-      </div>
-    </div>
-  </div>
-  <div class="container">
-    <div class="hero">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" class="hero-icon"><defs><linearGradient id="cg2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#0066CC"/><stop offset="100%" style="stop-color:#0055AA"/></linearGradient><linearGradient id="rg2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#00A651"/><stop offset="100%" style="stop-color:#00874A"/></linearGradient></defs><rect x="35" y="15" width="30" height="70" rx="4" fill="url(#cg2)"/><rect x="15" y="35" width="70" height="30" rx="4" fill="url(#cg2)"/><path d="M 20 75 Q 50 55 80 75" stroke="url(#rg2)" stroke-width="8" fill="none" stroke-linecap="round"/></svg>
-      <h1>Soccorso Digitale</h1>
-      <h2>App Equipaggio</h2>
-      <p>L'applicazione mobile per la gestione completa dei servizi di trasporto sanitario. Registra servizi, compila checklist e gestisci il tuo veicolo in modo semplice e veloce.</p>
-    </div>
 
-    <div class="download-card" id="download-card">
-      <div class="android-badge">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M17.523 2.2l1.735 1.732-2.307 2.308A7.94 7.94 0 0 1 20 12H4a7.94 7.94 0 0 1 3.049-5.76L4.742 3.932 6.477 2.2 8.95 4.672a7.9 7.9 0 0 1 6.1 0L17.523 2.2zM10 9.5a1 1 0 1 0-2 0 1 1 0 0 0 2 0zm6 0a1 1 0 1 0-2 0 1 1 0 0 0 2 0zM4 14h16v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-6z"/></svg>
-        Android
-      </div>
-      <h3>Scarica l'App</h3>
-      <div class="version" id="app-version"></div>
-      <div class="size" id="app-size"></div>
-      <div id="download-area">
-        <p style="color:#94a3b8; font-size:14px;">Caricamento...</p>
-      </div>
-    </div>
+  <!-- ── NAVBAR ── -->
+  <header class="navbar" id="navbar" role="banner">
+    <div class="container">
+      <div class="navbar__inner">
+        <a href="/" class="navbar__logo" aria-label="Soccorso Digitale — Homepage">
+          <svg class="navbar__logo-icon" viewBox="0 0 64 64" width="36" height="36" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect x="26" y="8" width="12" height="48" rx="3" fill="var(--logo-fg, #1D1D1F)"/>
+            <rect x="8" y="26" width="48" height="12" rx="3" fill="var(--logo-fg, #1D1D1F)"/>
+            <path d="M 10 50 Q 32 32 54 50" stroke="#32D74B" stroke-width="4" fill="none" stroke-linecap="round"/>
+          </svg>
+          <span class="navbar__logo-text">Soccorso <span>Digitale</span></span>
+        </a>
 
-    <div class="features">
-      <div class="feature">
-        <div class="feature-icon blue">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        <nav class="navbar__nav" aria-label="Navigazione principale">
+          <a href="/#features">Funzionalità</a>
+          <a href="/#how">Come funziona</a>
+          <a href="/#pricing">Prezzi</a>
+          <a href="/#contact">Contatti</a>
+        </nav>
+
+        <div class="navbar__actions">
+          <a href="/admin" class="navbar__cta">Accedi</a>
+          <a href="/demo" class="btn btn--primary">Prova Gratis</a>
         </div>
-        <h4>Registrazione Servizi</h4>
-        <p>Registra ogni trasporto con calcolo automatico dei chilometri e numerazione progressiva.</p>
-      </div>
-      <div class="feature">
-        <div class="feature-icon green">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-        </div>
-        <h4>Checklist Pre-Partenza</h4>
-        <p>Verifica le dotazioni del veicolo con checklist digitali e monitoraggio scadenze.</p>
-      </div>
-      <div class="feature">
-        <div class="feature-icon orange">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        </div>
-        <h4>Funziona Offline</h4>
-        <p>L'app funziona anche senza connessione. I dati si sincronizzano automaticamente.</p>
+
+        <button class="navbar__mobile-toggle" aria-label="Apri menu" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
       </div>
     </div>
+  </header>
 
-    <div class="instructions">
-      <h3>Come Installare</h3>
-      <div class="step">
-        <div class="step-num">1</div>
-        <p>Tocca il pulsante <strong>"Scarica APK"</strong> qui sopra per scaricare il file di installazione sul tuo telefono Android.</p>
+  <main id="main-content">
+    <div class="page-wrapper">
+
+      <!-- ── HERO ── -->
+      <section class="dl-hero">
+        <div class="container--narrow">
+
+          <div class="dl-hero__badge" aria-label="Piattaforma Android">
+            App Android
+          </div>
+
+          <div class="dl-hero__icon" aria-hidden="true">
+            <svg viewBox="0 0 64 64" width="48" height="48" xmlns="http://www.w3.org/2000/svg">
+              <rect x="26" y="8" width="12" height="48" rx="3" fill="white"/>
+              <rect x="8" y="26" width="48" height="12" rx="3" fill="white"/>
+              <path d="M 10 50 Q 32 32 54 50" stroke="#32D74B" stroke-width="4" fill="none" stroke-linecap="round"/>
+            </svg>
+          </div>
+
+          <h1 class="dl-hero__title">App Equipaggi</h1>
+          <p class="dl-hero__subtitle">
+            L'app mobile per coordinatori e autisti. Registra servizi, compila checklist veicolo e monitora l'inventario — funziona anche offline.
+          </p>
+
+        </div>
+      </section>
+
+      <!-- ── DOWNLOAD CARD ── -->
+      <section aria-labelledby="download-title">
+        <div class="container--narrow">
+
+          <div class="dl-card" id="download-card">
+            <div class="dl-card__platform-badge">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true">
+                <path d="M17.523 2.2l1.735 1.732-2.307 2.308A7.94 7.94 0 0 1 20 12H4a7.94 7.94 0 0 1 3.049-5.76L4.742 3.932 6.477 2.2 8.95 4.672a7.9 7.9 0 0 1 6.1 0L17.523 2.2zM10 9.5a1 1 0 1 0-2 0 1 1 0 0 0 2 0zm6 0a1 1 0 1 0-2 0 1 1 0 0 0 2 0zM4 14h16v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-6z"/>
+              </svg>
+              Android APK
+            </div>
+            <h2 class="dl-card__title" id="download-title">Scarica l'App</h2>
+            <p class="dl-card__version" id="app-version"></p>
+            <p class="dl-card__size" id="app-size"></p>
+            <div id="download-area">
+              <p style="color:var(--color-stone);font-size:14px;">Caricamento...</p>
+            </div>
+
+            <!-- Progress bar (shown during download) -->
+            <div id="dl-progress">
+              <div class="dl-progress__track">
+                <div id="dl-bar"></div>
+              </div>
+              <div class="dl-progress__labels">
+                <span id="dl-text">Preparazione...</span>
+                <span id="dl-pct">0%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── FEATURES ── -->
+          <div class="dl-features" role="list">
+
+            <div class="dl-feature" role="listitem">
+              <div class="dl-feature__icon dl-feature__icon--navy" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                  <line x1="16" y1="13" x2="8" y2="13"/>
+                  <line x1="16" y1="17" x2="8" y2="17"/>
+                </svg>
+              </div>
+              <p class="dl-feature__title">Registrazione Servizi</p>
+              <p class="dl-feature__desc">Registra ogni trasporto con calcolo automatico dei chilometri e numerazione progressiva.</p>
+            </div>
+
+            <div class="dl-feature" role="listitem">
+              <div class="dl-feature__icon dl-feature__icon--teal" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                  <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+              </div>
+              <p class="dl-feature__title">Checklist Pre-Partenza</p>
+              <p class="dl-feature__desc">Verifica le dotazioni del veicolo con checklist digitali e monitoraggio scadenze.</p>
+            </div>
+
+            <div class="dl-feature" role="listitem">
+              <div class="dl-feature__icon dl-feature__icon--accent" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 6v16l7-4 8 4 7-4V2l-7 4-8-4-7 4z"/>
+                  <path d="M8 2v16"/><path d="M16 6v16"/>
+                </svg>
+              </div>
+              <p class="dl-feature__title">Funziona Offline</p>
+              <p class="dl-feature__desc">L'app funziona anche senza connessione. I dati si sincronizzano automaticamente.</p>
+            </div>
+
+          </div>
+
+          <!-- ── INSTRUCTIONS ── -->
+          <div class="dl-instructions">
+            <h3 class="dl-instructions__title">Come installare</h3>
+
+            <div class="dl-step">
+              <div class="dl-step__num" aria-hidden="true">1</div>
+              <p class="dl-step__text">Tocca il pulsante <strong>Scarica APK</strong> qui sopra per scaricare il file di installazione sul tuo telefono Android.</p>
+            </div>
+            <div class="dl-step">
+              <div class="dl-step__num" aria-hidden="true">2</div>
+              <p class="dl-step__text">Quando richiesto, consenti l'installazione da <strong>fonti sconosciute</strong> nelle impostazioni del telefono. È necessario solo la prima volta.</p>
+            </div>
+            <div class="dl-step">
+              <div class="dl-step__num" aria-hidden="true">3</div>
+              <p class="dl-step__text">Apri il file scaricato e tocca <strong>Installa</strong>. L'app comparirà nella schermata principale del telefono.</p>
+            </div>
+            <div class="dl-step">
+              <div class="dl-step__num" aria-hidden="true">4</div>
+              <p class="dl-step__text">Avvia l'app e inserisci le <strong>credenziali</strong> fornite dal coordinatore della tua organizzazione per iniziare.</p>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ── FOOTER ── -->
+  <footer class="footer" role="contentinfo">
+    <div class="container">
+      <div class="footer__grid">
+        <!-- Brand -->
+        <div>
+          <div class="footer__brand-logo">
+            <svg width="28" height="28" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <rect x="26" y="8" width="12" height="48" rx="3" fill="var(--logo-fg, white)"/>
+              <rect x="8" y="26" width="48" height="12" rx="3" fill="var(--logo-fg, white)"/>
+              <path d="M 10 50 Q 32 32 54 50" stroke="#32D74B" stroke-width="4" fill="none" stroke-linecap="round"/>
+            </svg>
+            <span class="footer__brand-name">Soccorso <span>Digitale</span></span>
+          </div>
+          <p class="footer__brand-desc">
+            Software gestionale in cloud per cooperative di trasporto sanitario e organizzazioni di volontariato italiane.
+          </p>
+          <p class="footer__brand-desc" style="margin-top:12px;font-size:12px;opacity:0.5;">
+            Progettato e sviluppato in Italia.
+          </p>
+        </div>
+
+        <!-- Prodotto -->
+        <div>
+          <p class="footer__col-title">Prodotto</p>
+          <ul class="footer__links">
+            <li><a href="/#features" class="footer__link">Funzionalità</a></li>
+            <li><a href="/#how" class="footer__link">Come funziona</a></li>
+            <li><a href="/#pricing" class="footer__link">Prezzi</a></li>
+            <li><a href="/demo" class="footer__link">Trial Gratuito</a></li>
+          </ul>
+        </div>
+
+        <!-- Azienda -->
+        <div>
+          <p class="footer__col-title">Azienda</p>
+          <ul class="footer__links">
+            <li><a href="/#contact" class="footer__link">Contatti</a></li>
+            <li><a href="/admin" class="footer__link">Accesso Dashboard</a></li>
+            <li><a href="/download/SD2026APP" class="footer__link">App Mobile</a></li>
+          </ul>
+        </div>
+
+        <!-- Legale -->
+        <div>
+          <p class="footer__col-title">Legale</p>
+          <ul class="footer__links">
+            <li><a href="/privacy-policy.html" class="footer__link">Privacy Policy</a></li>
+            <li><a href="/terms.html" class="footer__link">Termini di Servizio</a></li>
+            <li><a href="/cookie-policy.html" class="footer__link">Cookie Policy</a></li>
+            <li><a href="/dpa.html" class="footer__link">DPA (GDPR)</a></li>
+          </ul>
+        </div>
       </div>
-      <div class="step">
-        <div class="step-num">2</div>
-        <p>Quando richiesto, consenti l'installazione da <strong>fonti sconosciute</strong> nelle impostazioni del telefono. Questo e necessario solo la prima volta.</p>
-      </div>
-      <div class="step">
-        <div class="step-num">3</div>
-        <p>Apri il file scaricato e tocca <strong>"Installa"</strong>. L'app comparira nella schermata principale del telefono.</p>
-      </div>
-      <div class="step">
-        <div class="step-num">4</div>
-        <p>Avvia l'app e inserisci le <strong>credenziali</strong> fornite dal coordinatore della tua organizzazione per iniziare.</p>
+
+      <div class="footer__bottom">
+        <p class="footer__copy">
+          &copy; 2026 Soccorso Digitale. Tutti i diritti riservati.
+        </p>
+        <nav class="footer__legal" aria-label="Link legali">
+          <a href="/privacy-policy.html">Privacy</a>
+          <a href="/terms.html">Termini</a>
+          <a href="/cookie-policy.html">Cookie</a>
+        </nav>
       </div>
     </div>
-  </div>
-
-  <div class="footer">
-    <div class="footer-brand">SOCCORSO DIGITALE</div>
-    <div class="footer-text">Gestione Trasporti Sanitari</div>
-    <div class="footer-text" style="margin-top:8px;"><a href="mailto:info@soccorsodigitale.app">info@soccorsodigitale.app</a></div>
-  </div>
+  </footer>
 
   <script>
+    /* ── NAVBAR scroll handler (not needed on this light-bg page, but kept for consistency) ── */
+    (function () {
+      var navbar = document.getElementById('navbar');
+      var ticking = false;
+      function onScroll() {
+        if (!ticking) {
+          requestAnimationFrame(function () {
+            navbar.classList.toggle('scrolled', window.scrollY > 24);
+            ticking = false;
+          });
+          ticking = true;
+        }
+      }
+      window.addEventListener('scroll', onScroll, { passive: true });
+    }());
+
+    /* ── APK download logic (unchanged from original) ── */
     var apkVersion = '';
     var apkSize = 0;
 
@@ -362,25 +888,25 @@
             const d = new Date(data.uploadDate);
             sizeEl.textContent += ' — Aggiornata il ' + d.toLocaleDateString('it-IT');
           }
-          area.innerHTML = '<button onclick="downloadApkChunked()" class="download-btn" id="download-btn">' +
+          area.innerHTML =
+            '<button onclick="downloadApkChunked()" class="download-btn" id="download-btn">' +
             '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>' +
-            'Scarica APK</button>' +
-            '<div id="dl-progress" style="display:none;margin-top:16px;">' +
-            '<div style="background:#e2e8f0;border-radius:8px;height:8px;overflow:hidden;">' +
-            '<div id="dl-bar" style="height:100%;width:0%;background:linear-gradient(90deg,#0066CC,#0055AA);border-radius:8px;transition:width 0.3s;"></div></div>' +
-            '<div style="display:flex;justify-content:space-between;margin-top:6px;font-size:12px;color:#64748b;">' +
-            '<span id="dl-text">Preparazione...</span><span id="dl-pct">0%</span></div></div>';
+            'Scarica APK' +
+            '</button>';
         } else {
           versionEl.textContent = '';
           sizeEl.textContent = '';
-          area.innerHTML = '<div class="download-unavailable">' +
-            '<p>L\'app e in fase di preparazione e sara disponibile a breve.</p>' +
-            '<p class="contact">Per informazioni: <a href="mailto:info@soccorsodigitale.app">info@soccorsodigitale.app</a></p>' +
+          area.innerHTML =
+            '<div class="download-unavailable">' +
+            '<p>L\'app è in fase di preparazione e sarà disponibile a breve.</p>' +
+            '<p class="contact">Per informazioni: <a href="mailto:hello@soccorsodigitale.app">hello@soccorsodigitale.app</a></p>' +
             '</div>';
         }
       } catch (e) {
-        document.getElementById('download-area').innerHTML = '<div class="download-unavailable">' +
-          '<p>Impossibile verificare la disponibilita dell\'app. Riprova piu tardi.</p></div>';
+        document.getElementById('download-area').innerHTML =
+          '<div class="download-unavailable">' +
+          '<p>Impossibile verificare la disponibilità dell\'app. Riprova più tardi.</p>' +
+          '</div>';
       }
     }
 
@@ -407,10 +933,10 @@
         chunks.push(firstBlob);
 
         var downloaded = firstBlob.size;
-        var totalMb = (totalSize / (1024*1024)).toFixed(1);
-        bar.style.width = Math.round((1/totalChunks)*100) + '%';
-        pct.textContent = Math.round((1/totalChunks)*100) + '%';
-        text.textContent = (downloaded/(1024*1024)).toFixed(1) + ' MB / ' + totalMb + ' MB';
+        var totalMb = (totalSize / (1024 * 1024)).toFixed(1);
+        bar.style.width = Math.round((1 / totalChunks) * 100) + '%';
+        pct.textContent = Math.round((1 / totalChunks) * 100) + '%';
+        text.textContent = (downloaded / (1024 * 1024)).toFixed(1) + ' MB / ' + totalMb + ' MB';
 
         for (var i = 1; i < totalChunks; i++) {
           var chunkRes = await fetch('/api/public/download-apk?chunk=' + i);
@@ -418,14 +944,14 @@
           var chunkBlob = await chunkRes.blob();
           chunks.push(chunkBlob);
           downloaded += chunkBlob.size;
-          var p = Math.round(((i+1)/totalChunks)*100);
+          var p = Math.round(((i + 1) / totalChunks) * 100);
           bar.style.width = p + '%';
           pct.textContent = p + '%';
-          text.textContent = (downloaded/(1024*1024)).toFixed(1) + ' MB / ' + totalMb + ' MB';
+          text.textContent = (downloaded / (1024 * 1024)).toFixed(1) + ' MB / ' + totalMb + ' MB';
         }
 
         text.textContent = 'Download completato! Avvio installazione...';
-        bar.style.background = 'linear-gradient(90deg, #00A651, #059669)';
+        bar.style.background = 'linear-gradient(90deg, #5EB0BB, #1F6583)';
 
         var fullBlob = new Blob(chunks, { type: 'application/vnd.android.package-archive' });
         var url = URL.createObjectURL(fullBlob);
@@ -435,13 +961,16 @@
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
-        setTimeout(function() { URL.revokeObjectURL(url); }, 5000);
+        setTimeout(function () { URL.revokeObjectURL(url); }, 5000);
 
         btn.disabled = false;
         btn.style.opacity = '1';
         btn.style.cursor = 'pointer';
-        setTimeout(function() { prog.style.display = 'none'; bar.style.background = ''; }, 4000);
-      } catch(e) {
+        setTimeout(function () {
+          prog.style.display = 'none';
+          bar.style.background = '';
+        }, 4000);
+      } catch (e) {
         console.error('Download error:', e);
         text.textContent = 'Errore durante il download. Riprova.';
         bar.style.background = '#dc2626';
@@ -453,5 +982,6 @@
 
     loadApkInfo();
   </script>
+
 </body>
 </html>
