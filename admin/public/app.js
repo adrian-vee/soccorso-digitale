@@ -4555,9 +4555,9 @@ function openNewLeadModal() {
 
 async function loadPlansBilling() {
   const plans = [
-    { id: 'base', name: 'Base', price: 99, color: '#697386', features: ['GPS Tracking', 'Checklist', 'Flotta', 'Turni Base'] },
+    { id: 'base', name: 'Base', price: 79, color: '#697386', features: ['GPS Tracking', 'Checklist', 'Flotta', 'Turni Base'] },
     { id: 'pro', name: 'Pro', price: 149, color: '#0066CC', features: ['+ Hub Prenotazioni', 'Pianificazione Turni', 'Analytics', 'Priority Support'] },
-    { id: 'enterprise', name: 'Enterprise', price: 199, color: '#6c5ce7', features: ['+ Intelligence AI', 'Gare d\'Appalto', 'Custom RBAC', 'Dedicated Support'] },
+    { id: 'enterprise', name: 'Enterprise', price: 299, color: '#6c5ce7', features: ['+ Intelligence AI', 'Gare d\'Appalto', 'Custom RBAC', 'Dedicated Support'] },
   ];
 
   const grid = document.getElementById('pb-plans-grid');
@@ -33269,10 +33269,10 @@ function _renderOrgsPage(orgs) {
   const totalOrgs  = orgs.length;
   const activeOrgs = orgs.filter(o => o.status === 'active').length;
   const trialOrgs  = orgs.filter(o => o.status === 'trial').length;
-  const planPrices = { base: 49, pro: 149, enterprise: 399 };
+  const planPrices = { base: 79, pro: 149, enterprise: 299 };
   const mrr = orgs.filter(o => o.status === 'active').reduce((sum, o) => {
     const pl = (o.plan || 'base').toLowerCase();
-    return sum + (planPrices[pl] || 49);
+    return sum + (planPrices[pl] || 79);
   }, 0);
   const suspended  = orgs.filter(o => o.status === 'suspended').length;
   const churnRate  = totalOrgs > 0 ? ((suspended / totalOrgs) * 100).toFixed(1) : '0.0';
@@ -33355,9 +33355,9 @@ function _renderOrgsPage(orgs) {
 }
 
 function _orgTableRow(org) {
-  const planPrices = { base: 49, pro: 149, enterprise: 399 };
+  const planPrices = { base: 79, pro: 149, enterprise: 299 };
   const plan = (org.plan || 'base').toLowerCase();
-  const mrr = org.status === 'active' ? (planPrices[plan] || 49) : 0;
+  const mrr = org.status === 'active' ? (planPrices[plan] || 79) : 0;
   const trialEnd = org.trialEndsAt ? new Date(org.trialEndsAt).toLocaleDateString('it-IT') : '—';
   const created  = org.createdAt ? new Date(org.createdAt).toLocaleDateString('it-IT') : '—';
   const logoHtml = org.logoUrl
@@ -33431,15 +33431,11 @@ async function showOrgDetail(orgId) {
     const org  = data.organization;
     const s    = data.stats || {};
 
-    const planPrices = { base: 49, pro: 149, enterprise: 399 };
+    const planPrices = { base: 79, pro: 149, enterprise: 299 };
     const plan = (org.plan || 'base').toLowerCase();
     const mrr  = org.status === 'active' ? (planPrices[plan] || 49) : 0;
 
-    const mockHistory = [
-      { date: '01/03/2025', desc: 'Abbonamento ' + plan.charAt(0).toUpperCase()+plan.slice(1), amount: mrr, status: 'Pagato' },
-      { date: '01/02/2025', desc: 'Abbonamento ' + plan.charAt(0).toUpperCase()+plan.slice(1), amount: mrr, status: 'Pagato' },
-      { date: '01/01/2025', desc: 'Abbonamento ' + plan.charAt(0).toUpperCase()+plan.slice(1), amount: mrr, status: 'Pagato' },
-    ];
+    // storico pagamenti caricato dinamicamente via API
 
     const logoHtml = org.logoUrl
       ? `<img src="${org.logoUrl}?t=${Date.now()}" style="width:48px;height:48px;border-radius:10px;object-fit:contain;border:1px solid #E2E8F0" onerror="this.style.display='none'">`
@@ -33529,26 +33525,21 @@ async function showOrgDetail(orgId) {
               </div>
               <div style="flex:1;min-width:200px;background:#F8FAFC;border-radius:10px;padding:16px">
                 <div style="font-size:11px;color:#64748B;text-transform:uppercase;font-weight:600">Prossimo Rinnovo</div>
-                <div style="font-size:20px;font-weight:700;color:#1E3A8A;margin-top:4px">01/04/2025</div>
+                <div style="font-size:20px;font-weight:700;color:#1E3A8A;margin-top:4px">${org.nextRenewalAt ? new Date(org.nextRenewalAt).toLocaleDateString('it-IT') : '—'}</div>
                 <div style="font-size:13px;color:#64748B">Rinnovo automatico</div>
               </div>
             </div>
             <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap">
-              <button class="btn btn-primary" onclick="showNotification('Funzionalità in arrivo','info')">Upgrade Piano</button>
-              <button class="btn btn-outline" onclick="showNotification('Funzionalità in arrivo','info')">Downgrade</button>
-              <button class="btn btn-outline" onclick="showNotification('Funzionalità in arrivo','info')">Emetti Fattura Manuale</button>
+              <button class="btn btn-primary" onclick="openUpgradeModal('${org.id}','${plan}')" ${plan === 'enterprise' ? 'disabled title="Piano massimo raggiunto"' : ''}>Upgrade Piano</button>
+              <button class="btn btn-outline" onclick="openDowngradeModal('${org.id}','${plan}')" ${plan === 'base' ? 'disabled title="Piano minimo raggiunto"' : ''}>Downgrade</button>
+              <button class="btn btn-outline" onclick="openManualInvoiceModal('${org.id}','${plan}',${mrr})">Emetti Fattura Manuale</button>
             </div>
             <div style="font-size:13px;font-weight:600;color:#1E293B;margin-bottom:8px">Storico Pagamenti</div>
             <div class="org-table-wrap">
               <table class="org-billing-table">
-                <thead><tr><th>Data</th><th>Descrizione</th><th>Importo</th><th>Stato</th></tr></thead>
-                <tbody>
-                  ${mockHistory.map(h => `<tr>
-                    <td>${h.date}</td>
-                    <td>${h.desc}</td>
-                    <td style="font-weight:600">€${h.amount}</td>
-                    <td><span style="background:#DCFCE7;color:#16A34A;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600">${h.status}</span></td>
-                  </tr>`).join('')}
+                <thead><tr><th>Data</th><th>Descrizione</th><th>Importo</th><th>Metodo</th><th>Stato</th></tr></thead>
+                <tbody id="invoices-tbody-${org.id}">
+                  <tr><td colspan="5" style="text-align:center;padding:16px;color:#64748B">Caricamento...</td></tr>
                 </tbody>
               </table>
             </div>
@@ -33655,6 +33646,40 @@ function _switchOrgTab(btn, paneId) {
   btn.classList.add('active');
   const pane = document.getElementById(paneId);
   if (pane) pane.classList.add('active');
+  // Auto-load invoices when billing tab is opened
+  if (paneId.startsWith('bi-')) {
+    const orgId = paneId.replace('bi-', '');
+    _loadOrgInvoices(orgId);
+  }
+}
+
+async function _loadOrgInvoices(orgId) {
+  const tbody = document.getElementById(`invoices-tbody-${orgId}`);
+  if (!tbody) return;
+  try {
+    const res = await adminFetch(`/api/admin/organizations/${orgId}/invoices`);
+    if (!res.ok) throw new Error('Errore API');
+    const data = await res.json();
+    const invoices = data.invoices || [];
+    if (invoices.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:16px;color:#64748B">Nessun pagamento registrato</td></tr>';
+      return;
+    }
+    const statusBadge = s => {
+      const map = { paid: ['#DCFCE7','#16A34A','Pagato'], pending: ['#FEF3C7','#B45309','In attesa'], cancelled: ['#FEE2E2','#DC2626','Annullato'] };
+      const [bg,c,label] = map[s] || map.pending;
+      return `<span style="background:${bg};color:${c};padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600">${label}</span>`;
+    };
+    tbody.innerHTML = invoices.map(inv => `<tr>
+      <td>${inv.invoice_date ? new Date(inv.invoice_date).toLocaleDateString('it-IT') : '—'}</td>
+      <td>${inv.description}</td>
+      <td style="font-weight:600">€${parseFloat(inv.amount).toFixed(2)}</td>
+      <td style="font-size:12px;color:#64748B">${inv.payment_method === 'manual' ? 'Manuale' : 'Stripe'}</td>
+      <td>${statusBadge(inv.status)}</td>
+    </tr>`).join('');
+  } catch {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:16px;color:#DC2626">Errore nel caricamento</td></tr>';
+  }
 }
 
 function _renderOrgModuleGrid(org) {
@@ -43095,5 +43120,185 @@ async function startApolloEnrichment() {
   } catch (err) {
     alert('Errore avvio Apollo enrichment: ' + err.message);
   }
+}
+
+// ── BILLING MODALS ────────────────────────────────────────────────────────────
+
+const _PLAN_ORDER = ['base', 'pro', 'enterprise'];
+const _PLAN_PRICES = { base: 79, pro: 149, enterprise: 299 };
+const _PLAN_LABELS = { base: 'Base', pro: 'Pro', enterprise: 'Enterprise' };
+const _PLAN_VEHICLES = { base: 'fino a 10 mezzi', pro: 'fino a 30 mezzi', enterprise: 'mezzi illimitati' };
+const _PLAN_COLORS = { base: '#697386', pro: '#0066CC', enterprise: '#6c5ce7' };
+
+function _closeBillingModal() {
+  const m = document.getElementById('billing-modal-overlay');
+  if (m) m.remove();
+}
+
+function _billingModalShell(title, body) {
+  _closeBillingModal();
+  const overlay = document.createElement('div');
+  overlay.id = 'billing-modal-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px';
+  overlay.innerHTML = `
+    <div style="background:#fff;border-radius:14px;max-width:540px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.2);overflow:hidden">
+      <div style="background:#1E3A8A;padding:18px 24px;display:flex;justify-content:space-between;align-items:center">
+        <h3 style="color:#fff;font-size:16px;font-weight:700;margin:0">${title}</h3>
+        <button onclick="_closeBillingModal()" style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer;line-height:1">×</button>
+      </div>
+      <div style="padding:24px">${body}</div>
+    </div>`;
+  overlay.addEventListener('click', e => { if (e.target === overlay) _closeBillingModal(); });
+  document.body.appendChild(overlay);
+}
+
+function openUpgradeModal(orgId, currentPlan) {
+  const currentIdx = _PLAN_ORDER.indexOf(currentPlan);
+  if (currentIdx >= _PLAN_ORDER.length - 1) {
+    showNotification('Piano massimo raggiunto', 'info'); return;
+  }
+  const available = _PLAN_ORDER.slice(currentIdx + 1);
+  const cards = available.map(p => `
+    <div style="flex:1;min-width:160px;border:2px solid #E2E8F0;border-radius:10px;padding:16px;text-align:center;cursor:pointer;transition:all 0.15s"
+         onmouseover="this.style.borderColor='${_PLAN_COLORS[p]}'"
+         onmouseout="this.style.borderColor='#E2E8F0'">
+      <div style="font-weight:700;font-size:15px;color:${_PLAN_COLORS[p]}">${_PLAN_LABELS[p]}</div>
+      <div style="font-size:22px;font-weight:800;color:#1E3A8A;margin:8px 0">€${_PLAN_PRICES[p]}<span style="font-size:13px;font-weight:400;color:#64748B">/mese</span></div>
+      <div style="font-size:12px;color:#64748B;margin-bottom:12px">${_PLAN_VEHICLES[p]}</div>
+      <button onclick="_confirmUpgrade('${orgId}','${p}')" style="background:${_PLAN_COLORS[p]};color:#fff;border:none;padding:8px 20px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;width:100%">Seleziona</button>
+    </div>`).join('');
+
+  _billingModalShell(`Upgrade Piano — ${currentPlan.toUpperCase()}`, `
+    <div style="font-size:13px;color:#64748B;margin-bottom:16px">
+      Piano attuale: <strong style="color:#1E3A8A">${_PLAN_LABELS[currentPlan]} (€${_PLAN_PRICES[currentPlan]}/mese)</strong>
+    </div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap">${cards}</div>
+    <div style="margin-top:20px;display:flex;justify-content:flex-end">
+      <button onclick="_closeBillingModal()" class="btn btn-outline">Annulla</button>
+    </div>`);
+}
+
+async function _confirmUpgrade(orgId, planId) {
+  try {
+    const res = await adminFetch(`/api/admin/organizations/${orgId}/upgrade`, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ planId })
+    });
+    const data = await res.json();
+    if (!res.ok) { showNotification(data.error || 'Errore upgrade', 'error'); return; }
+    _closeBillingModal();
+    showNotification(`Piano aggiornato a ${data.plan.name} (€${data.plan.price}/mese)`, 'success');
+    // Reload detail
+    setTimeout(() => showOrgDetail(orgId), 600);
+  } catch { showNotification('Errore di rete', 'error'); }
+}
+
+function openDowngradeModal(orgId, currentPlan) {
+  const currentIdx = _PLAN_ORDER.indexOf(currentPlan);
+  if (currentIdx <= 0) {
+    showNotification('Piano minimo raggiunto', 'info'); return;
+  }
+  const available = _PLAN_ORDER.slice(0, currentIdx);
+  const cards = available.map(p => `
+    <div style="flex:1;min-width:160px;border:2px solid #E2E8F0;border-radius:10px;padding:16px;text-align:center;cursor:pointer;transition:all 0.15s"
+         onmouseover="this.style.borderColor='${_PLAN_COLORS[p]}'"
+         onmouseout="this.style.borderColor='#E2E8F0'">
+      <div style="font-weight:700;font-size:15px;color:${_PLAN_COLORS[p]}">${_PLAN_LABELS[p]}</div>
+      <div style="font-size:22px;font-weight:800;color:#1E3A8A;margin:8px 0">€${_PLAN_PRICES[p]}<span style="font-size:13px;font-weight:400;color:#64748B">/mese</span></div>
+      <div style="font-size:12px;color:#64748B;margin-bottom:12px">${_PLAN_VEHICLES[p]}</div>
+      <button onclick="_confirmDowngrade('${orgId}','${p}')" style="background:#64748B;color:#fff;border:none;padding:8px 20px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;width:100%">Seleziona</button>
+    </div>`).join('');
+
+  _billingModalShell(`Downgrade Piano — ${currentPlan.toUpperCase()}`, `
+    <div style="background:#FEF3C7;border:1px solid #FDE68A;border-radius:8px;padding:12px;font-size:12px;color:#92400E;margin-bottom:16px">
+      ⚠ Il downgrade sarà effettivo dal prossimo ciclo di fatturazione. Le funzionalità del piano superiore saranno disattivate.
+    </div>
+    <div style="font-size:13px;color:#64748B;margin-bottom:16px">
+      Piano attuale: <strong style="color:#1E3A8A">${_PLAN_LABELS[currentPlan]} (€${_PLAN_PRICES[currentPlan]}/mese)</strong>
+    </div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap">${cards}</div>
+    <div style="margin-top:20px;display:flex;justify-content:flex-end">
+      <button onclick="_closeBillingModal()" class="btn btn-outline">Annulla</button>
+    </div>`);
+}
+
+async function _confirmDowngrade(orgId, planId) {
+  try {
+    const res = await adminFetch(`/api/admin/organizations/${orgId}/downgrade`, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ planId })
+    });
+    const data = await res.json();
+    if (!res.ok) { showNotification(data.error || 'Errore downgrade', 'error'); return; }
+    _closeBillingModal();
+    const eff = data.effectiveDate ? new Date(data.effectiveDate).toLocaleDateString('it-IT') : '—';
+    showNotification(`Downgrade a ${data.plan.name} effettivo dal ${eff}`, 'success');
+    setTimeout(() => showOrgDetail(orgId), 600);
+  } catch { showNotification('Errore di rete', 'error'); }
+}
+
+function openManualInvoiceModal(orgId, plan, mrr) {
+  const today = new Date().toISOString().split('T')[0];
+  const planLabel = _PLAN_LABELS[plan] || plan;
+  const month = new Date().toLocaleString('it-IT', { month: 'long', year: 'numeric' });
+
+  _billingModalShell('Emetti Fattura Manuale', `
+    <div style="display:grid;gap:14px">
+      <div>
+        <label style="font-size:12px;font-weight:600;color:#64748B;display:block;margin-bottom:4px">Descrizione</label>
+        <input id="inv-desc" type="text" value="Abbonamento ${planLabel} - ${month.charAt(0).toUpperCase()+month.slice(1)}"
+          style="width:100%;border:1px solid #E2E8F0;border-radius:8px;padding:9px 12px;font-size:13px;box-sizing:border-box">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div>
+          <label style="font-size:12px;font-weight:600;color:#64748B;display:block;margin-bottom:4px">Importo (€)</label>
+          <input id="inv-amount" type="number" step="0.01" value="${mrr || _PLAN_PRICES[plan] || 79}"
+            style="width:100%;border:1px solid #E2E8F0;border-radius:8px;padding:9px 12px;font-size:13px;box-sizing:border-box">
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:600;color:#64748B;display:block;margin-bottom:4px">Data</label>
+          <input id="inv-date" type="date" value="${today}"
+            style="width:100%;border:1px solid #E2E8F0;border-radius:8px;padding:9px 12px;font-size:13px;box-sizing:border-box">
+        </div>
+      </div>
+      <div>
+        <label style="font-size:12px;font-weight:600;color:#64748B;display:block;margin-bottom:4px">Stato</label>
+        <select id="inv-status" style="width:100%;border:1px solid #E2E8F0;border-radius:8px;padding:9px 12px;font-size:13px;box-sizing:border-box">
+          <option value="paid">Pagato</option>
+          <option value="pending">In attesa</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:12px;font-weight:600;color:#64748B;display:block;margin-bottom:4px">Note (opzionale)</label>
+        <textarea id="inv-notes" rows="2" style="width:100%;border:1px solid #E2E8F0;border-radius:8px;padding:9px 12px;font-size:13px;box-sizing:border-box;resize:vertical"></textarea>
+      </div>
+    </div>
+    <div style="margin-top:20px;display:flex;justify-content:flex-end;gap:8px">
+      <button onclick="_closeBillingModal()" class="btn btn-outline">Annulla</button>
+      <button onclick="_submitManualInvoice('${orgId}')" class="btn btn-primary">Emetti Fattura</button>
+    </div>`);
+}
+
+async function _submitManualInvoice(orgId) {
+  const description = document.getElementById('inv-desc')?.value?.trim();
+  const amount      = document.getElementById('inv-amount')?.value;
+  const invoiceDate = document.getElementById('inv-date')?.value;
+  const status      = document.getElementById('inv-status')?.value;
+  const notes       = document.getElementById('inv-notes')?.value?.trim();
+
+  if (!description || !amount) {
+    showNotification('Descrizione e importo sono obbligatori', 'error'); return;
+  }
+  try {
+    const res = await adminFetch(`/api/admin/organizations/${orgId}/invoices`, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ description, amount, invoiceDate, status, notes })
+    });
+    const data = await res.json();
+    if (!res.ok) { showNotification(data.error || 'Errore emissione fattura', 'error'); return; }
+    _closeBillingModal();
+    showNotification('Fattura emessa con successo', 'success');
+    _loadOrgInvoices(orgId);
+  } catch { showNotification('Errore di rete', 'error'); }
 }
 

@@ -45,6 +45,8 @@ export const organizations = pgTable("organizations", {
   isDemo: boolean("is_demo").default(false),
   demoExpiresAt: timestamp("demo_expires_at"),
   demoEmail: text("demo_email"),
+  plan: text("plan").default("base"), // base | pro | enterprise
+  nextRenewalAt: timestamp("next_renewal_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -5665,6 +5667,24 @@ export const paymentHistory = pgTable("payment_history", {
 });
 
 export type PaymentRecord = typeof paymentHistory.$inferSelect;
+
+// Manual invoices table — for superadmin-issued invoices outside Stripe
+export const invoices = pgTable("invoices", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  organizationId: varchar("organization_id").notNull().references(() => organizations.id),
+  description: text("description").notNull(),
+  amount: numeric("amount", { precision: 10, scale: 2 }).notNull(),
+  currency: text("currency").default("EUR"),
+  status: text("status").default("paid"), // paid | pending | cancelled
+  invoiceDate: date("invoice_date").defaultNow().notNull(),
+  paymentMethod: text("payment_method").default("manual"), // manual | stripe
+  stripeInvoiceId: text("stripe_invoice_id"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  createdBy: varchar("created_by").references(() => users.id),
+});
+
+export type Invoice = typeof invoices.$inferSelect;
 
 export const insertVolunteerSignatureSchema = createInsertSchema(volunteerSignatures).omit({
   id: true,

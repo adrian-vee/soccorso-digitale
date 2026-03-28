@@ -704,6 +704,38 @@ function setupErrorHandler(app: express.Application) {
     // ignore if pool not available
   }
 
+  // Auto-migrate organizations: plan + next_renewal_at columns
+  try {
+    await pool.query(`
+      ALTER TABLE organizations ADD COLUMN IF NOT EXISTS plan TEXT DEFAULT 'base';
+      ALTER TABLE organizations ADD COLUMN IF NOT EXISTS next_renewal_at TIMESTAMP;
+    `);
+  } catch (e) {
+    // ignore
+  }
+
+  // Auto-create invoices table
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS invoices (
+        id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
+        organization_id VARCHAR NOT NULL REFERENCES organizations(id),
+        description TEXT NOT NULL,
+        amount NUMERIC(10,2) NOT NULL,
+        currency TEXT DEFAULT 'EUR',
+        status TEXT DEFAULT 'paid',
+        invoice_date DATE NOT NULL DEFAULT CURRENT_DATE,
+        payment_method TEXT DEFAULT 'manual',
+        stripe_invoice_id TEXT,
+        notes TEXT,
+        created_at TIMESTAMP DEFAULT NOW(),
+        created_by VARCHAR REFERENCES users(id)
+      );
+    `);
+  } catch (e) {
+    // ignore
+  }
+
   // P0-2: rendi trip_id nullable su trip_gps_points per salvare punti pre-viaggio
   try {
     await pool.query(`

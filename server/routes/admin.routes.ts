@@ -89,6 +89,8 @@ export function registerAdminRoutes(app: Express) {
         isDemo: organizations.isDemo,
         demoExpiresAt: organizations.demoExpiresAt,
         enabledModules: organizations.enabledModules,
+        plan: sql<string>`plan`,
+        nextRenewalAt: sql<string>`next_renewal_at`,
       }).from(organizations).orderBy(organizations.name);
       const filtered = allOrgs.filter(org => {
         if (org.isDemo && org.demoExpiresAt && new Date(org.demoExpiresAt) < new Date()) {
@@ -20130,6 +20132,146 @@ La violazione degli obblighi di riservatezza può comportare sanzioni disciplina
     } catch (error) {
       console.error("SLA report PDF error:", error);
       res.status(500).json({ error: "Errore nella generazione del report" });
+    }
+  });
+
+  // ── BILLING PLAN MANAGEMENT ────────────────────────────────────────────────
+
+  const PLAN_ORDER = ['base', 'pro', 'enterprise'] as const;
+  const PLAN_PRICES: Record<string, number> = { base: 79, pro: 149, enterprise: 299 };
+
+  // Upgrade org plan
+  app.post("/api/admin/organizations/:orgId/upgrade", requireSuperAdmin, async (req, res) => {
+    try {
+      const { orgId } = req.params;
+      const { planId } = req.body as { planId: string };
+
+      if (!planId || !PLAN_ORDER.includes(planId as any)) {
+        return res.status(400).json({ error: "Piano non valido. Usa: pro | enterprise" });
+      }
+
+      const [org] = await db.select({ id: organizations.id, name: organizations.name, plan: sql<string>`plan` })
+        .from(organizations).where(eq(organizations.id, orgId));
+      if (!org) return res.status(404).json({ error: "Organizzazione non trovata" });
+
+      const currentIdx = PLAN_ORDER.indexOf((org.plan || 'base') as any);
+      const targetIdx  = PLAN_ORDER.indexOf(planId as any);
+      if (targetIdx <= currentIdx) {
+        return res.status(400).json({ error: "Il piano di destinazione deve essere superiore a quello attuale" });
+      }
+
+      const nextRenewal = new Date();
+      nextRenewal.setMonth(nextRenewal.getMonth() + 1);
+
+      await db.execute(sql`
+        UPDATE organizations
+        SET plan = ${planId}, next_renewal_at = ${nextRenewal}, updated_at = NOW()
+        WHERE id = ${orgId}
+      `);
+
+      return res.json({
+        success: true,
+        plan: { id: planId, name: planId.charAt(0).toUpperCase() + planId.slice(1), price: PLAN_PRICES[planId] },
+      });
+    } catch (err) {
+      console.error("Error upgrading plan:", err);
+      return res.status(500).json({ error: "Errore del server" });
+    }
+  });
+
+  // Downgrade org plan
+  app.post("/api/admin/organizations/:orgId/downgrade", requireSuperAdmin, async (req, res) => {
+    try {
+      const { orgId } = req.params;
+      const { planId } = req.body as { planId: string };
+
+      if (!planId || !PLAN_ORDER.includes(planId as any)) {
+        return res.status(400).json({ error: "Piano non valido. Usa: base | pro" });
+      }
+
+      const [org] = await db.select({ id: organizations.id, name: organizations.name, plan: sql<string>`plan` })
+        .from(organizations).where(eq(organizations.id, orgId));
+      if (!org) return res.status(404).json({ error: "Organizzazione non trovata" });
+
+      const currentIdx = PLAN_ORDER.indexOf((org.plan || 'base') as any);
+      const targetIdx  = PLAN_ORDER.indexOf(planId as any);
+      if (targetIdx >= currentIdx) {
+        return res.status(400).json({ error: "Il piano di destinazione deve essere inferiore a quello attuale" });
+      }
+
+      await db.execute(sql`
+        UPDATE organizations
+        SET plan = ${planId}, updated_at = NOW()
+        WHERE id = ${orgId}
+      `);
+
+      const effectiveDate = new Date();
+      effectiveDate.setMonth(effectiveDate.getMonth() + 1);
+
+      return res.json({
+        success: true,
+        plan: { id: planId, name: planId.charAt(0).toUpperCase() + planId.slice(1), price: PLAN_PRICES[planId] },
+        effectiveDate: effectiveDate.toISOString(),
+      });
+    } catch (err) {
+      console.error("Error downgrading plan:", err);
+      return res.status(500).json({ error: "Errore del server" });
+    }
+  });
+
+  // List invoices for an org
+  app.get("/api/admin/organizations/:orgId/invoices", requireSuperAdmin, async (req, res) => {
+    try {
+      const { orgId } = req.params;
+      const rows = await db.execute(sql`
+        SELECT id, organization_id, description, amount, currency, status,
+               invoice_date, payment_method, notes, created_at, created_by
+        FROM invoices
+        WHERE organization_id = ${orgId}
+        ORDER BY invoice_date DESC, created_at DESC
+      `);
+      return res.json({ invoices: rows.rows || [] });
+    } catch (err) {
+      console.error("Error fetching invoices:", err);
+      return res.status(500).json({ error: "Errore del server" });
+    }
+  });
+
+  // Create manual invoice
+  app.post("/api/admin/organizations/:orgId/invoices", requireSuperAdmin, async (req, res) => {
+    try {
+      const { orgId } = req.params;
+      const { description, amount, invoiceDate, status, notes } = req.body;
+
+      if (!description || !amount) {
+        return res.status(400).json({ error: "Descrizione e importo sono obbligatori" });
+      }
+
+      const userId = (req as any).user?.id || null;
+
+      const [org] = await db.select({ id: organizations.id })
+        .from(organizations).where(eq(organizations.id, orgId));
+      if (!org) return res.status(404).json({ error: "Organizzazione non trovata" });
+
+      const rows = await db.execute(sql`
+        INSERT INTO invoices (organization_id, description, amount, status, invoice_date, payment_method, notes, created_by)
+        VALUES (
+          ${orgId},
+          ${description},
+          ${parseFloat(amount)},
+          ${status || 'paid'},
+          ${invoiceDate || new Date().toISOString().split('T')[0]},
+          'manual',
+          ${notes || null},
+          ${userId}
+        )
+        RETURNING *
+      `);
+
+      return res.json({ success: true, invoice: rows.rows[0] });
+    } catch (err) {
+      console.error("Error creating invoice:", err);
+      return res.status(500).json({ error: "Errore del server" });
     }
   });
 
