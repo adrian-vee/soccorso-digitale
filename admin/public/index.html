@@ -8919,6 +8919,10 @@
                   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
                   Documentazione
                 </button>
+                <button class="settings-tab" data-tab="pdf-import" onclick="loadPdfTemplates()">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                  Template Import PDF
+                </button>
               </div>
 
               <!-- Logo Organization Tab -->
@@ -9035,6 +9039,129 @@
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
                       Salva Impostazioni PDF
                     </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- PDF Import Template Tab -->
+              <div class="settings-panel" id="settings-pdf-import">
+                <div class="panel-card">
+                  <div class="panel-header">
+                    <h3>Template Import PDF — Programma Giornaliero</h3>
+                    <p style="color:#64748b;font-size:13px;margin-top:4px;">
+                      Configura come il sistema legge le colonne del tuo PDF per importare automaticamente i servizi del programma giornaliero.
+                    </p>
+                  </div>
+
+                  <!-- Stepper -->
+                  <div id="pdf-tpl-stepper" style="display:flex;gap:0;margin:24px 0 28px;border-radius:10px;overflow:hidden;border:1px solid #e2e8f0;">
+                    <div class="pdf-tpl-step active" data-step="1" style="flex:1;padding:12px 8px;text-align:center;background:#EFF6FF;border-right:1px solid #e2e8f0;cursor:pointer;">
+                      <div style="font-size:11px;font-weight:700;color:#1E3A8A;">1. Carica PDF</div>
+                    </div>
+                    <div class="pdf-tpl-step" data-step="2" style="flex:1;padding:12px 8px;text-align:center;background:#f8fafc;border-right:1px solid #e2e8f0;cursor:pointer;">
+                      <div style="font-size:11px;font-weight:600;color:#94a3b8;">2. Anteprima</div>
+                    </div>
+                    <div class="pdf-tpl-step" data-step="3" style="flex:1;padding:12px 8px;text-align:center;background:#f8fafc;border-right:1px solid #e2e8f0;cursor:pointer;">
+                      <div style="font-size:11px;font-weight:600;color:#94a3b8;">3. Mappa Colonne</div>
+                    </div>
+                    <div class="pdf-tpl-step" data-step="4" style="flex:1;padding:12px 8px;text-align:center;background:#f8fafc;cursor:pointer;">
+                      <div style="font-size:11px;font-weight:600;color:#94a3b8;">4. Salva</div>
+                    </div>
+                  </div>
+
+                  <!-- Step 1 — Upload -->
+                  <div id="pdf-tpl-step-1">
+                    <p style="color:#475569;font-size:14px;margin-bottom:16px;">
+                      Carica un PDF di esempio del tuo programma giornaliero. Il sistema analizzerà le colonne della tabella e ti aiuterà a configurare il mapping.
+                    </p>
+                    <div id="pdf-tpl-dropzone" style="border:2px dashed #cbd5e1;border-radius:12px;padding:40px 24px;text-align:center;cursor:pointer;background:#f8fafc;transition:border-color .2s;" onclick="document.getElementById('pdf-tpl-file-input').click()">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:12px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>
+                      <p style="color:#475569;font-size:15px;font-weight:600;margin:0 0 4px;">Clicca o trascina un PDF qui</p>
+                      <p style="color:#94a3b8;font-size:13px;margin:0;">Dimensione massima: 10MB</p>
+                    </div>
+                    <input type="file" id="pdf-tpl-file-input" accept="application/pdf" style="display:none;" onchange="handlePdfTemplateSample(event)">
+                    <div id="pdf-tpl-upload-status" style="margin-top:12px;display:none;"></div>
+                  </div>
+
+                  <!-- Step 2 — Anteprima tabella estratta -->
+                  <div id="pdf-tpl-step-2" style="display:none;">
+                    <div id="pdf-tpl-preview-info" style="background:#EFF6FF;border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#1E3A8A;font-weight:600;"></div>
+                    <div style="overflow-x:auto;">
+                      <table id="pdf-tpl-preview-table" style="width:100%;border-collapse:collapse;font-size:13px;">
+                      </table>
+                    </div>
+                    <div style="margin-top:20px;display:flex;gap:12px;">
+                      <button class="btn btn-secondary" onclick="pdfTplGoStep(1)">← Indietro</button>
+                      <button class="btn btn-primary" onclick="pdfTplGoStep(3)">Configura Mappatura →</button>
+                    </div>
+                  </div>
+
+                  <!-- Step 3 — Mappatura colonne -->
+                  <div id="pdf-tpl-step-3" style="display:none;">
+                    <p style="color:#475569;font-size:14px;margin-bottom:16px;">
+                      Per ogni colonna del PDF, seleziona il campo corrispondente nel sistema. Le colonne non rilevanti possono essere ignorate.
+                    </p>
+                    <div id="pdf-tpl-mapping-grid" style="display:grid;gap:12px;"></div>
+
+                    <div style="margin-top:24px;background:#f8fafc;border-radius:10px;padding:16px;">
+                      <h4 style="font-size:13px;font-weight:700;color:#334155;margin:0 0 12px;">Opzioni avanzate</h4>
+                      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                        <div class="form-group">
+                          <label style="font-size:12px;font-weight:600;color:#64748b;">Righe intestazione da saltare</label>
+                          <input type="number" id="pdf-tpl-skip-header" value="1" min="0" max="10" class="form-input" style="margin-top:4px;">
+                        </div>
+                        <div class="form-group">
+                          <label style="font-size:12px;font-weight:600;color:#64748b;">Righe footer da saltare</label>
+                          <input type="number" id="pdf-tpl-skip-footer" value="0" min="0" max="10" class="form-input" style="margin-top:4px;">
+                        </div>
+                        <div class="form-group">
+                          <label style="font-size:12px;font-weight:600;color:#64748b;">Formato data</label>
+                          <select id="pdf-tpl-date-format" class="form-input" style="margin-top:4px;">
+                            <option value="DD/MM/YYYY">DD/MM/YYYY (es. 28/03/2026)</option>
+                            <option value="MM/DD/YYYY">MM/DD/YYYY (es. 03/28/2026)</option>
+                            <option value="YYYY-MM-DD">YYYY-MM-DD (es. 2026-03-28)</option>
+                          </select>
+                        </div>
+                        <div class="form-group">
+                          <label style="font-size:12px;font-weight:600;color:#64748b;">Formato ora</label>
+                          <select id="pdf-tpl-time-format" class="form-input" style="margin-top:4px;">
+                            <option value="HH:mm">HH:mm (es. 07:30)</option>
+                            <option value="H:mm">H:mm (es. 7:30)</option>
+                            <option value="hh:mm a">hh:mm AM/PM (es. 07:30 AM)</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style="margin-top:20px;display:flex;gap:12px;">
+                      <button class="btn btn-secondary" onclick="pdfTplGoStep(2)">← Indietro</button>
+                      <button class="btn btn-primary" onclick="pdfTplGoStep(4)">Rivedi e Salva →</button>
+                    </div>
+                  </div>
+
+                  <!-- Step 4 — Salvataggio -->
+                  <div id="pdf-tpl-step-4" style="display:none;">
+                    <div id="pdf-tpl-summary" style="background:#f8fafc;border-radius:10px;padding:16px;margin-bottom:20px;"></div>
+                    <div class="form-group" style="margin-bottom:20px;">
+                      <label style="font-size:13px;font-weight:600;color:#334155;">Nome del template</label>
+                      <input type="text" id="pdf-tpl-name" class="form-input" placeholder="Es. Template Principale, Formato Veronese..." style="margin-top:6px;">
+                    </div>
+                    <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                      <button class="btn btn-secondary" onclick="pdfTplGoStep(3)">← Modifica</button>
+                      <button class="btn btn-primary" onclick="savePdfTemplate()" style="background:#16a34a;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                        Salva Template
+                      </button>
+                    </div>
+                    <div id="pdf-tpl-save-status" style="margin-top:16px;display:none;"></div>
+                  </div>
+
+                  <!-- Template esistenti -->
+                  <div style="margin-top:32px;border-top:1px solid #e2e8f0;padding-top:24px;">
+                    <h4 style="font-size:14px;font-weight:700;color:#334155;margin:0 0 16px;">Template Configurati</h4>
+                    <div id="pdf-tpl-list" style="display:grid;gap:12px;">
+                      <p style="color:#94a3b8;font-size:13px;">Nessun template ancora configurato.</p>
+                    </div>
                   </div>
                 </div>
               </div>

@@ -31496,10 +31496,328 @@ async function loadSettingsData() {
   } catch (error) {
     console.log('Settings not found, using defaults');
   }
-  
+
   // Load subscription stats
   loadSubscriptionStats();
 }
+
+// ============================================================================
+// PDF TEMPLATE MAPPING — Configuratore Import Programma Giornaliero
+// ============================================================================
+
+let _pdfTplState = {
+  step: 1,
+  sampleBuffer: null,
+  headers: [],
+  rows: [],
+  totalRows: 0,
+  mappings: [],
+  editingId: null,
+  systemFields: [],
+};
+
+async function loadPdfTemplates() {
+  // Load available system fields
+  try {
+    const r = await adminFetch('/api/pdf-templates/fields');
+    if (r.ok) {
+      const data = await r.json();
+      _pdfTplState.systemFields = data.fields || [];
+    }
+  } catch (e) { /* ignore */ }
+
+  // Load existing templates
+  try {
+    const r = await adminFetch('/api/pdf-templates');
+    if (!r.ok) return;
+    const { templates } = await r.json();
+    renderPdfTemplateList(templates || []);
+  } catch (e) {
+    console.error('[pdf-tpl] Error loading templates:', e);
+  }
+}
+
+function renderPdfTemplateList(templates) {
+  const el = document.getElementById('pdf-tpl-list');
+  if (!el) return;
+  if (!templates.length) {
+    el.innerHTML = '<p style="color:#94a3b8;font-size:13px;">Nessun template ancora configurato.</p>';
+    return;
+  }
+  el.innerHTML = templates.map(t => `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;">
+      <div>
+        <span style="font-weight:700;font-size:14px;color:#1e293b;">${escapeHtml(t.name)}</span>
+        <span style="margin-left:10px;font-size:12px;color:${t.isActive ? '#16a34a' : '#94a3b8'};">
+          ${t.isActive ? '● Attivo' : '○ Inattivo'}
+        </span>
+        <div style="font-size:12px;color:#64748b;margin-top:2px;">
+          ${(t.columnMapping?.mappings?.length || 0)} colonne mappate
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-secondary" style="padding:6px 14px;font-size:12px;" onclick="editPdfTemplate('${t.id}')">Modifica</button>
+        <button class="btn btn-secondary" style="padding:6px 14px;font-size:12px;color:#dc2626;border-color:#fca5a5;" onclick="deletePdfTemplate('${t.id}')">Elimina</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function pdfTplGoStep(n) {
+  _pdfTplState.step = n;
+  [1,2,3,4].forEach(i => {
+    const panel = document.getElementById(`pdf-tpl-step-${i}`);
+    if (panel) panel.style.display = i === n ? '' : 'none';
+  });
+  // Update stepper UI
+  document.querySelectorAll('.pdf-tpl-step').forEach(el => {
+    const s = parseInt(el.dataset.step);
+    el.style.background = s === n ? '#EFF6FF' : '#f8fafc';
+    el.querySelector('div').style.color = s === n ? '#1E3A8A' : '#94a3b8';
+    el.querySelector('div').style.fontWeight = s === n ? '700' : '600';
+  });
+}
+
+async function handlePdfTemplateSample(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const statusEl = document.getElementById('pdf-tpl-upload-status');
+  statusEl.style.display = '';
+  statusEl.innerHTML = '<div style="color:#475569;font-size:13px;">Analisi in corso...</div>';
+
+  const fd = new FormData();
+  fd.append('pdf', file);
+
+  try {
+    const r = await adminFetch('/api/pdf-templates/parse-sample', { method: 'POST', body: fd });
+    const data = await r.json();
+
+    if (!r.ok || !data.headers?.length) {
+      statusEl.innerHTML = `<div style="color:#dc2626;font-size:13px;">⚠ ${data.error || 'Impossibile rilevare tabella nel PDF.'}</div>`;
+      return;
+    }
+
+    _pdfTplState.headers = data.headers;
+    _pdfTplState.rows = data.rows;
+    _pdfTplState.totalRows = data.totalRows;
+    _pdfTplState.sampleFileName = file.name;
+
+    renderPdfTplPreview();
+    pdfTplGoStep(2);
+    statusEl.style.display = 'none';
+  } catch (e) {
+    statusEl.innerHTML = '<div style="color:#dc2626;font-size:13px;">Errore di rete. Riprova.</div>';
+  }
+}
+
+function renderPdfTplPreview() {
+  const { headers, rows, totalRows } = _pdfTplState;
+  const info = document.getElementById('pdf-tpl-preview-info');
+  if (info) info.textContent = `Trovate ${headers.length} colonne e ${totalRows} righe nel PDF. Anteprima delle prime righe:`;
+
+  const table = document.getElementById('pdf-tpl-preview-table');
+  if (!table) return;
+
+  const headerHtml = `<thead><tr>${headers.map(h =>
+    `<th style="padding:8px 12px;text-align:left;background:#F0F4FF;font-size:12px;font-weight:700;color:#1e293b;white-space:nowrap;border:1px solid #e2e8f0;">${escapeHtml(h)}</th>`
+  ).join('')}</tr></thead>`;
+
+  const bodyHtml = `<tbody>${rows.map(row =>
+    `<tr>${row.map(cell =>
+      `<td style="padding:7px 12px;font-size:12px;color:#475569;border:1px solid #e2e8f0;white-space:nowrap;">${escapeHtml(cell)}</td>`
+    ).join('')}</tr>`
+  ).join('')}</tbody>`;
+
+  table.innerHTML = headerHtml + bodyHtml;
+}
+
+function renderPdfTplMappingGrid() {
+  const { headers, systemFields } = _pdfTplState;
+  const grid = document.getElementById('pdf-tpl-mapping-grid');
+  if (!grid) return;
+
+  const options = systemFields.map(f =>
+    `<option value="${f.value}">${escapeHtml(f.label)}</option>`
+  ).join('');
+
+  // Auto-detect common column names
+  const autoMap = {
+    'ora': 'departure_time', 'time': 'departure_time', 'orario': 'departure_time',
+    'tipo': 'service_type', 'servizio': 'service_type',
+    'mezzo': 'vehicle_code', 'veicolo': 'vehicle_code', 'ambulanza': 'vehicle_code',
+    'paziente': 'patient_name', 'pz': 'patient_name', 'nome': 'patient_name',
+    'da': 'origin_address', 'partenza': 'origin_address', 'origine': 'origin_address',
+    'a': 'destination_address', 'dest': 'destination_address', 'destinazione': 'destination_address',
+    'km': 'estimated_km', 'chilometri': 'estimated_km',
+    'note': 'notes', 'annotazioni': 'notes',
+    'n.': 'row_number', 'n': 'row_number', 'num': 'row_number', '#': 'row_number',
+  };
+
+  grid.innerHTML = headers.map((header, idx) => {
+    const headerLower = header.toLowerCase().trim();
+    const suggested = autoMap[headerLower] || 'ignore';
+    return `
+      <div style="display:grid;grid-template-columns:1fr 1.5fr;gap:12px;align-items:center;padding:10px 14px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;">
+        <div>
+          <div style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;">Colonna PDF ${idx + 1}</div>
+          <div style="font-size:14px;font-weight:700;color:#1e293b;margin-top:2px;">${escapeHtml(header)}</div>
+        </div>
+        <div>
+          <label style="font-size:11px;font-weight:600;color:#64748b;display:block;margin-bottom:4px;">Campo sistema →</label>
+          <select id="pdf-tpl-map-${idx}" data-col="${idx}" data-header="${escapeHtml(header)}"
+            onchange="pdfTplUpdateMappingColor(this)"
+            style="width:100%;padding:8px 10px;border:1px solid #e2e8f0;border-radius:7px;font-size:13px;background:#fff;color:#1e293b;">
+            ${systemFields.map(f =>
+              `<option value="${f.value}" ${f.value === suggested ? 'selected' : ''}>${escapeHtml(f.label)}</option>`
+            ).join('')}
+          </select>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // Apply initial colors
+  grid.querySelectorAll('select').forEach(el => pdfTplUpdateMappingColor(el));
+}
+
+function pdfTplUpdateMappingColor(selectEl) {
+  const val = selectEl.value;
+  const card = selectEl.closest('div[style*="background:#f8fafc"]');
+  if (!card) return;
+  card.style.borderColor = val === 'ignore' ? '#e2e8f0' : '#93c5fd';
+  card.style.background = val === 'ignore' ? '#f8fafc' : '#EFF6FF';
+}
+
+function buildMappingsFromForm() {
+  const mappings = [];
+  const selects = document.querySelectorAll('[id^="pdf-tpl-map-"]');
+  selects.forEach(sel => {
+    mappings.push({
+      pdf_column_index: parseInt(sel.dataset.col),
+      pdf_column_name: sel.dataset.header || '',
+      system_field: sel.value,
+      transform: sel.value === 'departure_time' || sel.value === 'return_time' ? 'parse_time'
+               : sel.value === 'estimated_km' ? 'parse_number' : null,
+    });
+  });
+  _pdfTplState.mappings = mappings;
+  return mappings;
+}
+
+function renderPdfTplSummary() {
+  const mappings = buildMappingsFromForm();
+  const active = mappings.filter(m => m.system_field !== 'ignore');
+  const summary = document.getElementById('pdf-tpl-summary');
+  if (!summary) return;
+
+  summary.innerHTML = `
+    <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:12px;">Riepilogo mappatura</div>
+    <div style="display:grid;gap:6px;">
+      ${active.map(m => `
+        <div style="display:flex;justify-content:space-between;font-size:13px;">
+          <span style="color:#64748b;">${escapeHtml(m.pdf_column_name)} (col. ${m.pdf_column_index + 1})</span>
+          <span style="color:#1E3A8A;font-weight:600;">→ ${escapeHtml(m.system_field)}</span>
+        </div>
+      `).join('')}
+    </div>
+    <div style="margin-top:12px;font-size:12px;color:#94a3b8;">${active.length} colonne mappate, ${mappings.length - active.length} ignorate</div>
+  `;
+}
+
+async function savePdfTemplate() {
+  const name = document.getElementById('pdf-tpl-name')?.value?.trim() || 'Template Principale';
+  const mappings = buildMappingsFromForm();
+  const skipHeaderRows = parseInt(document.getElementById('pdf-tpl-skip-header')?.value || '1');
+  const skipFooterRows = parseInt(document.getElementById('pdf-tpl-skip-footer')?.value || '0');
+  const dateFormat = document.getElementById('pdf-tpl-date-format')?.value || 'DD/MM/YYYY';
+  const timeFormat = document.getElementById('pdf-tpl-time-format')?.value || 'HH:mm';
+
+  const payload = {
+    name,
+    columnMapping: { mappings },
+    skipHeaderRows,
+    skipFooterRows,
+    dateFormat,
+    timeFormat,
+    sampleHeaders: _pdfTplState.headers,
+    sampleRow: _pdfTplState.rows[0] || [],
+  };
+
+  const statusEl = document.getElementById('pdf-tpl-save-status');
+  statusEl.style.display = '';
+  statusEl.innerHTML = '<div style="color:#475569;font-size:13px;">Salvataggio...</div>';
+
+  try {
+    let r;
+    if (_pdfTplState.editingId) {
+      r = await adminFetch(`/api/pdf-templates/${_pdfTplState.editingId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    } else {
+      r = await adminFetch('/api/pdf-templates', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    }
+
+    if (r.ok) {
+      statusEl.innerHTML = '<div style="color:#16a34a;font-size:13px;font-weight:600;">✓ Template salvato! Da ora tutti i PDF importati useranno questa configurazione.</div>';
+      _pdfTplState.editingId = null;
+      loadPdfTemplates();
+    } else {
+      const err = await r.json();
+      statusEl.innerHTML = `<div style="color:#dc2626;font-size:13px;">Errore: ${err.error || 'Riprova'}</div>`;
+    }
+  } catch (e) {
+    statusEl.innerHTML = '<div style="color:#dc2626;font-size:13px;">Errore di rete. Riprova.</div>';
+  }
+}
+
+async function editPdfTemplate(id) {
+  try {
+    const r = await adminFetch(`/api/pdf-templates/${id}`);
+    if (!r.ok) return;
+    const { template } = await r.json();
+
+    _pdfTplState.editingId = id;
+    _pdfTplState.headers = template.sampleHeaders || [];
+    _pdfTplState.rows = template.sampleRow ? [template.sampleRow] : [];
+
+    document.getElementById('pdf-tpl-name').value = template.name || '';
+    document.getElementById('pdf-tpl-skip-header').value = template.skipHeaderRows ?? 1;
+    document.getElementById('pdf-tpl-skip-footer').value = template.skipFooterRows ?? 0;
+    document.getElementById('pdf-tpl-date-format').value = template.dateFormat || 'DD/MM/YYYY';
+    document.getElementById('pdf-tpl-time-format').value = template.timeFormat || 'HH:mm';
+
+    // Rebuild mapping grid from stored headers
+    renderPdfTplMappingGrid();
+
+    // Pre-select stored mappings
+    const mappings = template.columnMapping?.mappings || [];
+    mappings.forEach(m => {
+      const sel = document.getElementById(`pdf-tpl-map-${m.pdf_column_index}`);
+      if (sel) { sel.value = m.system_field; pdfTplUpdateMappingColor(sel); }
+    });
+
+    pdfTplGoStep(3);
+  } catch (e) {
+    console.error('[pdf-tpl] Error loading template for edit:', e);
+  }
+}
+
+async function deletePdfTemplate(id) {
+  if (!confirm('Eliminare questo template? L\'importazione PDF tornerà alla modalità automatica.')) return;
+  try {
+    const r = await adminFetch(`/api/pdf-templates/${id}`, { method: 'DELETE' });
+    if (r.ok) loadPdfTemplates();
+  } catch (e) { console.error('[pdf-tpl] Delete error:', e); }
+}
+
+// Wire up stepper navigation
+(function () {
+  // Step 2 → 3 calls renderPdfTplMappingGrid
+  const origGoStep = pdfTplGoStep;
+  window.pdfTplGoStep = function(n) {
+    if (n === 3) renderPdfTplMappingGrid();
+    if (n === 4) renderPdfTplSummary();
+    origGoStep(n);
+  };
+})();
 
 function populateSettingsForm(settings) {
   // PDF Settings

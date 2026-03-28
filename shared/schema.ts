@@ -5917,3 +5917,28 @@ export const isochroneZones = pgTable("isochrone_zones", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 export type IsochroneZoneRecord = typeof isochroneZones.$inferSelect;
+
+// ============================================================================
+// PDF TEMPLATE MAPPING — Multi-org PDF column configuration
+// ============================================================================
+
+export const pdfTemplates = pgTable("pdf_templates", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  organizationId: varchar("organization_id").notNull(),
+  name: text("name").notNull().default("Template Principale"),
+  // columnMapping: { mappings: [{ pdf_column_index, pdf_column_name, system_field, transform }] }
+  columnMapping: jsonb("column_mapping").notNull().default({}),
+  skipHeaderRows: integer("skip_header_rows").default(1),
+  skipFooterRows: integer("skip_footer_rows").default(0),
+  dateFormat: text("date_format").default("DD/MM/YYYY"),
+  timeFormat: text("time_format").default("HH:mm"),
+  sampleHeaders: jsonb("sample_headers").default([]),
+  sampleRow: jsonb("sample_row").default([]),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  createdBy: varchar("created_by"),
+});
+
+export type PdfTemplate = typeof pdfTemplates.$inferSelect;
+export type InsertPdfTemplate = typeof pdfTemplates.$inferInsert;

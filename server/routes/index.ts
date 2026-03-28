@@ -26,6 +26,7 @@ import { registerAdminRoutes } from "./admin.routes";
 import { registerWebhookRoutes } from "./webhooks.routes";
 import { registerSaasOnboardingRoutes, runTrialExpiryCheck } from "./saas-onboarding.routes";
 import { registerCrmRoutes } from "./crm.routes";
+import { registerPdfTemplateRoutes, ensurePdfTemplatesTable } from "./pdf-templates.routes";
 import { requireAuth, requireAdmin } from "../auth-middleware";
 import { db } from "../db";
 import { sql } from "drizzle-orm";
@@ -72,6 +73,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   registerWebhookRoutes(app);
   registerSaasOnboardingRoutes(app);
   registerCrmRoutes(app);
+  registerPdfTemplateRoutes(app);
+  await ensurePdfTemplatesTable();
 
   // HTTP + WebSocket server
   const httpServer = createServer(app);

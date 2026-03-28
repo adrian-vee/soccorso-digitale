@@ -19,6 +19,7 @@ import {
   trips,
   structureDepartments,
   departments as departmentsTable,
+  pdfTemplates,
 } from "@shared/schema";
 import { and, eq, asc, desc, inArray } from "drizzle-orm";
 import {
@@ -27,6 +28,7 @@ import {
   getUserId,
   getEffectiveOrgId,
 } from "../auth-middleware";
+import { parseSampleTable, applyTemplateMapping, type TemplateConfig } from "../pdf-table-parser";
 
 export function registerBookingRoutes(app: Express) {
   // ============================================
@@ -198,6 +200,44 @@ export function registerBookingRoutes(app: Express) {
         return res.status(400).json({ error: "Nessun file PDF caricato" });
       }
 
+      const orgId = getEffectiveOrgId(req);
+
+      // ── Template-based parsing (multi-org) ──────────────────────────────────
+      if (orgId) {
+        const [activeTpl] = await db.select().from(pdfTemplates)
+          .where(and(eq(pdfTemplates.organizationId, orgId), eq(pdfTemplates.isActive, true)))
+          .limit(1);
+
+        if (activeTpl) {
+          const config = activeTpl.columnMapping as TemplateConfig;
+          if (config?.mappings && config.mappings.length > 0) {
+            const { headers, rows, totalRows, rawText } = await parseSampleTable(req.file.buffer);
+            const skipHeader = activeTpl.skipHeaderRows ?? 1;
+            const dataRows = rows.slice(skipHeader);
+            const parsedRows = applyTemplateMapping(dataRows, config, {
+              skipFooterRows: activeTpl.skipFooterRows ?? 0,
+            });
+
+            return res.json({
+              success: true,
+              source: "template",
+              templateId: activeTpl.id,
+              templateName: activeTpl.name,
+              vehicleName: null,
+              serviceDate: null,
+              serviceCount: parsedRows.length,
+              services: parsedRows,
+              rawText,
+              pageCount: 1,
+              fileName: req.file.originalname,
+              headers,
+              totalRows,
+            });
+          }
+        }
+      }
+
+      // ── Legacy hardcoded parser (Croce Europa format — block text) ──────────
       const { parsePdfServices } = await import("../pdf-service-parser");
       const result = await parsePdfServices(req.file.buffer);
 
