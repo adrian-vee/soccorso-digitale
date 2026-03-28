@@ -203,8 +203,9 @@ export function registerPdfTemplateRoutes(app: Express) {
       const result = await parseSampleTable(req.file.buffer);
 
       if (result.headers.length === 0) {
+        console.error("[pdf-templates] parse-sample: zero headers — rawText length:", result.rawText.length, "preview:", result.rawText.slice(0, 300));
         return res.status(422).json({
-          error: "Impossibile rilevare una struttura tabellare nel PDF. Verifica che il PDF contenga una tabella con colonne ben definite.",
+          error: "Il PDF non contiene testo estraibile. Assicurati che il PDF non sia una scansione immagine (OCR) e che contenga testo selezionabile.",
           rawTextPreview: result.rawText.slice(0, 500),
         });
       }

@@ -120,44 +120,64 @@ function detectTable(rawText: string): { headers: string[]; rows: string[][] } {
     .map(l => l.replace(/\r/g, "").trimEnd())
     .filter(l => l.trim().length > 3);
 
+  // ── Strategy A: look for tab-separated lines ─────────────────────────────
+  const tabLines = lines.filter(l => l.includes("\t"));
+  if (tabLines.length >= 2) {
+    const headers = tabLines[0].split("\t").map(s => s.trim()).filter(Boolean);
+    if (headers.length >= 2) {
+      const rows = tabLines.slice(1).map(l =>
+        l.split("\t").map(s => s.trim())
+      );
+      return { headers, rows };
+    }
+  }
+
   // ── Strategy B: look for lines that split into 3+ cells by 2+ spaces ──────
   // Determine the "mode" column count (most common split count among content lines)
   const splitCounts: number[] = lines
     .map(l => splitBySeparator(l).length)
     .filter(n => n >= 3);
 
-  if (splitCounts.length === 0) {
-    return { headers: [], rows: [] };
+  if (splitCounts.length >= 2) {
+    // Find the most common column count
+    const countFreq: Record<number, number> = {};
+    for (const c of splitCounts) countFreq[c] = (countFreq[c] || 0) + 1;
+    const targetCols = parseInt(
+      Object.entries(countFreq).sort((a, b) => b[1] - a[1])[0][0],
+      10
+    );
+
+    // Find the first line that matches the column count — treat it as header
+    const headerLineIdx = lines.findIndex(
+      l => splitBySeparator(l).length === targetCols
+    );
+    if (headerLineIdx >= 0) {
+      const headers = splitBySeparator(lines[headerLineIdx]);
+      // All subsequent lines with the same column count = data rows
+      const rows = lines
+        .slice(headerLineIdx + 1)
+        .map(l => splitBySeparator(l))
+        .filter(cells => cells.length >= targetCols - 1 && cells.length <= targetCols + 1)
+        .map(cells => {
+          while (cells.length < targetCols) cells.push("");
+          return cells.slice(0, targetCols);
+        });
+      if (rows.length > 0) return { headers, rows };
+    }
   }
 
-  // Find the most common column count
-  const countFreq: Record<number, number> = {};
-  for (const c of splitCounts) countFreq[c] = (countFreq[c] || 0) + 1;
-  const targetCols = parseInt(
-    Object.entries(countFreq).sort((a, b) => b[1] - a[1])[0][0],
-    10
-  );
+  // ── Strategy C: raw lines as single-column rows (last resort) ─────────────
+  // This always works: return each non-empty line as a single cell.
+  // The admin can still use this to verify the PDF contents and understand layout.
+  if (lines.length >= 2) {
+    console.warn("[pdf-table-parser] detectTable: no multi-column structure found — returning raw lines as single-column fallback");
+    return {
+      headers: ["Contenuto"],
+      rows: lines.slice(0, 50).map(l => [l.trim()]),
+    };
+  }
 
-  // Find the first line that matches the column count — treat it as header
-  const headerLineIdx = lines.findIndex(
-    l => splitBySeparator(l).length === targetCols
-  );
-  if (headerLineIdx < 0) return { headers: [], rows: [] };
-
-  const headers = splitBySeparator(lines[headerLineIdx]);
-
-  // All subsequent lines with the same column count = data rows
-  const rows = lines
-    .slice(headerLineIdx + 1)
-    .map(l => splitBySeparator(l))
-    .filter(cells => cells.length >= targetCols - 1 && cells.length <= targetCols + 1)
-    // Pad or trim to exact column count
-    .map(cells => {
-      while (cells.length < targetCols) cells.push("");
-      return cells.slice(0, targetCols);
-    });
-
-  return { headers, rows };
+  return { headers: [], rows: [] };
 }
 
 // ─── Public API ───────────────────────────────────────────────────────────────
@@ -178,14 +198,18 @@ export async function parseSampleTable(buffer: Buffer): Promise<SampleTableResul
     const tableResult = await tableParser.getTable();
     await tableParser.destroy?.();
 
+    console.log(`[pdf-table-parser] getTable() → ${tableResult.mergedTables?.length ?? 0} table(s) found`);
+
     if (tableResult.mergedTables?.length > 0) {
       const firstTable = tableResult.mergedTables[0];
+      console.log(`[pdf-table-parser] firstTable: ${firstTable.length} rows × ${firstTable[0]?.length ?? 0} cols`);
       if (firstTable.length >= 2) {
         const headers = (firstTable[0] || []).map(h => String(h ?? "").trim());
         const dataRows = firstTable.slice(1).map(row =>
           row.map(cell => String(cell ?? "").trim())
         );
         if (headers.some(h => h.length > 0)) {
+          console.log(`[pdf-table-parser] getTable() success — headers: ${JSON.stringify(headers.slice(0, 5))}`);
           // Also grab raw text for rawTextPreview in error cases
           let rawText = "";
           try {
@@ -209,11 +233,12 @@ export async function parseSampleTable(buffer: Buffer): Promise<SampleTableResul
     console.warn("[pdf-table-parser] getTable() failed, falling back to getText():", (tableErr as Error).message);
   }
 
-  // Strategy 2: whitespace-gap text fallback
+  // Strategy 2: text-based fallback (whitespace/tab/raw-lines)
   const textParser = new PDFParse({ data: Buffer.from(buffer) });
   const textResult = await textParser.getText();
   await textParser.destroy?.();
   const rawText = textResult.text || "";
+  console.log(`[pdf-table-parser] getText() → ${rawText.length} chars, first 300: ${JSON.stringify(rawText.slice(0, 300))}`);
   const { headers, rows } = detectTable(rawText);
 
   return {

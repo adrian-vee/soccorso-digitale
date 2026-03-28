@@ -168,17 +168,6 @@ let vehicleMarkers = {};
 let sparklineCharts = {};
 let previousStats = { trips: 0, km: 0, vehicles: 0, locations: 0 };
 
-// ========== TERRITORY MAP ==========
-let territoryMap = null;
-
-function loadMapLibrary() {
-  if (typeof initTerritoryMap === 'function') {
-    initTerritoryMap();
-  }
-}
-
-window.loadGoogleMapsAPI = loadMapLibrary;
-window.loadMapLibrary = loadMapLibrary;
 
 // Open Partner Proposal page on port 5000
 function openPartnerProposalPage() {
@@ -1842,11 +1831,6 @@ async function showDashboard() {
 
   navigateTo(savedPage);
   
-  setTimeout(() => {
-    if (typeof loadGoogleMapsAPI === 'function') {
-      loadGoogleMapsAPI();
-    }
-  }, 300);
 }
 
 async function loadInitialData() {
@@ -16168,57 +16152,6 @@ window.exportDashboard = exportDashboard;
 window.shareDashboard = shareDashboard;
 window.initNewDashboard = initNewDashboard;
 
-// ========================================
-// TERRITORY MAP - initTerritoryMap function
-// ========================================
-
-function initTerritoryMap() {
-  const mapContainer = document.getElementById('territory-map');
-  if (!mapContainer) {
-    console.log('[TerritoryMap] Container not found, will retry later');
-    return;
-  }
-  
-  if (mapContainer.offsetHeight < 100) {
-    mapContainer.style.height = '450px';
-    mapContainer.style.minHeight = '450px';
-  }
-  
-  territoryMap = L.map(mapContainer).setView([45.3845, 11.1500], 10);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors', maxZoom: 19 }).addTo(territoryMap);
-  const locations = [
-    { id: 'b73829f0-8cb9-453b-8f91-f5a1efc59061', name: 'Verona', position: [45.4384, 10.9916], type: 'hq', label: 'Sede Centrale' },
-    { id: '3a897440-10a9-4540-a9a7-bbf5b3450cd4', name: 'Nogara', position: [45.1750, 11.0667], type: 'satellite', label: 'Sede Operativa' },
-    { id: '5c40c432-9312-4aa4-85ed-eed595731205', name: 'Legnago', position: [45.1897, 11.3103], type: 'satellite', label: 'Sede Operativa' },
-    { id: 'a362c8c4-9346-49c6-8162-206d939444fa', name: 'Cologna Veneta', position: [45.3089, 11.3861], type: 'satellite', label: 'Sede Operativa' },
-    { id: 'dde6b010-92ab-4281-9636-9d45aa989e99', name: 'Montecchio Maggiore', position: [45.5058, 11.4108], type: 'satellite', label: 'Sede Operativa (VI)' }
-  ];
-  const hqPosition = locations[0].position;
-  locations.slice(1).forEach(loc => {
-    L.polyline([loc.position, hqPosition], { color: '#00A651', weight: 2, opacity: 0.6, dashArray: '6,4' }).addTo(territoryMap);
-  });
-  locations.forEach(loc => {
-    const isHQ = loc.type === 'hq';
-    const pinColor = isHQ ? '#00A651' : '#0066CC';
-    const size = isHQ ? 14 : 10;
-    const marker = L.circleMarker(loc.position, {
-      radius: size, fillColor: pinColor, color: '#fff', weight: 2, fillOpacity: 1
-    }).addTo(territoryMap);
-    marker.bindTooltip(loc.name, { permanent: true, direction: 'top', className: 'territory-label', offset: [0, -10] });
-    marker.bindPopup(`<div style="padding:8px;min-width:150px;">
-        <h4 style="margin:0 0 4px;color:${isHQ ? '#00A651' : '#0066CC'};">${loc.name}</h4>
-        <p style="margin:0;font-size:12px;color:#666;">${loc.label}</p>
-        <button onclick="navigateToLocation('${loc.id}','${loc.name}')"
-          style="margin-top:8px;padding:6px 12px;background:${isHQ ? '#00A651' : '#0066CC'};color:white;border:none;border-radius:4px;cursor:pointer;font-size:12px;">
-          Apri Dettagli
-        </button>
-      </div>`);
-  });
-  console.log('[TerritoryMap] Leaflet map initialized successfully');
-}
-
-// Make territory map functions globally available
-window.initTerritoryMap = initTerritoryMap;
 
 // ========== INVENTORY MANAGEMENT ==========
 let inventoryItems = [];
