@@ -1450,7 +1450,8 @@ function applyRoleBasedAccess() {
   
   const isFullAdmin = currentUserInfo.isFullAdmin;
   const isBranchManager = currentUserInfo.role === 'branch_manager';
-  const isOrgAdmin = currentUserInfo.role === 'org_admin';
+  // isOrgAdmin: any user scoped to an org (role=admin|org_admin|director) without platform-wide access
+  const isOrgAdmin = !!currentUserInfo.organizationId && !isFullAdmin && !isBranchManager;
   
   const hasCustomRole = currentUserInfo.customRoleId || (currentUserInfo.permissions && currentUserInfo.permissions.length > 0 && currentUserInfo.permissions.length < 33);
   
@@ -2692,17 +2693,16 @@ function _applySupportModeNav(enabledModules) {
   const allowedPages = new Set([
     'dashboard', 'settings', 'marketplace',
     'trips', 'programma-giornaliero',
-    'vehicles', 'realtime-availability', 'photo-reports', 'vehicle-documents', 'sanitization-logs',
-    'handoffs',
-    'staff-members', 'volunteer-registry', 'burnout-prevention',
-    'scheduling', 'monthly-scheduling', 'staff-availability', 'shift-statistics', 'shift-settings',
-    'inventory', 'scadenze', 'sedi', 'structures',
-    'statistics', 'finance',
+    'vehicles', 'gps-tracking', 'checklists',
+    'handoffs', 'photo-reports', 'vehicle-documents', 'sanitization-logs',
     'credentials', 'role-management',
-    'gps-tracking', 'checklists',
-    'booking-hub', 'volunteer-reimbursements',
-    'branch-managers', 'structure-requests',
-    'reports', 'tenders',
+    'booking-hub',
+    'staff-members', 'volunteer-registry',
+    'scheduling', 'monthly-scheduling', 'staff-availability', 'shift-statistics', 'shift-settings',
+    'inventory', 'scadenze', 'sedi', 'branch-managers', 'structures', 'structure-requests',
+    'compliance', 'data-quality',
+    'statistics', 'reports', 'finance',
+    'announcements',
   ]);
 
   // Clean up any previous support-mode state
