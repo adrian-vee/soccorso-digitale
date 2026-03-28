@@ -31437,19 +31437,12 @@ window.loadRealtimeAvailability = loadRealtimeAvailability;
 // ========================================
 
 function initSettingsPage() {
-  setupSettingsTabs();
-  loadSettingsData();
-  loadOrgLogo();
+  // Hide all panels; show only Template Import PDF
+  document.querySelectorAll('.settings-panel').forEach(p => p.classList.remove('active'));
+  const pdfImportPanel = document.getElementById('settings-pdf-import');
+  if (pdfImportPanel) pdfImportPanel.classList.add('active');
 
-  if (currentUserInfo?.role === 'org_admin') {
-    const hideTabs = ['saas', 'demo', 'subscriptions', 'documentation'];
-    hideTabs.forEach(tabId => {
-      const tab = document.querySelector(`.settings-tab[data-tab="${tabId}"]`);
-      if (tab) tab.style.display = 'none';
-      const panel = document.getElementById(`settings-${tabId}`);
-      if (panel) panel.style.display = 'none';
-    });
-  }
+  loadPdfTemplates();
 }
 
 function setupSettingsTabs() {

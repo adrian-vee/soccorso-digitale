@@ -216,8 +216,9 @@ export function registerPdfTemplateRoutes(app: Express) {
         totalRows: result.totalRows,
       });
     } catch (err) {
-      console.error("[pdf-templates] POST /parse-sample", err);
-      res.status(500).json({ error: "Errore nel parsing del PDF" });
+      const msg = (err as Error)?.message || String(err);
+      console.error("[pdf-templates] POST /parse-sample:", msg);
+      res.status(500).json({ error: "Errore nel parsing del PDF", detail: msg });
     }
   });
 

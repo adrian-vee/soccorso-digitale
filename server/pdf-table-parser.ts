@@ -11,7 +11,7 @@
  */
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const pdfParse = require("pdf-parse") as (buffer: Buffer, options?: object) => Promise<{ text: string }>;
+const { PDFParse } = require("pdf-parse") as { PDFParse: new (options: { data: Buffer | Uint8Array }) => { getText(): Promise<{ text: string }> } };
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -161,7 +161,8 @@ function detectTable(rawText: string): { headers: string[]; rows: string[][] } {
  * Returns the first 5 rows as a sample (admin uses this to configure the mapping).
  */
 export async function parseSampleTable(buffer: Buffer): Promise<SampleTableResult> {
-  const parsed = await pdfParse(buffer);
+  const parser = new PDFParse({ data: buffer });
+  const parsed = await parser.getText();
   const rawText = parsed.text || "";
 
   const { headers, rows } = detectTable(rawText);
