@@ -1624,30 +1624,27 @@ function applyRoleBasedAccess() {
     const orgAdminAllowedPages = new Set([
       // System
       'dashboard', 'settings', 'marketplace',
-      // Servizi operativi
+      // Operativo
       'trips', 'programma-giornaliero',
       // Flotta
-      'vehicles', 'realtime-availability', 'photo-reports', 'vehicle-documents', 'sanitization-logs',
-      // Consegne digitali
-      'handoffs',
+      'vehicles', 'gps-tracking', 'checklists',
+      'handoffs', 'photo-reports', 'vehicle-documents', 'sanitization-logs',
+      // Accesso
+      'credentials', 'role-management',
+      // Prenotazioni
+      'booking-hub',
       // Personale
-      'staff-members', 'volunteer-registry', 'burnout-prevention',
+      'staff-members', 'volunteer-registry',
       // Turni
       'scheduling', 'monthly-scheduling', 'staff-availability', 'shift-statistics', 'shift-settings',
       // Inventario e sede
-      'inventory', 'scadenze', 'sedi', 'structures',
+      'inventory', 'scadenze', 'sedi', 'branch-managers', 'structures', 'structure-requests',
+      // Governance
+      'compliance', 'data-quality',
       // Report
-      'statistics', 'finance',
-      // Accesso e ruoli
-      'credentials', 'role-management',
-      // Flotta avanzata
-      'gps-tracking', 'checklists',
-      // Prenotazioni e volontari
-      'booking-hub', 'volunteer-reimbursements',
-      // Sede e strutture
-      'branch-managers', 'structure-requests',
-      // Reportistica avanzata
-      'reports', 'tenders',
+      'statistics', 'reports', 'finance',
+      // Comunicazioni
+      'announcements',
     ]);
 
     window._premiumLockedPages = new Set();
