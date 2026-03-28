@@ -952,30 +952,34 @@ export function registerFleetRoutes(app: Express) {
       const twoHoursAgo = new Date(now.getTime() - 2 * 60 * 60 * 1000);
       const todayStr = now.toISOString().split('T')[0];
       
+      const tripsTodayConditions: any[] = [sql`${trips.serviceDate}::text = ${todayStr}`];
+      if (orgId) tripsTodayConditions.push(eq(trips.organizationId, orgId));
       const todayTrips = await db.select().from(trips)
-        .where(sql`${trips.serviceDate}::text = ${todayStr}`);
-      
+        .where(and(...tripsTodayConditions));
+
+      const servicesTodayConditions: any[] = [
+        eq(scheduledServices.serviceDate, todayStr),
+        sql`${scheduledServices.status} IN ('in_progress', 'waiting_for_visit')`
+      ];
+      if (orgId) servicesTodayConditions.push(eq(scheduledServices.organizationId, orgId));
       const todayActiveServices = await db.select().from(scheduledServices)
-        .where(and(
-          eq(scheduledServices.serviceDate, todayStr),
-          sql`${scheduledServices.status} IN ('in_progress', 'waiting_for_visit')`
-        ))
+        .where(and(...servicesTodayConditions))
         .orderBy(sql`CASE WHEN status = 'waiting_for_visit' THEN 0 ELSE 1 END, actual_start_time DESC`);
-      
+
       const activeServiceByVehicle: Record<string, typeof todayActiveServices[0]> = {};
       for (const s of todayActiveServices) {
         if (s.vehicleId && !activeServiceByVehicle[s.vehicleId]) {
           activeServiceByVehicle[s.vehicleId] = s;
         }
       }
-      
+
       const vehiclePositions = allVehicles.map(v => {
         const session = activeSessions.find(s => s.vehicleId === v.id);
         const location = allLocations.find(l => l.id === v.locationId);
         const locationName = location?.name || '';
         const sedeCoords = SEDE_COORDINATES[locationName] || SEDE_COORDINATES['SAN GIOVANNI LUPATOTO'];
-        
-        const hasRealGps = v.latitude && v.longitude && 
+
+        const hasRealGps = v.latitude && v.longitude &&
           parseFloat(v.latitude) !== 0 && parseFloat(v.longitude) !== 0;
         
         const vehicleTripsToday = todayTrips.filter(t => t.vehicleId === v.id);
@@ -3556,7 +3560,7 @@ export function registerFleetRoutes(app: Express) {
   app.get("/api/admin/vehicle-documents", requireAdmin, async (req, res) => {
     try {
       const orgId = getEffectiveOrgId(req);
-      if (isOrgAdmin(req) && orgId) {
+      if (orgId && !isFullAdmin(req)) {
         const docs = await db.select().from(vehicleDocuments)
           .where(and(
             eq(vehicleDocuments.isActive, true),
@@ -3565,7 +3569,7 @@ export function registerFleetRoutes(app: Express) {
           .orderBy(desc(vehicleDocuments.createdAt));
         return res.json(docs);
       }
-      
+
       const docs = await db.select().from(vehicleDocuments)
         .where(eq(vehicleDocuments.isActive, true))
         .orderBy(desc(vehicleDocuments.createdAt));
@@ -3579,14 +3583,14 @@ export function registerFleetRoutes(app: Express) {
   app.get("/api/admin/sanitization-logs", requireAdmin, async (req, res) => {
     try {
       const orgId = getEffectiveOrgId(req);
-      if (isOrgAdmin(req) && orgId) {
+      if (orgId && !isFullAdmin(req)) {
         const logs = await db.select().from(sanitizationLogs)
           .where(eq(sanitizationLogs.organizationId, orgId))
           .orderBy(desc(sanitizationLogs.completedAt))
           .limit(200);
         return res.json(logs);
       }
-      
+
       const logs = await db.select().from(sanitizationLogs)
         .orderBy(desc(sanitizationLogs.completedAt))
         .limit(200);

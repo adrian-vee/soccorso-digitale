@@ -16,8 +16,8 @@ import {
 } from "@shared/schema";
 import { and, eq, gte, lte, inArray, sql, desc } from "drizzle-orm";
 import {
-  requireAuth, requireAdmin, getUserId, getEffectiveOrgId, getLocationFilter,
-  isOrgAdmin
+  requireAuth, requireAdmin, getUserId, getEffectiveOrgId, getOrganizationId, getLocationFilter,
+  isOrgAdmin, isFullAdmin
 } from "../auth-middleware";
 import { generateVolunteerReimbursementPDF } from "../pdf-generator";
 import { generateAcademyPlanPDF } from "../academy-plan-pdf";
@@ -2030,7 +2030,12 @@ app.get("/api/shift-report/staff-pdf", requireAdmin, async (req, res) => {
 
     const staffMember = await storage.getStaffMemberById(staffMemberId as string);
     if (!staffMember) return res.status(404).json({ error: "Operatore non trovato" });
-    
+
+    const orgId = getEffectiveOrgId(req);
+    if (orgId && !isFullAdmin(req) && staffMember.organizationId && staffMember.organizationId !== orgId) {
+      return res.status(403).json({ error: "Accesso non autorizzato" });
+    }
+
     const staffAssignments = await db.select({
       assignment: shiftAssignments,
       instance: shiftInstances,
@@ -2042,15 +2047,17 @@ app.get("/api/shift-report/staff-pdf", requireAdmin, async (req, res) => {
         lte(shiftInstances.shiftDate, dateTo),
       ))
       .orderBy(shiftInstances.shiftDate, shiftInstances.startTime);
-    
-    const allVehicles = await db.select().from(vehiclesTable);
+
+    const vehicleConditions = orgId ? [eq(vehiclesTable.organizationId, orgId)] : [];
+    const locationConditions = orgId ? [eq(locations.organizationId, orgId)] : [];
+    const allVehicles = vehicleConditions.length > 0
+      ? await db.select().from(vehiclesTable).where(and(...vehicleConditions))
+      : await db.select().from(vehiclesTable);
     const vehicleMap = new Map(allVehicles.map(v => [v.id, v]));
-    const locationsList = await db.select().from(locations);
+    const locationsList = locationConditions.length > 0
+      ? await db.select().from(locations).where(and(...locationConditions))
+      : await db.select().from(locations);
     const locationMap = new Map(locationsList.map(l => [l.id, l]));
-    
-    const userId = getUserId(req);
-    const currentUser = userId ? await storage.getUser(userId) : null;
-    const orgId = currentUser?.organizationId;
     let orgName = 'SOCCORSO DIGITALE';
     let orgLogoPath: string | null = null;
     if (orgId) {
@@ -2263,7 +2270,12 @@ app.get("/api/shift-report/staff-ics", requireAdmin, async (req, res) => {
 
     const staffMember = await storage.getStaffMemberById(staffMemberId as string);
     if (!staffMember) return res.status(404).json({ error: "Operatore non trovato" });
-    
+
+    const orgId = getEffectiveOrgId(req);
+    if (orgId && !isFullAdmin(req) && staffMember.organizationId && staffMember.organizationId !== orgId) {
+      return res.status(403).json({ error: "Accesso non autorizzato" });
+    }
+
     const staffAssignments = await db.select({
       assignment: shiftAssignments,
       instance: shiftInstances,
@@ -2275,15 +2287,18 @@ app.get("/api/shift-report/staff-ics", requireAdmin, async (req, res) => {
         lte(shiftInstances.shiftDate, dateTo),
       ))
       .orderBy(shiftInstances.shiftDate, shiftInstances.startTime);
-    
-    const allVehicles = await db.select().from(vehiclesTable);
+
+    const vehicleIcsConditions = orgId ? [eq(vehiclesTable.organizationId, orgId)] : [];
+    const locationIcsConditions = orgId ? [eq(locations.organizationId, orgId)] : [];
+    const allVehicles = vehicleIcsConditions.length > 0
+      ? await db.select().from(vehiclesTable).where(and(...vehicleIcsConditions))
+      : await db.select().from(vehiclesTable);
     const vehicleMap = new Map(allVehicles.map(v => [v.id, v]));
-    const locationsList = await db.select().from(locations);
+    const locationsList = locationIcsConditions.length > 0
+      ? await db.select().from(locations).where(and(...locationIcsConditions))
+      : await db.select().from(locations);
     const locationMap = new Map(locationsList.map(l => [l.id, l]));
 
-    const userId = getUserId(req);
-    const currentUser = userId ? await storage.getUser(userId) : null;
-    const orgId = currentUser?.organizationId;
     let orgName = 'Soccorso Digitale';
     if (orgId) {
       const [org] = await db.select().from(organizations).where(eq(organizations.id, orgId)).limit(1);
@@ -5177,8 +5192,10 @@ app.get("/api/admin/realtime-availability", requireAuth, async (req, res) => {
       .where(staffConditions.length > 0 ? and(...staffConditions) : undefined as any)
       .orderBy(staffMembers.lastName);
 
+    const instanceConditions: any[] = [eq(shiftInstances.shiftDate, today)];
+    if (orgId) instanceConditions.push(eq(shiftInstances.organizationId, orgId));
     const todayInstances = await db.select().from(shiftInstances)
-      .where(eq(shiftInstances.shiftDate, today));
+      .where(and(...instanceConditions));
 
     const instanceIds = todayInstances.map(i => i.id);
 
@@ -5188,8 +5205,12 @@ app.get("/api/admin/realtime-availability", requireAuth, async (req, res) => {
         .where(inArray(shiftAssignments.shiftInstanceId, instanceIds));
     }
 
-    const allLocations = await db.select().from(locations);
-    const allVehicles = await db.select().from(vehiclesTable);
+    const allLocations = orgId
+      ? await db.select().from(locations).where(eq(locations.organizationId, orgId))
+      : await db.select().from(locations);
+    const allVehicles = orgId
+      ? await db.select().from(vehiclesTable).where(eq(vehiclesTable.organizationId, orgId))
+      : await db.select().from(vehiclesTable);
     const locationMap = new Map(allLocations.map(l => [l.id, l.name]));
     const vehicleMap = new Map(allVehicles.map(v => [v.id, v.code]));
     const instanceMap = new Map(todayInstances.map(i => [i.id, i]));

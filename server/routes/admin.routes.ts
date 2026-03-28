@@ -1509,36 +1509,40 @@ export function registerAdminRoutes(app: Express) {
       const twoHoursAgo = new Date(now.getTime() - 2 * 60 * 60 * 1000);
       const todayStr = now.toISOString().split('T')[0];
       
+      const tripsTodayConditions: any[] = [sql`${trips.serviceDate}::text = ${todayStr}`];
+      if (orgId) tripsTodayConditions.push(eq(trips.organizationId, orgId));
       const todayTrips = await db.select().from(trips)
-        .where(sql`${trips.serviceDate}::text = ${todayStr}`);
-      
+        .where(and(...tripsTodayConditions));
+
+      const servicesTodayConditions: any[] = [
+        eq(scheduledServices.serviceDate, todayStr),
+        sql`${scheduledServices.status} IN ('in_progress', 'waiting_for_visit')`
+      ];
+      if (orgId) servicesTodayConditions.push(eq(scheduledServices.organizationId, orgId));
       const todayActiveServices = await db.select().from(scheduledServices)
-        .where(and(
-          eq(scheduledServices.serviceDate, todayStr),
-          sql`${scheduledServices.status} IN ('in_progress', 'waiting_for_visit')`
-        ))
+        .where(and(...servicesTodayConditions))
         .orderBy(sql`CASE WHEN status = 'waiting_for_visit' THEN 0 ELSE 1 END, actual_start_time DESC`);
-      
+
       const activeServiceByVehicle: Record<string, typeof todayActiveServices[0]> = {};
       for (const s of todayActiveServices) {
         if (s.vehicleId && !activeServiceByVehicle[s.vehicleId]) {
           activeServiceByVehicle[s.vehicleId] = s;
         }
       }
-      
+
       const vehiclePositions = allVehicles.map(v => {
         const session = activeSessions.find(s => s.vehicleId === v.id);
         const location = allLocations.find(l => l.id === v.locationId);
         const locationName = location?.name || '';
         const sedeCoords = SEDE_COORDINATES[locationName] || SEDE_COORDINATES['SAN GIOVANNI LUPATOTO'];
-        
-        const hasRealGps = v.latitude && v.longitude && 
+
+        const hasRealGps = v.latitude && v.longitude &&
           parseFloat(v.latitude) !== 0 && parseFloat(v.longitude) !== 0;
-        
+
         const vehicleTripsToday = todayTrips.filter(t => t.vehicleId === v.id);
         const totalKmToday = vehicleTripsToday.reduce((sum, t) => sum + (t.kmTraveled || 0), 0);
         const tripCountToday = vehicleTripsToday.length;
-        
+
         const recentTrip = vehicleTripsToday
           .filter(t => t.createdAt && new Date(t.createdAt) >= twoHoursAgo)
           .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
@@ -2659,6 +2663,10 @@ export function registerAdminRoutes(app: Express) {
       if (!trip) {
         return res.status(404).json({ error: "Viaggio non trovato" });
       }
+      const orgId = getEffectiveOrgId(req);
+      if (orgId && trip.organizationId && trip.organizationId !== orgId) {
+        return res.status(403).json({ error: "Accesso non autorizzato" });
+      }
       const enrichedTrips = await enrichTrips([trip]);
       res.json(enrichedTrips[0]);
     } catch (error) {
@@ -2684,7 +2692,7 @@ export function registerAdminRoutes(app: Express) {
     try {
       let tripIds = await storage.getTripsWithDeviceAuth();
       const orgId = getEffectiveOrgId(req);
-      if (isOrgAdmin(req) && orgId) {
+      if (orgId && !isFullAdmin(req)) {
         const orgTrips = await db.select({ id: trips.id }).from(trips).where(eq(trips.organizationId, orgId));
         const orgTripIds = new Set(orgTrips.map(t => t.id));
         tripIds = tripIds.filter(id => orgTripIds.has(id));
@@ -4889,7 +4897,7 @@ export function registerAdminRoutes(app: Express) {
     try {
       const orgId = getEffectiveOrgId(req);
       let allUsers;
-      if (isOrgAdmin(req) && orgId) {
+      if (orgId && !isFullAdmin(req)) {
         allUsers = await db.select().from(users).where(eq(users.organizationId, orgId)).orderBy(users.name);
       } else {
         allUsers = await storage.getUsers();
@@ -4908,7 +4916,11 @@ export function registerAdminRoutes(app: Express) {
   // Get all branch managers with their assigned locations
   app.get("/api/branch-managers", requireAdmin, async (req, res) => {
     try {
-      const managers = await storage.getAllBranchManagers();
+      const orgId = getEffectiveOrgId(req);
+      let managers = await storage.getAllBranchManagers();
+      if (orgId) {
+        managers = managers.filter((m: any) => m.organizationId === orgId);
+      }
       const safeManagers = managers.map(({ password, ...m }) => m);
       res.json(safeManagers);
     } catch (error) {
@@ -5222,19 +5234,37 @@ export function registerAdminRoutes(app: Express) {
   app.get("/api/audit-logs", requireAdmin, async (req, res) => {
     try {
       const { limit, entityType, entityId } = req.query;
-      let logs;
-      
-      if (entityType && entityId) {
-        logs = await storage.getAuditLogsByEntity(entityType as string, entityId as string);
-      } else {
-        // Validate limit parameter - must be positive integer, default to 100
-        let parsedLimit = 100;
-        if (limit) {
-          const numLimit = parseInt(limit as string, 10);
-          if (!isNaN(numLimit) && numLimit > 0 && numLimit <= 1000) {
-            parsedLimit = numLimit;
+      const orgId = getEffectiveOrgId(req);
+      let logs: any[];
+
+      // Validate limit parameter - must be positive integer, default to 100
+      let parsedLimit = 100;
+      if (limit) {
+        const numLimit = parseInt(limit as string, 10);
+        if (!isNaN(numLimit) && numLimit > 0 && numLimit <= 1000) {
+          parsedLimit = numLimit;
+        }
+      }
+
+      if (orgId && !isFullAdmin(req)) {
+        // Org-scoped admins: filter audit logs to users belonging to their org
+        const orgUserIds = (await db.select({ id: users.id }).from(users).where(eq(users.organizationId, orgId))).map(u => u.id);
+        if (entityType && entityId) {
+          const allLogs = await storage.getAuditLogsByEntity(entityType as string, entityId as string);
+          logs = allLogs.filter(l => !l.userId || orgUserIds.includes(l.userId));
+        } else {
+          if (orgUserIds.length === 0) {
+            logs = [];
+          } else {
+            logs = await db.select().from(auditLogs)
+              .where(inArray(auditLogs.userId, orgUserIds))
+              .orderBy(desc(auditLogs.createdAt))
+              .limit(parsedLimit);
           }
         }
+      } else if (entityType && entityId) {
+        logs = await storage.getAuditLogsByEntity(entityType as string, entityId as string);
+      } else {
         logs = await storage.getAuditLogs(parsedLimit);
       }
       
@@ -5248,6 +5278,7 @@ export function registerAdminRoutes(app: Express) {
   // Data export endpoint (admin only) - for syncing to production
   app.get("/api/admin/export-data", requireAdmin, async (req, res) => {
     try {
+      const orgId = getEffectiveOrgId(req);
       // Get all seed data (excluding trips, announcements, audit logs)
       const [
         locationsData,
@@ -5257,12 +5288,12 @@ export function registerAdminRoutes(app: Express) {
         structureDepartmentsData,
         usersData
       ] = await Promise.all([
-        storage.getLocations(),
-        storage.getVehicles(),
+        orgId ? db.select().from(locations).where(eq(locations.organizationId, orgId)) : storage.getLocations(),
+        orgId ? db.select().from(vehiclesTable).where(eq(vehiclesTable.organizationId, orgId)) : storage.getVehicles(),
         storage.getStructures(),
         storage.getDepartments(),
         storage.getAllStructureDepartments(),
-        storage.getUsers()
+        orgId ? db.select().from(users).where(eq(users.organizationId, orgId)) : storage.getUsers()
       ]);
       
       // Remove passwords from users for security

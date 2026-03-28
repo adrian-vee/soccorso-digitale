@@ -512,6 +512,10 @@ export function registerTripRoutes(app: Express) {
       if (!trip) {
         return res.status(404).json({ error: "Viaggio non trovato" });
       }
+      const orgId = getOrganizationId(req);
+      if (orgId && trip.organizationId && trip.organizationId !== orgId) {
+        return res.status(403).json({ error: "Accesso non autorizzato" });
+      }
       const enrichedTrips = await enrichTrips([trip]);
       res.json(enrichedTrips[0]);
     } catch (error) {
@@ -537,7 +541,7 @@ export function registerTripRoutes(app: Express) {
     try {
       let tripIds = await storage.getTripsWithDeviceAuth();
       const orgId = getEffectiveOrgId(req);
-      if (isOrgAdmin(req) && orgId) {
+      if (orgId && !isFullAdmin(req)) {
         const orgTrips = await db.select({ id: trips.id }).from(trips).where(eq(trips.organizationId, orgId));
         const orgTripIds = new Set(orgTrips.map(t => t.id));
         tripIds = tripIds.filter(id => orgTripIds.has(id));
