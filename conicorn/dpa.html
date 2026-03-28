@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Data Processing Agreement (DPA) — Soccorso Digitale</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-navy: #0B2E50;
+      --color-ink: #1A2B32;
+      --color-teal-dark: #1F6583;
+      --color-teal-light: #5EB0BB;
+      --color-bg: #DFEAE8;
+      --color-muted: #808976;
+      --color-white: #FFFFFF;
+      --font-heading: 'Sora', system-ui, sans-serif;
+      --font-body: 'Inter', system-ui, sans-serif;
+    }
+    body { font-family: var(--font-body); background: var(--color-bg); color: var(--color-ink); line-height: 1.7; }
+    .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 16px 0; transition: all 200ms ease; background: rgba(223,234,232,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(11,46,80,0.08); }
+    .legal-page { padding: 120px 24px 96px; }
+    .legal-content { max-width: 800px; margin: 0 auto; background: #fff; border-radius: 16px; padding: 56px; box-shadow: 0 1px 3px rgba(11,46,80,0.08); }
+    .legal-content h1 { font-family: var(--font-heading); font-size: 32px; font-weight: 700; color: var(--color-navy); margin-bottom: 8px; letter-spacing: -0.02em; }
+    .legal-content .update-date { color: var(--color-muted); font-size: 13px; margin-bottom: 40px; }
+    .legal-content h2 { font-family: var(--font-heading); font-size: 20px; font-weight: 600; color: var(--color-navy); margin: 40px 0 16px; }
+    .legal-content h3 { font-family: var(--font-heading); font-size: 17px; font-weight: 600; color: var(--color-ink); margin: 28px 0 12px; }
+    .legal-content p { margin-bottom: 16px; }
+    .legal-content ul { margin: 0 0 16px 20px; }
+    .legal-content li { margin-bottom: 8px; }
+    .legal-content a { color: var(--color-teal-dark); }
+    .legal-content strong { color: var(--color-navy); }
+    .legal-content .highlight-box { background: rgba(94,176,187,0.08); border: 1px solid rgba(94,176,187,0.2); border-radius: 12px; padding: 20px 24px; margin: 24px 0; }
+    .dpa-table { width: 100%; border-collapse: collapse; margin: 16px 0 24px; font-size: 14px; }
+    .dpa-table th { font-family: var(--font-heading); font-size: 12px; font-weight: 600; color: var(--color-muted); text-transform: uppercase; letter-spacing: 0.05em; text-align: left; padding: 10px 12px; border-bottom: 2px solid rgba(11,46,80,0.1); background: rgba(11,46,80,0.02); }
+    .dpa-table td { color: var(--color-ink); padding: 12px 12px; border-bottom: 1px solid rgba(11,46,80,0.06); vertical-align: top; }
+    .dpa-table tr:last-child td { border-bottom: none; }
+    .security-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0 24px; }
+    .security-item { background: rgba(11,46,80,0.02); border: 1px solid rgba(11,46,80,0.08); border-radius: 10px; padding: 16px 18px; }
+    .security-item strong { display: block; font-size: 13px; color: var(--color-navy); margin-bottom: 4px; }
+    .security-item span { font-size: 13px; color: var(--color-muted); }
+    .cta-box { background: var(--color-navy); border-radius: 14px; padding: 32px; text-align: center; margin: 40px 0 0; }
+    .cta-box h3 { font-family: var(--font-heading); font-size: 20px; font-weight: 700; color: #fff; margin-bottom: 10px; }
+    .cta-box p { color: rgba(255,255,255,0.7); font-size: 14px; margin-bottom: 20px; }
+    .cta-box a { display: inline-block; background: var(--color-teal-light); color: var(--color-navy); font-weight: 600; font-size: 15px; padding: 12px 32px; border-radius: 8px; text-decoration: none; }
+    @media (max-width: 640px) { .legal-content { padding: 32px 20px; } .legal-content h1 { font-size: 24px; } .security-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+<header class="navbar" id="navbar">
+  <div style="max-width:1200px;margin:0 auto;padding:0 24px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
+        <svg viewBox="0 0 64 64" width="36" height="36" aria-hidden="true">
+          <rect x="26" y="8" width="12" height="48" rx="3" fill="var(--color-navy)"/>
+          <rect x="8" y="26" width="48" height="12" rx="3" fill="var(--color-navy)"/>
+          <path d="M 10 50 Q 32 32 54 50" stroke="#32D74B" stroke-width="4" fill="none" stroke-linecap="round"/>
+        </svg>
+        <span style="font-family:var(--font-heading);font-size:17px;font-weight:600;color:var(--color-navy);">Soccorso <span style="color:var(--color-teal-dark);">Digitale</span></span>
+      </a>
+      <nav style="display:flex;gap:24px;align-items:center;">
+        <a href="/#pricing" style="font-size:14px;font-weight:500;color:var(--color-ink);text-decoration:none;">Prezzi</a>
+        <a href="/demo" style="font-size:14px;font-weight:600;background:var(--color-teal-light);color:var(--color-navy);padding:10px 20px;border-radius:8px;text-decoration:none;">Prova Gratis</a>
+      </nav>
+    </div>
+  </div>
+</header>
+
+<main class="legal-page">
+  <div class="legal-content">
+    <h1>Data Processing Agreement</h1>
+    <p class="update-date">Ultimo aggiornamento: Marzo 2026</p>
+
+    <div class="highlight-box">
+      <p style="margin:0;">
+        Il presente Data Processing Agreement (DPA) disciplina il trattamento dei dati personali tra l'<strong>Organizzazione Cliente</strong> (Titolare del trattamento) e <strong>Soccorso Digitale S.r.l.</strong> (Responsabile del trattamento), ai sensi dell'art. 28 del Regolamento (UE) 2016/679 (GDPR).
+      </p>
+    </div>
+
+    <h2>1. Oggetto e durata</h2>
+    <p>
+      Il presente DPA regola il trattamento dei dati personali necessari per l'erogazione della Piattaforma SaaS Soccorso Digitale. La durata del DPA coincide con quella del contratto di licenza sottoscritto dall'Organizzazione Cliente e si estingue automaticamente alla sua scadenza o risoluzione, salvo obblighi di conservazione previsti dalla normativa vigente.
+    </p>
+
+    <h2>2. Natura e finalità del trattamento</h2>
+    <p>
+      Soccorso Digitale S.r.l., in qualità di Responsabile del trattamento ai sensi dell'art. 28 GDPR, tratta i dati forniti dall'Organizzazione Cliente esclusivamente per le seguenti finalità:
+    </p>
+    <ul>
+      <li>Erogare, mantenere e aggiornare la Piattaforma SaaS</li>
+      <li>Fornire supporto tecnico e assistenza all'Organizzazione Cliente</li>
+      <li>Eseguire operazioni di backup, disaster recovery e monitoraggio dell'infrastruttura</li>
+      <li>Adempiere agli obblighi di legge applicabili</li>
+    </ul>
+    <p>
+      Il trattamento dei dati avviene esclusivamente su istruzione documentata del Titolare. Soccorso Digitale non utilizza i dati per finalità proprie né li cede a terzi al di fuori di quanto previsto nel presente DPA.
+    </p>
+
+    <h2>3. Tipi di dati personali trattati</h2>
+    <ul>
+      <li><strong>Dati comuni (art. 6 GDPR):</strong> nome, cognome, codice fiscale, indirizzo email, numero di telefono, indirizzo postale, dati di fatturazione</li>
+      <li><strong>Dati particolari (art. 9 GDPR):</strong> dati relativi allo stato di salute impliciti dai servizi di trasporto sanitario e gestione delle missioni di soccorso</li>
+    </ul>
+
+    <h2>4. Categorie di interessati</h2>
+    <ul>
+      <li>Operatori, coordinatori e volontari dell'Organizzazione Cliente</li>
+      <li>Pazienti trasportati e assistiti (hub prenotazioni e missioni)</li>
+      <li>Medici e personale sanitario delle strutture convenzionate</li>
+      <li>Referenti amministrativi e responsabili delle strutture partner</li>
+    </ul>
+
+    <h2>5. Sub-responsabili del trattamento</h2>
+    <p>
+      Soccorso Digitale si avvale dei seguenti sub-responsabili, ciascuno vincolato da accordi contrattuali conformi all'art. 28 GDPR:
+    </p>
+    <table class="dpa-table">
+      <thead>
+        <tr>
+          <th>Fornitore</th>
+          <th>Servizio</th>
+          <th>Sede / Garanzie</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Railway</strong></td>
+          <td>Hosting database e applicazione</td>
+          <td>Unione Europea</td>
+        </tr>
+        <tr>
+          <td><strong>Supabase</strong></td>
+          <td>Autenticazione e realtime database</td>
+          <td>EU — Frankfurt (AWS eu-central-1)</td>
+        </tr>
+        <tr>
+          <td><strong>Cloudflare</strong></td>
+          <td>CDN, DNS, protezione DDoS, WAF</td>
+          <td>Unione Europea</td>
+        </tr>
+        <tr>
+          <td><strong>Stripe</strong></td>
+          <td>Elaborazione pagamenti e fatturazione</td>
+          <td>EU/USA — Data Privacy Framework (DPF)</td>
+        </tr>
+        <tr>
+          <td><strong>Resend</strong></td>
+          <td>Invio email transazionali</td>
+          <td>EU/USA — Standard Contractual Clauses (SCC)</td>
+        </tr>
+        <tr>
+          <td><strong>Sentry</strong></td>
+          <td>Error monitoring e diagnostica applicativa</td>
+          <td>EU/USA — Standard Contractual Clauses (SCC)</td>
+        </tr>
+        <tr>
+          <td><strong>PostHog</strong></td>
+          <td>Analytics anonimi del prodotto</td>
+          <td>Unione Europea</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>
+      In caso di aggiunta di nuovi sub-responsabili, Soccorso Digitale notifica il Titolare con almeno 30 giorni di anticipo, offrendo la possibilità di opporsi.
+    </p>
+
+    <h2>6. Misure di sicurezza tecniche e organizzative</h2>
+    <div class="security-grid">
+      <div class="security-item">
+        <strong>Crittografia in transito</strong>
+        <span>TLS 1.3 su tutte le connessioni client-server e server-database</span>
+      </div>
+      <div class="security-item">
+        <strong>Crittografia a riposo</strong>
+        <span>AES-256 per tutti i dati persistiti su storage e backup</span>
+      </div>
+      <div class="security-item">
+        <strong>Autenticazione MFA</strong>
+        <span>Multi-factor authentication obbligatoria per accessi amministrativi all'infrastruttura</span>
+      </div>
+      <div class="security-item">
+        <strong>Backup giornalieri</strong>
+        <span>Retention 30 giorni, ripristino testato mensilmente</span>
+      </div>
+      <div class="security-item">
+        <strong>Accesso minimo necessario</strong>
+        <span>Principio del privilegio minimo: ogni operatore accede solo ai dati necessari al proprio ruolo</span>
+      </div>
+      <div class="security-item">
+        <strong>Audit log</strong>
+        <span>Registrazione di ogni accesso ai dati sensibili con timestamp e identificativo utente</span>
+      </div>
+    </div>
+
+    <h2>7. Notifica di data breach</h2>
+    <p>
+      In caso di violazione dei dati personali (art. 33 GDPR), Soccorso Digitale notifica il Titolare del trattamento <strong>entro 24 ore dalla scoperta</strong>, fornendo:
+    </p>
+    <ul>
+      <li>La natura della violazione e le categorie di dati coinvolti</li>
+      <li>Il numero approssimativo di interessati coinvolti</li>
+      <li>Le misure già adottate o proposte per rimediare alla violazione</li>
+      <li>Il nome e i recapiti del referente per ulteriori informazioni</li>
+    </ul>
+    <p>
+      Il Titolare rimane responsabile della notifica all'Autorità di controllo competente (Garante) entro 72 ore dalla scoperta, ove applicabile.
+    </p>
+
+    <h2>8. Restituzione e cancellazione dei dati</h2>
+    <p>
+      Al termine del contratto, l'Organizzazione Cliente ha diritto di richiedere l'esportazione completa dei propri dati in formato <strong>CSV e/o JSON</strong> entro 30 giorni dalla scadenza. Trascorso tale termine, i dati vengono eliminati definitivamente da tutti i sistemi e i backup, con conferma scritta all'Organizzazione Cliente.
+    </p>
+
+    <h2>9. Ispezioni e audit</h2>
+    <p>
+      Il Titolare del trattamento ha il diritto di condurre audit o ispezioni sulla conformità GDPR di Soccorso Digitale, anche tramite un revisore indipendente, con preavviso di almeno 30 giorni. Soccorso Digitale si impegna a fornire tutta la documentazione necessaria e a cooperare pienamente.
+    </p>
+
+    <h2>10. Legge applicabile</h2>
+    <p>
+      Il presente DPA è regolato dalla legge italiana e dal Regolamento (UE) 2016/679 (GDPR). Per qualsiasi controversia derivante dall'interpretazione o dall'esecuzione del presente accordo è competente in via esclusiva il <strong>Foro di Verona</strong>.
+    </p>
+
+    <div class="cta-box">
+      <h3>Sottoscrivi il DPA completo</h3>
+      <p>Per ricevere il testo integrale del DPA con firma digitale qualificata (ai sensi del Regolamento eIDAS), scrivi al nostro team privacy.</p>
+      <a href="mailto:privacy@soccorsodigitale.app">privacy@soccorsodigitale.app</a>
+    </div>
+  </div>
+</main>
+
+<footer style="background:#0B2E50;padding:40px 0;margin-top:0;">
+  <div style="max-width:1200px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;">
+    <div>
+      <a href="/" style="display:flex;align-items:center;gap:8px;text-decoration:none;">
+        <svg viewBox="0 0 64 64" width="24" height="24" aria-hidden="true">
+          <rect x="26" y="8" width="12" height="48" rx="3" fill="white"/>
+          <rect x="8" y="26" width="48" height="12" rx="3" fill="white"/>
+          <path d="M 10 50 Q 32 32 54 50" stroke="#32D74B" stroke-width="4" fill="none" stroke-linecap="round"/>
+        </svg>
+        <span style="font-family:var(--font-heading);font-size:14px;font-weight:600;color:white;">Soccorso <span style="color:#5EB0BB;">Digitale</span></span>
+      </a>
+      <p style="color:rgba(255,255,255,0.45);font-size:12px;margin-top:8px;">© 2026 Soccorso Digitale S.r.l. — Verona · Milano</p>
+    </div>
+    <nav style="display:flex;gap:20px;flex-wrap:wrap;">
+      <a href="/privacy-policy.html" style="font-size:13px;color:rgba(255,255,255,0.55);text-decoration:none;">Privacy</a>
+      <a href="/terms.html" style="font-size:13px;color:rgba(255,255,255,0.55);text-decoration:none;">Termini</a>
+      <a href="/cookie-policy.html" style="font-size:13px;color:rgba(255,255,255,0.55);text-decoration:none;">Cookie</a>
+      <a href="/dpa.html" style="font-size:13px;color:rgba(255,255,255,0.55);text-decoration:none;">DPA</a>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>

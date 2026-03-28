@@ -735,18 +735,35 @@ export function registerSaasOnboardingRoutes(app: Express): void {
 
   // ── General contact ────────────────────────────────────────────────────────
   app.post("/api/public/contact", async (req: Request, res: Response) => {
-    const { nome, email, tipo, messaggio } = req.body;
+    const { nome, email, tipo, messaggio, organizzazione } = req.body;
     if (!nome || !email || !messaggio) {
       return res.status(400).json({ error: "Campi obbligatori mancanti" });
     }
     try {
       const { client } = await getResendClient();
+      // Internal notification
       await client.emails.send({
         from: FROM_EMAIL,
-        to: "info@soccorsodigitale.app",
-        subject: `[${tipo || "Contatto"}] da ${nome}`,
-        html: `<p><strong>Nome:</strong> ${nome}<br><strong>Email:</strong> ${email}<br><strong>Tipo:</strong> ${tipo || "—"}<br><strong>Messaggio:</strong><br>${messaggio}</p>`,
+        to: "hello@soccorsodigitale.app",
+        subject: `[Contatto sito] ${tipo ? `${tipo} — ` : ""}${nome}`,
+        html: `<p><strong>Nome:</strong> ${nome}<br><strong>Email:</strong> ${email}<br><strong>Organizzazione:</strong> ${organizzazione || "—"}<br><strong>Tipo:</strong> ${tipo || "—"}<br><strong>Messaggio:</strong><br>${messaggio}</p>`,
       });
+      // Confirmation to sender
+      await sendEmail(email, "Abbiamo ricevuto il tuo messaggio — Soccorso Digitale", `
+<h2 style="color:#0B2E50;font-size:20px;margin:0 0 12px;">Ciao ${nome},</h2>
+<p style="color:#1A2B32;font-size:15px;line-height:1.7;margin:0 0 16px;">
+  Abbiamo ricevuto il tuo messaggio e ti risponderemo al più presto all'indirizzo <strong>${email}</strong>.
+</p>
+<p style="color:#1A2B32;font-size:15px;line-height:1.7;margin:0 0 24px;">
+  Nel frattempo, puoi scoprire di più su Soccorso Digitale visitando il sito o attivando un trial gratuito.
+</p>
+<p style="text-align:center;">
+  <a href="${APP_URL}/demo" style="display:inline-block;background:#0B2E50;color:#fff;text-decoration:none;padding:12px 36px;border-radius:8px;font-size:15px;font-weight:600;">Prova Gratis 7 Giorni</a>
+</p>
+<p style="color:#808976;font-size:13px;margin-top:24px;">
+  Hai bisogno di aiuto urgente? Scrivi a <a href="mailto:hello@soccorsodigitale.app" style="color:#1F6583;">hello@soccorsodigitale.app</a>
+</p>
+`);
     } catch (err) {
       console.error("Contact email error (non-fatal):", err);
     }

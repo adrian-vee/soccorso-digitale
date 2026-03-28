@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Policy — Soccorso Digitale</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-navy: #0B2E50;
+      --color-ink: #1A2B32;
+      --color-teal-dark: #1F6583;
+      --color-teal-light: #5EB0BB;
+      --color-bg: #DFEAE8;
+      --color-muted: #808976;
+      --color-white: #FFFFFF;
+      --font-heading: 'Sora', system-ui, sans-serif;
+      --font-body: 'Inter', system-ui, sans-serif;
+    }
+    body { font-family: var(--font-body); background: var(--color-bg); color: var(--color-ink); line-height: 1.7; }
+    .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 16px 0; transition: all 200ms ease; background: rgba(223,234,232,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(11,46,80,0.08); }
+    .legal-page { padding: 120px 24px 96px; }
+    .legal-content { max-width: 800px; margin: 0 auto; background: #fff; border-radius: 16px; padding: 56px; box-shadow: 0 1px 3px rgba(11,46,80,0.08); }
+    .legal-content h1 { font-family: var(--font-heading); font-size: 32px; font-weight: 700; color: var(--color-navy); margin-bottom: 8px; letter-spacing: -0.02em; }
+    .legal-content .update-date { color: var(--color-muted); font-size: 13px; margin-bottom: 40px; }
+    .legal-content h2 { font-family: var(--font-heading); font-size: 20px; font-weight: 600; color: var(--color-navy); margin: 40px 0 16px; }
+    .legal-content h3 { font-family: var(--font-heading); font-size: 17px; font-weight: 600; color: var(--color-ink); margin: 28px 0 12px; }
+    .legal-content p { margin-bottom: 16px; }
+    .legal-content ul { margin: 0 0 16px 20px; }
+    .legal-content li { margin-bottom: 8px; }
+    .legal-content a { color: var(--color-teal-dark); }
+    .legal-content strong { color: var(--color-navy); }
+    .legal-content .highlight-box { background: rgba(94,176,187,0.08); border: 1px solid rgba(94,176,187,0.2); border-radius: 12px; padding: 20px 24px; margin: 24px 0; }
+    @media (max-width: 640px) { .legal-content { padding: 32px 20px; } .legal-content h1 { font-size: 24px; } }
+  </style>
+</head>
+<body>
+
+<header class="navbar" id="navbar">
+  <div style="max-width:1200px;margin:0 auto;padding:0 24px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
+        <svg viewBox="0 0 64 64" width="36" height="36" aria-hidden="true">
+          <rect x="26" y="8" width="12" height="48" rx="3" fill="var(--color-navy)"/>
+          <rect x="8" y="26" width="48" height="12" rx="3" fill="var(--color-navy)"/>
+          <path d="M 10 50 Q 32 32 54 50" stroke="#32D74B" stroke-width="4" fill="none" stroke-linecap="round"/>
+        </svg>
+        <span style="font-family:var(--font-heading);font-size:17px;font-weight:600;color:var(--color-navy);">Soccorso <span style="color:var(--color-teal-dark);">Digitale</span></span>
+      </a>
+      <nav style="display:flex;gap:24px;align-items:center;">
+        <a href="/#pricing" style="font-size:14px;font-weight:500;color:var(--color-ink);text-decoration:none;">Prezzi</a>
+        <a href="/demo" style="font-size:14px;font-weight:600;background:var(--color-teal-light);color:var(--color-navy);padding:10px 20px;border-radius:8px;text-decoration:none;">Prova Gratis</a>
+      </nav>
+    </div>
+  </div>
+</header>
+
+<main class="legal-page">
+  <div class="legal-content">
+    <h1>Informativa sulla Privacy</h1>
+    <p class="update-date">Ultimo aggiornamento: Marzo 2026</p>
+
+    <h2>1. Titolare del trattamento</h2>
+    <p>
+      <strong>Soccorso Digitale S.r.l.</strong>, P.IVA 02663420236, con sede legale in Verona.<br>
+      Contatto privacy: <a href="mailto:privacy@soccorsodigitale.app">privacy@soccorsodigitale.app</a>
+    </p>
+
+    <h2>2. Quali dati raccogliamo</h2>
+    <ul>
+      <li><strong>Form di contatto:</strong> nome, email, nome organizzazione, messaggio</li>
+      <li><strong>Registrazione trial:</strong> nome, email, nome organizzazione, telefono (opzionale)</li>
+      <li><strong>Navigazione sito:</strong> dati tecnici anonimi tramite PostHog analytics (anonimizzati, non riconducibili a persone fisiche)</li>
+      <li><strong>Pagamenti:</strong> dati di pagamento elaborati tramite Stripe — non archiviamo numeri di carte di credito</li>
+    </ul>
+
+    <h2>3. Finalità e base giuridica</h2>
+    <ul>
+      <li><strong>Rispondere alle richieste di contatto</strong> — base giuridica: legittimo interesse (art. 6.1.f GDPR)</li>
+      <li><strong>Attivare e gestire il trial o l'abbonamento</strong> — base giuridica: esecuzione del contratto (art. 6.1.b GDPR)</li>
+      <li><strong>Migliorare il sito tramite analytics anonimi</strong> — base giuridica: legittimo interesse (art. 6.1.f GDPR)</li>
+    </ul>
+
+    <h2>4. Conservazione dei dati</h2>
+    <ul>
+      <li><strong>Dati di contatto:</strong> 2 anni dall'ultimo contatto</li>
+      <li><strong>Dati account trial/abbonamento:</strong> per tutta la durata del contratto + 5 anni (obblighi fiscali e contabili)</li>
+      <li><strong>Log tecnici:</strong> 90 giorni</li>
+    </ul>
+
+    <h2>5. Condivisione con terze parti (sub-responsabili)</h2>
+    <p>I dati sono trattati esclusivamente dai seguenti fornitori, ciascuno vincolato da adeguate garanzie contrattuali ai sensi dell'art. 28 GDPR:</p>
+    <ul>
+      <li><strong>Railway</strong> — hosting database e applicazione, server UE</li>
+      <li><strong>Supabase</strong> — autenticazione e realtime, server EU Frankfurt</li>
+      <li><strong>Cloudflare</strong> — CDN e protezione DDoS, server UE</li>
+      <li><strong>Stripe</strong> — elaborazione pagamenti, UE/USA con Standard Contractual Clauses (SCC) e DPF</li>
+      <li><strong>Resend</strong> — invio email transazionali, UE/USA con SCC</li>
+      <li><strong>Sentry</strong> — error monitoring, UE/USA con SCC</li>
+      <li><strong>PostHog</strong> — analytics anonimi, server UE</li>
+    </ul>
+
+    <h2>6. I tuoi diritti (GDPR artt. 15–22)</h2>
+    <p>
+      Hai diritto di accesso, rettifica, cancellazione ("diritto all'oblio"), portabilità dei dati, limitazione del trattamento e opposizione. Puoi esercitare i tuoi diritti in qualsiasi momento scrivendo a: <a href="mailto:privacy@soccorsodigitale.app">privacy@soccorsodigitale.app</a>.
+    </p>
+    <p>
+      Hai inoltre il diritto di proporre reclamo al Garante per la Protezione dei Dati Personali (<a href="https://www.garanteprivacy.it" target="_blank" rel="noopener">garanteprivacy.it</a>).
+    </p>
+
+    <h2>7. Cookie</h2>
+    <p>Per informazioni dettagliate sull'utilizzo dei cookie, consulta la nostra <a href="/cookie-policy.html">Cookie Policy</a>.</p>
+
+    <h2>8. Modifiche all'informativa</h2>
+    <p>
+      Ci riserviamo il diritto di aggiornare la presente informativa in caso di modifiche normative o organizzative. La versione aggiornata sarà sempre pubblicata su questa pagina con la relativa data di aggiornamento.
+    </p>
+  </div>
+</main>
+
+<footer style="background:#0B2E50;padding:40px 0;margin-top:0;">
+  <div style="max-width:1200px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;">
+    <div>
+      <a href="/" style="display:flex;align-items:center;gap:8px;text-decoration:none;">
+        <svg viewBox="0 0 64 64" width="24" height="24" aria-hidden="true">
+          <rect x="26" y="8" width="12" height="48" rx="3" fill="white"/>
+          <rect x="8" y="26" width="48" height="12" rx="3" fill="white"/>
+          <path d="M 10 50 Q 32 32 54 50" stroke="#32D74B" stroke-width="4" fill="none" stroke-linecap="round"/>
+        </svg>
+        <span style="font-family:var(--font-heading);font-size:14px;font-weight:600;color:white;">Soccorso <span style="color:#5EB0BB;">Digitale</span></span>
+      </a>
+      <p style="color:rgba(255,255,255,0.45);font-size:12px;margin-top:8px;">© 2026 Soccorso Digitale S.r.l. — Verona · Milano</p>
+    </div>
+    <nav style="display:flex;gap:20px;flex-wrap:wrap;">
+      <a href="/privacy-policy.html" style="font-size:13px;color:rgba(255,255,255,0.55);text-decoration:none;">Privacy</a>
+      <a href="/terms.html" style="font-size:13px;color:rgba(255,255,255,0.55);text-decoration:none;">Termini</a>
+      <a href="/cookie-policy.html" style="font-size:13px;color:rgba(255,255,255,0.55);text-decoration:none;">Cookie</a>
+      <a href="/dpa.html" style="font-size:13px;color:rgba(255,255,255,0.55);text-decoration:none;">DPA</a>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>
