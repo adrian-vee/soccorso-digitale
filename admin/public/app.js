@@ -1635,13 +1635,21 @@ function applyRoleBasedAccess() {
       'scheduling', 'monthly-scheduling', 'staff-availability', 'shift-statistics', 'shift-settings',
       // Inventario e sede
       'inventory', 'scadenze', 'sedi', 'branch-managers', 'structures', 'structure-requests',
-      // Governance
-      'compliance', 'data-quality',
       // Report
       'statistics', 'reports', 'finance',
       // Comunicazioni
       'announcements',
     ]);
+
+    // GOVERNANCE (Compliance e Audit, Qualità del Dato) — solo per org con piano attivo
+    // Le org in trial (status='trial' o isDemo=true) non vedono questa sezione
+    const orgStatus = currentUserInfo.organization?.status;
+    const orgIsDemo = currentUserInfo.organization?.isDemo;
+    const isTrialOrg = orgStatus === 'trial' || orgIsDemo === true;
+    if (!isTrialOrg) {
+      orgAdminAllowedPages.add('compliance');
+      orgAdminAllowedPages.add('data-quality');
+    }
 
     window._premiumLockedPages = new Set();
 

@@ -411,6 +411,7 @@ export function registerAuthRoutes(app: Express) {
             logoUrl: org.logoUrl,
             isDemo: org.isDemo || false,
             demoExpiresAt: org.demoExpiresAt || null,
+            status: org.status,
           };
         }
       }
