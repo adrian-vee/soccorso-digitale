@@ -36509,3 +36509,137 @@ body.sa-support-mode  #platform-nav    { display: none !important; }
   transition: background 0.15s, color 0.15s;
 }
 .btn-link:hover { background: rgba(0,102,204,0.08); }
+
+/* ======================================================
+   SIDEBAR NORDIC RESCUE RESTYLE — Override Block
+   Palette: #FFFFFF bg, #1E3A8A active, #DBEAFE active bg
+   Collapse: 240px ↔ 64px | transition: width 0.3s ease
+   ====================================================== */
+
+.main-sidebar {
+  width: 240px;
+  background: #FFFFFF;
+  border-right: 1px solid #E2E8F0;
+  transition: width 0.3s ease;
+}
+
+.main-sidebar .sidebar-nav {
+  scrollbar-color: #E2E8F0 transparent;
+}
+.main-sidebar .sidebar-nav::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+}
+
+/* Nav section header — light */
+.main-sidebar .nav-section-header {
+  color: #64748B;
+}
+.main-sidebar .nav-section-header:hover {
+  background: #F0F4FF;
+  color: #1E3A8A;
+}
+.main-sidebar .nav-section-header-icon {
+  color: #64748B;
+  background: transparent;
+}
+.main-sidebar .nav-section-chevron {
+  color: #CBD5E1;
+}
+
+/* Nav items — light */
+.main-sidebar .nav-item {
+  color: #374151;
+  font-size: 13.5px;
+}
+.main-sidebar .nav-item:hover {
+  background: #F0F4FF;
+  color: #1E3A8A;
+}
+.main-sidebar .nav-item.active {
+  background: #DBEAFE;
+  color: #1E3A8A;
+}
+.main-sidebar .nav-item.active svg {
+  color: #1E3A8A;
+}
+
+.main-sidebar .nav-item-compliance {
+  background: rgba(16, 185, 129, 0.07);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+.main-sidebar .nav-item-compliance:hover {
+  background: rgba(16, 185, 129, 0.13);
+}
+
+.main-sidebar .sidebar-footer {
+  border-top: 1px solid #E2E8F0;
+  background: transparent;
+}
+
+.main-wrapper {
+  margin-left: 240px;
+  transition: margin-left 0.3s ease;
+}
+
+/* ── Collapsed state ─────────────────────────────── */
+.main-sidebar.collapsed {
+  width: 64px;
+}
+.main-wrapper.sidebar-collapsed {
+  margin-left: 64px;
+}
+
+.main-sidebar.collapsed #brand-text-group,
+.main-sidebar.collapsed #sidebar-search-wrapper,
+.main-sidebar.collapsed #org-filter-container,
+.main-sidebar.collapsed .nav-item > span,
+.main-sidebar.collapsed .nav-section-header-label,
+.main-sidebar.collapsed .nav-section-chevron,
+.main-sidebar.collapsed #footer-org-name,
+.main-sidebar.collapsed .sidebar-footer-org-banner {
+  display: none !important;
+}
+
+.main-sidebar.collapsed .nav-item {
+  justify-content: center;
+  padding: 10px;
+  gap: 0;
+}
+.main-sidebar.collapsed .nav-section-header {
+  justify-content: center;
+  padding: 8px;
+  gap: 0;
+}
+.main-sidebar.collapsed .sidebar-nav {
+  padding: 8px 6px 16px;
+}
+.main-sidebar.collapsed #logout-btn {
+  padding: 10px;
+  justify-content: center;
+}
+
+/* ── Tooltip in collapsed state ──────────────────── */
+.main-sidebar.collapsed .nav-item[data-tooltip] {
+  position: relative;
+}
+.main-sidebar.collapsed .nav-item[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: 56px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #0C1A2E;
+  color: #FFFFFF;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 5px 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+  z-index: 500;
+}
+.main-sidebar.collapsed .nav-item[data-tooltip]:hover::after {
+  opacity: 1;
+}

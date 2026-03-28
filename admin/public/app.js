@@ -45,6 +45,47 @@ function restoreSidebarSections() {
   } catch(e) {}
 }
 
+// === Sidebar Collapse ===
+function toggleSidebarCollapse() {
+  const sidebar = document.getElementById('main-sidebar');
+  const wrapper = document.querySelector('.main-wrapper');
+  const icon = document.getElementById('sidebar-collapse-icon');
+  if (!sidebar) return;
+
+  const isCollapsed = sidebar.classList.toggle('collapsed');
+  if (wrapper) wrapper.classList.toggle('sidebar-collapsed', isCollapsed);
+  if (icon) {
+    const polyline = icon.querySelector('polyline');
+    if (polyline) polyline.setAttribute('points', isCollapsed ? '9 18 15 12 9 6' : '15 18 9 12 15 6');
+  }
+  try { localStorage.setItem('sidebarCollapsed', isCollapsed ? '1' : '0'); } catch(e) {}
+}
+
+function initSidebarCollapse() {
+  // Set data-tooltip from span text for all nav items
+  document.querySelectorAll('.nav-item[data-page]').forEach(item => {
+    if (!item.dataset.tooltip) {
+      const span = item.querySelector('span');
+      if (span) item.dataset.tooltip = span.textContent.trim();
+    }
+  });
+
+  // Restore collapsed state from localStorage
+  try {
+    if (localStorage.getItem('sidebarCollapsed') === '1') {
+      const sidebar = document.getElementById('main-sidebar');
+      const wrapper = document.querySelector('.main-wrapper');
+      const icon = document.getElementById('sidebar-collapse-icon');
+      if (sidebar) sidebar.classList.add('collapsed');
+      if (wrapper) wrapper.classList.add('sidebar-collapsed');
+      if (icon) {
+        const polyline = icon.querySelector('polyline');
+        if (polyline) polyline.setAttribute('points', '9 18 15 12 9 6');
+      }
+    }
+  } catch(e) {}
+}
+
 // === Sidebar Search ===
 function initSidebarSearch() {
   const searchInput = document.getElementById('sidebar-search');
@@ -853,9 +894,10 @@ function setupEventListeners() {
   document.getElementById('logout-btn').addEventListener('click', handleLogout);
   document.getElementById('refresh-btn').addEventListener('click', refreshData);
   
-  // Restore collapsible sidebar sections and init search
+  // Restore collapsible sidebar sections, search, and collapse state
   restoreSidebarSections();
   initSidebarSearch();
+  initSidebarCollapse();
   
   // New sidebar navigation
   document.querySelectorAll('.nav-item').forEach(item => {
