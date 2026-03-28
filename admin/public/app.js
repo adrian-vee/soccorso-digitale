@@ -14298,11 +14298,15 @@ async function initGpsMap() {
   const loadingOverlay = document.getElementById('map-loading');
   if (!mapContainer) return;
   if (gpsMap) { if (loadingOverlay) loadingOverlay.classList.add('hidden'); await loadGpsData(); return; }
+  // Restore dark map preference from localStorage
+  gpsMapDark = localStorage.getItem('fleet_dark_map') === '1';
   gpsMap = L.map(mapContainer).setView([45.3836, 11.0397], 10);
+  // Base tile applied via applyDarkMapTile after map init
   gpsBaseTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
     maxZoom: 19
   }).addTo(gpsMap);
+  if (gpsMapDark) { applyDarkMapTile(); }
   // P2-7: marker cluster group
   gpsMarkerCluster = L.markerClusterGroup({
     maxClusterRadius: 60,
@@ -14581,45 +14585,45 @@ function createVehicleIcon(vehicle) {
 function createAmbulanceSvgIcon(vehicle) {
   const heading = vehicle.heading ?? 0;
 
-  // Color by status (user spec)
-  let color, showPulse;
-  if (vehicle.isOnService && !vehicle.isWaitingForVisit) {
-    color = '#1E3A8A'; showPulse = true;    // in servizio → dark blue + pulse
+  // Nordic Rescue palette by status
+  let color;
+  const isActive = vehicle.isOnService && !vehicle.isWaitingForVisit;
+  if (isActive) {
+    color = '#10B981';  // verde — in servizio/missione attiva
   } else if (vehicle.isWaitingForVisit) {
-    color = '#F59E0B'; showPulse = false;   // in attesa/rientro → amber
+    color = '#EF4444';  // rosso — fermo per visita
   } else if (vehicle.isTracking) {
-    color = '#10B981'; showPulse = false;   // disponibile → green
+    color = '#1E3A8A';  // blu — tracking attivo disponibile
+  } else if (vehicle.isOnService) {
+    color = '#F59E0B';  // ambra — in sede/standby
   } else {
-    color = '#94A3B8'; showPulse = false;   // offline/sede → gray
+    color = '#64748B';  // grigio — offline
   }
 
-  // SVG: 28×34 viewBox. Circle center = (14, 22) = iconAnchor.
-  // Fin points UP (north) when heading=0 — rotated by heading via transform.
-  // Rotation origin locked to circle center so GPS coordinate stays fixed.
-  const pulse = showPulse
-    ? `<circle cx="14" cy="22" r="10" fill="${color}" opacity="0.22" class="amb-svg-pulse"/>`
+  // Pulse ring HTML (only for active service)
+  const pulseHtml = isActive
+    ? `<div class="amb-pulse-ring" style="border-color:${color}"></div>`
     : '';
 
-  const svg = `<svg width="28" height="34" viewBox="0 0 28 34"
-      xmlns="http://www.w3.org/2000/svg"
-      style="transform:rotate(${heading}deg);transform-origin:14px 22px;display:block;overflow:visible">
-    ${pulse}
-    <!-- Directional fin pointing UP = heading direction -->
-    <polygon points="14,1 20,14 8,14" fill="${color}"/>
-    <!-- Circle body — center is the GPS anchor point -->
-    <circle cx="14" cy="22" r="10" fill="${color}" stroke="white" stroke-width="2"/>
-    <!-- Medical cross -->
-    <rect x="8.5" y="20.5" width="11" height="3" rx="1.5" fill="white"/>
-    <rect x="12" y="17.5" width="4" height="9" rx="2" fill="white"/>
+  // Top-down ambulance SVG (40×40 viewBox, rotated via wrapper div)
+  const svgHtml = `<svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" style="display:block;filter:drop-shadow(0 2px 5px rgba(0,0,0,0.28))">
+    <rect x="10" y="4" width="20" height="32" rx="4" fill="${color}" stroke="white" stroke-width="1.5"/>
+    <rect x="16" y="12" width="8" height="2.5" rx="0.5" fill="white"/>
+    <rect x="18.75" y="9.5" width="2.5" height="8" rx="0.5" fill="white"/>
+    <polygon points="20,1 25,7 15,7" fill="white" opacity="0.9"/>
+    <rect x="12" y="33" width="4" height="2" rx="1" fill="#EF4444" opacity="0.8"/>
+    <rect x="24" y="33" width="4" height="2" rx="1" fill="#EF4444" opacity="0.8"/>
   </svg>`;
 
+  const html = `<div class="amb-wrap-v3" style="transform:rotate(${heading}deg)">${pulseHtml}${svgHtml}</div>`;
+
   return L.divIcon({
-    html: svg,
-    className: 'amb-divicon-v2',
-    iconSize:   [28, 34],
-    iconAnchor: [14, 22],   // circle center = GPS coordinate
-    popupAnchor:  [0, -24],
-    tooltipAnchor:[0, -25]
+    html,
+    className: 'amb-divicon-v3',
+    iconSize:    [40, 40],
+    iconAnchor:  [20, 20],
+    popupAnchor: [0, -24],
+    tooltipAnchor: [0, -22]
   });
 }
 
@@ -14627,12 +14631,17 @@ function createAmbulanceSvgIcon(vehicle) {
 function toggleDarkMap() {
   if (!gpsMap) return;
   gpsMapDark = !gpsMapDark;
+  localStorage.setItem('fleet_dark_map', gpsMapDark ? '1' : '0');
+  applyDarkMapTile();
+}
+
+function applyDarkMapTile() {
+  if (!gpsMap) return;
   if (gpsBaseTileLayer) { gpsMap.removeLayer(gpsBaseTileLayer); }
   if (gpsMapDark) {
     gpsBaseTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
       attribution: '&copy; OpenStreetMap &copy; CARTO', maxZoom: 19
     }).addTo(gpsMap);
-    // Ensure base layer is behind everything
     gpsBaseTileLayer.bringToBack();
     document.querySelector('#gps-tracking-section .gps-map-legend-v3')?.classList.add('dark-legend');
   } else {
@@ -14816,20 +14825,28 @@ function highlightVehicleInList(vehicleId) {
 function renderGpsVehicleList(vehiclePositions) {
   const container = document.getElementById('gps-vehicles-list');
   if (!container) return;
-  
+
   const filter = document.getElementById('gps-vehicle-filter')?.value || 'all';
-  
+  const search = (document.getElementById('gps-vehicle-search')?.value || '').toLowerCase().trim();
+
   let filtered = vehiclePositions.filter(v => {
-    if (filter === 'active') return v.isOnService && !v.isWaitingForVisit;
-    if (filter === 'waiting') return v.isWaitingForVisit;
-    if (filter === 'tracking') return v.isTracking;
-    if (filter === 'idle') return !v.isOnService && !v.isTracking && !v.isWaitingForVisit;
+    // Status filter
+    if (filter === 'active'   && !(v.isOnService && !v.isWaitingForVisit)) return false;
+    if (filter === 'waiting'  && !v.isWaitingForVisit) return false;
+    if (filter === 'tracking' && !v.isTracking) return false;
+    if (filter === 'idle'     && (v.isOnService || v.isTracking || v.isWaitingForVisit)) return false;
+    // Search filter
+    if (search) {
+      const code = (v.vehicleCode || '').toLowerCase();
+      const plate = (v.licensePlate || '').toLowerCase();
+      if (!code.includes(search) && !plate.includes(search)) return false;
+    }
     return true;
   });
-  
+
   const countEl = document.getElementById('fleet-vehicle-count');
   if (countEl) countEl.textContent = filtered.length;
-  
+
   if (filtered.length === 0) {
     container.innerHTML = `
       <div class="gps-vehicle-empty-v3">
@@ -14839,54 +14856,50 @@ function renderGpsVehicleList(vehiclePositions) {
     `;
     return;
   }
-  
+
   const sorted = [...filtered].sort((a, b) => {
-    if (a.isWaitingForVisit !== b.isWaitingForVisit) return (b.isWaitingForVisit ? 1 : 0) - (a.isWaitingForVisit ? 1 : 0);
-    if (a.isTracking !== b.isTracking) return b.isTracking - a.isTracking;
-    if (a.isOnService !== b.isOnService) return b.isOnService - a.isOnService;
-    return (a.vehicleCode || '').localeCompare(b.vehicleCode || '');
+    // Priority: waiting > in service > tracking > idle
+    const rank = v => v.isWaitingForVisit ? 0 : (v.isOnService && !v.isWaitingForVisit) ? 1 : v.isTracking ? 2 : 3;
+    const diff = rank(a) - rank(b);
+    return diff !== 0 ? diff : (a.vehicleCode || '').localeCompare(b.vehicleCode || '');
   });
-  
+
   container.innerHTML = sorted.map(vehicle => {
     const statusClass = vehicle.isWaitingForVisit ? 'waiting' :
-                        vehicle.isTracking ? 'tracking' : 
-                        vehicle.isOnService ? 'service' : 'idle';
+                        vehicle.isOnService ? 'service' :
+                        vehicle.isTracking  ? 'tracking' : 'idle';
     const statusLabel = vehicle.isWaitingForVisit ? 'Fermo per Visita' :
-                        vehicle.isTracking ? 'Tracking' : 
-                        vehicle.isOnService ? 'In Servizio' : 'In Sede';
+                        vehicle.isOnService  ? 'In Servizio' :
+                        vehicle.isTracking   ? 'Tracking' : 'In Sede';
     const isSelected = vehicle.vehicleId === gpsSelectedVehicleId;
+    const relTime = gpsRelativeTime(vehicle.lastUpdate || vehicle.lastTripTime);
+    const location = vehicle.locationName || '';
     const svc = vehicle.activeService;
-    const waitingInfo = vehicle.isWaitingForVisit && svc ? `
-      <div style="margin-top:6px;padding:6px 8px;background:#eff6ff;border-radius:6px;border-left:3px solid #3b82f6;">
-        <div style="font-size:11px;font-weight:600;color:#1d4ed8;">${svc.destinationName || 'Struttura'}</div>
-        ${svc.patientName ? `<div style="font-size:10px;color:#3b82f6;margin-top:2px;">${svc.patientName}</div>` : ''}
-        ${svc.actualStartTime ? `<div style="font-size:10px;color:#6b7280;margin-top:1px;">Inizio: ${new Date(svc.actualStartTime).toLocaleTimeString('it-IT', {hour:'2-digit',minute:'2-digit'})}</div>` : ''}
-      </div>` : '';
-    const serviceInfo = !vehicle.isWaitingForVisit && svc && svc.status === 'in_progress' ? `
-      <div style="margin-top:6px;padding:6px 8px;background:#fefce8;border-radius:6px;border-left:3px solid #f59e0b;">
-        <div style="font-size:11px;font-weight:600;color:#92400e;">${svc.originName || ''} &rarr; ${svc.destinationName || ''}</div>
-        ${svc.patientName ? `<div style="font-size:10px;color:#a16207;margin-top:2px;">${svc.patientName}</div>` : ''}
-      </div>` : '';
-    
+
+    // Service context line
+    let contextLine = '';
+    if (vehicle.isWaitingForVisit && svc) {
+      contextLine = `<div class="gps-vitem-detail-v3" style="color:#EF4444">${svc.destinationName || 'Struttura'}</div>`;
+    } else if (vehicle.isOnService && svc && svc.status === 'in_progress') {
+      contextLine = `<div class="gps-vitem-detail-v3">${svc.originName || ''} → ${svc.destinationName || ''}</div>`;
+    } else if (location) {
+      contextLine = `<div class="gps-vitem-detail-v3">${location}</div>`;
+    }
+
     return `
-      <div class="gps-vitem-v3 gps-vitem-${statusClass} ${isSelected ? 'selected' : ''}" 
-           data-vid="${vehicle.vehicleId}" onclick="focusVehicle('${vehicle.vehicleId}')"
-           ${vehicle.isWaitingForVisit ? 'style="border-left:3px solid #3b82f6;background:rgba(59,130,246,0.04);"' : ''}>
+      <div class="gps-vitem-v3 gps-vitem-${statusClass} ${isSelected ? 'selected' : ''}"
+           data-vid="${vehicle.vehicleId}" onclick="focusVehicle('${vehicle.vehicleId}')">
+        <span class="gps-vitem-dot-v3 ${statusClass}"></span>
         <div class="gps-vitem-main-v3">
           <div class="gps-vitem-code-v3">${vehicle.vehicleCode || 'N/D'}</div>
           <div class="gps-vitem-plate-v3">${vehicle.licensePlate || 'N/D'}</div>
+          ${contextLine}
         </div>
         <div class="gps-vitem-meta-v3">
-          <div class="gps-vitem-status-v3">
-            <span class="gps-vitem-dot-v3 ${statusClass}" ${vehicle.isWaitingForVisit ? 'style="background:#3b82f6;animation:pulse 2s infinite;"' : ''}></span>
-            <span ${vehicle.isWaitingForVisit ? 'style="color:#1d4ed8;font-weight:600;"' : ''}>${statusLabel}</span>
-          </div>
-          <div class="gps-vitem-location-v3">${vehicle.locationName || ''}</div>
-          <div class="gps-vitem-time-v3">${gpsRelativeTime(vehicle.lastUpdate || vehicle.lastTripTime)}</div>
+          <span class="gps-vitem-status-v3 ${statusClass}">${statusLabel}</span>
+          <span class="gps-vitem-time-v3">${relTime}</span>
+          ${vehicle.tripCountToday > 0 ? `<span style="font-size:10px;font-weight:700;color:#1E3A8A">${vehicle.tripCountToday} serv.</span>` : ''}
         </div>
-        ${vehicle.tripCountToday > 0 ? `<span class="gps-vitem-badge-v3">${vehicle.tripCountToday}</span>` : ''}
-        ${waitingInfo}
-        ${serviceInfo}
       </div>
     `;
   }).join('');
@@ -15071,18 +15084,20 @@ function calcBearing(lat1, lng1, lat2, lng2) {
 
 function createReplayIcon(heading) {
   const h = heading ?? 0;
-  const svg = `<svg width="28" height="34" viewBox="0 0 28 34" xmlns="http://www.w3.org/2000/svg"
-      style="transform:rotate(${h}deg);transform-origin:14px 22px;display:block;overflow:visible">
-    <polygon points="14,1 20,14 8,14" fill="#E74C3C"/>
-    <circle cx="14" cy="22" r="10" fill="#E74C3C" stroke="white" stroke-width="2"/>
-    <rect x="8.5" y="20.5" width="11" height="3" rx="1.5" fill="white"/>
-    <rect x="12" y="17.5" width="4" height="9" rx="2" fill="white"/>
+  const color = '#E74C3C'; // replay: rosso distinto
+  const svgHtml = `<svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" style="display:block;filter:drop-shadow(0 2px 5px rgba(0,0,0,0.28))">
+    <rect x="10" y="4" width="20" height="32" rx="4" fill="${color}" stroke="white" stroke-width="1.5"/>
+    <rect x="16" y="12" width="8" height="2.5" rx="0.5" fill="white"/>
+    <rect x="18.75" y="9.5" width="2.5" height="8" rx="0.5" fill="white"/>
+    <polygon points="20,1 25,7 15,7" fill="white" opacity="0.9"/>
+    <rect x="12" y="33" width="4" height="2" rx="1" fill="#FCD34D" opacity="0.9"/>
+    <rect x="24" y="33" width="4" height="2" rx="1" fill="#FCD34D" opacity="0.9"/>
   </svg>`;
   return L.divIcon({
-    html: svg,
-    className: 'amb-divicon-v2',
-    iconSize:   [28, 34],
-    iconAnchor: [14, 22]
+    html: `<div class="amb-wrap-v3" style="transform:rotate(${h}deg)">${svgHtml}</div>`,
+    className: 'amb-divicon-v3',
+    iconSize:   [40, 40],
+    iconAnchor: [20, 20]
   });
 }
 
