@@ -235,9 +235,16 @@ export function registerBookingRoutes(app: Express) {
             });
           }
         }
+
+        // Org exists but has no configured template → block and ask to configure
+        return res.status(422).json({
+          success: false,
+          error: "NO_TEMPLATE",
+          message: "Non hai ancora configurato il template PDF per la tua organizzazione. Vai in Impostazioni → Template Import PDF per configurare la mappatura delle colonne del tuo PDF.",
+        });
       }
 
-      // ── Legacy hardcoded parser (Croce Europa format — block text) ──────────
+      // ── Legacy hardcoded parser (Croce Europa only — superadmin/no-org) ──────
       const { parsePdfServices } = await import("../pdf-service-parser");
       const result = await parsePdfServices(req.file.buffer);
 

@@ -1821,7 +1821,6 @@ async function showDashboard() {
   document.querySelectorAll('.nav-item').forEach(t => t.classList.remove('active'));
   document.querySelector(`.nav-item[data-page="${savedPage}"]`)?.classList.add('active');
   
-  console.log('[ADMIN DEBUG] showDashboard currentUserInfo:', currentUserInfo?.role, 'isFullAdmin:', currentUserInfo?.isFullAdmin);
   const orgFilterContainer = document.getElementById('org-filter-container');
   if (currentUserInfo?.isFullAdmin) {
     if (orgFilterContainer) orgFilterContainer.classList.remove('hidden');
@@ -1854,7 +1853,6 @@ async function showDashboard() {
 
 async function loadInitialData() {
   try {
-    console.log('[ADMIN DEBUG] loadInitialData started');
     const cacheBust = Date.now();
     const [locRes, vehRes, tripRes] = await Promise.all([
       adminFetch(`${API_BASE}/api/locations?_=${cacheBust}`, { cache: 'no-store' }),
@@ -1862,10 +1860,7 @@ async function loadInitialData() {
       adminFetch(`${API_BASE}/api/trips?_=${cacheBust}`, { cache: 'no-store' })
     ]);
 
-    console.log('[ADMIN DEBUG] API responses:', { locRes: locRes.status, vehRes: vehRes.status, tripRes: tripRes.status });
-    
     if (!locRes.ok || !vehRes.ok || !tripRes.ok) {
-      console.error('[ADMIN DEBUG] Auth failed on data load, re-checking session...');
       if (locRes.status === 401 || vehRes.status === 401 || tripRes.status === 401) {
         if (localStorage.getItem('adminAuthToken')) {
           showNotification('Sessione scaduta. Effettua nuovamente il login.', 'error');
@@ -1879,12 +1874,9 @@ async function loadInitialData() {
     vehicles = await vehRes.json();
     trips = await tripRes.json();
     
-    if (!Array.isArray(locations)) { console.error('[ADMIN DEBUG] locations not array:', locations); locations = []; }
-    if (!Array.isArray(vehicles)) { console.error('[ADMIN DEBUG] vehicles not array:', vehicles); vehicles = []; }
-    if (!Array.isArray(trips)) { console.error('[ADMIN DEBUG] trips not array:', trips); trips = []; }
-    
-    console.log('[ADMIN DEBUG] Data loaded:', { locations: locations.length, vehicles: vehicles.length, trips: trips.length });
-    console.log('[ADMIN DEBUG] Trips data:', JSON.stringify(trips.slice(0, 2)));
+    if (!Array.isArray(locations)) { locations = []; }
+    if (!Array.isArray(vehicles)) { vehicles = []; }
+    if (!Array.isArray(trips)) { trips = []; }
 
     // Load trips with device authorization
     try {
@@ -1892,10 +1884,9 @@ async function loadInitialData() {
       if (authRes.ok) {
         const authData = await authRes.json();
         tripsWithDeviceAuth = new Set(authData.tripIds || []);
-        console.log('[ADMIN DEBUG] Trips with device auth:', tripsWithDeviceAuth.size);
       }
     } catch (e) {
-      console.warn('Could not load device auth data:', e);
+      // non-critical, continue
     }
 
     updateLastUpdate();
@@ -42625,10 +42616,22 @@ async function uploadPgPdf(file) {
       method: 'POST',
       body: formData
     });
-    
-    if (!res.ok) throw new Error('Errore nel parsing');
-    
+
     const data = await res.json();
+
+    if (!res.ok) {
+      if (data?.error === 'NO_TEMPLATE') {
+        statusEl.innerHTML = `<div style="padding:14px 16px;background:#FEF3C7;border:1px solid #FCD34D;border-radius:10px;color:#92400E;font-size:13px;line-height:1.5;">
+          <strong style="display:block;margin-bottom:4px;">⚙️ Template PDF non configurato</strong>
+          ${data.message}
+          <br><button onclick="navigateTo('settings'); setTimeout(()=>{ document.querySelector('[data-tab=pdf-import]')?.click(); }, 200);" style="margin-top:10px;padding:6px 14px;background:#D97706;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;">Configura Template →</button>
+        </div>`;
+        if (previewSection) previewSection.style.display = 'none';
+        return;
+      }
+      throw new Error(data?.message || data?.error || 'Errore nel parsing');
+    }
+
     pgParsedData = data;
     
     statusEl.innerHTML = `<div style="padding: 12px; background: #d1fae5; border-radius: 8px; color: #065f46;">
@@ -42687,7 +42690,14 @@ async function uploadPgPdf(file) {
 }
 
 async function importPgServices() {
-  if (!pgParsedData || !pgParsedData.services?.length) return;
+  if (!pgParsedData) {
+    showNotification('Carica prima un PDF da analizzare.', 'warning');
+    return;
+  }
+  if (!pgParsedData.services?.length) {
+    showNotification('Nessun servizio trovato nel PDF. Verifica il template di mappatura in Impostazioni → Template Import PDF.', 'warning');
+    return;
+  }
   
   const importBtn = document.getElementById('pg-import-btn');
   const vehicleId = document.getElementById('pg-import-vehicle')?.value || null;
