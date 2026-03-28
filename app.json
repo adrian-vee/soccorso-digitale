@@ -42,7 +42,18 @@
           }
         }
       ],
-      "expo-web-browser"
+      "expo-web-browser",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Soccorso Digitale usa il GPS per tracciare i mezzi di soccorso durante i servizi, anche in background.",
+          "locationAlwaysPermission": "Soccorso Digitale usa il GPS in background per tracciare i mezzi di soccorso durante i servizi.",
+          "locationWhenInUsePermission": "Soccorso Digitale usa il GPS per mostrare la posizione del mezzo in tempo reale durante i servizi.",
+          "isIosBackgroundLocationEnabled": true,
+          "isAndroidBackgroundLocationEnabled": true
+        }
+      ],
+      "expo-task-manager"
     ],
     "experiments": {
       "reactCompiler": true

@@ -36,8 +36,9 @@ interface GpsTrackingOptions {
 
 const DEFAULT_DISTANCE_INTERVAL = 5;
 const DEFAULT_TIME_INTERVAL = 3000;
-const BATCH_SIZE = 1;
+const BATCH_SIZE = 10;          // P1-1: allineato a GpsTrackingContext
 const MAX_BUFFER_SIZE = 500;
+const SYNC_INTERVAL = 15000;    // P1-2: era 30000 — ora coerente con GpsTrackingContext
 
 export function useGpsTracking() {
   const [trackingState, setTrackingState] = useState<TrackingState>({
@@ -272,7 +273,7 @@ export function useGpsTracking() {
     }
     syncTimeout.current = setInterval(() => {
       syncBuffer();
-    }, 30000);
+    }, SYNC_INTERVAL);
   };
 
   const stopTracking = useCallback(async () => {

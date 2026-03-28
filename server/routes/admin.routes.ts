@@ -42,7 +42,7 @@ import {
   structures as structuresTable2, departments as departmentsTable, structureDepartments
 } from "@shared/schema";
 import { z } from "zod";
-import { and, eq, gte, lte, inArray, sql, desc, asc, between, ne, isNotNull } from "drizzle-orm";
+import { and, eq, gte, lte, inArray, sql, desc, asc, between, ne, isNotNull, isNull } from "drizzle-orm";
 import { requireAuth, requireAdmin, requireSuperAdmin, requireOrgAdmin, getUserId, getOrganizationId, getEffectiveOrgId, requireAdminOrManager, getLocationFilter, isFullAdmin, isOrgAdmin, isBranchManager, getManagedLocationIds } from "../auth-middleware";
 import { ALL_PERMISSIONS, PERMISSION_CATEGORIES, getPermissionsByCategory, generateSecurePassword } from "../permissions";
 import { generateDeviceAuthorizationPDF } from "../pdf-generator";
@@ -1176,11 +1176,18 @@ export function registerAdminRoutes(app: Express) {
     }
   });
 
+  // Filtro accuratezza e coordinate Italia per punti GPS (P0-3)
+  function isValidGpsPoint(lat: number, lng: number, accuracy?: number): boolean {
+    if (accuracy !== undefined && accuracy !== null && accuracy > 100) return false;
+    if (lat < 35 || lat > 48 || lng < 6 || lng > 19) return false;
+    return true;
+  }
+
   // Send GPS point(s) during tracking
   app.post("/api/gps/points", requireAuth, async (req, res) => {
     try {
       const { vehicleId, tripId, points, latitude, longitude, accuracy, speed, heading, altitude } = req.body;
-      
+
       if (!vehicleId) {
         return res.status(400).json({ error: "Vehicle ID richiesto" });
       }
@@ -1191,19 +1198,24 @@ export function registerAdminRoutes(app: Express) {
         return res.status(400).json({ error: "Nessuna sessione di tracking attiva" });
       }
 
-      const effectiveTripId = tripId || session.tripId || null;
+      const effectiveTripId = tripId || session.tripId || null;  // P0-2: può essere null
 
       if (latitude && longitude) {
-        await storage.updateVehicleLocation(vehicleId, latitude, longitude, true);
-        broadcastMessage({
-          type: "gps_location_update",
-          vehicleId,
-          latitude: parseFloat(latitude),
-          longitude: parseFloat(longitude),
-          speed: speed ? parseFloat(speed) : null,
-          heading: heading ? parseFloat(heading) : null,
-          timestamp: new Date().toISOString()
-        });
+        const lat = parseFloat(latitude);
+        const lng = parseFloat(longitude);
+        // P0-3: aggiorna posizione solo se coordinate valide
+        if (isValidGpsPoint(lat, lng, accuracy ? parseFloat(accuracy) : undefined)) {
+          await storage.updateVehicleLocation(vehicleId, latitude, longitude, true);
+          broadcastMessage({
+            type: "gps_location_update",
+            vehicleId,
+            latitude: lat,
+            longitude: lng,
+            speed: speed ? parseFloat(speed) : null,
+            heading: heading ? parseFloat(heading) : null,
+            timestamp: new Date().toISOString()
+          });
+        }
       }
 
       // Update session points count
@@ -1211,10 +1223,18 @@ export function registerAdminRoutes(app: Express) {
 
       // Handle batch of points
       if (points && Array.isArray(points) && points.length > 0) {
-        if (effectiveTripId) {
+        // P0-3: filtra punti con accuracy > 100m o coordinate fuori Italia
+        const validPoints = points.filter((p: any) => {
+          const lat = parseFloat(p.latitude);
+          const lng = parseFloat(p.longitude);
+          return isValidGpsPoint(lat, lng, p.accuracy);
+        });
+
+        if (validPoints.length > 0) {
+          // P0-2: salva SEMPRE i punti, anche senza tripId (tripId = null per punti pre-viaggio)
           const insertedPoints = await storage.addGpsPointsBatch(
-            points.map((p: any) => ({
-              tripId: effectiveTripId,
+            validPoints.map((p: any) => ({
+              tripId: effectiveTripId,   // può essere null
               vehicleId,
               latitude: p.latitude,
               longitude: p.longitude,
@@ -1226,38 +1246,41 @@ export function registerAdminRoutes(app: Express) {
             }))
           );
           newPointsCount = insertedPoints.length;
-        } else {
-          newPointsCount = points.length;
         }
 
-        // Update session points count
         await db.update(activeTrackingSessions)
           .set({ pointsCount: sql`${activeTrackingSessions.pointsCount} + ${newPointsCount}`, lastUpdateAt: new Date() })
           .where(eq(activeTrackingSessions.id, session.id));
 
-        res.json({ success: true, pointsCount: newPointsCount, stored: !!effectiveTripId });
-      } 
+        res.json({ success: true, pointsCount: newPointsCount, discarded: points.length - newPointsCount, stored: true });
+      }
       // Handle single point
       else if (latitude && longitude) {
-        if (effectiveTripId) {
-          const point = await storage.addGpsPoint({
-            tripId: effectiveTripId,
+        const lat = parseFloat(latitude);
+        const lng = parseFloat(longitude);
+        const acc = accuracy ? parseFloat(accuracy) : undefined;
+
+        // P0-3: salva solo se coordinate valide
+        if (isValidGpsPoint(lat, lng, acc)) {
+          // P0-2: salva SEMPRE, anche senza tripId
+          await storage.addGpsPoint({
+            tripId: effectiveTripId,   // può essere null
             vehicleId,
             latitude,
             longitude,
-            accuracy,
-            speed,
-            heading,
-            altitude
+            accuracy: acc,
+            speed: speed ? parseFloat(speed) : undefined,
+            heading: heading ? parseFloat(heading) : undefined,
+            altitude: altitude ? parseFloat(altitude) : undefined
           });
           newPointsCount = 1;
         }
 
         await db.update(activeTrackingSessions)
-          .set({ pointsCount: sql`${activeTrackingSessions.pointsCount} + 1`, lastUpdateAt: new Date() })
+          .set({ pointsCount: sql`${activeTrackingSessions.pointsCount} + ${newPointsCount}`, lastUpdateAt: new Date() })
           .where(eq(activeTrackingSessions.id, session.id));
 
-        res.json({ success: true, pointsCount: 1, stored: !!effectiveTripId });
+        res.json({ success: true, pointsCount: newPointsCount, stored: true });
       } else {
         return res.status(400).json({ error: "Coordinate GPS richieste" });
       }
@@ -1607,14 +1630,25 @@ export function registerAdminRoutes(app: Express) {
   app.patch("/api/gps/tracking/link-trip", requireAuth, async (req, res) => {
     try {
       const { vehicleId, tripId } = req.body;
-      
+
       const session = await storage.getActiveTrackingSession(vehicleId);
       if (!session) {
         return res.status(404).json({ error: "Nessuna sessione di tracking attiva" });
       }
-      
+
       const updatedSession = await storage.updateTrackingSessionTrip(session.id, tripId);
-      res.json({ success: true, session: updatedSession });
+
+      // P0-2: retroattivamente assegna al viaggio i punti GPS salvati senza tripId
+      const linkedResult = await db
+        .update(tripGpsPoints)
+        .set({ tripId })
+        .where(and(
+          eq(tripGpsPoints.vehicleId, vehicleId),
+          isNull(tripGpsPoints.tripId)
+        ))
+        .returning({ id: tripGpsPoints.id });
+
+      res.json({ success: true, session: updatedSession, retrolinkedPoints: linkedResult.length });
     } catch (error) {
       console.error("Error linking trip to session:", error);
       res.status(500).json({ error: "Errore del server" });

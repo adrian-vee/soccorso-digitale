@@ -330,7 +330,7 @@ export const tripGpsPoints = pgTable("trip_gps_points", {
   id: varchar("id")
     .primaryKey()
     .default(sql`gen_random_uuid()`),
-  tripId: varchar("trip_id").notNull(), // Reference to the trip
+  tripId: varchar("trip_id"), // Reference to the trip — nullable: punti pre-viaggio salvati con null, poi aggiornati a link-trip
   vehicleId: varchar("vehicle_id").notNull(), // Vehicle being tracked
   latitude: text("latitude").notNull(), // GPS latitude
   longitude: text("longitude").notNull(), // GPS longitude

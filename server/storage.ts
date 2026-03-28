@@ -1550,7 +1550,7 @@ export class DatabaseStorage implements IStorage {
   }
   
   async addGpsPoint(data: {
-    tripId: string;
+    tripId: string | null;   // P0-2: nullable per punti pre-viaggio
     vehicleId: string;
     latitude: string;
     longitude: string;
@@ -1583,7 +1583,7 @@ export class DatabaseStorage implements IStorage {
   }
   
   async addGpsPointsBatch(points: Array<{
-    tripId: string;
+    tripId: string | null;   // P0-2: nullable per punti pre-viaggio
     vehicleId: string;
     latitude: string;
     longitude: string;

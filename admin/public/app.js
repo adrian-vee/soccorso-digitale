@@ -14896,6 +14896,25 @@ async function initHistoryMap(points, dayTrips, sedeLocation) {
 }
 
 let gpsWebSocket = null;
+let gpsWsConnected = false;
+
+// P1-4: aggiorna badge LIVE in base allo stato reale del WebSocket
+function setGpsLiveBadge(connected) {
+  gpsWsConnected = connected;
+  const badge = document.getElementById('gps-live-badge');
+  if (!badge) return;
+  if (connected) {
+    badge.textContent = 'LIVE';
+    badge.style.background = '';
+    badge.style.color = '';
+    badge.classList.add('gps-live-pulse');
+  } else {
+    badge.textContent = 'OFFLINE';
+    badge.style.background = '#ef4444';
+    badge.style.color = '#fff';
+    badge.classList.remove('gps-live-pulse');
+  }
+}
 
 function connectGpsWebSocket() {
   if (gpsWebSocket && gpsWebSocket.readyState === WebSocket.OPEN) return;
@@ -14903,6 +14922,10 @@ function connectGpsWebSocket() {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const wsUrl = `${protocol}//${window.location.host}`;
     gpsWebSocket = new WebSocket(wsUrl);
+
+    gpsWebSocket.onopen = () => {
+      setGpsLiveBadge(true);
+    };
 
     gpsWebSocket.onmessage = (event) => {
       try {
@@ -14915,11 +14938,17 @@ function connectGpsWebSocket() {
 
     gpsWebSocket.onclose = () => {
       gpsWebSocket = null;
-      setTimeout(connectGpsWebSocket, 3000);
+      setGpsLiveBadge(false);
+      setTimeout(connectGpsWebSocket, 5000); // P1-4: era 3s, ora 5s per backoff minimo
     };
 
-    gpsWebSocket.onerror = () => {};
-  } catch (e) {}
+    gpsWebSocket.onerror = () => {
+      // P1-4: era silenzioso () => {} — ora aggiorna badge
+      setGpsLiveBadge(false);
+    };
+  } catch (e) {
+    setGpsLiveBadge(false);
+  }
 }
 
 function handleRealtimeGpsUpdate(data) {

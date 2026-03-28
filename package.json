@@ -102,6 +102,7 @@
     "expo-status-bar": "~3.0.8",
     "expo-symbols": "~1.0.7",
     "expo-system-ui": "~6.0.8",
+    "expo-task-manager": "^55.0.11-canary-20260327-0789fbc",
     "expo-web-browser": "~15.0.9",
     "express": "^4.21.2",
     "express-session": "^1.18.2",

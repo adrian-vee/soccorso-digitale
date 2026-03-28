@@ -702,6 +702,15 @@ function setupErrorHandler(app: express.Application) {
     // ignore if pool not available
   }
 
+  // P0-2: rendi trip_id nullable su trip_gps_points per salvare punti pre-viaggio
+  try {
+    await pool.query(`
+      ALTER TABLE trip_gps_points ALTER COLUMN trip_id DROP NOT NULL;
+    `);
+  } catch (e) {
+    // ignore — column già nullable o tabella non esiste ancora
+  }
+
   // Auto-create analytics tables (tender_monitors, scorecards, forecasts, etc.)
   try {
     await pool.query(`

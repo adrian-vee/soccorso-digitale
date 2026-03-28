@@ -5,6 +5,10 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import NetInfo from "@react-native-community/netinfo";
 import { useAuth } from "./AuthContext";
 import { getApiUrl, getAuthToken } from "@/lib/query-client";
+import {
+  startBackgroundTracking,
+  stopBackgroundTracking,
+} from "@/services/BackgroundLocationService";
 
 const GPS_BUFFER_KEY = "@soccorso_digitale_gps_buffer";
 const GPS_SESSION_KEY = "@soccorso_digitale_gps_session";
@@ -35,9 +39,14 @@ const GpsTrackingContext = createContext<GpsTrackingContextType | undefined>(und
 
 const DEFAULT_TIME_INTERVAL = 3000;
 const DEFAULT_DISTANCE_INTERVAL = 5;
-const BATCH_SIZE = 1;
+const BATCH_SIZE = 10;          // P1-1: batch 10 punti per request (era 1)
 const MAX_BUFFER_SIZE = 500;
-const SYNC_INTERVAL = 5000;
+const SYNC_INTERVAL = 15000;    // P1-1: sync ogni 15s (era 5s — compromesso latency/battery)
+const MAX_ACCURACY_METERS = 50; // P0-3: ignora punti con accuracy > 50m
+
+// Sanity check coordinate Italia
+const ITALY_LAT_MIN = 35, ITALY_LAT_MAX = 48;
+const ITALY_LNG_MIN = 6,  ITALY_LNG_MAX = 19;
 
 export function GpsTrackingProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
@@ -57,6 +66,7 @@ export function GpsTrackingProvider({ children }: { children: ReactNode }) {
   const appState = useRef(AppState.currentState);
   const sessionIdRef = useRef<string | null>(null);
   const lastVehicleIdRef = useRef<string | null>(null);
+  const backgroundTrackingActive = useRef(false);
 
   useEffect(() => {
     loadBuffer();
@@ -215,7 +225,22 @@ export function GpsTrackingProvider({ children }: { children: ReactNode }) {
       setIsStarting(false);
       await saveSession(true, sessionIdRef.current);
       scheduleSyncBuffer();
-      
+
+      // P0-1: avvia background tracking (fallback silenzioso se permesso negato)
+      if ((Platform.OS as string) !== "web") {
+        const apiUrl = getApiUrl().toString().replace(/\/$/, "");
+        const token = await getAuthToken();
+        backgroundTrackingActive.current = await startBackgroundTracking(
+          selectedVehicle.id,
+          apiUrl,
+          token || ""
+        );
+        console.log(
+          "[GPS] Background tracking:",
+          backgroundTrackingActive.current ? "ACTIVE" : "foreground-only"
+        );
+      }
+
       console.log("[GPS] Tracking started for vehicle:", selectedVehicle.code);
       return true;
     } catch (e) {
@@ -227,12 +252,20 @@ export function GpsTrackingProvider({ children }: { children: ReactNode }) {
   }, [selectedVehicle, permission, requestPermission, isStarting, isTracking]);
 
   const handleLocationUpdate = useCallback((location: Location.LocationObject) => {
+    // P0-3: scarta punti con accuracy > 50m o coordinate fuori Italia
+    const { latitude, longitude, accuracy } = location.coords;
+    if (accuracy !== null && accuracy > MAX_ACCURACY_METERS) return;
+    if (
+      latitude < ITALY_LAT_MIN || latitude > ITALY_LAT_MAX ||
+      longitude < ITALY_LNG_MIN || longitude > ITALY_LNG_MAX
+    ) return;
+
     setLastLocation(location);
 
     const point: GpsPoint = {
-      latitude: location.coords.latitude.toString(),
-      longitude: location.coords.longitude.toString(),
-      accuracy: location.coords.accuracy ?? undefined,
+      latitude: latitude.toString(),
+      longitude: longitude.toString(),
+      accuracy: accuracy ?? undefined,
       speed: location.coords.speed ? Math.max(0, location.coords.speed * 3.6) : undefined,
       heading: location.coords.heading ?? undefined,
       altitude: location.coords.altitude ?? undefined,
@@ -324,6 +357,11 @@ export function GpsTrackingProvider({ children }: { children: ReactNode }) {
   };
 
   const stopTracking = useCallback(async () => {
+    // P0-1: ferma background tracking
+    if (backgroundTrackingActive.current) {
+      await stopBackgroundTracking();
+      backgroundTrackingActive.current = false;
+    }
     await cleanupTracking();
     await syncBuffer();
 
