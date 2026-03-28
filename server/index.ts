@@ -360,9 +360,13 @@ function configureExpoAndLanding(app: express.Application) {
       app.use("/site", express.static(sitePath, { etag: false, maxAge: 0 }));
     }
     app.use("/conicorn", express.static(conicornPath, { etag: false, maxAge: 0 }));
+    // Serve all HTML pages from conicorn/ at root level (index:false to preserve Expo manifest routing)
+    app.use(express.static(conicornPath, { etag: false, maxAge: 0, index: false }));
+    // /demo → demo.html (clean URL, referenced in sitemap)
+    app.get("/demo", (_req, res) => res.sendFile(path.join(conicornPath, "demo.html")));
     // Serve logo from admin/public at root level
     app.get("/logo.svg", (_req, res) => res.sendFile(path.join(adminPath0, "logo.svg")));
-    log("Public site: Conicorn template → /css /js /fonts /images /media served from conicorn/");
+    log("Public site: Conicorn template → /css /js /fonts /images /media /html served from conicorn/");
   } else if (fs.existsSync(sitePath)) {
     const adminPath0 = path.resolve(process.cwd(), "admin", "public");
     app.use("/site", express.static(sitePath, { etag: false, maxAge: 0 }));
