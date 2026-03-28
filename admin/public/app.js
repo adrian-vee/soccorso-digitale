@@ -14528,9 +14528,14 @@ function updateGpsMarkers(vehiclePositions) {
   filteredVehicles.forEach(vehicle => {
     if (!vehicle.latitude || !vehicle.longitude) return;
     if (gpsMarkers[vehicle.vehicleId]) {
-      // Update position and icon (heading may have changed)
-      gpsMarkers[vehicle.vehicleId].setLatLng([vehicle.latitude, vehicle.longitude]);
-      gpsMarkers[vehicle.vehicleId].setIcon(createAmbulanceSvgIcon(vehicle));
+      // Smooth animated position update
+      const m = gpsMarkers[vehicle.vehicleId];
+      const from = m.getLatLng();
+      const to = L.latLng(vehicle.latitude, vehicle.longitude);
+      if (from.distanceTo(to) > 3) {
+        animateMarker(m, from, to, 700);
+      }
+      m.setIcon(createAmbulanceSvgIcon(vehicle));
     } else {
       const marker = L.marker([vehicle.latitude, vehicle.longitude], { icon: createAmbulanceSvgIcon(vehicle) });
       marker.bindTooltip(vehicle.vehicleCode, { permanent: true, direction: 'top', className: 'vehicle-label', offset: [0, -14] });
@@ -14571,36 +14576,50 @@ function createVehicleIcon(vehicle) {
   };
 }
 
-// P2-1: SVG ambulance marker with heading rotation and status colors
+// P2-1 (v2): Teardrop ambulance marker — circle body + directional fin + SVG cross
+// Rotates around the circle center (= GPS position). Pulse ring for in-service vehicles.
 function createAmbulanceSvgIcon(vehicle) {
   const heading = vehicle.heading ?? 0;
-  let color, glowColor;
-  if (vehicle.isTracking) {
-    color = '#00A651'; glowColor = 'rgba(0,166,81,0.28)';
+
+  // Color by status (user spec)
+  let color, showPulse;
+  if (vehicle.isOnService && !vehicle.isWaitingForVisit) {
+    color = '#1E3A8A'; showPulse = true;    // in servizio → dark blue + pulse
   } else if (vehicle.isWaitingForVisit) {
-    color = '#3b82f6'; glowColor = 'rgba(59,130,246,0.28)';
-  } else if (vehicle.isOnService) {
-    color = '#0066CC'; glowColor = 'rgba(0,102,204,0.2)';
+    color = '#F59E0B'; showPulse = false;   // in attesa/rientro → amber
+  } else if (vehicle.isTracking) {
+    color = '#10B981'; showPulse = false;   // disponibile → green
   } else {
-    color = '#A3ACB9'; glowColor = 'transparent';
+    color = '#94A3B8'; showPulse = false;   // offline/sede → gray
   }
-  const isActive = vehicle.isTracking || vehicle.isWaitingForVisit;
-  const pulseHtml = isActive
-    ? `<div class="amb-pulse-ring" style="--amb-glow:${glowColor}"></div>`
+
+  // SVG: 28×34 viewBox. Circle center = (14, 22) = iconAnchor.
+  // Fin points UP (north) when heading=0 — rotated by heading via transform.
+  // Rotation origin locked to circle center so GPS coordinate stays fixed.
+  const pulse = showPulse
+    ? `<circle cx="14" cy="22" r="10" fill="${color}" opacity="0.22" class="amb-svg-pulse"/>`
     : '';
-  const svgHtml = `<svg width="36" height="36" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
-    <polygon points="18,2 28,14 8,14" fill="${color}" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
-    <rect x="6" y="12" width="24" height="18" rx="3" fill="${color}" stroke="white" stroke-width="1.5"/>
-    <rect x="11" y="18.5" width="14" height="3.5" rx="1.2" fill="white"/>
-    <rect x="15.5" y="15.5" width="5" height="9.5" rx="1.2" fill="white"/>
+
+  const svg = `<svg width="28" height="34" viewBox="0 0 28 34"
+      xmlns="http://www.w3.org/2000/svg"
+      style="transform:rotate(${heading}deg);transform-origin:14px 22px;display:block;overflow:visible">
+    ${pulse}
+    <!-- Directional fin pointing UP = heading direction -->
+    <polygon points="14,1 20,14 8,14" fill="${color}"/>
+    <!-- Circle body — center is the GPS anchor point -->
+    <circle cx="14" cy="22" r="10" fill="${color}" stroke="white" stroke-width="2"/>
+    <!-- Medical cross -->
+    <rect x="8.5" y="20.5" width="11" height="3" rx="1.5" fill="white"/>
+    <rect x="12" y="17.5" width="4" height="9" rx="2" fill="white"/>
   </svg>`;
+
   return L.divIcon({
-    html: `<div class="amb-wrap" style="transform:rotate(${heading}deg)">${pulseHtml}${svgHtml}</div>`,
-    className: 'amb-divicon',
-    iconSize: [40, 40],
-    iconAnchor: [20, 20],
-    popupAnchor: [0, -22],
-    tooltipAnchor: [0, -24]
+    html: svg,
+    className: 'amb-divicon-v2',
+    iconSize:   [28, 34],
+    iconAnchor: [14, 22],   // circle center = GPS coordinate
+    popupAnchor:  [0, -24],
+    tooltipAnchor:[0, -25]
   });
 }
 
@@ -15052,17 +15071,18 @@ function calcBearing(lat1, lng1, lat2, lng2) {
 
 function createReplayIcon(heading) {
   const h = heading ?? 0;
-  const svg = `<svg width="36" height="36" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
-    <polygon points="18,2 28,14 8,14" fill="#E74C3C" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
-    <rect x="6" y="12" width="24" height="18" rx="3" fill="#E74C3C" stroke="white" stroke-width="1.5"/>
-    <rect x="11" y="18.5" width="14" height="3.5" rx="1.2" fill="white"/>
-    <rect x="15.5" y="15.5" width="5" height="9.5" rx="1.2" fill="white"/>
+  const svg = `<svg width="28" height="34" viewBox="0 0 28 34" xmlns="http://www.w3.org/2000/svg"
+      style="transform:rotate(${h}deg);transform-origin:14px 22px;display:block;overflow:visible">
+    <polygon points="14,1 20,14 8,14" fill="#E74C3C"/>
+    <circle cx="14" cy="22" r="10" fill="#E74C3C" stroke="white" stroke-width="2"/>
+    <rect x="8.5" y="20.5" width="11" height="3" rx="1.5" fill="white"/>
+    <rect x="12" y="17.5" width="4" height="9" rx="2" fill="white"/>
   </svg>`;
   return L.divIcon({
-    html: `<div class="replay-amb-wrap" style="transform:rotate(${h}deg)">${svg}</div>`,
-    className: 'replay-amb-icon',
-    iconSize: [40, 40],
-    iconAnchor: [20, 20]
+    html: svg,
+    className: 'amb-divicon-v2',
+    iconSize:   [28, 34],
+    iconAnchor: [14, 22]
   });
 }
 
