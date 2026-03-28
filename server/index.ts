@@ -362,8 +362,6 @@ function configureExpoAndLanding(app: express.Application) {
     app.use("/conicorn", express.static(conicornPath, { etag: false, maxAge: 0 }));
     // Serve all HTML pages from conicorn/ at root level (index:false to preserve Expo manifest routing)
     app.use(express.static(conicornPath, { etag: false, maxAge: 0, index: false }));
-    // /demo → demo.html (clean URL, referenced in sitemap)
-    app.get("/demo", (_req, res) => res.sendFile(path.join(conicornPath, "demo.html")));
     // Serve logo from admin/public at root level
     app.get("/logo.svg", (_req, res) => res.sendFile(path.join(adminPath0, "logo.svg")));
     log("Public site: Conicorn template → /css /js /fonts /images /media /html served from conicorn/");
@@ -577,16 +575,15 @@ function setupErrorHandler(app: express.Application) {
     res.redirect(301, "/admin");
   });
 
-  // Public Social Impact Dashboard - MUST be before all other routes
-  // Demo Request Page
-  app.get("/demo", (req, res) => {
-    log("Serving /demo page");
-    const demoPath = path.resolve(process.cwd(), "server", "templates", "demo.html");
+  // Trial signup page (conicorn/demo.html)
+  app.get("/demo", (_req, res) => {
+    const demoPath = path.resolve(process.cwd(), "conicorn", "demo.html");
     if (!fs.existsSync(demoPath)) {
       return res.status(404).send("Pagina non trovata");
     }
-    res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    res.send(fs.readFileSync(demoPath, 'utf-8'));
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+    res.sendFile(demoPath);
   });
 
   app.get("/download/:code", (req, res) => {
