@@ -63,7 +63,10 @@ function initSidebar() {
     }
   });
 
-  // Restore collapsed state
+  // Clear legacy collapse key from V1 to avoid conflicts
+  try { localStorage.removeItem('sidebarCollapsed'); } catch(e) {}
+
+  // Restore collapsed state from V3 key
   try {
     if (localStorage.getItem('sd-sidebar-collapsed') === 'true') {
       const sidebar = document.getElementById('main-sidebar');
@@ -1358,12 +1361,18 @@ function updateSidebarFooter(user) {
         : 'Organizzazione');
   const userDisplayName = user.name || user.email?.split('@')[0] || '';
 
-  // New footer: org name + user name
+  // Footer: org name + role label
   const footerOrgEl = document.getElementById('footer-org-name');
   if (footerOrgEl) footerOrgEl.textContent = orgDisplayName;
 
   const footerUserEl = document.getElementById('footer-user-name');
   if (footerUserEl) footerUserEl.textContent = userDisplayName;
+
+  const footerRoleEl = document.getElementById('footer-role-label');
+  if (footerRoleEl) {
+    const roleLabels = { super_admin: 'Super Admin', admin: 'Admin', director: 'Direttore', branch_manager: 'Resp. Sede', org_admin: 'Admin' };
+    footerRoleEl.textContent = roleLabels[user.role] || 'Admin';
+  }
 
   // Legacy elements (may not exist in new HTML but keep for safety)
   const nameEl = document.getElementById('user-name');
