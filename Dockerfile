@@ -35,7 +35,6 @@ COPY --from=builder /app/admin/public ./admin/public
 COPY --from=builder /app/assets ./assets
 COPY --from=builder /app/site ./site
 COPY --from=builder /app/conicorn ./conicorn
-COPY --from=builder /app/plat-form-framer-ai ./plat-form-framer-ai
 
 # Create upload directories (fallback when no Railway Volume is mounted).
 # When a Railway Volume is mounted at /app/uploads these layer directories are
