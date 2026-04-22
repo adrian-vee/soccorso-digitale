@@ -82,3 +82,6 @@ Thumbs.db
 backup.sql
 backup-inserts.sql
 .claude/
+
+# Local safety backups of the Conicorn template (not deployed)
+conicorn-backup-*/

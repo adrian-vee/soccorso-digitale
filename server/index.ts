@@ -344,14 +344,28 @@ function configureExpoAndLanding(app: express.Application) {
 
   log("Serving static Expo files with dynamic manifest routing");
 
-  // Public marketing site — Conicorn template served at root
+  // Public marketing site — Platform® template (primary) + Conicorn (fallback for legal pages + /demo)
   const sitePath = path.resolve(process.cwd(), "site");
   const conicornPath = path.resolve(process.cwd(), "conicorn");
+  const platFormPath = path.resolve(process.cwd(), "plat-form-framer-ai");
+  const adminPath0 = path.resolve(process.cwd(), "admin", "public");
+
+  if (fs.existsSync(platFormPath)) {
+    // Primary: Platform® template assets at root (css/, fonts/, images/, media/ relative paths)
+    app.use("/css",    express.static(path.join(platFormPath, "css"),    { etag: false, maxAge: 0 }));
+    app.use("/fonts",  express.static(path.join(platFormPath, "fonts"),  { etag: false, maxAge: 0 }));
+    app.use("/images", express.static(path.join(platFormPath, "images"), { etag: false, maxAge: 0 }));
+    app.use("/media",  express.static(path.join(platFormPath, "media"),  { etag: false, maxAge: 0 }));
+    // Expose the full template folder for any remaining relative asset
+    app.use(express.static(platFormPath, { etag: false, maxAge: 0, index: false }));
+    log("Public site: Platform® template → /css /fonts /images /media served from plat-form-framer-ai/");
+  }
+
   if (fs.existsSync(conicornPath)) {
-    const adminPath0 = path.resolve(process.cwd(), "admin", "public");
-    // Serve Conicorn assets at root-level paths (template uses relative paths → /css, /js, etc.)
-    app.use("/css",    express.static(path.join(conicornPath, "css"),    { etag: false, maxAge: 0 }));
+    // Fallback: Conicorn kept for /demo.html, legal pages (privacy/terms/cookie/dpa) and their /js assets
     app.use("/js",     express.static(path.join(conicornPath, "js"),     { etag: false, maxAge: 0 }));
+    // If Platform doesn't have the requested css/fonts/images/media, fall through to Conicorn
+    app.use("/css",    express.static(path.join(conicornPath, "css"),    { etag: false, maxAge: 0 }));
     app.use("/fonts",  express.static(path.join(conicornPath, "fonts"),  { etag: false, maxAge: 0 }));
     app.use("/images", express.static(path.join(conicornPath, "images"), { etag: false, maxAge: 0 }));
     app.use("/media",  express.static(path.join(conicornPath, "media"),  { etag: false, maxAge: 0 }));
@@ -360,11 +374,11 @@ function configureExpoAndLanding(app: express.Application) {
       app.use("/site", express.static(sitePath, { etag: false, maxAge: 0 }));
     }
     app.use("/conicorn", express.static(conicornPath, { etag: false, maxAge: 0 }));
-    // Serve all HTML pages from conicorn/ at root level (index:false to preserve Expo manifest routing)
+    // Serve HTML pages from conicorn/ at root level (demo.html, privacy-policy.html, terms.html, etc.)
     app.use(express.static(conicornPath, { etag: false, maxAge: 0, index: false }));
     // Serve logo from admin/public at root level
     app.get("/logo.svg", (_req, res) => res.sendFile(path.join(adminPath0, "logo.svg")));
-    log("Public site: Conicorn template → /css /js /fonts /images /media /html served from conicorn/");
+    log("Public site: Conicorn fallback → /js + legal HTML pages (demo, privacy, terms, cookie, dpa) served from conicorn/");
   } else if (fs.existsSync(sitePath)) {
     const adminPath0 = path.resolve(process.cwd(), "admin", "public");
     app.use("/site", express.static(sitePath, { etag: false, maxAge: 0 }));
@@ -404,6 +418,17 @@ function configureExpoAndLanding(app: express.Application) {
     res.sendFile(path.join(adminPath, "index.html"));
   });
 
+  // Platform® template sub-page: /services → plat-form-framer-ai/index_1.html
+  app.get("/services", (_req, res) => {
+    const servicesPath = path.resolve(process.cwd(), "plat-form-framer-ai", "index_1.html");
+    if (!fs.existsSync(servicesPath)) {
+      return res.status(404).send("Pagina non trovata");
+    }
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+    res.sendFile(servicesPath);
+  });
+
   app.use((req: Request, res: Response, next: NextFunction) => {
     if (req.path.startsWith("/api")) {
       return next();
@@ -435,7 +460,14 @@ function configureExpoAndLanding(app: express.Application) {
     }
 
     if (req.path === "/") {
-      // Serve the Conicorn template homepage
+      // Primary: Platform® template homepage (plat-form-framer-ai/index.html)
+      const platFormIndex = path.resolve(process.cwd(), "plat-form-framer-ai", "index.html");
+      if (fs.existsSync(platFormIndex)) {
+        res.setHeader("Content-Type", "text/html; charset=utf-8");
+        res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+        return res.sendFile(platFormIndex);
+      }
+      // Fallback: Conicorn template homepage
       const conicornIndex = path.resolve(process.cwd(), "conicorn", "index.html");
       if (fs.existsSync(conicornIndex)) {
         res.setHeader("Content-Type", "text/html; charset=utf-8");
@@ -517,6 +549,9 @@ function setupErrorHandler(app: express.Application) {
           "https://cdn.jsdelivr.net",
           "https://unpkg.com",
           "https://cdnjs.cloudflare.com",
+          "https://framerusercontent.com",
+          "https://events.framer.com",
+          "https://framer.com",
         ],
         scriptSrcAttr: ["'self'", "'unsafe-inline'"],
         styleSrc: [
@@ -545,6 +580,9 @@ function setupErrorHandler(app: express.Application) {
           "https://cdnjs.cloudflare.com",
           "https://cdn.jsdelivr.net",
           "https://router.project-osrm.org",
+          "https://framerusercontent.com",
+          "https://events.framer.com",
+          "https://framer.com",
         ],
         frameSrc: ["'self'", "https://cdn.embedly.com", "https://www.youtube.com", "https://js.stripe.com"],
         objectSrc: ["'none'"],
